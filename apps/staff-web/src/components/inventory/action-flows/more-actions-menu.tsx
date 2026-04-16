@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -11,6 +12,7 @@ import {
   EyeOff,
   Archive,
   MoreHorizontal,
+  PencilLine,
 } from 'lucide-react';
 import { cn } from '@dms/ui';
 import { Dialog, AlertDialog } from '@/src/components/primitives/dialog';
@@ -331,6 +333,7 @@ export function MoreActionsMenu({
   onUnpublish,
   onArchive,
 }: MoreActionsMenuProps) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [activeModal, setActiveModal] = useState<ActiveModal>(null);
   const [archiveInput, setArchiveInput] = useState('');
@@ -341,6 +344,18 @@ export function MoreActionsMenu({
   const isArchiveBlocked = ['sold', 'reserved'].includes(currentStatus);
   const isStaleHidden = currentStatus.includes('stale');
   const isUnpublishVisible = currentStatus === 'published';
+
+  // ⌘E shortcut — navigate to edit page
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'e') {
+        e.preventDefault();
+        router.push(`/inventory/${vin}/edit`);
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [vin, router]);
 
   // Close on outside click
   useEffect(() => {
@@ -408,6 +423,25 @@ export function MoreActionsMenu({
             aria-label="More vehicle actions"
             className="absolute bottom-full left-0 right-0 mb-1 w-[240px] rounded-lg border border-line-strong bg-bg-surface p-1 shadow-xl z-50"
           >
+            {/* Edit vehicle */}
+            <Gate role={['R15', 'R19', 'R22', 'R24']} fallback="disable">
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => {
+                  setOpen(false);
+                  router.push(`/inventory/${vin}/edit`);
+                }}
+                className={menuItemClass}
+              >
+                <PencilLine className="h-4 w-4 shrink-0 text-ink-muted" aria-hidden="true" />
+                <span className="flex-1 text-left">Edit vehicle</span>
+                <span className="font-mono text-[11px] text-ink-muted">⌘E</span>
+              </button>
+            </Gate>
+
+            <div className="my-1 border-t border-line" role="separator" />
+
             {/* Transfer */}
             <Gate role={['R19', 'R22', 'R24']} fallback="disable">
               <button

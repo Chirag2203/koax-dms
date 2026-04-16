@@ -448,4 +448,20 @@ export const inventoryHandlers = [
       },
     });
   }),
+
+  /**
+   * PATCH /api/staff/inventory/vehicles/:vin
+   * Updates an existing vehicle record (mock — echoes success after a short delay).
+   * Body: WizardFormValues (partial or full)
+   */
+  http.patch('/api/staff/inventory/vehicles/:vin', async ({ params }) => {
+    const { vin } = params as { vin: string };
+    await new Promise<void>((resolve) => setTimeout(resolve, 500));
+
+    return HttpResponse.json({
+      success: true,
+      vin,
+      updatedAt: new Date().toISOString(),
+    });
+  }),
 ];

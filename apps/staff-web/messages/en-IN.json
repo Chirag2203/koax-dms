@@ -109,6 +109,7 @@
         },
         "actionFlows": {
           "moreDropdown": {
+            "edit": "Edit vehicle",
             "transfer": "Transfer outlet",
             "clone": "Clone vehicle",
             "markStale": "Mark as stale",
@@ -232,6 +233,29 @@
             "draftSaved": "Draft saved · just now",
             "submitted": "Vehicle submitted for review",
             "discardConfirm": "Discard this vehicle? Unsaved changes will be lost."
+          }
+        },
+        "edit": {
+          "title": "Edit vehicle",
+          "breadcrumb": "Edit",
+          "dirty": "Unsaved changes",
+          "vinReadOnly": "VIN cannot be changed after creation",
+          "acquisitionReadOnly": "Only GM or above can correct acquisition data",
+          "changeCounter": "{count} field modified | {count} fields modified",
+          "actions": {
+            "cancel": "Cancel",
+            "save": "Save changes",
+            "discardConfirm": "Discard changes? Any unsaved edits will be lost."
+          },
+          "toast": {
+            "saved": "Vehicle updated",
+            "saveFailed": "Could not save changes. Please try again."
+          },
+          "sections": {
+            "acquisition": "Acquisition",
+            "specs": "Vehicle Specs",
+            "condition": "Condition & History",
+            "pricing": "Pricing"
           }
         }
       }

@@ -370,6 +370,7 @@ Full-page 4-step wizard with ProgressStepper.
 **Trigger:** `⋯ More actions` button in Financial Snapshot sidebar, shortcut `.` (period).
 **Menu structure** (240px, with separators):
 ```
+Edit vehicle             ⌘E  (R15+)
 Transfer outlet          ⌘T  (R19+)
 Clone vehicle            ⌘D  (R15+)
 ---
@@ -378,6 +379,19 @@ Unpublish                    (R19+, only if state=PUBLISHED)
 ---
 Archive vehicle       (danger R19+)
 ```
+
+**6a.0 Edit Vehicle** (full page `/inventory/[vin]/edit`):
+- Reuses the 4 wizard step components (acquisition / specs / condition / pricing) but renders ALL sections on a single scrollable page (not step-by-step wizard)
+- Page header: "Edit vehicle" + VIN badge + outlet pill. Right: `Cancel` + `Save changes` (primary, ⌘S)
+- Form pre-filled with current vehicle data from fixture
+- VIN field is **read-only** (cannot change VIN after creation per Doc 09 — VIN is identity)
+- Acquisition source + date + cost are **read-only for R15-R18** (only R19+ can correct acquisition data)
+- Dirty-state indicator: `•` accent dot in header + "Unsaved changes" subtitle
+- Cancel with dirty → AlertDialog "Discard changes?"
+- On save: PATCH `/api/staff/inventory/vehicles/:vin`, optimistic update, toast "Vehicle updated", stay on edit page OR redirect back to detail (user preference — default redirect)
+- Keyboard: ⌘S save, Esc cancel (with dirty confirm)
+- Auto-save NOT applied here (unlike create wizard) — explicit save action only
+- RBAC: `<Gate role="R15+">` on page entry; `<Gate role="R19+">` wraps acquisition section
 
 **6a. Transfer Outlet** (modal md 560px):
 - Current outlet (read-only pill) → arrow → outlet picker Select (excludes current)
@@ -423,3 +437,4 @@ Archive vehicle       (danger R19+)
 |------|---------|--------|--------|
 | 2026-04-17 | 0.1 | Claude (integrator) | Initial spec for staff Inventory Phase S2 |
 | 2026-04-17 | 0.2 | Claude (integrator) | Phase S2a/b/c shipped. Added 6 action flows (create new vehicle wizard, cost ledger modal, photos upload, appraisal edit panel, document upload, more-actions menu + transfer/clone/archive modals) for Phase S2.1 build. |
+| 2026-04-17 | 0.3 | Claude (integrator) | Phase S2.1 shipped. Added Edit Vehicle flow (`/inventory/[vin]/edit`) to More Actions menu — reuses wizard step components in single-page form, VIN read-only, acquisition section R19+ only, manual save (no auto-save), optimistic update + toast. |
