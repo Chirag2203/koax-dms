@@ -2,7 +2,7 @@
 spec_id: SPEC-PLATFORM-001
 domain: platform
 title: Staff App Shell + Dashboard (Phase S0+S1)
-status: draft
+status: shipped
 risk_level: medium
 pii_sensitivity: medium
 flags: [staff.shell.v1, staff.dashboard.v1]
@@ -268,19 +268,22 @@ Component hierarchy:
 ```
 DashboardPage
 ├── PageHeader (title "Dashboard" + outlet label + date)
-├── StatStrip (4 cards)
+├── StatStrip (4 cards — grid-cols-1 md:grid-cols-2 lg:grid-cols-4)
 │   ├── VehiclesInStockStat
 │   ├── OpenDealsStat
 │   ├── ActiveJobCardsStat
 │   └── RevenueMTDStat
-├── MainPanels (3-column grid)
-│   ├── InventorySnapshotPanel (5-row mini table + ageing bar)
+├── InventoryRow (full width)
+│   └── InventorySnapshotPanel (5-row table + ageing bar — full-width for column readability)
+├── OpsRow (2-column grid — lg:grid-cols-2)
 │   ├── SalesPipelinePanel (6-stage funnel)
 │   └── ServiceBayPanel (4x2 bay grid + upcoming appointments)
-└── SecondaryPanels (2-column)
-    ├── RecentActivityFeed (60% width)
-    └── AlertsTasksPanel (40% width)
+└── SecondaryPanels (5-column split: 3+2)
+    ├── RecentActivityFeed (3/5 width)
+    └── AlertsTasksPanel (2/5 width)
 ```
+
+**Layout rationale (v0.2):** Inventory panel was initially in a 3-column row with Sales and Service. At narrow column widths the price column was truncated. Inventory now occupies its own full-width row above Sales+Service, which share a 2-column row below.
 
 **Role adaptation (MVP):**
 - R05 Sales Associate: sees only Sales panel + own deals
@@ -361,3 +364,4 @@ Implementation: single page component that accepts role + outlet and conditional
 | Date | Version | Author | Change |
 |------|---------|--------|--------|
 | 2026-04-17 | 0.1 | Claude (integrator) | Initial spec for Phase S0+S1 |
+| 2026-04-17 | 1.0 | Claude (integrator) | Phase S0+S1 shipped. 46 foundation files + 18 dashboard files. Zero TS errors. Dashboard layout refined: Inventory takes full-width row (was 1/3 column — too narrow for price column). Sales + Service moved to own 2-col row below. SecondaryPanels (Activity + Alerts) unchanged at 3+2 split. |
