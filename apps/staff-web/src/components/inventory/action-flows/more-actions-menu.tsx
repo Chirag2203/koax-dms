@@ -424,7 +424,7 @@ export function MoreActionsMenu({
             className="absolute bottom-full left-0 right-0 mb-1 w-[240px] rounded-lg border border-line-strong bg-bg-surface p-1 shadow-xl z-50"
           >
             {/* Edit vehicle */}
-            <Gate role={['R15', 'R19', 'R22', 'R24']} fallback="disable">
+            <Gate role={['R10', 'R12', 'R15', 'R16', 'R19', 'R22', 'R24']} fallback="disable">
               <button
                 type="button"
                 role="menuitem"

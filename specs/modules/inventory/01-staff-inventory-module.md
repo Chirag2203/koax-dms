@@ -370,7 +370,7 @@ Full-page 4-step wizard with ProgressStepper.
 **Trigger:** `⋯ More actions` button in Financial Snapshot sidebar, shortcut `.` (period).
 **Menu structure** (240px, with separators):
 ```
-Edit vehicle             ⌘E  (R15+)
+Edit vehicle             ⌘E  (R10+ Sales Manager / Parts / Inventory / Finance / GM+)
 Transfer outlet          ⌘T  (R19+)
 Clone vehicle            ⌘D  (R15+)
 ---
@@ -391,7 +391,7 @@ Archive vehicle       (danger R19+)
 - On save: PATCH `/api/staff/inventory/vehicles/:vin`, optimistic update, toast "Vehicle updated", stay on edit page OR redirect back to detail (user preference — default redirect)
 - Keyboard: ⌘S save, Esc cancel (with dirty confirm)
 - Auto-save NOT applied here (unlike create wizard) — explicit save action only
-- RBAC: `<Gate role="R15+">` on page entry; `<Gate role="R19+">` wraps acquisition section
+- RBAC: menu item gated to `['R10','R12','R15','R16','R19','R22','R24']` (Sales Manager and above — anyone who can list/price). Acquisition section wrapped in `<Gate role={['R19','R22','R24']} fallback="disable">` — R10/R12/R15/R16 see fields disabled with tooltip "Only GM+ can correct acquisition data"
 
 **6a. Transfer Outlet** (modal md 560px):
 - Current outlet (read-only pill) → arrow → outlet picker Select (excludes current)
