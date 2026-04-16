@@ -6,6 +6,7 @@ import { Menu, X, MapPin, ChevronDown } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@dms/ui';
 import { useCity } from '@/src/hooks/use-city';
+import { useAuth } from '@/src/providers/auth-provider';
 import type { CitySelection, CitySlug } from '@/src/providers/city-provider';
 
 // ─── Nav links ────────────────────────────────────────────────────────────────
@@ -184,10 +185,14 @@ function MobileMenu({
   open,
   onClose,
   navLinks,
+  isAuthenticated,
+  userInitials,
 }: {
   open: boolean;
   onClose: () => void;
   navLinks: { key: string; label: string; href: string }[];
+  isAuthenticated: boolean;
+  userInitials: string;
 }) {
   const { cityLabel, setCity } = useCity();
 
@@ -280,21 +285,41 @@ function MobileMenu({
           })}
         </div>
 
-        {/* Sign In */}
-        <Link
-          href="/sign-in"
-          onClick={onClose}
-          className={cn(
-            'inline-flex items-center justify-center',
-            'bg-accent text-white rounded-full px-5 py-3',
-            'font-mono text-xs uppercase tracking-widest',
-            'hover:bg-accent-hover motion-safe:transition-colors',
-            'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
-            'focus-visible:shadow-[0_0_0_4px_#0e0d0b]',
-          )}
-        >
-          Sign In
-        </Link>
+        {/* Auth action */}
+        {isAuthenticated ? (
+          <Link
+            href="/account"
+            onClick={onClose}
+            className={cn(
+              'inline-flex items-center gap-3',
+              'font-mono text-xs uppercase tracking-widest text-white/70',
+              'hover:text-white motion-safe:transition-colors',
+              'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
+            )}
+          >
+            <span className="w-8 h-8 rounded-full bg-accent flex items-center justify-center flex-shrink-0">
+              <span className="font-mono text-xs text-white leading-none select-none">
+                {userInitials}
+              </span>
+            </span>
+            My Account
+          </Link>
+        ) : (
+          <Link
+            href="/sign-in"
+            onClick={onClose}
+            className={cn(
+              'inline-flex items-center justify-center',
+              'bg-accent text-white rounded-full px-5 py-3',
+              'font-mono text-xs uppercase tracking-widest',
+              'hover:bg-accent-hover motion-safe:transition-colors',
+              'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
+              'focus-visible:shadow-[0_0_0_4px_#0e0d0b]',
+            )}
+          >
+            Sign In
+          </Link>
+        )}
       </div>
     </div>
   );
@@ -304,6 +329,7 @@ function MobileMenu({
 
 export function StorefrontHeader() {
   const t = useTranslations('nav');
+  const { isAuthenticated, user } = useAuth();
   const [scrolled, setScrolled] = React.useState(false);
   const [mobileOpen, setMobileOpen] = React.useState(false);
 
@@ -387,20 +413,38 @@ export function StorefrontHeader() {
             <CitySelector isTransparent={isTransparent} />
           </div>
 
-          {/* Sign In — hidden on mobile */}
-          <Link
-            href="/sign-in"
-            className={cn(
-              'hidden md:inline-flex items-center',
-              'bg-accent text-white rounded-full px-5 py-1.5',
-              'font-mono text-xs uppercase tracking-widest',
-              'hover:bg-accent-hover motion-safe:transition-colors',
-              'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
-              'focus-visible:shadow-[0_0_0_4px_white]',
-            )}
-          >
-            {t('signIn')}
-          </Link>
+          {/* Auth action — hidden on mobile */}
+          {isAuthenticated && user ? (
+            <Link
+              href="/account"
+              aria-label="Go to your account"
+              className={cn(
+                'hidden md:flex items-center justify-center',
+                'w-8 h-8 rounded-full bg-accent flex-shrink-0',
+                'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
+                'focus-visible:shadow-[0_0_0_4px_white]',
+                'hover:bg-accent-hover motion-safe:transition-colors',
+              )}
+            >
+              <span className="font-mono text-xs text-white leading-none select-none">
+                {(user.avatar ?? user.name.slice(0, 2)).toUpperCase()}
+              </span>
+            </Link>
+          ) : (
+            <Link
+              href="/sign-in"
+              className={cn(
+                'hidden md:inline-flex items-center',
+                'bg-accent text-white rounded-full px-5 py-1.5',
+                'font-mono text-xs uppercase tracking-widest',
+                'hover:bg-accent-hover motion-safe:transition-colors',
+                'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
+                'focus-visible:shadow-[0_0_0_4px_white]',
+              )}
+            >
+              {t('signIn')}
+            </Link>
+          )}
 
           {/* Hamburger — visible on mobile */}
           <button
@@ -425,6 +469,8 @@ export function StorefrontHeader() {
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
         navLinks={navLinks}
+        isAuthenticated={isAuthenticated}
+        userInitials={user ? (user.avatar ?? user.name.slice(0, 2)).toUpperCase() : ''}
       />
     </>
   );

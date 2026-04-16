@@ -104,7 +104,7 @@ export function UpcomingVisitsPanel({ bookings }: UpcomingVisitsPanelProps) {
   const upcoming = bookings.filter((b) => b.status === 'confirmed');
 
   return (
-    <div className="bg-[var(--color-surface-container-low,#fcf9f3)] border border-[var(--color-outline-variant,#babab0)]/30 p-8 md:p-10 h-full">
+    <div className="bg-bg-subtle border border-line p-8 md:p-10 h-full">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <CalendarDays

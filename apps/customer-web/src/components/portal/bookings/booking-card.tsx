@@ -57,7 +57,7 @@ export function BookingCard({ booking, onAction }: BookingCardProps) {
   return (
     <article
       className={[
-        'border border-[var(--color-line)] border-l-4 bg-[var(--color-bg-paper,#fefcf6)]',
+        'border border-[var(--color-line)] border-l-4 bg-bg-subtle',
         'p-6 md:p-8',
         BORDER_COLOR[booking.type],
       ].join(' ')}

@@ -97,7 +97,7 @@ function ReservationRow({ reservation }: { reservation: Reservation }) {
 
         {/* Status badge */}
         <div className="flex-shrink-0">
-          <span className="font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 bg-[var(--color-secondary-container,#bceed3)] text-[var(--color-on-secondary-container,#2d5a46)]">
+          <span className="font-mono text-[10px] uppercase tracking-wider px-2 py-0.5 bg-accent-subtle text-accent">
             {t('reservations.activeHold')}
           </span>
         </div>
@@ -113,7 +113,7 @@ export function ReservationsPanel({ reservations }: ReservationsPanelProps) {
   const activeReservations = reservations.filter((r) => r.status === 'active');
 
   return (
-    <div className="bg-[var(--color-surface-container-low,#fcf9f3)] border border-[var(--color-outline-variant,#babab0)]/30 p-8 md:p-10 h-full">
+    <div className="bg-bg-subtle border border-line p-8 md:p-10 h-full">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <Lock className="h-5 w-5 text-[var(--color-forest,#1F4D3A)]" aria-hidden="true" />

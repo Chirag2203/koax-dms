@@ -41,7 +41,7 @@ function LedgerRow({ record }: { record: ServiceRecord }) {
   const itemsSummary = record.items.slice(0, 3).join(' · ');
 
   return (
-    <tr className="group hover:bg-[var(--color-surface-container-low,#fcf9f3)] transition-colors">
+    <tr className="group hover:bg-bg-hover transition-colors">
       {/* Date column */}
       <td className="px-0 py-5 pr-8 align-top whitespace-nowrap">
         <span
@@ -154,9 +154,9 @@ export function ServiceHistoryPreview({ records }: ServiceHistoryPreviewProps) {
       ) : (
         <>
           {/* Ledger table */}
-          <div className="border border-[var(--color-outline-variant,#babab0)] overflow-hidden">
+          <div className="border border-line overflow-hidden">
             <table className="w-full text-left border-collapse">
-              <thead className="bg-[var(--color-surface-container-highest,#eae9de)]/50 border-b border-[var(--color-outline-variant,#babab0)]">
+              <thead className="bg-bg-subtle border-b border-line">
                 <tr>
                   <th className="px-0 py-3 pr-8 font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-muted)]">
                     {t('serviceHistory.colDate')}
@@ -172,7 +172,7 @@ export function ServiceHistoryPreview({ records }: ServiceHistoryPreviewProps) {
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--color-outline-variant,#babab0)]/30 px-8">
+              <tbody className="divide-y divide-line px-8">
                 {recent.map((r) => (
                   <LedgerRow key={r.id} record={r} />
                 ))}
