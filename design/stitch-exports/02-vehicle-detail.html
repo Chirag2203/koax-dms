@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&amp;family=Inter:wght@300;400;500;600&amp;family=IBM+Plex+Mono:wght@300;400;500&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,700;1,6..72,400&amp;family=Space+Grotesk:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed-dim": "#ccc5c3",
+                    "primary-container": "#1e1b1a",
+                    "surface-dim": "#dcdad5",
+                    "surface-bright": "#fcf9f4",
+                    "secondary-container": "#fcd3a9",
+                    "tertiary-container": "#002114",
+                    "on-tertiary-fixed-variant": "#214f3c",
+                    "background": "#fcf9f4",
+                    "on-secondary": "#ffffff",
+                    "surface-container": "#f0ede9",
+                    "on-primary-container": "#888381",
+                    "secondary": "#775838",
+                    "on-primary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "inverse-on-surface": "#f3f0eb",
+                    "on-primary-fixed-variant": "#4a4644",
+                    "primary-fixed": "#e9e1df",
+                    "on-primary-fixed": "#1e1b1a",
+                    "outline": "#7f7572",
+                    "tertiary-fixed": "#bceed3",
+                    "tertiary": "#000000",
+                    "tertiary-fixed-dim": "#a1d1b8",
+                    "on-tertiary-container": "#5f8d77",
+                    "outline-variant": "#d1c4c0",
+                    "surface-container-highest": "#e5e2dd",
+                    "primary": "#000000",
+                    "on-background": "#1c1c19",
+                    "inverse-surface": "#31302d",
+                    "secondary-fixed": "#ffdcbc",
+                    "inverse-primary": "#ccc5c3",
+                    "on-tertiary-fixed": "#002114",
+                    "on-secondary-container": "#785938",
+                    "on-tertiary": "#ffffff",
+                    "on-secondary-fixed": "#2c1700",
+                    "on-surface-variant": "#4d4542",
+                    "error-container": "#ffdad6",
+                    "surface": "#fcf9f4",
+                    "error": "#ba1a1a",
+                    "secondary-fixed-dim": "#e8bf97",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-variant": "#e5e2dd",
+                    "surface-container-low": "#f6f3ee",
+                    "surface-container-high": "#ebe8e3",
+                    "on-surface": "#1c1c19",
+                    "on-secondary-fixed-variant": "#5d4122",
+                    "surface-tint": "#625d5c",
+                    "on-error-container": "#93000a"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Playfair Display", "serif"],
+                    "body": ["Inter", "sans-serif"],
+                    "label": ["IBM Plex Mono", "monospace"]
+            }
+          },
+        },
+      }
+    </script>
+<style>.material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24
+    }
+.editorial-shadow {
+    box-shadow: 0 40px 100px -20px rgba(119, 88, 56, 0.05)
+    }
+.fine-grain {
+    position: relative
+    }
+.fine-grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuATD0bCd5cqz-HrP04R6XHK31yWANw5ClvPSvctopkOa2y88BYqKmbq1VnRaS4m-RhDtvOohHyEfQSlkesdRHm8UDTdPiqllZ1o-XklX0f6dZtMeIbphXvygm4jgKpKORwtH9O68gtzS4Q0e9-nzof1L0pPsn_uKXmDojKE2VnvL75k1Akc6a4KH27y6IIcVR0nY1_PwEch63m3aqEQLxupd2CZ6tMAiN3dfte0y-MbU8HzZGVMrwpWF9NMkxzIvEoIXys8JANqyFo);
+    opacity: 0.03;
+    pointer-events: none
+    }
+.serif-tight {
+    font-family: "Playfair Display";
+    letter-spacing: -0.04em
+    }
+.mono-label {
+    font-family: "IBM Plex Mono";
+    text-transform: uppercase;
+    letter-spacing: 0.1em
+    }</style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- Section 1: Top Nav (Dark) -->
+<nav class="fixed top-0 w-full z-50 bg-[#171413]/80 backdrop-blur-md flex justify-between items-center px-12 py-6 text-[#fcf9f4]">
+<div class="text-xl font-bold tracking-[-0.04em] serif-tight">The Digital Atelier</div>
+<div class="hidden md:flex gap-12 font-label text-xs uppercase tracking-widest text-stone-400">
+<a class="hover:text-white transition-colors" href="#">The Collection</a>
+<a class="hover:text-white transition-colors" href="#">Certification</a>
+<a class="hover:text-white transition-colors" href="#">Sell Your Car</a>
+<a class="hover:text-white transition-colors" href="#">Service</a>
+<a class="hover:text-white transition-colors" href="#">Journal</a>
+</div>
+<div class="flex gap-6">
+<span class="material-symbols-outlined cursor-pointer">search</span>
+<span class="material-symbols-outlined cursor-pointer">account_circle</span>
+</div>
+</nav>
+<!-- Breadcrumb Header -->
+<header class="pt-24 bg-[#171413] px-12 pb-4">
+<div class="flex items-center gap-2 font-label text-[10px] text-stone-500 uppercase tracking-[0.2em]">
+<span>THE COLLECTION</span>
+<span class="text-stone-700">·</span>
+<span>SEDANS</span>
+<span class="text-stone-700">·</span>
+<span class="text-stone-300">2022 PORSCHE PANAMERA 4</span>
+</div>
+</header>
+<!-- Section 2: Hero Gallery (Dark) -->
+<section class="bg-[#171413] min-h-[716px] flex flex-col items-center justify-center relative overflow-hidden fine-grain">
+<div class="absolute left-12 top-1/2 -translate-y-1/2 flex flex-col gap-8 font-label text-[11px] text-stone-500 uppercase tracking-widest origin-left">
+<div class="flex flex-col gap-1">
+<span class="text-stone-700 text-[9px]">VIN</span>
+<span>WP0AA2A9XNL0****</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-stone-700 text-[9px]">Odometer</span>
+<span>18,420 KM</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-stone-700 text-[9px]">Location</span>
+<span>Bangalore</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="text-stone-700 text-[9px]">Status</span>
+<span class="text-secondary">CPO Certified</span>
+</div>
+</div>
+<div class="w-full max-w-6xl px-12 z-10">
+<img alt="2022 Porsche Panamera 4" class="w-full h-[512px] object-contain rounded-sm" data-alt="Sleek silver 2022 Porsche Panamera 4 parked in a minimalist dark studio with dramatic soft overhead lighting and deep shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7VS2eD0koPt04hMMQr6Swp-yaLKqELK1-FGwu3c7CwSvCYc5Z0Obv9IU6QXCoyHTuqWVEtjf1YOhAsHNL_LuwgsMZTd7lvblpRPEkt6uHQ_AMbZnhadMA1zK2DadndUESLnoIvGV9xLXuKdlCN-IvWrC4NLP4XNR0vSc9s5LYxkVm7WwNNM1wq5uSTOSXCnh1LlwD6W3Fe-u2Qsb_F82TH2Og-B8bYU2-8qZX2-6GS1u1Y7HRtJlZm3y_X-JPvU4jIenyN2AyskQ"/>
+</div>
+<!-- Thumbnails -->
+<div class="mt-8 flex gap-4 px-12 pb-12 overflow-x-auto">
+<div class="w-24 h-16 rounded-sm border-2 border-secondary overflow-hidden flex-shrink-0 cursor-pointer">
+<img alt="Front view" class="w-full h-full object-cover grayscale-[0.5]" data-alt="Close up front view of Porsche Panamera headlight and grille in low light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXswoopsRjBDhAI9v9zXtusoIG6Q4KlpfdCLbArn-fylkM4t-kHi02gTzaHn0uu4acbtIeMchFLha151BSxkbPTbrOnYvhgo6xu-M_Q1DHJSh476B82fKnHuMukTkgN50NLj8QLjzauISvSIvY7x8hV-cAtGq2jrP4-fuHEBKiSCNHRja4axjplyXXLCC3myBmr4FU4BytUq6vzSRx3s4FvGaziXXw13xFOOdzhoWB_hHtWaMQDFHfJONvSndvlzS1zxMKmTvB7p4"/>
+</div>
+<div class="w-24 h-16 rounded-sm border border-stone-800 overflow-hidden flex-shrink-0 cursor-pointer hover:border-stone-600 transition-colors">
+<img alt="Interior" class="w-full h-full object-cover" data-alt="Luxurious black leather interior of a Porsche Panamera with glowing digital dashboard and fine stitching" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNL9c9HhVxOnexyx8Hb7JOleur1fjOlQowxcJiLP7k55C3mlHIt23LihHCAmVsWKN0V6wA-2sbm4mh6pxpqMDi10ancfxkn9TtAz4NFnySYbjXDf3fKqXA78eO3p-4PPn5g5Y85-Z0-jbRjYJjbkAtEHVjUgN0Hgy0eMfje8ByMq7py_ppPmofeLZcR_vzsjHmHIJvOegBhB9aMSKnkz0ccWQ7Yv1na1FMEHZKW9R7cz1h6uwuMYwbXgVX6lNAyQKb5ZIQ4cIaVxY"/>
+</div>
+<div class="w-24 h-16 rounded-sm border border-stone-800 overflow-hidden flex-shrink-0 cursor-pointer hover:border-stone-600 transition-colors">
+<img alt="Wheel detail" class="w-full h-full object-cover" data-alt="Precision engineered Porsche alloy wheel with performance brake caliper in dark studio light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuArgYKuSxNIZA35X1t6ybIEORjHybmOlTe55F03hysEQXdx3pHuHIWsMVqcd4mR83vD_Sm18CPDu4SG5IemBAkgOkTAY_34Hn-l93S7O9rlJCy1XYaGvnHtGZRG4cT08gftmJexnU979iYO_nIm7fsR9ChetAxa1HGPHByq6plz3IOCF8-ekxatCjxkqeP9eKfN0tdvAjg86j8Nc1jozi09lw1QkKcoHJcOLX6sB-xPQPV8gsq--cwwmSoPc2Yxjk6eoLmYPn7SZz8"/>
+</div>
+<div class="w-24 h-16 rounded-sm border border-stone-800 overflow-hidden flex-shrink-0 cursor-pointer hover:border-stone-600 transition-colors">
+<img alt="Rear profile" class="w-full h-full object-cover" data-alt="Sleek rear light bar and quad exhaust of a modern Porsche Panamera in silver" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEl7-orc_ocLnrGuXFPLD83CKUVaKGBHpNgk5qWrz7_zGyLpo8Lij_B1TRoneqTGryKIGNrQSdh2upuDZB5pyQRVvV9SGw1H7jN8n-83McWTKVozSQc66Hx8X-IukHXGPdq1TDn3rw9rUf3VkT8oAAiWfEtM15tCijdYtK6xuBOzOLmg27i1QgRPi6MiEUpv3jbjI8V9vqjiEXxa4du8YogZ6MlPMRtTSrVuKNS78hrIW8glmMc4Fjl-H6hQ9BNTBW438TSax-sbA"/>
+</div>
+</div>
+</section>
+<!-- Section 3: Name & Price Block (Dark) -->
+<section class="bg-primary-container text-white px-12 py-24">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-12">
+<div class="flex-1">
+<h1 class="serif-tight text-[88px] leading-[0.95] mb-6">2022 Porsche Panamera 4</h1>
+<p class="font-body text-stone-400 text-lg flex items-center gap-3">
+                    Platinum edition <span class="w-1 h-1 bg-stone-600 rounded-full"></span>
+                    Crayon exterior <span class="w-1 h-1 bg-stone-600 rounded-full"></span>
+                    Black interior <span class="w-1 h-1 bg-stone-600 rounded-full"></span>
+                    One owner
+                </p>
+</div>
+<div class="flex flex-col items-end gap-8">
+<div class="serif-tight text-[56px] text-white">₹1,28,50,000</div>
+<div class="flex flex-col gap-4 w-full md:w-auto">
+<button class="bg-secondary text-white px-10 py-5 rounded-full font-label text-sm uppercase tracking-widest hover:bg-opacity-90 transition-all flex items-center justify-between gap-8 group">
+                        Reserve for ₹1,00,000 
+                        <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_right_alt</span>
+</button>
+<button class="border border-stone-700 text-stone-300 px-10 py-5 rounded-full font-label text-sm uppercase tracking-widest hover:border-stone-400 hover:text-white transition-all">
+                        Schedule a viewing
+                    </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 4: Editorial Paragraph (Light) -->
+<section class="bg-surface py-32 px-12">
+<div class="max-w-[720px] mx-auto">
+<blockquote class="serif-tight text-[40px] leading-tight text-on-surface mb-16 italic">
+                “It arrived to us with a dealer service file most owners would envy.”
+            </blockquote>
+<div class="font-body text-[17px] leading-relaxed text-on-surface-variant space-y-8">
+<p>
+                    The Porsche Panamera 4 Platinum Edition represents the zenith of long-distance grand touring performance. This specific example, finished in the highly sought-after Crayon palette, showcases a restrained elegance that belies its underlying technical ferocity. It is a vehicle that demands to be driven, yet rewards the passenger with an environment of serene composure.
+                </p>
+<p>
+                    With just 18,420 kilometers recorded under a single fastidious owner, the mechanical state of this vehicle is indistinguishable from its rollout at Stuttgart. The service history is comprehensive, documenting every interaction with certified Porsche technicians in Bangalore, ensuring that the precision-engineered power delivery and handling remain as sharp as the day it was commissioned.
+                </p>
+</div>
+</div>
+</section>
+<!-- Section 5: Details Grid (Light) -->
+<section class="bg-surface-container-low px-12 py-24">
+<div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-0 border-y border-outline-variant/30">
+<!-- Provenance -->
+<div class="p-12 md:border-r border-outline-variant/30">
+<h3 class="mono-label text-[11px] mb-12 text-secondary">Provenance</h3>
+<div class="space-y-6">
+<div class="flex justify-between items-end border-b border-outline-variant/20 pb-2">
+<span class="text-stone-500 font-body text-sm">Previous Owners</span>
+<span class="font-body font-medium">1</span>
+</div>
+<div class="flex justify-between items-end border-b border-outline-variant/20 pb-2">
+<span class="text-stone-500 font-body text-sm">Service History</span>
+<span class="font-body font-medium">Full Dealer</span>
+</div>
+<div class="flex justify-between items-end border-b border-outline-variant/20 pb-2">
+<span class="text-stone-500 font-body text-sm">Original Region</span>
+<span class="font-body font-medium">Bangalore, IN</span>
+</div>
+<div class="flex justify-between items-end border-b border-outline-variant/20 pb-2">
+<span class="text-stone-500 font-body text-sm">Keys Provided</span>
+<span class="font-body font-medium">2 Sets</span>
+</div>
+</div>
+</div>
+<!-- Technical -->
+<div class="p-12 md:border-r border-outline-variant/30">
+<h3 class="mono-label text-[11px] mb-12 text-secondary">Technical</h3>
+<div class="space-y-6">
+<div class="flex justify-between items-end border-b border-outline-variant/20 pb-2">
+<span class="text-stone-500 font-body text-sm">Engine</span>
+<span class="font-body font-medium">2.9L V6 Biturbo</span>
+</div>
+<div class="flex justify-between items-end border-b border-outline-variant/20 pb-2">
+<span class="text-stone-500 font-body text-sm">Power output</span>
+<span class="font-body font-medium">330 PS</span>
+</div>
+<div class="flex justify-between items-end border-b border-outline-variant/20 pb-2">
+<span class="text-stone-500 font-body text-sm">Transmission</span>
+<span class="font-body font-medium">8-speed PDK</span>
+</div>
+<div class="flex justify-between items-end border-b border-outline-variant/20 pb-2">
+<span class="text-stone-500 font-body text-sm">Top Speed</span>
+<span class="font-body font-medium">268 km/h</span>
+</div>
+</div>
+</div>
+<!-- Ownership -->
+<div class="p-12">
+<h3 class="mono-label text-[11px] mb-12 text-secondary">Ownership</h3>
+<div class="space-y-6">
+<div class="flex justify-between items-end border-b border-outline-variant/20 pb-2">
+<span class="text-stone-500 font-body text-sm">Insurance Val.</span>
+<span class="font-body font-medium">₹1.15 Cr</span>
+</div>
+<div class="flex justify-between items-end border-b border-outline-variant/20 pb-2">
+<span class="text-stone-500 font-body text-sm">Tyre Condition</span>
+<span class="font-body font-medium">85% Tread</span>
+</div>
+<div class="flex justify-between items-end border-b border-outline-variant/20 pb-2">
+<span class="text-stone-500 font-body text-sm">Warranty</span>
+<span class="font-body font-medium">Until Dec 2024</span>
+</div>
+<div class="flex justify-between items-end border-b border-outline-variant/20 pb-2">
+<span class="text-stone-500 font-body text-sm">Tax Paid</span>
+<span class="font-body font-medium">LTT Paid (KA)</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 6: Certification Panel (Forest Green) -->
+<section class="bg-[#002114] text-white px-12 py-24 overflow-hidden relative">
+<div class="absolute right-0 top-0 opacity-10 pointer-events-none">
+<span class="material-symbols-outlined text-[400px]" style="font-variation-settings: 'wght' 100;">verified</span>
+</div>
+<div class="max-w-7xl mx-auto relative z-10">
+<div class="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
+<div>
+<h2 class="serif-tight text-[48px] mb-4">210-point certification</h2>
+<p class="font-body text-tertiary-fixed-dim max-w-xl">Every artifact in The Collection undergoes a rigorous verification process conducted by factory-trained artisans. We leave nothing to chance.</p>
+</div>
+<button class="flex items-center gap-4 bg-tertiary-fixed text-[#002114] px-8 py-4 rounded-sm font-label text-xs uppercase tracking-widest hover:bg-white transition-colors">
+<span class="material-symbols-outlined">picture_as_pdf</span>
+                    Download inspection report (PDF)
+                </button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-16">
+<div>
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-tertiary-fixed">precision_manufacturing</span>
+<h4 class="mono-label text-[12px]">Mechanical</h4>
+</div>
+<ul class="space-y-4 font-body text-stone-400 text-sm">
+<li class="flex items-start gap-2"><span class="text-tertiary-fixed">/</span> Engine compression &amp; leakage test</li>
+<li class="flex items-start gap-2"><span class="text-tertiary-fixed">/</span> Transmission shift quality analysis</li>
+<li class="flex items-start gap-2"><span class="text-tertiary-fixed">/</span> Suspension &amp; dynamic chassis control</li>
+</ul>
+</div>
+<div>
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-tertiary-fixed">palette</span>
+<h4 class="mono-label text-[12px]">Cosmetic</h4>
+</div>
+<ul class="space-y-4 font-body text-stone-400 text-sm">
+<li class="flex items-start gap-2"><span class="text-tertiary-fixed">/</span> Paint depth consistency verify</li>
+<li class="flex items-start gap-2"><span class="text-tertiary-fixed">/</span> Interior leather &amp; stitch integrity</li>
+<li class="flex items-start gap-2"><span class="text-tertiary-fixed">/</span> Underbody cleaning &amp; coating</li>
+</ul>
+</div>
+<div>
+<div class="flex items-center gap-3 mb-6">
+<span class="material-symbols-outlined text-tertiary-fixed">history_edu</span>
+<h4 class="mono-label text-[12px]">Documentation</h4>
+</div>
+<ul class="space-y-4 font-body text-stone-400 text-sm">
+<li class="flex items-start gap-2"><span class="text-tertiary-fixed">/</span> Service record authenticity check</li>
+<li class="flex items-start gap-2"><span class="text-tertiary-fixed">/</span> RTO/Title clearance certification</li>
+<li class="flex items-start gap-2"><span class="text-tertiary-fixed">/</span> Insurance claim history audit</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 7: Ownership cost estimator -->
+<section class="bg-surface py-24 px-12">
+<div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-16">
+<div class="md:w-1/2">
+<h2 class="serif-tight text-[48px] mb-6">Ownership Economics</h2>
+<p class="font-body text-stone-500 mb-8">Transparency is the core of our concierge service. Understand the true cost of maintaining this artifact over the next 24 months.</p>
+<div class="bg-white p-8 rounded-sm editorial-shadow border border-outline-variant/10">
+<div class="space-y-6">
+<div class="flex justify-between items-center">
+<span class="font-label text-[10px] text-stone-400 uppercase">Annual Service Est.</span>
+<span class="font-label text-sm text-on-surface">₹1,45,000</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-label text-[10px] text-stone-400 uppercase">Tyre Replacement (Full Set)</span>
+<span class="font-label text-sm text-on-surface">₹2,80,000</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-label text-[10px] text-stone-400 uppercase">Comprehensive Insurance</span>
+<span class="font-label text-sm text-on-surface">₹3,10,000</span>
+</div>
+<div class="pt-4 border-t border-outline-variant/20 flex justify-between items-center">
+<span class="font-label text-[11px] text-on-surface font-bold uppercase">Estimated Yearly Total</span>
+<span class="serif-tight text-2xl text-secondary">₹7,35,000</span>
+</div>
+</div>
+</div>
+</div>
+<div class="md:w-1/2 rounded-sm overflow-hidden h-[400px]">
+<img alt="Porsche Service" class="w-full h-full object-cover" data-alt="Clean Porsche workshop with clinical lighting and precision tools laid out on a sterile workbench beside a Porsche engine" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBoFGKY3Eacp957sqk55z-EhMB1vhVbFViQ3J28fYzTDSZ_ioA3ySPwzG3ejlA7I8fj65CX2OP1OuLc9w1QIL3ogYiYilyPswOZLhozgRcGr_NxG4zoJouR57a1HnlElKLRRv38xBMRO5y6Ex8V66pE3RC8uKRoEc8G9day5_y71GSB6xNFociRh_RqVeaFz9quIYtwgnSoobBc26vWfZ7oIVfpvOCH4DgPmfFrJ5W3HKgAGsuAuosMf_D4QxAW48GHpunT94ov9yg"/>
+</div>
+</div>
+</section>
+<!-- Section 8: Similar Vehicles -->
+<section class="bg-surface-container px-12 py-32">
+<div class="max-w-7xl mx-auto">
+<div class="flex justify-between items-end mb-16">
+<h2 class="serif-tight text-[48px]">Curated Alternatives</h2>
+<a class="font-label text-xs uppercase tracking-widest text-secondary border-b border-secondary pb-1" href="#">View Full Collection</a>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Vehicle 1 -->
+<div class="group cursor-pointer">
+<div class="aspect-[16/10] overflow-hidden mb-6 rounded-sm bg-stone-200">
+<img alt="Similar Vehicle" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Dark grey 2021 Porsche Taycan in a modern minimalist garage with soft cinematic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBXjEAMaD2ZV-vzYqbHjj2kLjhaz7p3K9UkrAZORnUqE1bZ9zuT9I_NjAPXepl6GScRjNX396GETqIkAlxfX9IrqhEmXFKtw2-JWAGtX-zUyH1udyOvQ4hfHNjVkbuTGXPpsX36OaZk3kB1ZnTBJWmD8zHBmZWC8jHk0LZxrEz8MTz2q0dx89kmT47vn9JD6-AYBPOhQnzlaTU3EsI0-UKaNeX3Gq3lV1tPOgvc_dWNh0GAZ1YGhQyhJwnrlP4vA3h102rVJQA2_Ak"/>
+</div>
+<div class="mono-label text-[10px] text-stone-500 mb-2">2021 · 12,000 KM</div>
+<h3 class="serif-tight text-2xl mb-2">Porsche Taycan 4S</h3>
+<div class="font-label text-sm text-secondary">₹1,55,00,000</div>
+</div>
+<!-- Vehicle 2 -->
+<div class="group cursor-pointer">
+<div class="aspect-[16/10] overflow-hidden mb-6 rounded-sm bg-stone-200">
+<img alt="Similar Vehicle" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="White 2022 Porsche 911 Carrera with classic silhouette in a bright white clean studio environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBPhbO-McPkS8TPcuvbNs4WKlvFC07cR6fghQJhDYT1CP3EHqmQr6Nt-iG1TJ8boKQhB5wEpUrClpRhqpk2I7oBYJszsUfKsjTaNxAFx8imMP3jftx_eQwgB45FNQHVeZ9xUxSZsGYl1j6IRWMFeEED6deOnmmbZfY14b6HJ4FL-XcqZSEWRTqsN3Jjb6feUrZ0pJPGv9LIb-qpLcBokpztycaWAqeV2y_VB1J8_Tt2uQej0wfgvJAFFpfi2tttUCBTvuyHXshjoIw"/>
+</div>
+<div class="mono-label text-[10px] text-stone-500 mb-2">2022 · 5,400 KM</div>
+<h3 class="serif-tight text-2xl mb-2">Porsche 911 Carrera</h3>
+<div class="font-label text-sm text-secondary">₹1,78,00,000</div>
+</div>
+<!-- Vehicle 3 -->
+<div class="group cursor-pointer">
+<div class="aspect-[16/10] overflow-hidden mb-6 rounded-sm bg-stone-200">
+<img alt="Similar Vehicle" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Royal blue 2020 Maserati Quattroporte with elegant Italian styling in evening warm city light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0t7LFImpk1-zE0qPrYURgPtC-NK_WaBF2vhdmVo3H0ZBQXO__0_4dhrCKgcNNGaodjf_PXgU_gIDCuH3rnZtqGXMm2hpzxq9UK47Fse8aRgWR0N3Tin2_I0zi7teLZ7R5uVdLp5xKKryVccu4_vJfhV9jyRHQFCLW71xpNahZ2aF072ACSdHdWgbI4dB9C1m5NeAMKm1mhM0KT6D6WBKoqU0OeRU9EkAyF44CI2P-vzcheFl7U5thQvmsgUrCnvwg41MmvvyBKQg"/>
+</div>
+<div class="mono-label text-[10px] text-stone-500 mb-2">2020 · 22,100 KM</div>
+<h3 class="serif-tight text-2xl mb-2">Maserati Quattroporte</h3>
+<div class="font-label text-sm text-secondary">₹1,12,00,000</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 9: Footer (Dark) -->
+<footer class="bg-[#1e1b1a] text-[#775838] w-full mt-24 px-12 py-20 font-label text-xs uppercase tracking-widest">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-20">
+<div class="col-span-1 md:col-span-1">
+<div class="text-white text-lg font-black tracking-tighter mb-8 serif-tight">The Digital Atelier</div>
+<p class="normal-case tracking-normal text-stone-500 font-body">Curation is an art. We preserve the soul of automotive excellence for the discerning few.</p>
+</div>
+<div>
+<h5 class="text-stone-300 mb-6">Inventory</h5>
+<ul class="space-y-3">
+<li><a class="hover:text-white transition-all" href="#">Porsche Selection</a></li>
+<li><a class="hover:text-white transition-all" href="#">The Ferrari Vault</a></li>
+<li><a class="hover:text-white transition-all" href="#">Bentley Classics</a></li>
+<li><a class="hover:text-white transition-all" href="#">Special Projects</a></li>
+</ul>
+</div>
+<div>
+<h5 class="text-stone-300 mb-6">Company</h5>
+<ul class="space-y-3">
+<li><a class="hover:text-white transition-all" href="#">Locations</a></li>
+<li><a class="hover:text-white transition-all" href="#">Our Story</a></li>
+<li><a class="hover:text-white transition-all" href="#">Press Journal</a></li>
+<li><a class="hover:text-white transition-all" href="#">Careers</a></li>
+</ul>
+</div>
+<div>
+<h5 class="text-stone-300 mb-6">Concierge</h5>
+<ul class="space-y-3">
+<li><a class="hover:text-white transition-all" href="#">Contact Us</a></li>
+<li><a class="hover:text-white transition-all" href="#">Privacy Policy</a></li>
+<li><a class="hover:text-white transition-all" href="#">Terms of Service</a></li>
+<li><a class="hover:text-white transition-all" href="#">FAQ</a></li>
+</ul>
+</div>
+</div>
+<div class="border-t border-stone-800 pt-8 flex flex-col md:flex-row justify-between items-center text-[10px] text-stone-600">
+<div>© 2024 THE DIGITAL ATELIER. ALL RIGHTS RESERVED.</div>
+<div class="flex gap-8 mt-4 md:mt-0">
+<a class="hover:text-stone-400" href="#">INSTAGRAM</a>
+<a class="hover:text-stone-400" href="#">YOUTUBE</a>
+<a class="hover:text-stone-400" href="#">LINKEDIN</a>
+</div>
+</div>
+</footer>
+</body></html>

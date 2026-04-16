@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&amp;family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;family=IBM+Plex+Mono:wght@300;400;500&amp;family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-dim": "#dcdad5",
+                    "secondary-fixed": "#ffdcbc",
+                    "on-surface-variant": "#4d4542",
+                    "on-surface": "#1c1c19",
+                    "on-background": "#1c1c19",
+                    "surface-container-highest": "#e5e2dd",
+                    "tertiary-fixed": "#bceed3",
+                    "primary-fixed-dim": "#ccc5c3",
+                    "error": "#ba1a1a",
+                    "on-primary-container": "#888381",
+                    "outline-variant": "#d1c4c0",
+                    "outline": "#7f7572",
+                    "surface-tint": "#625d5c",
+                    "tertiary-fixed-dim": "#a1d1b8",
+                    "primary-container": "#1e1b1a",
+                    "primary": "#000000",
+                    "primary-fixed": "#e9e1df",
+                    "on-tertiary": "#ffffff",
+                    "tertiary-container": "#002114",
+                    "surface-container-high": "#ebe8e3",
+                    "error-container": "#ffdad6",
+                    "inverse-on-surface": "#f3f0eb",
+                    "on-secondary-fixed-variant": "#5d4122",
+                    "on-tertiary-container": "#5f8d77",
+                    "on-secondary-fixed": "#2c1700",
+                    "on-tertiary-fixed-variant": "#214f3c",
+                    "on-primary-fixed-variant": "#4a4644",
+                    "on-primary-fixed": "#1e1b1a",
+                    "tertiary": "#000000",
+                    "surface": "#fcf9f4",
+                    "secondary-fixed-dim": "#e8bf97",
+                    "on-primary": "#ffffff",
+                    "background": "#fcf9f4",
+                    "inverse-surface": "#31302d",
+                    "secondary-container": "#fcd3a9",
+                    "on-secondary": "#ffffff",
+                    "surface-container-low": "#f6f3ee",
+                    "on-tertiary-fixed": "#002114",
+                    "surface-container": "#f0ede9",
+                    "inverse-primary": "#ccc5c3",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-variant": "#e5e2dd",
+                    "on-error-container": "#93000a",
+                    "on-secondary-container": "#785938",
+                    "surface-bright": "#fcf9f4",
+                    "secondary": "#775838",
+                    "on-error": "#ffffff",
+                    "forest-signal": "#1F4D3A"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Playfair Display", "serif"],
+                    "body": ["Inter", "sans-serif"],
+                    "mono": ["IBM Plex Mono", "monospace"],
+                    "label": ["Space Grotesk", "sans-serif"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+      }
+      .font-serif { font-family: 'Playfair Display', serif; }
+      .font-mono { font-family: 'IBM Plex Mono', monospace; }
+      .tracking-tighter { letter-spacing: -0.04em; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface selection:bg-secondary/30">
+<!-- TopNavBar -->
+<nav class="bg-[#fcf9f4]/80 dark:bg-[#171413]/80 backdrop-blur-md text-[#171413] dark:text-[#fcf9f4] docked full-width top-0 sticky border-b border-[#171413]/5 z-50">
+<div class="flex justify-between items-center w-full px-12 py-6 max-w-[1440px] mx-auto">
+<div class="text-2xl font-serif tracking-tighter text-[#171413] dark:text-[#fcf9f4]">Monogram</div>
+<div class="hidden md:flex items-center space-x-10 font-serif tracking-tight text-sm uppercase">
+<a class="text-[#171413] dark:text-[#fcf9f4] opacity-80 hover:opacity-100 hover:text-[#775838] transition-colors duration-300" href="#">The Collection</a>
+<a class="text-[#775838] border-b border-[#775838] pb-1 hover:opacity-100 hover:text-[#775838] transition-colors duration-300" href="#">Certification</a>
+<a class="text-[#171413] dark:text-[#fcf9f4] opacity-80 hover:opacity-100 hover:text-[#775838] transition-colors duration-300" href="#">Sell Your Car</a>
+<a class="text-[#171413] dark:text-[#fcf9f4] opacity-80 hover:opacity-100 hover:text-[#775838] transition-colors duration-300" href="#">Service</a>
+<a class="text-[#171413] dark:text-[#fcf9f4] opacity-80 hover:opacity-100 hover:text-[#775838] transition-colors duration-300" href="#">Journal</a>
+</div>
+<div class="flex items-center space-x-6">
+<span class="hidden lg:block font-serif text-sm uppercase tracking-tight opacity-60">Bangalore</span>
+<div class="flex space-x-4">
+<span class="material-symbols-outlined cursor-pointer scale-95 transition-transform duration-200">location_on</span>
+<span class="material-symbols-outlined cursor-pointer scale-95 transition-transform duration-200">search</span>
+<span class="material-symbols-outlined cursor-pointer scale-95 transition-transform duration-200">shopping_bag</span>
+</div>
+</div>
+</div>
+</nav>
+<main>
+<!-- Hero Section -->
+<section class="px-12 pt-24 pb-32 max-w-[1440px] mx-auto">
+<div class="grid grid-cols-12">
+<div class="col-span-12 lg:col-span-7">
+<span class="font-mono text-xs uppercase tracking-widest text-secondary mb-6 block">The Protocol</span>
+<h1 class="text-[5.5rem] font-serif leading-[1.1] tracking-tighter mb-10">The Monogram <br/> Standard.</h1>
+<p class="font-body text-lg max-w-xl opacity-80 leading-relaxed">Every automobile curated by Monogram undergoes a rigorous 210-point inspection protocol. We do not merely verify maintenance; we validate the soul of the machine through mechanical forensics and aesthetic preservation.</p>
+</div>
+<div class="col-span-12 lg:col-span-5 mt-12 lg:mt-0 relative">
+<div class="aspect-[4/5] bg-surface-container-low rounded-sm overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close up of a classic silver Porsche headlight in a bright minimalist studio setting with sharp architectural lines" src="https://lh3.googleusercontent.com/aida-public/AB6AXuATFaUnYsB1w8UhZ6TzfypFUjQjhY8-sCl_0xtsfBee6xhq8JgbuLBlhsVVAU7FXAG0NTtDtixHHVB9RXyE9qd1r4JsFArCCLjGpNOViB-_ouZbBYRq-4-wXrj_J5v7eDhjcEUkihnGWd3L-1A_6FPXAafruZspFov9kjfrROlgM4RY2-5S2EVEg0wBeVLYO99EW8-sGN-7quPKLVby5z2KBsMGObkuorOJ2uGSfGRJsyoFR8xmrVxEulFzS07_zqedXs3skNbXpZI"/>
+</div>
+<div class="absolute -bottom-6 -left-6 bg-surface p-8 max-w-xs border border-outline-variant/10 shadow-2xl shadow-secondary/5">
+<span class="font-mono text-2xl mb-2 block">210</span>
+<p class="font-body text-sm opacity-60">Critical validation checkpoints ensuring technical and aesthetic absolute perfection.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 1: The Three Pillars -->
+<section class="bg-surface-container-low py-32">
+<div class="max-w-[1440px] mx-auto px-12">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-16">
+<!-- Mechanical -->
+<div class="flex flex-col">
+<span class="material-symbols-outlined text-4xl mb-6 text-secondary" style="font-variation-settings: 'FILL' 0;">engineering</span>
+<h3 class="font-serif text-2xl mb-6">Mechanical Integrity</h3>
+<ul class="space-y-4 font-body text-sm opacity-70">
+<li class="flex items-start gap-3"><span class="font-mono text-[10px] pt-1">01</span> Powertrain and transmission fluid spectral analysis</li>
+<li class="flex items-start gap-3"><span class="font-mono text-[10px] pt-1">02</span> Compression testing across all cylinders</li>
+<li class="flex items-start gap-3"><span class="font-mono text-[10px] pt-1">03</span> Thermal imaging of cooling systems</li>
+<li class="flex items-start gap-3"><span class="font-mono text-[10px] pt-1">04</span> Suspension geometry and bushing elasticity</li>
+</ul>
+</div>
+<!-- Cosmetic -->
+<div class="flex flex-col">
+<span class="material-symbols-outlined text-4xl mb-6 text-secondary" style="font-variation-settings: 'FILL' 0;">auto_fix_high</span>
+<h3 class="font-serif text-2xl mb-6">Cosmetic Preservation</h3>
+<ul class="space-y-4 font-body text-sm opacity-70">
+<li class="flex items-start gap-3"><span class="font-mono text-[10px] pt-1">05</span> Micron-level paint depth consistency check</li>
+<li class="flex items-start gap-3"><span class="font-mono text-[10px] pt-1">06</span> UV damage assessment on leather and wood</li>
+<li class="flex items-start gap-3"><span class="font-mono text-[10px] pt-1">07</span> High-definition undercarriage scanning</li>
+<li class="flex items-start gap-3"><span class="font-mono text-[10px] pt-1">08</span> Wheel surface and structural integrity</li>
+</ul>
+</div>
+<!-- Documentation -->
+<div class="flex flex-col">
+<span class="material-symbols-outlined text-4xl mb-6 text-secondary" style="font-variation-settings: 'FILL' 0;">history_edu</span>
+<h3 class="font-serif text-2xl mb-6">Provenance &amp; History</h3>
+<ul class="space-y-4 font-body text-sm opacity-70">
+<li class="flex items-start gap-3"><span class="font-mono text-[10px] pt-1">09</span> Exhaustive global ownership history trace</li>
+<li class="flex items-start gap-3"><span class="font-mono text-[10px] pt-1">10</span> Digital maintenance record verification</li>
+<li class="flex items-start gap-3"><span class="font-mono text-[10px] pt-1">11</span> Certification of original component matching</li>
+<li class="flex items-start gap-3"><span class="font-mono text-[10px] pt-1">12</span> Import and regulatory compliance audit</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<!-- Section 2: The Signal Block (Deep Forest Green) -->
+<section class="bg-forest-signal text-on-tertiary-fixed py-32 overflow-hidden">
+<div class="max-w-[1440px] mx-auto px-12 grid grid-cols-12 items-center gap-20">
+<div class="col-span-12 lg:col-span-5 order-2 lg:order-1">
+<div class="relative">
+<!-- Technical Diagram Representation -->
+<div class="border border-on-tertiary-fixed/20 p-12 aspect-square flex items-center justify-center rounded-sm">
+<div class="absolute inset-0 opacity-10 pointer-events-none">
+<div class="w-full h-full border-[0.5px] border-dashed border-on-tertiary-fixed grid grid-cols-6 grid-rows-6"></div>
+</div>
+<svg class="w-full h-full stroke-on-tertiary-fixed/40 fill-none stroke-[0.5]" viewbox="0 0 200 200">
+<path d="M40 100 Q 40 40 100 40 Q 160 40 160 100 Q 160 160 100 160 Q 40 160 40 100"></path>
+<circle cx="100" cy="100" r="30" stroke-dasharray="2,2"></circle>
+<line stroke-dasharray="1,1" x1="100" x2="100" y1="10" y2="190"></line>
+<line stroke-dasharray="1,1" x1="10" x2="190" y1="100" y2="100"></line>
+<rect height="30" width="30" x="85" y="85"></rect>
+</svg>
+<div class="absolute top-10 left-10 font-mono text-[10px] uppercase opacity-40">Chassis_Geometry_Scan_09</div>
+<div class="absolute bottom-10 right-10 font-mono text-[10px] uppercase opacity-40">Ver_7.4_Stable</div>
+</div>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-7 order-1 lg:order-2">
+<span class="font-mono text-xs tracking-widest text-tertiary-fixed mb-8 block">THE VERIFIED SEAL</span>
+<h2 class="text-6xl font-serif leading-tight mb-10 tracking-tight text-white">Engineering <br/> Absolute Trust.</h2>
+<p class="font-body text-lg opacity-80 leading-relaxed mb-12 max-w-xl">The Signal Block represents our highest tier of mechanical assurance. When a vehicle bears the 'Verified' seal, it means every structural point has been measured against factory blueprints within a 0.5mm tolerance.</p>
+<button class="bg-secondary text-on-primary-container font-mono text-xs uppercase tracking-widest py-5 px-10 rounded-full hover:bg-on-secondary transition-colors">
+                        Download Sample Report
+                    </button>
+</div>
+</div>
+</section>
+<!-- Section 3: Testimonials / Provenance -->
+<section class="py-32 bg-surface">
+<div class="max-w-[1440px] mx-auto px-12">
+<div class="max-w-4xl mx-auto text-center italic">
+<span class="material-symbols-outlined text-secondary text-5xl mb-12" style="font-variation-settings: 'FILL' 1;">format_quote</span>
+<blockquote class="text-4xl font-serif leading-snug mb-10 text-on-surface">
+                        "We don't look for what is there; we look for what is missing. A car tells its story through its imperfections. My job is to ensure that story has a perfect next chapter."
+                    </blockquote>
+<div class="flex flex-col items-center">
+<div class="w-16 h-16 rounded-full overflow-hidden mb-4 grayscale">
+<img class="w-full h-full object-cover" data-alt="Professional portrait of a mature male technician with grey hair in a clean white workshop coat looking contemplative" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVHtAtDXfSNGi7xkz6vmDyAuBvGphBToM2LdAGlT8GVliZFj8-TZUcYUkHESD2dPH0fvr-WW1BlLQPBKL0J-FIk2BlYWVbXuTdfLZMd20TiPybH3JXCVvavZDRYUvOfxQjc6SyUC6kYqdHryUxRMVU0ee7wWY9pYLhAIZ7A9R1Ly4knTyD2jIU0XCfaIzGYqQVr99JOlJY-Jf-G_hofnHWEDz_r6ev65XJhJQ768qyJialmGBc7eVrsBFB3_jyZi8C9l2AhQnDYzo"/>
+</div>
+<cite class="not-italic font-mono text-xs uppercase tracking-widest text-secondary block">Marcus Vane</cite>
+<span class="font-body text-[10px] uppercase opacity-50 tracking-tighter">Lead Technical Curator, Atelier Bangalore</span>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-[#171413] dark:bg-[#0a0908] text-[#fcf9f4] dark:text-[#e5e2dd] w-full mt-24">
+<div class="grid grid-cols-12 gap-8 px-12 py-20 w-full max-w-[1440px] mx-auto">
+<div class="col-span-12 lg:col-span-4">
+<div class="font-serif text-3xl text-[#fcf9f4] mb-8">Monogram</div>
+<p class="font-mono text-xs uppercase tracking-widest opacity-60 leading-loose max-w-xs">
+                    Redefining the secondary automotive market through editorial precision and mechanical integrity.
+                </p>
+</div>
+<div class="col-span-6 lg:col-span-2">
+<h4 class="font-mono text-xs uppercase tracking-widest mb-8 text-[#775838]">Company</h4>
+<nav class="flex flex-col space-y-4 font-mono text-xs uppercase tracking-widest text-[#fcf9f4]/60">
+<a class="hover:text-[#fcf9f4] transition-opacity" href="#">Visit</a>
+<a class="hover:text-[#fcf9f4] transition-opacity" href="#">Contact</a>
+<a class="hover:text-[#fcf9f4] transition-opacity" href="#">Atelier</a>
+</nav>
+</div>
+<div class="col-span-6 lg:col-span-2">
+<h4 class="font-mono text-xs uppercase tracking-widest mb-8 text-[#775838]">Legal</h4>
+<nav class="flex flex-col space-y-4 font-mono text-xs uppercase tracking-widest text-[#fcf9f4]/60">
+<a class="hover:text-[#fcf9f4] transition-opacity" href="#">Privacy</a>
+<a class="hover:text-[#fcf9f4] transition-opacity" href="#">Terms</a>
+<a class="hover:text-[#fcf9f4] transition-opacity" href="#">Cookies</a>
+</nav>
+</div>
+<div class="col-span-12 lg:col-span-4">
+<h4 class="font-mono text-xs uppercase tracking-widest mb-8 text-[#775838]">The Journal</h4>
+<div class="flex">
+<input class="bg-transparent border-b border-[#fcf9f4]/20 py-2 w-full font-mono text-xs focus:outline-none focus:border-secondary transition-colors" placeholder="YOUR EMAIL" type="email"/>
+<button class="ml-4 material-symbols-outlined text-secondary">arrow_forward</button>
+</div>
+</div>
+<div class="col-span-12 pt-12 border-t border-[#fcf9f4]/5 flex flex-col md:flex-row justify-between items-center gap-4">
+<span class="font-mono text-[10px] uppercase tracking-widest opacity-40">© 2024 Monogram. Curated in India.</span>
+<div class="flex space-x-6 opacity-40">
+<a class="hover:opacity-100 transition-opacity font-mono text-[10px]" href="#">INSTAGRAM</a>
+<a class="hover:opacity-100 transition-opacity font-mono text-[10px]" href="#">LINKEDIN</a>
+<a class="hover:opacity-100 transition-opacity font-mono text-[10px]" href="#">X.COM</a>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

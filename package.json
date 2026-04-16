@@ -1,0 +1,28 @@
+{
+  "name": "dms",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Luxury Pre-Owned Data Management System",
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=20.11.0"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "storybook": "turbo run storybook",
+    "clean": "turbo run clean && rm -rf node_modules",
+    "format": "prettier --write \"**/*.{ts,tsx,md,json,mjs,cjs}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,md,json,mjs,cjs}\""
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "prettier": "^3.2.5",
+    "prettier-plugin-tailwindcss": "^0.5.14",
+    "turbo": "^2.0.0",
+    "typescript": "^5.4.0"
+  }
+}

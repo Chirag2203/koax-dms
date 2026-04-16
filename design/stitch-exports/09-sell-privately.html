@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Inter:wght@300;400;500&amp;family=IBM+Plex+Mono:wght@300;400&amp;family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;family=Space+Grotesk:wght@300;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-container": "#888381",
+                    "on-background": "#1c1c19",
+                    "primary-fixed-dim": "#ccc5c3",
+                    "outline-variant": "#d1c4c0",
+                    "surface": "#fcf9f4",
+                    "tertiary": "#000000",
+                    "secondary-fixed": "#ffdcbc",
+                    "secondary-container": "#fcd3a9",
+                    "error-container": "#ffdad6",
+                    "surface-container-high": "#ebe8e3",
+                    "tertiary-container": "#002114",
+                    "primary": "#000000",
+                    "surface-tint": "#625d5c",
+                    "background": "#fcf9f4",
+                    "outline": "#7f7572",
+                    "surface-bright": "#fcf9f4",
+                    "on-surface-variant": "#4d4542",
+                    "surface-container-low": "#f6f3ee",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed": "#bceed3",
+                    "primary-container": "#1e1b1a",
+                    "surface-container": "#f0ede9",
+                    "surface-variant": "#e5e2dd",
+                    "on-primary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "secondary": "#775838",
+                    "surface-dim": "#dcdad5",
+                    "on-surface": "#1c1c19",
+                    "tertiary-fixed-dim": "#a1d1b8",
+                    "surface-container-highest": "#e5e2dd",
+                    "inverse-primary": "#ccc5c3",
+                    "on-primary-fixed": "#1e1b1a",
+                    "primary-fixed": "#e9e1df",
+                    "on-tertiary-fixed-variant": "#214f3c",
+                    "on-tertiary-fixed": "#002114",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-container": "#5f8d77",
+                    "on-secondary-fixed": "#2c1700",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed-dim": "#e8bf97",
+                    "on-secondary-fixed-variant": "#5d4122",
+                    "on-secondary-container": "#785938",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed-variant": "#4a4644",
+                    "on-tertiary": "#ffffff",
+                    "inverse-on-surface": "#f3f0eb",
+                    "inverse-surface": "#31302d"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Newsreader", "serif"],
+                    "body": ["Inter", "sans-serif"],
+                    "label": ["Space Grotesk", "sans-serif"],
+                    "mono": ["IBM Plex Mono", "monospace"],
+                    "display": ["Playfair Display", "serif"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .hairline-input {
+            border: none;
+            border-bottom: 1px solid rgba(209, 196, 192, 0.4);
+            background: transparent;
+            border-radius: 0;
+            padding-left: 0;
+            padding-right: 0;
+        }
+        .hairline-input:focus {
+            outline: none;
+            box-shadow: none;
+            border-color: #775838;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f6f3ee;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #775838;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-background font-body selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- Top Navigation -->
+<nav class="fixed top-0 w-full z-50 bg-[#fcf9f4]/80 dark:bg-[#171413]/80 backdrop-blur-md">
+<div class="flex justify-between items-center px-8 py-6 w-full max-w-screen-2xl mx-auto">
+<div class="text-2xl font-bold tracking-tighter text-[#171413] dark:text-[#fcf9f4] font-['Newsreader']">MONOGRAM</div>
+<div class="hidden md:flex items-center space-x-12 font-['Newsreader'] tracking-tight">
+<a class="text-[#171413] dark:text-[#fcf9f4] opacity-70 hover:opacity-100 hover:text-[#775838] transition-all duration-300 scale-95" href="#">Inventory</a>
+<a class="text-[#171413] dark:text-[#fcf9f4] opacity-70 hover:opacity-100 hover:text-[#775838] transition-all duration-300 scale-95" href="#">Journal</a>
+<a class="text-[#171413] dark:text-[#fcf9f4] opacity-70 hover:opacity-100 hover:text-[#775838] transition-all duration-300 scale-95" href="#">Service</a>
+<a class="text-[#775838] border-b border-[#775838] pb-1 transition-all duration-300 scale-95" href="#">Sell</a>
+</div>
+<div class="flex items-center space-x-6">
+<button class="font-['Newsreader'] text-[#171413] hover:text-[#775838] transition-colors">Concierge</button>
+<span class="material-symbols-outlined text-xl cursor-pointer" data-icon="location_on">location_on</span>
+<span class="material-symbols-outlined text-xl cursor-pointer" data-icon="account_circle">account_circle</span>
+</div>
+</div>
+</nav>
+<main class="pt-32 pb-24 px-8 max-w-screen-2xl mx-auto">
+<!-- Hero Section -->
+<header class="grid grid-cols-1 md:grid-cols-12 gap-8 mb-32">
+<div class="md:col-start-2 md:col-span-6">
+<p class="font-mono text-xs uppercase tracking-widest text-secondary mb-6">Private Sales Atelier</p>
+<h1 class="font-display text-5xl md:text-7xl lg:text-8xl -tracking-[0.04em] leading-[0.9] text-primary mb-12">
+                    A discreet, curated<br/>exit for your<br/><span class="italic">masterpiece.</span>
+</h1>
+<p class="text-on-surface-variant max-w-md text-lg leading-relaxed">
+                    Monogram provides a sanctuary for significant automotive assets. We bypass the public market to facilitate direct placements between discerning collectors.
+                </p>
+</div>
+<div class="md:col-span-4 flex items-end">
+<div class="w-full h-[500px] overflow-hidden rounded-sm relative group">
+<img alt="Luxury vehicle" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" data-alt="Close-up of a classic silver sports car's sleek curves in a minimalist studio with soft overhead lighting and deep shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWPuwjQCOAdTuWkRyFW0vZGzRAuGdb0Ipj2PdN-uRuyoO4rSTvVIPNOSoecmXFCJdx297McgiG0Ns8z3Bi-XhTfK-R_6-Vvpp5kC1UPjSkx7hjf5aVqkRkm51MIr-zgxBxDzQORHGrpePjA-avyaI-QmQ_pQ_grpeMvcWiMDSqw7HiT7yT-RpVlstgT2zYVqth6ozGcXgxaXamvB9KX6nMx8Hyy94cpjrFhpstSDFmeTBM6nqN_vQT5JYrVowaNg52fKoVuAXJL0w"/>
+<div class="absolute inset-0 bg-primary/10 mix-blend-overlay"></div>
+</div>
+</div>
+</header>
+<!-- Intake Form Section -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-16">
+<!-- Left Sticky Sidebar (Progress) -->
+<aside class="md:col-start-2 md:col-span-3 h-fit md:sticky md:top-40">
+<div class="space-y-12">
+<div class="group">
+<span class="font-mono text-[10px] text-secondary block mb-2">01</span>
+<h3 class="font-display text-xl border-b border-secondary/20 pb-4 group-hover:border-secondary transition-colors cursor-pointer">The Machine</h3>
+<p class="text-xs text-on-surface-variant/60 mt-2 font-mono uppercase tracking-tighter">Specifications &amp; Provenance</p>
+</div>
+<div class="group opacity-40">
+<span class="font-mono text-[10px] text-on-surface-variant block mb-2">02</span>
+<h3 class="font-display text-xl border-b border-outline-variant/40 pb-4">The Narrative</h3>
+<p class="text-xs text-on-surface-variant/60 mt-2 font-mono uppercase tracking-tighter">Ownership History</p>
+</div>
+<div class="group opacity-40">
+<span class="font-mono text-[10px] text-on-surface-variant block mb-2">03</span>
+<h3 class="font-display text-xl border-b border-outline-variant/40 pb-4">The Liaison</h3>
+<p class="text-xs text-on-surface-variant/60 mt-2 font-mono uppercase tracking-tighter">Preferred Contact</p>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<div class="md:col-span-7 space-y-32">
+<!-- Step 1: Vehicle Details -->
+<div class="bg-surface-container-low p-12 md:p-20 rounded-sm">
+<div class="max-w-xl">
+<h2 class="font-display text-3xl mb-12">Identify the Artifact.</h2>
+<form class="space-y-16">
+<div class="space-y-8">
+<div class="relative">
+<label class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant block mb-2">Make &amp; Model</label>
+<input class="hairline-input w-full text-xl py-3 font-display italic placeholder:text-outline-variant/50" placeholder="e.g. 1967 Ferrari 275 GTB/4" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-12">
+<div class="relative">
+<label class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant block mb-2">Year of Production</label>
+<input class="hairline-input w-full text-xl py-3 font-mono placeholder:text-outline-variant/50" placeholder="YYYY" type="text"/>
+</div>
+<div class="relative">
+<label class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant block mb-2">Current Odometer</label>
+<input class="hairline-input w-full text-xl py-3 font-mono placeholder:text-outline-variant/50" placeholder="KM / MI" type="text"/>
+</div>
+</div>
+<div class="relative">
+<label class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant block mb-2">Exterior Finish</label>
+<input class="hairline-input w-full text-xl py-3 font-display italic placeholder:text-outline-variant/50" placeholder="Original color name or code" type="text"/>
+</div>
+</div>
+</form>
+</div>
+</div>
+<!-- Step 2: Provenance -->
+<div class="p-12 md:p-20 border-l border-outline-variant/10">
+<div class="max-w-xl">
+<h2 class="font-display text-3xl mb-6">Its Provenance.</h2>
+<p class="text-on-surface-variant text-sm mb-12 leading-relaxed">
+                            A vehicle's story is as valuable as its mechanical integrity. Detail any significant ownership, restorations, or accolades.
+                        </p>
+<form class="space-y-12">
+<div class="relative">
+<label class="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant block mb-2">Historical Significance</label>
+<textarea class="hairline-input w-full text-lg py-3 font-body placeholder:text-outline-variant/50 resize-none" placeholder="Brief ownership timeline, awards, or unique factory specifications..." rows="4"></textarea>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+<button class="flex items-center justify-between p-6 border border-outline-variant/20 rounded-sm hover:bg-surface-container transition-colors group" type="button">
+<span class="font-mono text-xs uppercase tracking-widest">Upload Logbooks</span>
+<span class="material-symbols-outlined text-secondary opacity-0 group-hover:opacity-100 transition-opacity" data-icon="upload_file">upload_file</span>
+</button>
+<button class="flex items-center justify-between p-6 border border-outline-variant/20 rounded-sm hover:bg-surface-container transition-colors group" type="button">
+<span class="font-mono text-xs uppercase tracking-widest">Image Portfolio</span>
+<span class="material-symbols-outlined text-secondary opacity-0 group-hover:opacity-100 transition-opacity" data-icon="add_a_photo">add_a_photo</span>
+</button>
+</div>
+</form>
+</div>
+</div>
+<!-- Step 3: Contact & Liaison -->
+<div class="bg-primary-container p-12 md:p-20 rounded-sm text-on-primary">
+<div class="max-w-xl">
+<h2 class="font-display text-3xl mb-12 text-surface">Secure the Connection.</h2>
+<form class="space-y-12">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+<div class="relative">
+<label class="font-mono text-[10px] uppercase tracking-widest text-on-primary/60 block mb-2">Legal Name</label>
+<input class="hairline-input border-on-primary/20 focus:border-secondary w-full text-xl py-3 text-surface" type="text"/>
+</div>
+<div class="relative">
+<label class="font-mono text-[10px] uppercase tracking-widest text-on-primary/60 block mb-2">Direct Line</label>
+<input class="hairline-input border-on-primary/20 focus:border-secondary w-full text-xl py-3 text-surface" type="tel"/>
+</div>
+</div>
+<div class="relative">
+<label class="font-mono text-[10px] uppercase tracking-widest text-on-primary/60 block mb-2">Electronic Mail</label>
+<input class="hairline-input border-on-primary/20 focus:border-secondary w-full text-xl py-3 text-surface" type="email"/>
+</div>
+<div class="pt-8">
+<button class="w-full md:w-auto px-12 py-5 bg-secondary text-on-secondary rounded-full font-label font-medium tracking-wide hover:bg-secondary/90 transition-all active:scale-95" type="submit">
+                                    Submit Portfolio to Curator
+                                </button>
+<p class="mt-6 font-mono text-[10px] text-on-primary/40 uppercase tracking-widest text-center md:text-left">
+                                    Response typical within 24 business hours.
+                                </p>
+</div>
+</form>
+</div>
+</div>
+</div>
+</section>
+<!-- Quote / Trust Section -->
+<section class="mt-48 grid grid-cols-1 md:grid-cols-12 gap-8 items-center border-t border-outline-variant/10 pt-24">
+<div class="md:col-start-3 md:col-span-8 text-center">
+<span class="material-symbols-outlined text-4xl text-secondary mb-8" data-icon="verified_user">verified_user</span>
+<blockquote class="font-display text-3xl md:text-5xl -tracking-tight leading-tight mb-12">
+                    "Privacy is the ultimate luxury. In the world of high-value assets, the quietest transactions are often the most significant."
+                </blockquote>
+<p class="font-mono text-xs uppercase tracking-widest text-secondary">— Julian Vance, Chief Curator</p>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-[#f6f3ee] dark:bg-[#1e1b1a] transition-opacity duration-500">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8 px-8 py-24 w-full max-w-screen-2xl mx-auto">
+<div class="md:col-span-6">
+<span class="font-['Newsreader'] text-4xl mb-8 block text-[#171413] dark:text-[#fcf9f4]">MONOGRAM</span>
+<p class="font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-[#171413] dark:text-[#fcf9f4] opacity-60">
+                    © 2024 MONOGRAM AUTOMOTIVE. ALL RIGHTS RESERVED.
+                </p>
+</div>
+<div class="md:col-span-3 space-y-4">
+<p class="font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-[#171413] dark:text-[#fcf9f4] mb-6">Directory</p>
+<a class="block font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-[#171413] dark:text-[#fcf9f4] opacity-60 hover:opacity-100 hover:text-[#775838] transition-all" href="#">The Journal</a>
+<a class="block font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-[#171413] dark:text-[#fcf9f4] opacity-60 hover:opacity-100 hover:text-[#775838] transition-all" href="#">Private Sales</a>
+<a class="block font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-[#171413] dark:text-[#fcf9f4] opacity-60 hover:opacity-100 hover:text-[#775838] transition-all" href="#">Maintenance</a>
+</div>
+<div class="md:col-span-3 space-y-4">
+<p class="font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-[#171413] dark:text-[#fcf9f4] mb-6">Legal</p>
+<a class="block font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-[#171413] dark:text-[#fcf9f4] opacity-60 hover:opacity-100 hover:text-[#775838] transition-all" href="#">About the Atelier</a>
+<a class="block font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-[#171413] dark:text-[#fcf9f4] opacity-60 hover:opacity-100 hover:text-[#775838] transition-all" href="#">Privacy Policy</a>
+</div>
+</div>
+</footer>
+</body></html>

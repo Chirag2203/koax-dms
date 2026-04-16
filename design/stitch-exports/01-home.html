@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>MONOGRAM | A Quieter Way to Own a Great Car</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;family=Inter:wght@100..900&amp;family=IBM+Plex+Mono:wght@300;400;500;600&amp;family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Space+Grotesk:wght@300..700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>body {
+    font-family: "Inter", sans-serif
+    }
+.font-serif {
+    font-family: "Playfair Display", serif
+    }
+.font-mono {
+    font-family: "IBM Plex Mono", monospace
+    }
+.font-headline {
+    font-family: "Newsreader", serif
+    }
+.font-label {
+    font-family: "Space Grotesk", sans-serif
+    }
+.material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 300, "GRAD" 0, "opsz" 24
+    }
+/* Editorial Spacing & Grid */
+.gutter-px {
+    padding-left: 96px;
+    padding-right: 96px
+    }
+.negative-gutter-mx {
+    margin-left: -96px;
+    margin-right: -96px
+    }
+/* Film Grain Effect */
+.grain::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuB8lzpt7Vh2uJu32HxhyF47pg6fugKMa6ofImWd3xigVfBcN4nrnbjib9VvMYsCiYgvG8YSBD1_ZZg0bPM4KJ6xbWqtd1pFsj2VrZX5iW3xHezd2r240j9IrEi18OCVQBTmNBQScChhD_p32_8v1K2bm3bsFCaeqD1TShTeluAjqr8Ct_sXMbhuf9LBGWoUmr0_-NLYBLtc2kZlU1SryRbGYWKmCjOHol2OYNlAySruZMJlbloLVTjzqp6yTzeVz-AC61p7IaNI09s);
+    opacity: 0.05;
+    pointer-events: none
+    }</style>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+                "on-tertiary-container": "#5f8d77",
+                "surface-tint": "#625d5c",
+                "primary": "#000000",
+                "tertiary-container": "#002114",
+                "error-container": "#ffdad6",
+                "surface": "#fcf9f4",
+                "inverse-surface": "#31302d",
+                "inverse-on-surface": "#f3f0eb",
+                "on-tertiary-fixed-variant": "#214f3c",
+                "on-surface": "#1c1c19",
+                "on-surface-variant": "#4d4542",
+                "on-primary-fixed": "#1e1b1a",
+                "tertiary": "#000000",
+                "primary-fixed-dim": "#ccc5c3",
+                "surface-container-lowest": "#ffffff",
+                "on-primary": "#ffffff",
+                "on-secondary-fixed": "#2c1700",
+                "on-tertiary": "#ffffff",
+                "surface-container-low": "#f6f3ee",
+                "surface-bright": "#fcf9f4",
+                "primary-fixed": "#e9e1df",
+                "on-primary-container": "#888381",
+                "on-secondary": "#ffffff",
+                "secondary-fixed-dim": "#e8bf97",
+                "primary-container": "#1e1b1a",
+                "tertiary-fixed-dim": "#a1d1b8",
+                "on-error-container": "#93000a",
+                "on-secondary-container": "#785938",
+                "tertiary-fixed": "#bceed3",
+                "surface-container-highest": "#e5e2dd",
+                "surface-container": "#f0ede9",
+                "outline-variant": "#d1c4c0",
+                "on-background": "#1c1c19",
+                "surface-variant": "#e5e2dd",
+                "secondary": "#775838",
+                "on-tertiary-fixed": "#002114",
+                "outline": "#7f7572",
+                "on-primary-fixed-variant": "#4a4644",
+                "surface-container-high": "#ebe8e3",
+                "inverse-primary": "#ccc5c3",
+                "error": "#ba1a1a",
+                "secondary-container": "#fcd3a9",
+                "on-secondary-fixed-variant": "#5d4122",
+                "background": "#fcf9f4",
+                "secondary-fixed": "#ffdcbc",
+                "on-error": "#ffffff",
+                "surface-dim": "#dcdad5"
+            },
+            borderRadius: {
+                "DEFAULT": "0.125rem",
+                "lg": "0.25rem",
+                "xl": "0.5rem",
+                "full": "9999px"
+            },
+            fontFamily: {
+                "headline": ["Newsreader", "serif"],
+                "body": ["Inter", "sans-serif"],
+                "label": ["Space Grotesk", "sans-serif"]
+            }
+          }
+        }
+      }
+    </script>
+</head>
+<body class="bg-surface text-on-surface antialiased">
+<!-- TopNavBar (Shared Component) -->
+<nav class="fixed top-0 w-full flex justify-between items-center px-12 py-6 bg-surface/80 dark:bg-stone-950/80 backdrop-blur-md z-50 no-border tonal-shift font-serif tracking-tighter uppercase text-sm">
+<div class="flex items-center gap-12">
+<span class="font-serif text-2xl tracking-tighter font-bold text-stone-900 dark:text-stone-50">MONOGRAM</span>
+<div class="hidden md:flex gap-8">
+<a class="text-stone-900 dark:text-white border-b border-stone-900 dark:border-white pb-1 transition-opacity duration-300" href="#">The Collection</a>
+<a class="text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 transition-colors" href="#">Certification</a>
+<a class="text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 transition-colors" href="#">Atelier</a>
+<a class="text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 transition-colors" href="#">Heritage</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-1 text-stone-500 dark:text-stone-400 cursor-pointer hover:opacity-70 transition-opacity">
+<span class="material-symbols-outlined text-sm">location_on</span>
+<span>City Selector</span>
+</div>
+<button class="bg-primary text-on-primary px-5 py-1.5 rounded-full text-xs font-label tracking-widest active:scale-95 transition-transform">Sign In</button>
+</div>
+</nav>
+<!-- Hero Section -->
+<header class="relative h-screen flex flex-col justify-end bg-[#0A0908] overflow-hidden grain">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover opacity-60 mix-blend-luminosity" data-alt="dramatic low-angle shot of a classic sports car silhouette parked inside a minimalist glass-walled modernist architectural showroom at twilight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmSAydMbzMolilrHbIw_U8x1z-HLwwZd9I39TPwmSl2gOXHD6lpQOlAtscIg9OrPav0WFWKycv85UrirNCBbS4jJhFZUewkode6EVO5pkEphGfiIfCz0VQROePzqfKvuFI4LPMu9OnKKX4GuVBlJWNWY-D7R7PaaOGaWGMWgUc1Y3gMJ9gI47co5-NJpwSSKSTfL0if4TXU_8Ju_MGFNDhIumrQdYsTTvFPhUoujsU-QIbAfvu6kpssibDg0tMJBUV6ZfoNuezYAE"/>
+</div>
+<div class="relative z-10 gutter-px pb-24 grid grid-cols-12 gap-6">
+<div class="col-span-12 lg:col-span-10">
+<h1 class="font-serif text-[112px] leading-[0.9] text-white tracking-[-0.04em] mb-12">
+                    A quieter way to own<br/>a great car
+                </h1>
+<div class="grid grid-cols-12 gap-6 items-end">
+<div class="col-span-12 md:col-span-6">
+<p class="text-stone-400 font-body text-xl leading-relaxed mb-10 max-w-lg">
+                            Each vehicle hand-selected, inspected on 210 points, and shown in three cities. A bespoke acquisition experience for the discerning driver.
+                        </p>
+<div class="flex items-center gap-8">
+<a class="bg-secondary hover:bg-secondary-container transition-colors text-white px-8 py-4 rounded-full font-label uppercase tracking-widest text-sm flex items-center gap-3" href="#collection">
+                                View the collection <span class="material-symbols-outlined text-lg">arrow_forward</span>
+</a>
+<a class="text-stone-400 font-label uppercase tracking-widest text-xs border-b border-stone-800 pb-1 hover:text-white transition-colors" href="#">
+                                Or sell your car privately
+                            </a>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="absolute bottom-12 left-[96px] z-10">
+<span class="font-mono text-[10px] text-stone-500 tracking-[0.3em] uppercase">SPRING 2026 · NO. 04</span>
+</div>
+</header>
+<!-- Curation Strip (Dark Theme) -->
+<section class="bg-[#0A0908] py-32 gutter-px">
+<div class="grid grid-cols-12 gap-8">
+<!-- Card 1 -->
+<div class="col-span-12 md:col-span-4 group cursor-pointer">
+<div class="aspect-[16/10] overflow-hidden rounded-sm mb-6 bg-stone-900">
+<img class="w-full h-full object-cover grayscale opacity-80 group-hover:scale-105 group-hover:opacity-100 transition-all duration-700" data-alt="high-contrast studio photograph of a vintage 911 in graphite grey, side profile, soft overhead lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCiL5i4uozWMbR2yDM9cZXO_eUv88pCxRVYjDFql_SyBeYcXlnT_lTyxRNrSYaexFczMoTSv1MvbSwIrKa-9eFmBSlhV7ynTs1oK8F4raFJfhaEiagP82MpAxTV811ba-nL34L5drlsnvEup9FgcKRzFSnL4ZYOz6PdnihseksChyURZJn7CININ0iUkqxCUeCv_hMEZQ4QO3ZQlBB1ZFWbg9Y1ijJ6lXRnFUuswiWTyOO_5RTyoCjr4WBhlOVM-VHGBnQLfOYEd4g"/>
+</div>
+<div class="space-y-4">
+<span class="font-mono text-[11px] text-stone-500 uppercase tracking-widest">2021 · Porsche 911 Carrera S</span>
+<h3 class="font-serif text-3xl text-white">The Timeless Silhouette</h3>
+<p class="text-stone-400 text-sm leading-relaxed line-clamp-2">Finished in Agate Grey with Truffle Brown leather. Single owner, meticulously maintained in our Chennai atelier.</p>
+<div class="flex justify-between items-center pt-2">
+<span class="font-mono text-lg text-white">₹1,45,00,000</span>
+<span class="material-symbols-outlined text-stone-600 group-hover:text-secondary transition-colors">east</span>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="col-span-12 md:col-span-4 group cursor-pointer translate-y-12">
+<div class="aspect-[16/10] overflow-hidden rounded-sm mb-6 bg-stone-900">
+<img class="w-full h-full object-cover grayscale opacity-80 group-hover:scale-105 group-hover:opacity-100 transition-all duration-700" data-alt="modern luxury sedan rear view detail, sleek taillights illuminated in a dark studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDF4iX0zLmj9k9BRh5BZ0oN0Eum9epdbPefvvJXGnCIbe879-4WQvK8T2HeFyrJk2aCBPuwGGB11dV5LA0Zgd3XlFIKn-k15N4_vGjzei--RJe-CbNv_T1umizYQTKd9XRPmEEGzc-ooynkMYCPqospgffbxa7QByBg0GQA-Lrr9wWWVsO9b4QubrqOlY55-cszGTzhgfS9YC2nXhBSHdgKfx4Kx2Bpfay9TRDA7T6-D0iAC_mHv0wvwmaHm_xgIgPG6VxVdJuhXFQ"/>
+</div>
+<div class="space-y-4">
+<span class="font-mono text-[11px] text-stone-500 uppercase tracking-widest">2023 · Mercedes-Benz S-Class</span>
+<h3 class="font-serif text-3xl text-white">Refinement Redefined</h3>
+<p class="text-stone-400 text-sm leading-relaxed line-clamp-2">Maybach-inspired interiors with executive seating. Delivered to Mumbai with full ceramic coating.</p>
+<div class="flex justify-between items-center pt-2">
+<span class="font-mono text-lg text-white">₹1,85,00,000</span>
+<span class="material-symbols-outlined text-stone-600 group-hover:text-secondary transition-colors">east</span>
+</div>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="col-span-12 md:col-span-4 group cursor-pointer">
+<div class="aspect-[16/10] overflow-hidden rounded-sm mb-6 bg-stone-900">
+<img class="w-full h-full object-cover grayscale opacity-80 group-hover:scale-105 group-hover:opacity-100 transition-all duration-700" data-alt="luxury SUV front grille and headlight detail, matte black finish, rain droplets on bodywork" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJ4YD0zG3rUpHeIUMoCn4vvr21na5fSSKCS2JjZUs4zNCa2O3bpiK8_gswPl2Re0aV_-OiHCkhxSO09nBlSFyNzJ7ZkdtEVa1wBQ9BxIFVTwuMXTMEfszP65Z7GgDZhFVJ7Pd_IEPmGiBlEKM1p6ostZKX3Z2gdtbOCV_2ikw2HoM1A_7ahWkUdb1IskgvS-LfxgnfYueC8wV7vMR8Dl0iQTiVhyJXcyUuG_yQH_T5EIUP0VLBkM4DDoZC80anXDsQhidfiJdcTpQ"/>
+</div>
+<div class="space-y-4">
+<span class="font-mono text-[11px] text-stone-500 uppercase tracking-widest">2022 · Range Rover Autobiography</span>
+<h3 class="font-serif text-3xl text-white">The Peerless Voyager</h3>
+<p class="text-stone-400 text-sm leading-relaxed line-clamp-2">Long wheelbase variant in Belgravia Green. Only 8,400km with comprehensive service records.</p>
+<div class="flex justify-between items-center pt-2">
+<span class="font-mono text-lg text-white">₹2,10,00,000</span>
+<span class="material-symbols-outlined text-stone-600 group-hover:text-secondary transition-colors">east</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Transition Block (Cream Paper) -->
+<section class="bg-[#FAF7F2] py-32 gutter-px border-y border-stone-200">
+<div class="grid grid-cols-12 gap-12 items-center">
+<div class="col-span-12 lg:col-span-7 space-y-8">
+<p class="font-body text-xl leading-[1.6] text-stone-700">
+                    At Monogram, we believe the purchase of a pre-owned vehicle should feel indistinguishable from a factory commission. Our process is quiet, thorough, and entirely focused on the mechanical and aesthetic integrity of the machine.
+                </p>
+<p class="font-body text-xl leading-[1.6] text-stone-700">
+                    Every car in our collection undergoes a rigorous 210-point technical validation by factory-trained specialists, followed by an intensive cosmetic restoration at our Bengaluru atelier.
+                </p>
+<p class="font-body text-xl leading-[1.6] text-stone-700">
+                    We don't just sell cars; we curate heritage. Our three-city network ensures that whether you are in Mumbai, Bangalore, or Chennai, the Monogram standard remains absolute.
+                </p>
+</div>
+<div class="col-span-12 lg:col-start-9 lg:col-span-4 flex flex-col items-end">
+<div class="space-y-12 text-right">
+<div class="space-y-2">
+<span class="font-mono text-5xl font-light text-secondary">210</span>
+<p class="font-mono text-[10px] uppercase tracking-widest text-stone-400">Technical checks performed</p>
+</div>
+<div class="space-y-2">
+<span class="font-mono text-5xl font-light text-secondary">12</span>
+<p class="font-mono text-[10px] uppercase tracking-widest text-stone-400">Month comprehensive warranty</p>
+</div>
+<div class="space-y-2">
+<span class="font-mono text-5xl font-light text-secondary">03</span>
+<p class="font-mono text-[10px] uppercase tracking-widest text-stone-400">Outlet premium network</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- The Collection Grid -->
+<section class="bg-surface py-32 gutter-px" id="collection">
+<div class="flex justify-between items-end mb-20">
+<div>
+<span class="font-mono text-xs uppercase tracking-[0.3em] text-secondary mb-4 block">The Collection</span>
+<h2 class="font-serif text-6xl tracking-tight">Available Inventory</h2>
+</div>
+<div class="flex gap-6 font-mono text-[11px] uppercase tracking-widest">
+<button class="border-b border-black pb-1">All Models</button>
+<button class="text-stone-400 hover:text-black transition-colors">Sedans</button>
+<button class="text-stone-400 hover:text-black transition-colors">SUVs</button>
+<button class="text-stone-400 hover:text-black transition-colors">Sports</button>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-16 gap-x-12">
+<!-- Vehicle Card Loop (Mocked 9 items) -->
+<!-- 1 -->
+<div class="group cursor-pointer">
+<div class="aspect-[4/5] bg-stone-100 mb-6 overflow-hidden rounded-sm">
+<img class="w-full h-full object-cover mix-blend-multiply opacity-90 group-hover:scale-105 transition-transform duration-700" data-alt="front three-quarter view of a classic silver convertible sports car on a clean white background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqBtRaIf3aFY5dixsPU4oBsr3ApkmOe18lvN3EknoIaUCKfkNp8eR80aUN6HpLJZ-grmW-LcICUUnC-igJnxXnbv_N0PA-3O_yVrYlB8ggy8q1Y_SCMZWmW5Qi0g96FOdrh21Q-opQXYwOaDd77ZE9DNRIqZvmpB8UyxqFX4-pEwIDjZwT7QCMXJpnPDx82yy7KYXuITrRodhpabRhQtCWCweKGYuxo9KwYP7SIcbAPOcoxF-VLL9KzVCCSKPwiftKt9_5ZtM6qxw"/>
+</div>
+<div class="pb-4 border-b border-stone-200 mb-4">
+<div class="flex justify-between items-center mb-2">
+<span class="font-mono text-[10px] uppercase tracking-widest text-stone-500">2019 · 12,400 KM · BANGALORE</span>
+<span class="material-symbols-outlined text-stone-300 group-hover:text-secondary transition-colors">bookmark</span>
+</div>
+<h4 class="font-serif text-2xl mb-1">BMW M5 Competition</h4>
+<p class="text-stone-500 text-sm font-body">Marina Bay Blue · Silverstone Leather</p>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body text-xl font-light">₹1,12,00,000</span>
+<span class="font-mono text-[10px] uppercase tracking-widest text-secondary opacity-0 group-hover:opacity-100 transition-opacity">View Details</span>
+</div>
+</div>
+<!-- 2 -->
+<div class="group cursor-pointer">
+<div class="aspect-[4/5] bg-stone-100 mb-6 overflow-hidden rounded-sm">
+<img class="w-full h-full object-cover mix-blend-multiply opacity-90 group-hover:scale-105 transition-transform duration-700" data-alt="luxury SUV headlight detail with intricate LED patterns and crystal-like optics" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD-YF06CJyDZ0TDKVjrzheQtJ--be9suPTCydYuYKY16EPthpdnht-haockUMujzlgiLHS5wiihhQq5yhCrNdHE0op34HFS4MD36iPeZLjEnag5jim5Dum11vjYbeOgMV3qMongIT_EhoBAiq7giv1FEjqr6KQa00muOIx1k5ieQjwJy4PZl_byud8zw9DGJykRuAkhCcpnVsSYcJC7m-PhUpLFsnxT0jw4WRqnwSJYv_isSBA_plUWN2hp9EDgHi6IbnMHj1PUuo0"/>
+</div>
+<div class="pb-4 border-b border-stone-200 mb-4">
+<div class="flex justify-between items-center mb-2">
+<span class="font-mono text-[10px] uppercase tracking-widest text-stone-500">2022 · 6,100 KM · MUMBAI</span>
+<span class="material-symbols-outlined text-stone-300 group-hover:text-secondary transition-colors">bookmark</span>
+</div>
+<h4 class="font-serif text-2xl mb-1">Audi RSQ8</h4>
+<p class="text-stone-500 text-sm font-body">Nardo Grey · Carbon Fiber Package</p>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body text-xl font-light">₹2,05,00,000</span>
+<span class="font-mono text-[10px] uppercase tracking-widest text-secondary opacity-0 group-hover:opacity-100 transition-opacity">View Details</span>
+</div>
+</div>
+<!-- 3 -->
+<div class="group cursor-pointer">
+<div class="aspect-[4/5] bg-stone-100 mb-6 overflow-hidden rounded-sm">
+<img class="w-full h-full object-cover mix-blend-multiply opacity-90 group-hover:scale-105 transition-transform duration-700" data-alt="luxury electric sedan interior with large screen display and premium wooden dash accents" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD8Rjs7KTDF2eYXkI7xbVGmFFAwRjwjxGmb7Rv6FjGEZqeeMaUnTfRYi6XgqIRidXMjeveJTWuajk9Nd6dFhQA1NlVb29SAmoWJq26qzOL8hpIPmPoAIdVESaDyWx9jCOyHU1iyIrIfKUxuCQkcd3FyKAmimu-lQCHnGSEC_aL3nyyOCWZYC8uaJ5o0pWdp7nRqm_M_iHLTkpsKi5Lo0-qXkN3vW3PGBfwIJBZ27tEBbXyVPcR9yV36BM-ZNKjWdJS3MlS25MP13dE"/>
+</div>
+<div class="pb-4 border-b border-stone-200 mb-4">
+<div class="flex justify-between items-center mb-2">
+<span class="font-mono text-[10px] uppercase tracking-widest text-stone-500">2023 · 2,200 KM · CHENNAI</span>
+<span class="material-symbols-outlined text-stone-300 group-hover:text-secondary transition-colors">bookmark</span>
+</div>
+<h4 class="font-serif text-2xl mb-1">Mercedes-EQS 580</h4>
+<p class="text-stone-500 text-sm font-body">Obsidian Black · Hyperscreen</p>
+</div>
+<div class="flex justify-between items-center">
+<span class="font-body text-xl font-light">₹1,65,00,000</span>
+<span class="font-mono text-[10px] uppercase tracking-widest text-secondary opacity-0 group-hover:opacity-100 transition-opacity">View Details</span>
+</div>
+</div>
+<!-- More cards would repeat here in a real app... -->
+</div>
+<div class="mt-20 flex justify-center">
+<button class="px-12 py-4 border border-stone-200 hover:border-black transition-colors font-label text-xs uppercase tracking-widest">Explore Full Inventory</button>
+</div>
+</section>
+<!-- Services Band (Ink Bg) -->
+<section class="bg-primary py-32 gutter-px">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-px bg-stone-800">
+<!-- Service 1 -->
+<div class="bg-primary p-12 hover:bg-stone-900 transition-colors cursor-pointer group h-[400px] flex flex-col justify-between">
+<h3 class="font-serif text-[72px] leading-none text-white opacity-40 group-hover:opacity-100 transition-opacity">Service &amp; Maintenance</h3>
+<div class="flex justify-between items-end">
+<p class="text-stone-500 text-sm max-w-[200px]">Bespoke care for high-performance vehicles at our certified labs.</p>
+<span class="font-mono text-xs text-secondary uppercase tracking-widest">Learn more →</span>
+</div>
+</div>
+<!-- Service 2 -->
+<div class="bg-primary p-12 hover:bg-stone-900 transition-colors cursor-pointer group h-[400px] flex flex-col justify-between">
+<h3 class="font-serif text-[72px] leading-none text-white opacity-40 group-hover:opacity-100 transition-opacity">Pre-Purchase Inspection</h3>
+<div class="flex justify-between items-end">
+<p class="text-stone-500 text-sm max-w-[200px]">Unbiased technical validation for private party transactions.</p>
+<span class="font-mono text-xs text-secondary uppercase tracking-widest">Learn more →</span>
+</div>
+</div>
+<!-- Service 3 -->
+<div class="bg-primary p-12 hover:bg-stone-900 transition-colors cursor-pointer group h-[400px] flex flex-col justify-between">
+<h3 class="font-serif text-[72px] leading-none text-white opacity-40 group-hover:opacity-100 transition-opacity">Sell Privately</h3>
+<div class="flex justify-between items-end">
+<p class="text-stone-500 text-sm max-w-[200px]">Let us handle the negotiation and vetting for your unique asset.</p>
+<span class="font-mono text-xs text-secondary uppercase tracking-widest">Learn more →</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Journal Section -->
+<section class="bg-surface py-32 gutter-px">
+<div class="mb-16">
+<span class="font-mono text-xs uppercase tracking-[0.3em] text-secondary mb-4 block">The Monogram Journal</span>
+<h2 class="font-serif text-5xl">Dispatches from the Atelier</h2>
+</div>
+<div class="grid grid-cols-12 gap-8">
+<div class="col-span-12 md:col-span-4 group cursor-pointer">
+<div class="aspect-[3/4] overflow-hidden rounded-sm mb-6">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 grayscale hover:grayscale-0" data-alt="abstract close-up of blue sports car body lines reflecting light in a garage" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDI9eQI4JeJrUPuNq7GExlvLre6Gg99l7PZnxc1Rj-27cfWPEdsttGa1ErEUXMZ9hJuVBAge3378G3kcDAV_XS45td_B-ocgf6Uu83_v7jL2bN7ElHZmzmvmxNkm-P8aAZDoRlpza5_5qbevSJHFby6dZa4zvuEXfhM95zSSmTL5KTIcw9g93p1R8fdU7gxY1xAB1TiiHj9OSi2K5kvK7AJ6M_ZF02UmRMokRDSNDkvjWVq2PN37r4bfdAoctCeTrSon4GogEPqCLk"/>
+</div>
+<span class="font-mono text-[10px] text-stone-400 uppercase tracking-widest">January 14, 2026</span>
+<h4 class="font-serif text-2xl mt-4 leading-snug">The Architecture of Speed: A Study in Aerodynamics</h4>
+</div>
+<div class="col-span-12 md:col-span-4 group cursor-pointer pt-12">
+<div class="aspect-[3/4] overflow-hidden rounded-sm mb-6">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 grayscale hover:grayscale-0" data-alt="classic white vintage car steering wheel and dashboard details in soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAraSOFSq6RY8vE68FRtKewurnCwwFFfR86RxD2OLAkIQxTt4-prNUCWrXmiTO5tRYJpMtNuZBfxFwg-IdfF6a8oaFBxb_AT7EggBRuPmbp6Wmc9uQ26sEMoUCygGJmR2PDNbbrEA0WGh8MT0tHjgBm9SGxkzQHNP7aXie2UJsMgA_OiMid5NjvxBYsVPjxeVffCSDQfI8VzkcdRuhDvqcZl5t9ypT4rERezqOE47BKzhv0IbJbggZI3G5E9bKzuR_04PMtbfL-BYo"/>
+</div>
+<span class="font-mono text-[10px] text-stone-400 uppercase tracking-widest">December 02, 2025</span>
+<h4 class="font-serif text-2xl mt-4 leading-snug">Restoring the Legend: The 1964 Grand Tourer</h4>
+</div>
+<div class="col-span-12 md:col-span-4 group cursor-pointer">
+<div class="aspect-[3/4] overflow-hidden rounded-sm mb-6">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 grayscale hover:grayscale-0" data-alt="misty mountain road at dawn with a modern car's headlights cutting through the fog" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBS9bpXbuByk5hmOrvdW3pBmtDQUeTwZnQnuSkU_7KyDWPy-Q4Vg0Djp0T957UAE7B64WYBl7uBsa-JsbNUb3j7UBSIblWXestcSXuoYV5wsRGQGao25eHi5xrdwc4pPHfasNsUj8-vSGoyOyOL_Z_Ef1GVZyHtdNGHaqRYYBTI1sE7Vinu7d-MCCgB0PezZMCKByPsVBRSQ9DUl7PURTaR8yX5FSlLDiOKe4e0cFjZ5pgp2Tp16T4QLxyRIhNoqSeUBGiuFCuNUJY"/>
+</div>
+<span class="font-mono text-[10px] text-stone-400 uppercase tracking-widest">November 18, 2025</span>
+<h4 class="font-serif text-2xl mt-4 leading-snug">Driving the Western Ghats: A Winter Expedition</h4>
+</div>
+</div>
+</section>
+<!-- Footer (Shared Component / Custom Content) -->
+<footer class="bg-primary text-stone-300 py-24 gutter-px font-mono uppercase text-xs tracking-widest">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-16 mb-24">
+<div class="md:col-span-4 space-y-12">
+<span class="font-serif italic text-3xl text-stone-50 lowercase tracking-tighter">monogram.</span>
+<div class="space-y-4">
+<p class="text-stone-500 leading-loose">Subscribe to the atelier dispatch</p>
+<div class="flex border-b border-stone-800 pb-2">
+<input class="bg-transparent border-none focus:ring-0 text-xs w-full p-0" placeholder="YOUR EMAIL ADDRESS" type="email"/>
+<button class="text-secondary">Join</button>
+</div>
+</div>
+</div>
+<div class="md:col-span-2 space-y-6">
+<h5 class="text-white">Visit</h5>
+<ul class="space-y-4 text-stone-500">
+<li class="hover:text-white transition-colors cursor-pointer">Bangalore</li>
+<li class="hover:text-white transition-colors cursor-pointer">Mumbai</li>
+<li class="hover:text-white transition-colors cursor-pointer">Chennai</li>
+</ul>
+</div>
+<div class="md:col-span-2 space-y-6">
+<h5 class="text-white">Contact</h5>
+<ul class="space-y-4 text-stone-500">
+<li class="hover:text-white transition-colors cursor-pointer">Email</li>
+<li class="hover:text-white transition-colors cursor-pointer">WhatsApp</li>
+<li class="hover:text-white transition-colors cursor-pointer">Telephone</li>
+</ul>
+</div>
+<div class="md:col-span-2 space-y-6">
+<h5 class="text-white">Company</h5>
+<ul class="space-y-4 text-stone-500">
+<li class="hover:text-white transition-colors cursor-pointer">Careers</li>
+<li class="hover:text-white transition-colors cursor-pointer">Press</li>
+<li class="hover:text-white transition-colors cursor-pointer">Journal</li>
+</ul>
+</div>
+<div class="md:col-span-2 space-y-6">
+<h5 class="text-white">Legal</h5>
+<ul class="space-y-4 text-stone-500">
+<li class="hover:text-white transition-colors cursor-pointer">Privacy</li>
+<li class="hover:text-white transition-colors cursor-pointer">Terms</li>
+</ul>
+</div>
+</div>
+<div class="flex flex-col md:flex-row justify-between items-center pt-12 border-t border-stone-900 gap-8">
+<span class="text-[10px] text-stone-600">© 2026 MONOGRAM · A MULTI-CITY CONCERN.</span>
+<div class="flex gap-8 text-stone-600">
+<span class="hover:text-secondary cursor-pointer">Instagram</span>
+<span class="hover:text-secondary cursor-pointer">LinkedIn</span>
+<span class="hover:text-secondary cursor-pointer">X (Twitter)</span>
+</div>
+</div>
+</footer>
+</body></html>

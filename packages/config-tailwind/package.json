@@ -1,0 +1,10 @@
+{
+  "name": "@dms/config-tailwind",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./tailwind.preset.js",
+  "dependencies": {
+    "@dms/tokens": "workspace:*",
+    "tailwindcss": "^3.4.0"
+  }
+}

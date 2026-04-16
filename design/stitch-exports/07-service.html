@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Inter:wght@300;400;500;600&amp;family=IBM+Plex+Mono:wght@300;400;500&amp;family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-primary-container": "#888381",
+                    "on-background": "#1c1c19",
+                    "primary-fixed-dim": "#ccc5c3",
+                    "outline-variant": "#d1c4c0",
+                    "surface": "#fcf9f4",
+                    "tertiary": "#000000",
+                    "secondary-fixed": "#ffdcbc",
+                    "secondary-container": "#fcd3a9",
+                    "error-container": "#ffdad6",
+                    "surface-container-high": "#ebe8e3",
+                    "tertiary-container": "#002114",
+                    "primary": "#000000",
+                    "surface-tint": "#625d5c",
+                    "background": "#fcf9f4",
+                    "outline": "#7f7572",
+                    "surface-bright": "#fcf9f4",
+                    "on-surface-variant": "#4d4542",
+                    "surface-container-low": "#f6f3ee",
+                    "on-error": "#ffffff",
+                    "tertiary-fixed": "#bceed3",
+                    "primary-container": "#1e1b1a",
+                    "surface-container": "#f0ede9",
+                    "surface-variant": "#e5e2dd",
+                    "on-primary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "secondary": "#775838",
+                    "surface-dim": "#dcdad5",
+                    "on-surface": "#1c1c19",
+                    "tertiary-fixed-dim": "#a1d1b8",
+                    "surface-container-highest": "#e5e2dd",
+                    "inverse-primary": "#ccc5c3",
+                    "on-primary-fixed": "#1e1b1a",
+                    "primary-fixed": "#e9e1df",
+                    "on-tertiary-fixed-variant": "#214f3c",
+                    "on-tertiary-fixed": "#002114",
+                    "on-error-container": "#93000a",
+                    "on-tertiary-container": "#5f8d77",
+                    "on-secondary-fixed": "#2c1700",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-fixed-dim": "#e8bf97",
+                    "on-secondary-fixed-variant": "#5d4122",
+                    "on-secondary-container": "#785938",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed-variant": "#4a4644",
+                    "on-tertiary": "#ffffff",
+                    "inverse-on-surface": "#f3f0eb",
+                    "inverse-surface": "#31302d",
+                    "forest": "#1b4332"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Newsreader", "serif"],
+                    "body": ["Inter", "sans-serif"],
+                    "label": ["Space Grotesk", "sans-serif"],
+                    "display": ["Playfair Display", "serif"],
+                    "mono": ["IBM Plex Mono", "monospace"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .asymmetric-bleed {
+            margin-left: calc(50% - 50vw);
+            margin-right: calc(50% - 50vw);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-background font-body selection:bg-secondary/20 overflow-x-hidden">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 bg-[#fcf9f4]/80 backdrop-blur-md">
+<div class="flex justify-between items-center px-8 py-6 w-full max-w-screen-2xl mx-auto">
+<div class="text-2xl font-bold tracking-tighter text-[#171413] font-headline">MONOGRAM</div>
+<div class="hidden md:flex items-center gap-12">
+<a class="text-[#171413] opacity-70 font-headline tracking-tight hover:opacity-100 hover:text-[#775838] transition-all" href="#">Inventory</a>
+<a class="text-[#171413] opacity-70 font-headline tracking-tight hover:opacity-100 hover:text-[#775838] transition-all" href="#">Journal</a>
+<a class="text-[#775838] border-b border-[#775838] pb-1 font-headline tracking-tight" href="#">Service</a>
+<a class="text-[#171413] opacity-70 font-headline tracking-tight hover:opacity-100 hover:text-[#775838] transition-all" href="#">Sell</a>
+</div>
+<div class="flex items-center gap-6">
+<button class="font-headline tracking-tight text-[#171413] hover:text-[#775838] transition-all">Concierge</button>
+<span class="material-symbols-outlined text-xl cursor-pointer">location_on</span>
+<span class="material-symbols-outlined text-xl cursor-pointer">account_circle</span>
+</div>
+</div>
+</nav>
+<main class="pt-32 pb-24 px-8 max-w-screen-2xl mx-auto">
+<!-- Hero Section -->
+<header class="grid grid-cols-1 md:grid-cols-12 gap-8 mb-20">
+<div class="md:col-span-7">
+<h1 class="font-display text-6xl md:text-8xl tracking-[-0.04em] leading-tight mb-8">
+                    The Care of <br/><span class="italic font-normal">Excellence.</span>
+</h1>
+<p class="font-body text-on-surface-variant max-w-md text-lg leading-relaxed">
+                    Automotive maintenance redefined as a masterclass in transparency. Our ateliers in Bangalore, Mumbai, and Chennai offer bespoke technical guardianship for your vehicle.
+                </p>
+</div>
+<div class="md:col-span-5 flex flex-col justify-end items-end text-right">
+<div class="flex items-center gap-3 text-forest mb-2">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-mono text-xs uppercase tracking-widest">Certified Master Technicians</span>
+</div>
+<div class="font-mono text-xs text-on-surface-variant uppercase tracking-widest opacity-60">Service Atelier Status: Active</div>
+</div>
+</header>
+<!-- Service Selection Grid -->
+<section class="mb-24">
+<div class="flex justify-between items-end mb-12">
+<h2 class="font-display text-4xl tracking-tight">Select Mastery</h2>
+<div class="font-mono text-xs uppercase tracking-widest opacity-60">Step 01 / 04</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Annual Service -->
+<div class="bg-surface-container-low p-8 rounded-sm group hover:bg-surface-container-high transition-colors cursor-pointer relative overflow-hidden">
+<div class="relative z-10">
+<span class="material-symbols-outlined text-3xl mb-12 block text-secondary">history</span>
+<h3 class="font-display text-2xl mb-4">Annual Service</h3>
+<p class="font-body text-sm text-on-surface-variant mb-8 leading-relaxed">A comprehensive 150-point technical validation, fluid exchange, and structural inspection.</p>
+<div class="font-mono text-xl tracking-tight">₹ 85,000<span class="text-xs opacity-50 ml-1">Est. Starting</span></div>
+</div>
+</div>
+<!-- Technical Inspection -->
+<div class="bg-surface-container-highest p-8 rounded-sm group border border-outline-variant/20 cursor-pointer relative overflow-hidden">
+<div class="absolute top-4 right-4 bg-forest text-white px-3 py-1 text-[10px] font-mono tracking-widest rounded-sm">RECOMMENDED</div>
+<div class="relative z-10">
+<span class="material-symbols-outlined text-3xl mb-12 block text-secondary">analytics</span>
+<h3 class="font-display text-2xl mb-4">Master Inspection</h3>
+<p class="font-body text-sm text-on-surface-variant mb-8 leading-relaxed">Diagnostic deep-dive utilizing factory-grade telemetry and precision measurement tools.</p>
+<div class="font-mono text-xl tracking-tight">₹ 42,500<span class="text-xs opacity-50 ml-1">Est. Starting</span></div>
+</div>
+</div>
+<!-- Detailing -->
+<div class="bg-surface-container-low p-8 rounded-sm group hover:bg-surface-container-high transition-colors cursor-pointer relative overflow-hidden">
+<div class="relative z-10">
+<span class="material-symbols-outlined text-3xl mb-12 block text-secondary">auto_fix_high</span>
+<h3 class="font-display text-2xl mb-4">Aesthetic Detailing</h3>
+<p class="font-body text-sm text-on-surface-variant mb-8 leading-relaxed">Restoration of the vehicle's "as-new" luster through multi-stage ceramic and hide treatment.</p>
+<div class="font-mono text-xl tracking-tight">₹ 1,20,000<span class="text-xs opacity-50 ml-1">Est. Starting</span></div>
+</div>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+<!-- Left Column: Outlet & Calendar -->
+<div class="lg:col-span-8 space-y-24">
+<!-- Outlet Selection -->
+<section>
+<div class="flex justify-between items-end mb-12">
+<h2 class="font-display text-4xl tracking-tight">Atelier Location</h2>
+<div class="font-mono text-xs uppercase tracking-widest opacity-60">Step 02 / 04</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<button class="border border-outline-variant p-6 text-left hover:border-secondary transition-all rounded-sm flex flex-col gap-2">
+<span class="font-mono text-[10px] tracking-widest opacity-50">LOCATION: KA</span>
+<span class="font-headline text-xl">Bangalore</span>
+</button>
+<button class="border-2 border-secondary bg-surface-container p-6 text-left rounded-sm flex flex-col gap-2 shadow-sm">
+<span class="font-mono text-[10px] tracking-widest text-secondary font-bold">ACTIVE: MH</span>
+<span class="font-headline text-xl">Mumbai</span>
+</button>
+<button class="border border-outline-variant p-6 text-left hover:border-secondary transition-all rounded-sm flex flex-col gap-2">
+<span class="font-mono text-[10px] tracking-widest opacity-50">LOCATION: TN</span>
+<span class="font-headline text-xl">Chennai</span>
+</button>
+</div>
+</section>
+<!-- Calendar Picker -->
+<section>
+<div class="flex justify-between items-end mb-12">
+<h2 class="font-display text-4xl tracking-tight">Service Window</h2>
+<div class="font-mono text-xs uppercase tracking-widest opacity-60">Step 03 / 04</div>
+</div>
+<div class="bg-surface-container-low p-8 rounded-sm">
+<div class="flex justify-between items-center mb-8">
+<span class="font-display text-xl uppercase tracking-widest">December 2024</span>
+<div class="flex gap-4">
+<span class="material-symbols-outlined cursor-pointer hover:text-secondary">chevron_left</span>
+<span class="material-symbols-outlined cursor-pointer hover:text-secondary">chevron_right</span>
+</div>
+</div>
+<div class="grid grid-cols-7 gap-1 text-center font-mono text-[10px] opacity-40 mb-4 uppercase tracking-tighter">
+<div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+</div>
+<div class="grid grid-cols-7 gap-2">
+<!-- Empty slots for previous month padding -->
+<div class="aspect-square"></div><div class="aspect-square"></div>
+<!-- Days -->
+<div class="aspect-square flex items-center justify-center font-mono text-sm opacity-20">01</div>
+<div class="aspect-square flex items-center justify-center font-mono text-sm opacity-20">02</div>
+<div class="aspect-square flex items-center justify-center font-mono text-sm cursor-pointer hover:bg-surface-container-highest">03</div>
+<div class="aspect-square flex items-center justify-center font-mono text-sm cursor-pointer hover:bg-surface-container-highest">04</div>
+<div class="aspect-square flex items-center justify-center font-mono text-sm cursor-pointer hover:bg-surface-container-highest">05</div>
+<div class="aspect-square flex items-center justify-center font-mono text-sm cursor-pointer hover:bg-surface-container-highest">06</div>
+<div class="aspect-square flex items-center justify-center font-mono text-sm cursor-pointer hover:bg-surface-container-highest">07</div>
+<div class="aspect-square flex items-center justify-center font-mono text-sm cursor-pointer hover:bg-surface-container-highest">08</div>
+<div class="aspect-square flex items-center justify-center font-mono text-sm cursor-pointer hover:bg-surface-container-highest">09</div>
+<div class="aspect-square flex items-center justify-center font-mono text-sm cursor-pointer hover:bg-surface-container-highest">10</div>
+<div class="aspect-square flex items-center justify-center font-mono text-sm cursor-pointer hover:bg-surface-container-highest">11</div>
+<div class="aspect-square flex items-center justify-center font-mono text-sm bg-primary text-white font-bold rounded-sm ring-4 ring-primary/10">12</div>
+<div class="aspect-square flex items-center justify-center font-mono text-sm cursor-pointer hover:bg-surface-container-highest">13</div>
+<div class="aspect-square flex items-center justify-center font-mono text-sm cursor-pointer hover:bg-surface-container-highest">14</div>
+<div class="aspect-square flex items-center justify-center font-mono text-sm cursor-pointer hover:bg-surface-container-highest">15</div>
+<div class="aspect-square flex items-center justify-center font-mono text-sm cursor-pointer hover:bg-surface-container-highest">16</div>
+<div class="aspect-square flex items-center justify-center font-mono text-sm cursor-pointer hover:bg-surface-container-highest">17</div>
+<div class="aspect-square flex items-center justify-center font-mono text-sm cursor-pointer hover:bg-surface-container-highest">18</div>
+<div class="aspect-square flex items-center justify-center font-mono text-sm cursor-pointer hover:bg-surface-container-highest">19</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Column: Estimate & Finalize -->
+<aside class="lg:col-span-4 sticky top-32">
+<div class="bg-surface-container-highest p-10 rounded-sm">
+<h3 class="font-display text-3xl mb-8 border-b border-outline-variant/30 pb-6">Concierge Estimate</h3>
+<div class="space-y-6 mb-12">
+<div class="flex justify-between items-start">
+<div>
+<div class="font-body font-medium">Master Inspection</div>
+<div class="font-mono text-[10px] uppercase opacity-50">Diagnostic Telemetry Suite</div>
+</div>
+<div class="font-mono">₹ 42,500</div>
+</div>
+<div class="flex justify-between items-start">
+<div>
+<div class="font-body font-medium">Location Premium</div>
+<div class="font-mono text-[10px] uppercase opacity-50">Mumbai Atelier Facility</div>
+</div>
+<div class="font-mono">₹ 4,500</div>
+</div>
+<div class="flex justify-between items-start text-forest">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">eco</span>
+<div class="font-body font-medium">Sustainable Disposal</div>
+</div>
+<div class="font-mono">Included</div>
+</div>
+</div>
+<div class="border-t border-outline-variant/30 pt-6 mb-12">
+<div class="flex justify-between items-center">
+<span class="font-display text-xl">Total Investment</span>
+<span class="font-mono text-2xl font-semibold">₹ 47,000</span>
+</div>
+<p class="font-mono text-[10px] uppercase opacity-40 mt-4 leading-tight text-right">Taxes and additional parts subject to Atelier validation.</p>
+</div>
+<button class="w-full bg-primary text-on-primary py-5 rounded-full font-label tracking-widest uppercase text-sm hover:bg-primary-container transition-all mb-4">
+                        Confirm Appointment
+                    </button>
+<button class="w-full bg-secondary text-on-secondary py-5 rounded-full font-label tracking-widest uppercase text-sm hover:opacity-90 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-lg">calendar_add_on</span>
+                        Schedule Concierge Pickup
+                    </button>
+</div>
+<div class="mt-8 flex gap-6 items-center px-4">
+<div class="w-12 h-12 rounded-full overflow-hidden shrink-0 border-2 border-surface-container-highest">
+<img class="w-full h-full object-cover" data-alt="professional portrait of a high-end automotive service advisor in a sharp suit with a friendly and expert expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAepLYaGWRaPFwvee227yI5DAT7g67L2xTcfGqPm4tvwivgNTFFEzBc9ykHivOr6xFah0tEbUe0RB07hCsAL_-wVURegW9ZGsPFBnTHEx6AvSPvA9Qdg51gfwoC6lxJcz32DB17GBaTRb25qunqFdrDsMyzBmhD1wRqvvVbx6FU5dpqI2KF61ThW9L5Ay3FOqjenPIj7q__jNqSnhoMefn_xdPGUzHjhcMP4KJQVFqs7jTExUONwJGNduMSRTvjjL3_P7z0tjewtM"/>
+</div>
+<div>
+<div class="font-body text-sm font-semibold">Rohan Malhotra</div>
+<div class="font-mono text-[10px] uppercase opacity-50">Chief Service Concierge</div>
+</div>
+<button class="ml-auto material-symbols-outlined text-secondary">chat_bubble</button>
+</div>
+</aside>
+</div>
+<!-- Featured Atelier Image (Asymmetric Bleed) -->
+<section class="mt-32 relative overflow-hidden h-[600px] flex items-center">
+<div class="absolute inset-0 z-0">
+<img class="w-full h-full object-cover grayscale brightness-75 contrast-125" data-alt="immaculate white modern car service workshop with bright studio lighting clinical precision and high-end automotive tools" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCdHywAE1B1hYg7eeddQHjZMsJQPsF57Lr-uZDLFeZyRL8Zsmrz_Ml2GRSMEe4fbg8zNLzfFJ308hEAaQfWvf7CLMoWqUUMiAUH7_kY65D-NCDq50QzLM-7uiE5rfuoSmP5Z4sMLrqEL4TVQxsnp1Tvlc_swiFbOSALVQef7qcXBxSOrBHdmsGsJaI2z_T_UOOt4HbncEIBbVDVJzv3lRa5sVFnbLdgtn-67IqBD1rBf30Vv9d_BnbnoxV9nfQ90XerjEJtF8bB2fY"/>
+<div class="absolute inset-0 bg-primary/20 backdrop-multiply"></div>
+</div>
+<div class="relative z-10 max-w-xl bg-surface/90 backdrop-blur-xl p-16 ml-12 border-l-4 border-secondary">
+<h2 class="font-display text-4xl mb-6">Unrivaled Infrastructure</h2>
+<p class="font-body text-on-surface-variant leading-relaxed mb-8">
+                    Our Bangalore facility houses the only climate-controlled precision calibration chamber in South Asia, ensuring your sensors and performance metrics meet factory blueprint standards within 0.01% tolerance.
+                </p>
+<div class="flex items-center gap-4 text-forest font-mono text-xs tracking-widest uppercase">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">security</span>
+                    Global Security Standard Certified
+                </div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-[#f6f3ee] text-[#171413] w-full mt-auto">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8 px-8 py-24 w-full max-w-screen-2xl mx-auto">
+<div class="md:col-span-6">
+<span class="font-['Newsreader'] text-4xl mb-8 block">MONOGRAM</span>
+<p class="font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest max-w-xs mb-8 opacity-60">
+                    A legacy of automotive stewardship and the curation of modern classics.
+                </p>
+<div class="font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest opacity-40">
+                    © 2024 MONOGRAM AUTOMOTIVE. ALL RIGHTS RESERVED.
+                </div>
+</div>
+<div class="md:col-span-3">
+<h4 class="font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest mb-6 font-bold">The Atelier</h4>
+<nav class="flex flex-col gap-4">
+<a class="font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-[#171413] opacity-60 hover:opacity-100 hover:text-[#775838] transition-opacity duration-500" href="#">The Journal</a>
+<a class="font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-[#171413] opacity-60 hover:opacity-100 hover:text-[#775838] transition-opacity duration-500" href="#">Private Sales</a>
+<a class="font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-[#775838]" href="#">Maintenance</a>
+<a class="font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-[#171413] opacity-60 hover:opacity-100 hover:text-[#775838] transition-opacity duration-500" href="#">About the Atelier</a>
+</nav>
+</div>
+<div class="md:col-span-3">
+<h4 class="font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest mb-6 font-bold">Legal</h4>
+<nav class="flex flex-col gap-4">
+<a class="font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-[#171413] opacity-60 hover:opacity-100 hover:text-[#775838] transition-opacity duration-500" href="#">Privacy Policy</a>
+<a class="font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-[#171413] opacity-60 hover:opacity-100 hover:text-[#775838] transition-opacity duration-500" href="#">Terms of Service</a>
+<a class="font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-[#171413] opacity-60 hover:opacity-100 hover:text-[#775838] transition-opacity duration-500" href="#">Contact</a>
+</nav>
+</div>
+</div>
+</footer>
+</body></html>

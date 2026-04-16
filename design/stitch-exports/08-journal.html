@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Journal | MONOGRAM</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;family=Inter:wght@300;400;500;600&amp;family=IBM+Plex+Mono:wght@300;400&amp;family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-container": "#888381",
+                        "on-background": "#1c1c19",
+                        "primary-fixed-dim": "#ccc5c3",
+                        "outline-variant": "#d1c4c0",
+                        "surface": "#fcf9f4",
+                        "tertiary": "#000000",
+                        "secondary-fixed": "#ffdcbc",
+                        "secondary-container": "#fcd3a9",
+                        "error-container": "#ffdad6",
+                        "surface-container-high": "#ebe8e3",
+                        "tertiary-container": "#002114",
+                        "primary": "#000000",
+                        "surface-tint": "#625d5c",
+                        "background": "#fcf9f4",
+                        "outline": "#7f7572",
+                        "surface-bright": "#fcf9f4",
+                        "on-surface-variant": "#4d4542",
+                        "surface-container-low": "#f6f3ee",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed": "#bceed3",
+                        "primary-container": "#1e1b1a",
+                        "surface-container": "#f0ede9",
+                        "surface-variant": "#e5e2dd",
+                        "on-primary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "secondary": "#775838",
+                        "surface-dim": "#dcdad5",
+                        "on-surface": "#1c1c19",
+                        "tertiary-fixed-dim": "#a1d1b8",
+                        "surface-container-highest": "#e5e2dd",
+                        "inverse-primary": "#ccc5c3",
+                        "on-primary-fixed": "#1e1b1a",
+                        "primary-fixed": "#e9e1df",
+                        "on-tertiary-fixed-variant": "#214f3c",
+                        "on-tertiary-fixed": "#002114",
+                        "on-error-container": "#93000a",
+                        "on-tertiary-container": "#5f8d77",
+                        "on-secondary-fixed": "#2c1700",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-fixed-dim": "#e8bf97",
+                        "on-secondary-fixed-variant": "#5d4122",
+                        "on-secondary-container": "#785938",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#4a4644",
+                        "on-tertiary": "#ffffff",
+                        "inverse-on-surface": "#f3f0eb",
+                        "inverse-surface": "#31302d"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Newsreader", "serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Space Grotesk", "sans-serif"],
+                        "serif": ["Playfair Display", "serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fcf9f4;
+            color: #171413;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+</head>
+<body class="font-body selection:bg-secondary/20">
+<!-- TopNavBar -->
+<nav class="fixed top-0 w-full z-50 bg-[#fcf9f4]/80 dark:bg-[#171413]/80 backdrop-blur-md">
+<div class="flex justify-between items-center px-8 py-6 w-full max-w-screen-2xl mx-auto">
+<div class="text-2xl font-bold tracking-tighter text-[#171413] dark:text-[#fcf9f4] font-['Newsreader']">MONOGRAM</div>
+<div class="hidden md:flex space-x-12 font-['Newsreader'] tracking-tight">
+<a class="text-[#171413] dark:text-[#fcf9f4] opacity-70 hover:opacity-100 hover:text-[#775838] transition-all scale-95 duration-300" href="#">Inventory</a>
+<a class="text-[#775838] border-b border-[#775838] pb-1 scale-95 duration-300" href="#">Journal</a>
+<a class="text-[#171413] dark:text-[#fcf9f4] opacity-70 hover:opacity-100 hover:text-[#775838] transition-all scale-95 duration-300" href="#">Service</a>
+<a class="text-[#171413] dark:text-[#fcf9f4] opacity-70 hover:opacity-100 hover:text-[#775838] transition-all scale-95 duration-300" href="#">Sell</a>
+</div>
+<div class="flex items-center space-x-6 text-[#171413] dark:text-[#fcf9f4]">
+<button class="hidden lg:block text-xs uppercase tracking-widest font-mono">Concierge</button>
+<span class="material-symbols-outlined cursor-pointer" data-icon="location_on">location_on</span>
+<span class="material-symbols-outlined cursor-pointer" data-icon="account_circle">account_circle</span>
+</div>
+</div>
+</nav>
+<main class="pt-32 pb-24">
+<!-- Editorial Header -->
+<header class="px-8 max-w-screen-2xl mx-auto mb-20 text-center">
+<span class="font-mono text-xs uppercase tracking-[0.3em] text-secondary mb-4 block">Volume IV • Winter Edition</span>
+<h1 class="font-serif text-[clamp(4rem,15vw,12rem)] leading-[0.8] tracking-[-0.04em] text-primary">The Journal</h1>
+</header>
+<!-- Featured Story: Asymmetric Editorial Layout -->
+<section class="px-8 max-w-screen-2xl mx-auto mb-32">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-0 items-start">
+<div class="md:col-span-7 relative group">
+<div class="aspect-[4/5] md:aspect-[3/4] overflow-hidden rounded-sm bg-surface-container">
+<img alt="Brutalist concrete architecture with sharp shadows" class="w-full h-full object-cover grayscale contrast-125 transition-transform duration-700 group-hover:scale-105" data-alt="dramatic minimalist brutalist concrete architecture with sharp diagonal shadows and clear sky at golden hour high contrast" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD58hYWs1oGgsDKQbfMamUdqzzTuL79ctQLTO2FWHlCUVt5_899V1B0uyxdnwTjwA9etI1e8FBbU2yVV6wqFYhKmj8ScO8xojGZ_fpWNy46oF-8KhcBUyjb30vmDUiKGtIvzJeUR040AwGvNt5kgGJTmozBikzRcMX3jkciBfa87MMc5H6TkHXt6Fm-I57BmneuyJHNRgsvFumZQwMJWw5-glZNosTmxy4VlXcglfGsf4FH9mzD34VSV8Cti7y6Vhrf2QMBgT7v8j8"/>
+</div>
+</div>
+<div class="md:col-start-8 md:col-span-5 pt-12 md:pt-32 md:pl-12">
+<div class="max-w-md">
+<span class="font-mono text-[10px] uppercase tracking-widest text-outline mb-6 block">Architecture &amp; Form</span>
+<h2 class="font-serif text-5xl mb-8 leading-tight tracking-tight">The Silence of Concrete</h2>
+<p class="text-on-surface-variant leading-relaxed mb-10 text-lg font-light">
+                            Tracing the intersection of automotive aerodynamics and modern architectural movements. How the brutalist aesthetic redefined our perception of luxury and speed in the late twentieth century.
+                        </p>
+<a class="inline-block font-mono text-xs uppercase tracking-widest border-b border-primary pb-1 hover:text-secondary hover:border-secondary transition-colors" href="#">Read Monograph</a>
+</div>
+</div>
+</div>
+</section>
+<!-- Bento Grid Articles -->
+<section class="bg-surface-container-low py-32">
+<div class="px-8 max-w-screen-2xl mx-auto">
+<div class="flex justify-between items-end mb-16">
+<h3 class="font-serif text-4xl">Latest Dispatch</h3>
+<span class="font-mono text-xs text-outline">Showing 1-6 of 24</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<!-- Article 1 -->
+<div class="md:col-span-4 group cursor-pointer">
+<div class="aspect-square overflow-hidden rounded-sm mb-6 bg-surface-container-highest">
+<img alt="Vintage sports car interior details" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="close-up of vintage luxury sports car dashboard with analogue dials leather steering wheel and soft wood trim bokeh background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNC5ZI-zWVTTYiNi8BwEaaL_2bTTKp5nn5NQcovsCevH1jXFMMBvP--lAJDlTpinFCPXYSXRysTjhkVbkvjo4QHMMQoYrWZ455qBLSC-pwp3f_s-FretfOYzjyhrNvwuRkVsZhrjF7ZVgWZGvQwpkYSrHkEHijnMWllzwuPbznjSXiNnsjwVMZvZdcCO-lNDdaAXtCrfDz5wN3E28GB_rxQS_BR3GuCdALUkzWYkvHX3B3OM_Yjomidy6L0cYtb9FKErDtX5_PusE"/>
+</div>
+<span class="font-mono text-[10px] uppercase tracking-widest text-secondary mb-3 block">Technical Heritage</span>
+<h4 class="font-serif text-2xl mb-4 group-hover:text-secondary transition-colors">The Analog Renaissance</h4>
+<p class="text-sm text-on-surface-variant/80 leading-relaxed line-clamp-2">Why collectors are returning to the tactile engagement of manual transmissions and mechanical gauges.</p>
+</div>
+<!-- Article 2 (Large Vertical) -->
+<div class="md:col-span-4 md:row-span-2 group cursor-pointer">
+<div class="h-full flex flex-col">
+<div class="flex-grow aspect-[3/4] overflow-hidden rounded-sm mb-6 bg-surface-container-highest">
+<img alt="Road through alpine pass" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" data-alt="winding alpine mountain road through snowy peaks at sunset with long shadows and soft purple atmosphere wide angle lens" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB8GzDzJrrWDZ5jq6HJDoznNi-SH2kIfgzSvZVqQgZWn2_fs_z8-Ex5ccqLoRAqQp5I-NXFudS9D9UC-XIQh5AoXNYdKJyqUR902D2w6bcGfJQ-nz2v-W4_rKT7KpAMAA7FG8_KUWXZwXz1LRUcw7_NgUErZFinVyaWMxUuBjXd8oAvNOhlM3sIQqOMcGBxskxJeoCxatRvMY-NmRtGYikcmUhCu8Zs9CUChgxpbdVwvNkxKCAH8HlQhRqkfRMm6IYI6ThSPrv66yM"/>
+</div>
+<span class="font-mono text-[10px] uppercase tracking-widest text-secondary mb-3 block">Travel</span>
+<h4 class="font-serif text-2xl mb-4 group-hover:text-secondary transition-colors">Passo dello Stelvio</h4>
+<p class="text-sm text-on-surface-variant/80 leading-relaxed">A forty-eight turn pilgrimage through the Italian Alps in the Monogram 911 Restomod.</p>
+</div>
+</div>
+<!-- Article 3 -->
+<div class="md:col-span-4 group cursor-pointer">
+<div class="aspect-square overflow-hidden rounded-sm mb-6 bg-surface-container-highest">
+<img alt="Watchmaker working on movement" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" data-alt="extreme close up of artisan watchmaker using a loupe to inspect delicate golden watch gears on a dark leather workshop surface" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDjE4wWIkjbqoAq4ZRBR1tnEPOQMgkQvf6cRK6XpxDqMMWbBP4v0glShez3VldYUPi9YhKNB4mOmvlcWFIunZ98YPx2dPto846WUP6BSeMpE5E_Yk-0A_IGSgk0S7L6nJya3h2hyRus2_1P-XKuZBhjCBmfEuId8Q-y08Qqi33zquJKBi7bu1MU1p5IST1qG1d0KfWzkKf-guGU-HN9LY1pFw0h8DGnd1yU9fUs7VZyvtJuukiVKAKkqbwhN1QGjpaafomPAm1Vs4Y"/>
+</div>
+<span class="font-mono text-[10px] uppercase tracking-widest text-secondary mb-3 block">Precision</span>
+<h4 class="font-serif text-2xl mb-4 group-hover:text-secondary transition-colors">Measured in Milliseconds</h4>
+<p class="text-sm text-on-surface-variant/80 leading-relaxed line-clamp-2">The shared DNA between haute horology and high-performance engine tuning.</p>
+</div>
+<!-- Article 4 (Wide) -->
+<div class="md:col-span-8 group cursor-pointer">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center bg-surface p-8 rounded-sm">
+<div class="order-2 md:order-1">
+<span class="font-mono text-[10px] uppercase tracking-widest text-secondary mb-3 block">Exhibition</span>
+<h4 class="font-serif text-2xl mb-4 group-hover:text-secondary transition-colors">The Atelier at Night</h4>
+<p class="text-sm text-on-surface-variant/80 leading-relaxed mb-6">Go behind the curtain of our restoration workshop during the final hours of a Concours build.</p>
+<span class="material-symbols-outlined text-secondary" data-icon="arrow_forward">arrow_forward</span>
+</div>
+<div class="order-1 md:order-2 overflow-hidden rounded-sm aspect-video">
+<img alt="Garage at night" class="w-full h-full object-cover" data-alt="moody dark automotive garage with single warm spotlight hitting a vintage car body under a silk cover soft smoke in the air" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTUHN5zDMLjKRWvMuPTuqVYN60t7Avn3l3De68Cg_7x9uH0kWbCrIVibjyl8W16zbxsoJ8zdhkJhCgf0dh2UWHXfS0-e5aUmXCD9XxwVmy1ir3sSqzZhZVaaQlT2yfyUrQK02KP-VwWYm_eEWwkQnWp_W_YPnfFuc0T0uD0-xAgPUHY2L7ji0ZtG800FI27vGO-_RNyu4Tyl20ntyfJIo7E3R42tZoXe4Xe93d1SUKjkmDnror5Oav1KMuGLpRJJt4m7wEpLHdc-Y"/>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Newsletter / Subscription Section -->
+<section class="px-8 max-w-screen-lg mx-auto py-32 text-center">
+<h3 class="font-serif text-4xl mb-6">Curated insight, delivered.</h3>
+<p class="font-body text-on-surface-variant mb-12 max-w-md mx-auto">Receive a monthly digest of our finest long-form stories and private inventory listings.</p>
+<form class="flex flex-col md:flex-row gap-4 justify-center">
+<input class="bg-transparent border-0 border-b border-outline-variant focus:ring-0 focus:border-secondary font-mono text-sm py-4 min-w-[300px]" placeholder="email@example.com" type="email"/>
+<button class="bg-primary text-on-primary px-12 py-4 rounded-full font-mono text-[10px] uppercase tracking-widest hover:bg-secondary transition-all" type="submit">Subscribe</button>
+</form>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full mt-auto bg-[#f6f3ee] dark:bg-[#1e1b1a]">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8 px-8 py-24 w-full max-w-screen-2xl mx-auto">
+<div class="md:col-span-6">
+<span class="font-['Newsreader'] text-4xl mb-8 block text-[#171413] dark:text-[#fcf9f4]">MONOGRAM</span>
+<p class="font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest text-[#171413] dark:text-[#fcf9f4] opacity-60 leading-loose">
+                    THE ART OF THE AUTOMOBILE.<br/>
+                    CURATED IN LONDON. SHIPPED GLOBALLY.
+                </p>
+</div>
+<div class="md:col-span-3">
+<ul class="space-y-4 font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest">
+<li><a class="text-[#775838] transition-opacity duration-500" href="#">The Journal</a></li>
+<li><a class="text-[#171413] dark:text-[#fcf9f4] opacity-60 hover:opacity-100 hover:text-[#775838] transition-opacity duration-500" href="#">Private Sales</a></li>
+<li><a class="text-[#171413] dark:text-[#fcf9f4] opacity-60 hover:opacity-100 hover:text-[#775838] transition-opacity duration-500" href="#">Maintenance</a></li>
+</ul>
+</div>
+<div class="md:col-span-3">
+<ul class="space-y-4 font-['IBM_Plex_Mono'] text-xs uppercase tracking-widest">
+<li><a class="text-[#171413] dark:text-[#fcf9f4] opacity-60 hover:opacity-100 hover:text-[#775838] transition-opacity duration-500" href="#">About the Atelier</a></li>
+<li><a class="text-[#171413] dark:text-[#fcf9f4] opacity-60 hover:opacity-100 hover:text-[#775838] transition-opacity duration-500" href="#">Privacy Policy</a></li>
+</ul>
+</div>
+<div class="md:col-span-12 mt-12 pt-12 border-t border-outline-variant/10">
+<p class="font-['IBM_Plex_Mono'] text-[10px] uppercase tracking-[0.2em] text-[#171413] dark:text-[#fcf9f4] opacity-40">
+                    © 2024 MONOGRAM AUTOMOTIVE. ALL RIGHTS RESERVED.
+                </p>
+</div>
+</div>
+</footer>
+</body></html>

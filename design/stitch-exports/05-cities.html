@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Monogram | Our Cities</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;family=Inter:wght@300;400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-container": "#2d5a46",
+                      "background": "#FAF7F2",
+                      "secondary-fixed-dim": "#aedfc6",
+                      "tertiary-dim": "#705232",
+                      "on-primary-fixed-variant": "#5f5a59",
+                      "surface-tint": "#625d5c",
+                      "on-tertiary-container": "#5e4223",
+                      "on-background": "#171413",
+                      "surface": "#FAF7F2",
+                      "outline-variant": "#BABAB0",
+                      "on-surface-variant": "#64655d",
+                      "surface-container-low": "#fcf9f3",
+                      "error-dim": "#4e0309",
+                      "inverse-primary": "#ffffff",
+                      "on-error-container": "#752121",
+                      "surface-bright": "#FAF7F2",
+                      "secondary": "#1F4D3A",
+                      "tertiary": "#7A5B3A",
+                      "on-tertiary-fixed-variant": "#684b2b",
+                      "primary": "#171413",
+                      "tertiary-fixed": "#f3caa1",
+                      "on-tertiary-fixed": "#482f12",
+                      "secondary-dim": "#34614d",
+                      "primary-container": "#e9e1df",
+                      "secondary-container": "#bceed3",
+                      "surface-dim": "#e4e3d7",
+                      "on-secondary-fixed-variant": "#376450",
+                      "surface-container": "#f6f4ec",
+                      "on-error": "#ffffff",
+                      "primary-dim": "#565150",
+                      "outline": "#818178",
+                      "tertiary-fixed-dim": "#e5bc95",
+                      "surface-variant": "#eae9de",
+                      "on-tertiary": "#ffffff",
+                      "on-primary": "#FAF7F2",
+                      "error-container": "#fe8983",
+                      "surface-container-highest": "#EAE9DE",
+                      "inverse-surface": "#0e0e0c",
+                      "tertiary-container": "#f3caa1",
+                      "on-secondary-fixed": "#194735",
+                      "on-surface": "#171413",
+                      "secondary-fixed": "#bceed3",
+                      "on-secondary": "#ffffff",
+                      "primary-fixed-dim": "#dad3d1",
+                      "on-primary-fixed": "#433e3d",
+                      "surface-container-lowest": "#ffffff",
+                      "inverse-on-surface": "#9e9d98",
+                      "on-primary-container": "#55514f",
+                      "error": "#a64542",
+                      "primary-fixed": "#e9e1df",
+                      "surface-container-high": "#f0eee5"
+              },
+              "borderRadius": {
+                      "DEFAULT": "2px",
+                      "lg": "2px",
+                      "xl": "2px",
+                      "full": "9999px"
+              },
+              "fontFamily": {
+                      "headline": ["Playfair Display", "serif"],
+                      "body": ["Inter", "sans-serif"],
+                      "label": ["IBM Plex Mono", "monospace"]
+              }
+            },
+          }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        .font-serif { font-family: 'Playfair Display', serif; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        .hairline-b { border-bottom: 1px solid #BABAB0; }
+        .hairline-r { border-right: 1px solid #BABAB0; }
+        .hairline-all { border: 1px solid #BABAB0; }
+    </style>
+</head>
+<body class="bg-background text-on-background selection:bg-tertiary selection:text-on-tertiary">
+<!-- TopNavBar -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-12 h-16 bg-[#FAF7F2]/90 backdrop-blur-xl border-b border-[#BABAB0] max-w-full mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-xl font-medium tracking-tighter text-[#171413]">MONOGRAM</span>
+<nav class="hidden md:flex gap-6 items-center">
+<a class="font-label text-[10px] tracking-[0.1em] text-[#171413]/60 hover:text-[#171413] transition-colors" href="#">THE COLLECTION</a>
+<a class="font-label text-[10px] tracking-[0.1em] text-[#171413]/60 hover:text-[#171413] transition-colors" href="#">CERTIFICATION</a>
+<a class="font-label text-[10px] tracking-[0.1em] text-[#171413]/60 hover:text-[#171413] transition-colors" href="#">SELL YOUR CAR</a>
+<a class="font-label text-[10px] tracking-[0.1em] text-[#171413] border-b border-[#171413] pb-1" href="#">CITY SELECTOR</a>
+<a class="font-label text-[10px] tracking-[0.1em] text-[#171413]/60 hover:text-[#171413] transition-colors" href="#">JOURNAL</a>
+</nav>
+</div>
+<div class="flex items-center gap-6">
+<button class="font-label text-[10px] tracking-[0.1em] text-[#171413]">SIGN IN</button>
+</div>
+</header>
+<main class="pt-32 pb-24">
+<!-- Hero Section & Map -->
+<section class="max-w-screen-2xl mx-auto px-12 grid grid-cols-12 gap-8 items-end mb-32">
+<div class="col-span-12 md:col-span-7">
+<span class="font-label text-[10px] tracking-[0.2em] text-tertiary uppercase mb-4 block">Archive Presence</span>
+<h1 class="font-serif text-7xl md:text-8xl leading-[0.95] tracking-tight">Our <br/>Cities</h1>
+<p class="mt-8 font-body text-lg text-on-surface-variant max-w-lg leading-relaxed">
+                    A curated network of ateliers and showrooms across the subcontinent, dedicated to the preservation and provenance of automotive masterpieces.
+                </p>
+</div>
+<div class="col-span-12 md:col-span-5 relative h-[400px] bg-surface-container-low rounded-sm overflow-hidden border border-outline-variant">
+<div class="absolute inset-0 opacity-20 pointer-events-none">
+<!-- Minimalist India Map Illustration -->
+<img class="w-full h-full object-cover grayscale contrast-125 mix-blend-multiply" data-alt="minimalist silhouette map of India on light textured paper background with clean lines and subtle topographical shading" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDfMSYB4mHROtCs6I8fflfMLkFHy9oIH0iZFS4OgK_BqqKcsF7fkJS6P11WTmHWpzs-dLNc-X1Sy6ckkOhpWuS3n8JwdCFmbb8HQB8rR-tYJyLuYY-1YHiENdtomSTUVm6Do76derIn5ICR7KTTHK84GZXR3tOg6bZ_v6i_qp7IXnVgVHoAKVwbICMftQqVYBeWYCu6w1NX8AjVvco6IUagH2YM5AO8oHoIHTQNvAXfAj4MXQpeMnkyj8K1SY8ZkxUlGVE7TpcmQ5k"/>
+</div>
+<div class="absolute inset-0 flex flex-col justify-center items-center">
+<div class="space-y-4 text-center">
+<div class="flex items-center gap-3">
+<span class="w-2 h-2 rounded-full bg-secondary ring-4 ring-secondary/20 animate-pulse"></span>
+<span class="font-label text-[10px] tracking-widest text-primary">BANGALORE HQ</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="font-label text-[10px] tracking-widest text-on-surface-variant">MUMBAI ATELIER</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="font-label text-[10px] tracking-widest text-on-surface-variant">CHENNAI STUDIO</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- City Block 01: Bangalore -->
+<section class="max-w-screen-2xl mx-auto px-12 mb-32">
+<div class="grid grid-cols-12 gap-0 border-t border-outline-variant pt-12">
+<!-- City Headline -->
+<div class="col-span-12 flex justify-between items-baseline mb-12">
+<h2 class="font-serif text-5xl tracking-tight">01 — Bangalore</h2>
+<span class="font-label text-[10px] text-tertiary tracking-widest">SOUTHERN HUB</span>
+</div>
+<!-- City Layout: Image Left, Details Right -->
+<div class="col-span-12 md:col-span-7 aspect-[16/9] bg-surface-variant rounded-sm overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="modern brutalist architecture showroom in Bangalore with warm evening lighting reflecting on sleek dark classic car surfaces" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBTjKxCon4AFFgXtto8sjUX8k87whYAcxo0Jp1Y3tOEAsSBPbAm71tg8wz2L56NY1vOq-wqslp3YdrXnPD2Fypd7GE8wiw6G8OJBlDz2UD2pRRQso1gEyUVu2w9GduRSZ-YEvJNeVCHh7_qyIYe3ZLYCO5WwC5MAisoT-0CTJoqgR2lsIzdTDrcqjZT_cMS3aOkK9KVeSRMhZ7ElsQtDXC-0yWJ6CHZcK5BkF6dLzFNPp8t7P58zqhDUPQa-yf6bl2xcDqcyGbETUc"/>
+</div>
+<div class="col-span-12 md:col-span-5 pl-0 md:pl-12 pt-8 md:pt-0 flex flex-col justify-between">
+<div>
+<span class="font-label text-[10px] text-on-surface-variant tracking-widest uppercase mb-4 block">The Flagship</span>
+<p class="font-body text-xl leading-relaxed text-on-background mb-8">
+                            Nestled in the heart of Lavelle Road, our Bangalore headquarters serves as the primary restoration facility and archival vault for the collection.
+                        </p>
+<div class="grid grid-cols-2 gap-4 border-t border-outline-variant pt-6">
+<div>
+<span class="font-label text-[10px] text-on-surface-variant tracking-widest uppercase block mb-2">Hours</span>
+<p class="font-mono text-xs uppercase">10:00 — 19:00</p>
+<p class="font-mono text-xs uppercase">Mon — Sat</p>
+</div>
+<div>
+<span class="font-label text-[10px] text-on-surface-variant tracking-widest uppercase block mb-2">Facility</span>
+<p class="font-mono text-xs uppercase">12,000 SQ FT</p>
+<p class="font-mono text-xs uppercase">Restoration Lab</p>
+</div>
+</div>
+</div>
+<button class="mt-12 py-4 border border-primary text-primary font-label text-[10px] tracking-[0.2em] uppercase hover:bg-primary hover:text-white transition-all duration-300">
+                        View Showroom Schedule
+                    </button>
+</div>
+</div>
+<!-- Team Row -->
+<div class="mt-20">
+<span class="font-label text-[10px] text-on-surface-variant tracking-widest uppercase mb-8 block">Regional Curators</span>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+<!-- Team Card 1 -->
+<div class="border border-outline-variant p-6 rounded-sm bg-surface-container-low h-full flex flex-col">
+<div class="aspect-square bg-surface-variant mb-6 rounded-sm overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="professional portrait of a male automotive curator in a charcoal suit, soft cinematic lighting, neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRwx3s3IOhe00Io56p8TEtcJdgaNlzEWHbrFOZ97cuwb-BrHVCaJEdJ4rHhzqSCqONuQAq4s0Ze96M52DXauCY8hx30qeI4d7_gfRecGNDbWEuIk9jKizqErswWhsilp6TkRqkk0VdeJ8T1aoBASVWptdBc2h1Qu138F-j5Nz5k4sQYsOKbY4m5lYF6zsy5VXAFO_QrsJBOb5rrB2ihL-tEN1RLLxEGl880xgAwxRUPk81ijGd2vdLkHnHR1RPJWEBQrKCFSX8sNo"/>
+</div>
+<h4 class="font-serif text-xl mb-1">Vikram Sethi</h4>
+<span class="font-label text-[10px] text-tertiary tracking-widest uppercase mb-4 block">Managing Director</span>
+<p class="font-body text-xs text-on-surface-variant leading-relaxed mt-auto">Ex-Pebble Beach judge with 20 years in provenance research.</p>
+</div>
+<!-- Team Card 2 -->
+<div class="border border-outline-variant p-6 rounded-sm bg-surface-container-low h-full flex flex-col">
+<div class="aspect-square bg-surface-variant mb-6 rounded-sm overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="professional portrait of a female automotive specialist, elegant and authoritative, neutral studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA52x9fu_j-QTGS1zfKrskJTW3q24rjgQy8IQNkp7k7beLhWe9Q1Ijclbiy5RvYAh4t5GJ6VAm6AOB83zr0lhJTsVawkaln5-tK9KkkPdpjH08Eyfv6VlVBiiHFGlPFuxJJH-A4SU0EHWFfujhQGmjnzRwkgx6pnalnEtohEG3iD4xcvCrmKQYNtNSGInzKnPS8lVYd02nfDAIUpUaNKrNiMiLUlXD_8FYRG7Z7btJyxxjwsMrj3VXiA0XukeLizJStbFtakFfQaV0"/>
+</div>
+<h4 class="font-serif text-xl mb-1">Ananya Rao</h4>
+<span class="font-label text-[10px] text-tertiary tracking-widest uppercase mb-4 block">Senior Curator</span>
+<p class="font-body text-xs text-on-surface-variant leading-relaxed mt-auto">Specializing in Italian marques and postwar GTs.</p>
+</div>
+<!-- Team Card 3 -->
+<div class="border border-outline-variant p-6 rounded-sm bg-surface-container-low h-full flex flex-col">
+<div class="aspect-square bg-surface-variant mb-6 rounded-sm overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="professional portrait of a male mechanic lead, sophisticated workshop attire, soft lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD4dCE41SZzDfPxUGByy0zNJVn9nPJ0Pgoy9tcdz4dOKa4d34vN7T2WP4uFTbwncMN634T2cgikFU6xZWoB5SIg0sH8xwPz1i8T5Xus5bml5asPm1KFqXTYN9X7JXYKrbMrUpnmGAKWPt42nMdQlbP5A52yinHn7kKVWOp3LALc-0Pnofg0y0JjkIHChHpoyZl7LDbxF6Quh8lDhmYf9sJvIfb0DsemDrUyhips6hILYIy5R6edqk4jSlj2tT9mF1JGeMNNEzdUspM"/>
+</div>
+<h4 class="font-serif text-xl mb-1">Marcus Thorne</h4>
+<span class="font-label text-[10px] text-tertiary tracking-widest uppercase mb-4 block">Technical Lead</span>
+<p class="font-body text-xs text-on-surface-variant leading-relaxed mt-auto">Lead engineer for restoration and technical certification.</p>
+</div>
+<!-- Team Card 4 -->
+<div class="border border-outline-variant p-6 rounded-sm bg-surface-container-low h-full flex flex-col">
+<div class="aspect-square bg-surface-variant mb-6 rounded-sm overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="professional portrait of a client relations manager, corporate and welcoming, bright lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDK3DO_SwxFpZ3STgllXkO_XT1x7AQU8BMOTzBFw5fsUXeHgc8QDBW-yva7Lryf_q7iK0DUYz2buEUml7IUasfzm8-PE7rCv9_ZpY-_NOGhoowwjxA9qsjUteSIA-FKRmsEMjpujl8f9lQx5oGKyC35rUUWoCFIve2t3vHXQkZiq0ck2lZnKmiJQh9XL3_IA4mjpDxapfX2InQ_2cjAeRZERStLmRvsO73L61_-KLn5Sj4tpWi796f37HlVfA9G-Dmk0psUtqsUla0"/>
+</div>
+<h4 class="font-serif text-xl mb-1">Priya Menon</h4>
+<span class="font-label text-[10px] text-tertiary tracking-widest uppercase mb-4 block">Client Relations</span>
+<p class="font-body text-xs text-on-surface-variant leading-relaxed mt-auto">Managing private acquisitions and portfolio strategy.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- City Block 02: Mumbai -->
+<section class="max-w-screen-2xl mx-auto px-12 mb-32">
+<div class="grid grid-cols-12 gap-0 border-t border-outline-variant pt-12">
+<div class="col-span-12 flex justify-between items-baseline mb-12">
+<h2 class="font-serif text-5xl tracking-tight">02 — Mumbai</h2>
+<span class="font-label text-[10px] text-tertiary tracking-widest">COASTAL ATELIER</span>
+</div>
+<div class="col-span-12 md:col-span-7 aspect-[16/9] bg-surface-variant rounded-sm overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="industrial chic automotive showroom in Mumbai, high ceilings, polished concrete floors, dramatic spotlighting on vintage cars" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0nMQkCfdfTY3RdAfVEIUsEuoFSyeMNfhDtBDEWqZ7AT09kYq_MzUD14MA20b8_KnqciKAlIe3Rxmhg3QbzfdriVRBl-XM6Z-J14GUI50NV1rstbue90r1logO3BxJimJW21w7ZntRoAZK8t4Yrv8zUDrbQu0eWLXyvW4TBPoqsFkYsoZiWxUSLszJLCc7VhC8HOIm9HVMO0l58579PFxN2Hm2VpRc8VqRFQeFsBhOmC1hroalNDNMYacp4PobDck_oupzNVCaAxs"/>
+</div>
+<div class="col-span-12 md:col-span-5 pl-0 md:pl-12 pt-8 md:pt-0 flex flex-col justify-between">
+<div>
+<span class="font-label text-[10px] text-on-surface-variant tracking-widest uppercase mb-4 block">The Studio</span>
+<p class="font-body text-xl leading-relaxed text-on-background mb-8">
+                            Our Mumbai atelier in Worli focuses on boutique collection management and high-frequency transactions for our coastal clients.
+                        </p>
+<div class="grid grid-cols-2 gap-4 border-t border-outline-variant pt-6">
+<div>
+<span class="font-label text-[10px] text-on-surface-variant tracking-widest uppercase block mb-2">Hours</span>
+<p class="font-mono text-xs uppercase">11:00 — 20:00</p>
+<p class="font-mono text-xs uppercase">Tue — Sun</p>
+</div>
+<div>
+<span class="font-label text-[10px] text-on-surface-variant tracking-widest uppercase block mb-2">Facility</span>
+<p class="font-mono text-xs uppercase">8,500 SQ FT</p>
+<p class="font-mono text-xs uppercase">Media Studio</p>
+</div>
+</div>
+</div>
+<button class="mt-12 py-4 border border-primary text-primary font-label text-[10px] tracking-[0.2em] uppercase hover:bg-primary hover:text-white transition-all duration-300">
+                        Request Private Viewing
+                    </button>
+</div>
+</div>
+</section>
+<!-- Service Matrix -->
+<section class="max-w-screen-2xl mx-auto px-12 mb-32">
+<div class="bg-surface-container-highest p-12 rounded-sm border border-outline-variant">
+<div class="grid grid-cols-12 gap-8 mb-12">
+<div class="col-span-12 md:col-span-4">
+<h3 class="font-serif text-3xl">Service <br/>Availability</h3>
+<p class="mt-4 font-body text-sm text-on-surface-variant leading-relaxed">
+                            Cross-regional support infrastructure for the Monogram fleet.
+                        </p>
+</div>
+<div class="col-span-12 md:col-span-8">
+<div class="overflow-x-auto">
+<table class="w-full text-left font-mono text-[10px] uppercase tracking-widest">
+<thead>
+<tr class="border-b border-outline">
+<th class="pb-4 font-medium text-on-surface-variant">Capability</th>
+<th class="pb-4 text-center font-medium">Bangalore</th>
+<th class="pb-4 text-center font-medium">Mumbai</th>
+<th class="pb-4 text-center font-medium">Chennai</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant">
+<tr>
+<td class="py-4">Full Restoration</td>
+<td class="py-4 text-center text-secondary">●</td>
+<td class="py-4 text-center text-outline-variant">○</td>
+<td class="py-4 text-center text-outline-variant">○</td>
+</tr>
+<tr>
+<td class="py-4">Technical Certification</td>
+<td class="py-4 text-center text-secondary">●</td>
+<td class="py-4 text-center text-secondary">●</td>
+<td class="py-4 text-center text-secondary">●</td>
+</tr>
+<tr>
+<td class="py-4">Long-term Archival</td>
+<td class="py-4 text-center text-secondary">●</td>
+<td class="py-4 text-center text-secondary">●</td>
+<td class="py-4 text-center text-outline-variant">○</td>
+</tr>
+<tr>
+<td class="py-4">Auction Logistics</td>
+<td class="py-4 text-center text-secondary">●</td>
+<td class="py-4 text-center text-secondary">●</td>
+<td class="py-4 text-center text-secondary">●</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-20 px-12 grid grid-cols-12 gap-8 text-left bg-[#171413] text-[#FAF7F2] border-t border-[#33312E]">
+<div class="col-span-12 md:col-span-4 flex flex-col justify-between gap-12">
+<span class="text-2xl font-serif text-[#FAF7F2]">MONOGRAM</span>
+<div class="space-y-4">
+<p class="font-body text-sm text-[#FAF7F2]/70 max-w-xs leading-[1.6]">
+                    Curated automotive heritage for the discerning collector. Preserving the past, defining the future.
+                </p>
+<div class="flex gap-4">
+<a class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-all" href="#">
+<span class="material-symbols-outlined text-sm">language</span>
+</a>
+<a class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 transition-all" href="#">
+<span class="material-symbols-outlined text-sm">mail</span>
+</a>
+</div>
+</div>
+</div>
+<div class="col-span-6 md:col-span-2 space-y-6">
+<span class="font-label text-[10px] tracking-[0.1em] uppercase opacity-50 block">Visit</span>
+<ul class="space-y-4 text-sm font-body">
+<li><a class="text-[#FAF7F2]/70 hover:text-[#FAF7F2] transition-colors" href="#">Bangalore HQ</a></li>
+<li><a class="text-[#FAF7F2]/70 hover:text-[#FAF7F2] transition-colors" href="#">Mumbai Atelier</a></li>
+<li><a class="text-[#FAF7F2]/70 hover:text-[#FAF7F2] transition-colors" href="#">Chennai Studio</a></li>
+</ul>
+</div>
+<div class="col-span-6 md:col-span-2 space-y-6">
+<span class="font-label text-[10px] tracking-[0.1em] uppercase opacity-50 block">Company</span>
+<ul class="space-y-4 text-sm font-body">
+<li><a class="text-[#FAF7F2]/70 hover:text-[#FAF7F2] transition-colors" href="#">Our History</a></li>
+<li><a class="text-[#FAF7F2]/70 hover:text-[#FAF7F2] transition-colors" href="#">Certifications</a></li>
+<li><a class="text-[#FAF7F2]/70 hover:text-[#FAF7F2] transition-colors" href="#">Career</a></li>
+</ul>
+</div>
+<div class="col-span-12 md:col-span-4 space-y-6">
+<span class="font-label text-[10px] tracking-[0.1em] uppercase opacity-50 block">Newsletter</span>
+<p class="text-sm font-body text-[#FAF7F2]/70">Receive monthly dispatches on rare acquisitions.</p>
+<form class="flex border-b border-white/30 pb-2 group focus-within:border-white transition-all">
+<input class="bg-transparent border-none focus:ring-0 text-xs font-mono w-full placeholder:text-white/20" placeholder="YOUR EMAIL" type="email"/>
+<button class="material-symbols-outlined text-white/50 group-hover:text-white transition-colors" type="submit">arrow_forward</button>
+</form>
+</div>
+<div class="col-span-12 mt-12 pt-12 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-4">
+<span class="font-label text-[9px] tracking-[0.1em] opacity-40">© 2024 MONOGRAM. ALL RIGHTS RESERVED.</span>
+<div class="flex gap-8 font-label text-[9px] tracking-[0.1em] opacity-40 uppercase">
+<a class="hover:opacity-100 transition-opacity" href="#">Privacy Policy</a>
+<a class="hover:opacity-100 transition-opacity" href="#">Terms of Service</a>
+<a class="hover:opacity-100 transition-opacity" href="#">Cookie Policy</a>
+</div>
+</div>
+</footer>
+</body></html>

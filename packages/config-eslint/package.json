@@ -1,0 +1,16 @@
+{
+  "name": "@dms/config-eslint",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./index.js",
+  "files": ["index.js", "nextjs.js"],
+  "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^7.10.0",
+    "@typescript-eslint/parser": "^7.10.0",
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-react": "^7.34.0",
+    "eslint-plugin-react-hooks": "^4.6.0"
+  }
+}

@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   Customer surface — Editorial Luxury (light) + Dark Premium (dark)
+   All colors emitted as space-separated RGB triplets so that
+   Tailwind's alpha modifier (bg-bg-paper/50) works correctly.
+   ============================================================ */
+
+[data-surface="customer"][data-theme="light"] {
+  /* Backgrounds */
+  --bg-paper:       250 247 240;  /* #faf7f0 */
+  --bg-elevated:    255 255 255;  /* #ffffff */
+  --bg-subtle:      242 237 226;  /* #f2ede2 */
+  --bg-hover:       237 231 215;  /* #ede7d7 */
+
+  /* Ink (text) */
+  --ink-primary:    14 13 11;     /* #0e0d0b */
+  --ink-secondary:  74 70 61;     /* #4a463d */
+  --ink-muted:      120 112 95;   /* #78705f */
+  --ink-subtle:     161 152 130;  /* #a19882 */
+
+  /* Accent — warm bronze */
+  --accent:         138 106 61;   /* #8a6a3d */
+  --accent-hover:   114 87 48;    /* #725730 */
+  --accent-subtle:  232 220 194;  /* #e8dcc2 */
+
+  /* Lines / borders */
+  --line:           230 223 208;  /* #e6dfd0 */
+  --line-strong:    200 191 168;  /* #c8bfa8 */
+
+  /* Interaction */
+  --focus-ring:     138 106 61;   /* #8a6a3d */
+
+  /* Status */
+  --success:        74 122 61;    /* #4a7a3d */
+  --warning:        168 122 40;   /* #a87a28 */
+  --danger:         138 61 61;    /* #8a3d3d */
+}
+
+[data-surface="customer"][data-theme="dark"] {
+  /* Backgrounds */
+  --bg-paper:       12 12 13;     /* #0c0c0d */
+  --bg-elevated:    21 21 26;     /* #15151a */
+  --bg-subtle:      26 26 31;     /* #1a1a1f */
+  --bg-hover:       34 34 40;     /* #222228 */
+
+  /* Ink (text) */
+  --ink-primary:    237 229 212;  /* #ede5d4 */
+  --ink-secondary:  185 176 160;  /* #b9b0a0 */
+  --ink-muted:      138 130 114;  /* #8a8272 */
+  --ink-subtle:     90 84 72;     /* #5a5448 */
+
+  /* Accent — warm gold */
+  --accent:         200 155 90;   /* #c89b5a */
+  --accent-hover:   216 174 116;  /* #d8ae74 */
+  --accent-subtle:  58 47 30;     /* #3a2f1e */
+
+  /* Lines / borders */
+  --line:           42 41 39;     /* #2a2927 */
+  --line-strong:    63 61 56;     /* #3f3d38 */
+
+  /* Interaction */
+  --focus-ring:     200 155 90;   /* #c89b5a */
+
+  /* Status */
+  --success:        106 154 77;   /* #6a9a4d */
+  --warning:        200 155 90;   /* #c89b5a */
+  --danger:         200 106 106;  /* #c86a6a */
+}
+
+/* ============================================================
+   Font variables — set by next/font via layout.tsx className
+   These fallbacks ensure the vars are always defined.
+   ============================================================ */
+:root {
+  --font-display: "Playfair Display", "Cormorant Garamond", Georgia, serif;
+  --font-sans:    "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono:    "IBM Plex Mono", "SF Mono", Menlo, monospace;
+}
+
+/* ============================================================
+   Base styles
+   ============================================================ */
+@layer base {
+  body {
+    @apply bg-bg-paper text-ink-primary antialiased;
+    font-family: var(--font-sans);
+  }
+
+  /* Accessible focus rings using token color */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-focus-ring ring-offset-2 ring-offset-bg-paper;
+  }
+
+  /* Selection */
+  ::selection {
+    @apply bg-accent/20 text-ink-primary;
+  }
+}
+
+/* ============================================================
+   Utility classes
+   ============================================================ */
+@layer utilities {
+  /* Grain overlay — subtle noise texture for luxury feel */
+  .grain-overlay {
+    position: relative;
+  }
+  .grain-overlay::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 256px 256px;
+    pointer-events: none;
+    border-radius: inherit;
+  }
+
+  /* Mono label — IBM Plex Mono for VINs, part numbers, labels */
+  .mono-label {
+    font-family: var(--font-mono);
+    @apply text-label-sm tracking-[0.14em] font-medium uppercase;
+  }
+
+  /* Serif tight — Playfair Display for editorial headlines */
+  .serif-tight {
+    font-family: var(--font-display);
+    @apply tracking-tight leading-none;
+  }
+}

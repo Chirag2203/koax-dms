@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>DMS — Design Direction Comparison</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0a0a0a;
+    --paper:#fafaf7;
+    --line:#e7e5e0;
+    --muted:#6b6b6b;
+    --accent:#8a6a3d;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0;background:var(--paper);color:var(--ink);font-family:"Inter",sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  .container{max-width:1280px;margin:0 auto;padding:72px 40px}
+  .eyebrow{font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--muted);font-weight:500}
+  h1{font-family:"Playfair Display",serif;font-size:clamp(40px,5vw,72px);line-height:1.05;letter-spacing:-0.02em;font-weight:400;margin:14px 0 20px}
+  h1 em{font-style:italic;color:var(--accent)}
+  .lede{font-size:20px;line-height:1.55;color:#333;max-width:720px;margin:0}
+  .rule{height:1px;background:var(--line);margin:48px 0}
+  h2{font-family:"Playfair Display",serif;font-weight:400;font-size:36px;letter-spacing:-0.01em;margin:0 0 12px}
+  h3{font-family:"Inter",sans-serif;font-weight:600;font-size:15px;letter-spacing:0.02em;text-transform:uppercase;color:var(--muted);margin:28px 0 10px}
+  p{margin:0 0 14px}
+  .two-col{display:grid;grid-template-columns:1fr 1fr;gap:48px}
+  .surface{border:1px solid var(--line);padding:32px;background:#fff}
+  .surface .label{font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+  .surface h4{font-family:"Playfair Display",serif;font-weight:400;font-size:22px;margin:0 0 10px}
+
+  /* --- Direction card base --- */
+  .direction{border:1px solid var(--line);margin:56px 0;overflow:hidden;background:#fff}
+  .direction .meta{padding:28px 32px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:1fr 220px;gap:24px;align-items:end}
+  .direction .meta .num{font-family:"Playfair Display",serif;font-size:54px;line-height:1;color:var(--accent);font-weight:400}
+  .direction .meta .title{font-family:"Playfair Display",serif;font-size:34px;font-weight:400;letter-spacing:-0.01em;margin:6px 0 6px}
+  .direction .meta .refs{font-size:13px;color:var(--muted)}
+  .direction .meta .verdict{font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);padding:6px 10px;justify-self:end;text-align:center}
+  .direction .verdict.neutral{color:var(--muted);border-color:var(--line)}
+  .direction .verdict.reject{color:#a33;border-color:#a33}
+  .direction .body{display:grid;grid-template-columns:1.3fr 1fr;gap:0}
+  .direction .sample{padding:40px;border-right:1px solid var(--line);min-height:420px;position:relative}
+  .direction .spec{padding:40px}
+  .direction .spec dl{display:grid;grid-template-columns:max-content 1fr;gap:10px 18px;font-size:14px;margin:0}
+  .direction .spec dt{color:var(--muted);font-weight:500;font-size:12px;letter-spacing:0.06em;text-transform:uppercase}
+  .direction .spec dd{margin:0;color:#222}
+  .swatches{display:flex;gap:0;margin:16px 0 4px;height:32px;border:1px solid var(--line)}
+  .swatches span{flex:1;position:relative}
+  .swatches span::after{content:attr(data-hex);position:absolute;bottom:-18px;left:0;font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--muted)}
+  .pros,.cons{font-size:13px;margin:0;padding-left:16px}
+  .pros li{color:#1b6f3a}
+  .cons li{color:#8a2b2b}
+
+  /* --- Direction 1: Editorial Luxury (serif + generous space) --- */
+  .d1 .sample{background:#f6f2ec;font-family:"Cormorant Garamond",serif}
+  .d1 .sample .kicker{font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:#78633d;font-family:"Inter",sans-serif;font-weight:500}
+  .d1 .sample .big{font-size:56px;line-height:1;font-weight:400;margin:14px 0 8px;font-style:italic}
+  .d1 .sample .big em{font-style:normal;color:#78633d}
+  .d1 .sample .sub{font-size:18px;color:#5a4b35;line-height:1.5;max-width:380px}
+  .d1 .sample .frame{margin-top:32px;border:1px solid #d7c9ad;padding:24px;background:#fffcf6}
+  .d1 .sample .frame .price{font-family:"Cormorant Garamond",serif;font-size:28px;font-weight:600}
+  .d1 .sample .frame .small{font-size:11px;letter-spacing:0.2em;text-transform:uppercase;color:#78633d;font-family:"Inter",sans-serif}
+  .d1 .sample button{margin-top:18px;background:#22201b;color:#fffcf6;border:0;padding:14px 28px;font-size:11px;letter-spacing:0.24em;text-transform:uppercase;font-family:"Inter",sans-serif;font-weight:500;cursor:pointer}
+
+  /* --- Direction 2: Boutique E-commerce (product-first, restrained) --- */
+  .d2 .sample{background:#f4f2ee}
+  .d2 .sample .crumbs{font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:#8b8477}
+  .d2 .sample .model{font-family:"Inter",sans-serif;font-weight:300;font-size:42px;letter-spacing:-0.015em;margin:12px 0 4px;color:#1a1816}
+  .d2 .sample .variant{font-family:"Inter",sans-serif;font-weight:500;font-size:13px;color:#555;letter-spacing:0.04em;text-transform:uppercase;margin-bottom:22px}
+  .d2 .sample .photo{height:120px;background:linear-gradient(135deg,#2a2824,#555048);position:relative;margin-bottom:24px}
+  .d2 .sample .photo::after{content:"";position:absolute;inset:0;background:radial-gradient(ellipse at 70% 50%,rgba(255,255,255,0.2),transparent 60%)}
+  .d2 .sample .spec-line{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #d9d4ca;font-size:13px}
+  .d2 .sample .spec-line span:first-child{color:#8b8477;letter-spacing:0.04em;text-transform:uppercase;font-size:11px}
+  .d2 .sample .spec-line span:last-child{font-weight:500;color:#1a1816}
+  .d2 .sample .cta{margin-top:20px;display:flex;gap:10px}
+  .d2 .sample .cta button{border:1px solid #1a1816;background:#1a1816;color:#fff;padding:14px 22px;font-size:12px;letter-spacing:0.14em;text-transform:uppercase;font-weight:500;cursor:pointer}
+  .d2 .sample .cta button.ghost{background:transparent;color:#1a1816}
+
+  /* --- Direction 3: Modern Product Interface (Linear/Stripe) --- */
+  .d3 .sample{background:#fbfbfa;font-family:"Inter",sans-serif}
+  .d3 .sample .topbar{display:flex;gap:16px;font-size:12px;color:#6b7280;border-bottom:1px solid #ececec;padding-bottom:10px;margin-bottom:14px;align-items:center}
+  .d3 .sample .topbar .dot{width:6px;height:6px;border-radius:50%;background:#10b981}
+  .d3 .sample .topbar .active{color:#111;font-weight:500}
+  .d3 .sample h5{font-size:20px;font-weight:600;letter-spacing:-0.01em;margin:0 0 4px;color:#0a0a0a}
+  .d3 .sample .small{font-size:12px;color:#6b7280;margin-bottom:14px}
+  .d3 .sample table{width:100%;border-collapse:collapse;font-size:12px}
+  .d3 .sample th{text-align:left;font-weight:500;color:#6b7280;padding:8px 10px;border-bottom:1px solid #ececec;font-size:11px;letter-spacing:0.03em;text-transform:uppercase}
+  .d3 .sample td{padding:9px 10px;border-bottom:1px solid #f3f3f2;color:#111;font-variant-numeric:tabular-nums}
+  .d3 .sample .chip{display:inline-block;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:500;letter-spacing:0.02em}
+  .d3 .sample .chip.green{background:#ecfdf5;color:#047857}
+  .d3 .sample .chip.amber{background:#fffbeb;color:#b45309}
+  .d3 .sample .chip.blue{background:#eff6ff;color:#1e40af}
+  .d3 .sample .chip.grey{background:#f3f4f6;color:#4b5563}
+  .d3 .sample .k{font-family:"IBM Plex Mono",monospace;font-size:11px;color:#6b7280}
+
+  /* --- Direction 4: Transactional Marketplace (Carvana/Airbnb) --- */
+  .d4 .sample{background:#fff;font-family:"Space Grotesk",sans-serif}
+  .d4 .sample .hero{background:#f5f7fa;padding:20px;border-radius:12px;margin-bottom:16px}
+  .d4 .sample .hero .title{font-size:26px;font-weight:600;margin:0 0 4px;color:#0d1b2a}
+  .d4 .sample .hero .sub{font-size:14px;color:#475569}
+  .d4 .sample .filters{display:flex;gap:8px;margin:14px 0;flex-wrap:wrap}
+  .d4 .sample .filters span{border:1px solid #cbd5e1;border-radius:999px;padding:6px 14px;font-size:12px;color:#334155;font-weight:500}
+  .d4 .sample .filters span.on{background:#0d1b2a;color:#fff;border-color:#0d1b2a}
+  .d4 .sample .card{border:1px solid #e2e8f0;border-radius:12px;overflow:hidden}
+  .d4 .sample .card .img{height:100px;background:linear-gradient(135deg,#94a3b8,#475569)}
+  .d4 .sample .card .info{padding:14px}
+  .d4 .sample .card .info .nm{font-size:16px;font-weight:600;color:#0d1b2a}
+  .d4 .sample .card .info .px{font-size:20px;font-weight:700;color:#0d1b2a;margin-top:4px}
+  .d4 .sample .card .info .emi{font-size:12px;color:#64748b}
+  .d4 .sample .cta-full{background:#ff6d3a;color:#fff;border:0;padding:12px;width:100%;font-weight:600;border-radius:8px;margin-top:12px;font-size:13px;cursor:pointer}
+
+  /* --- Direction 5: Dark Premium --- */
+  .d5 .sample{background:#0c0c0d;color:#e8e3d8;font-family:"Inter",sans-serif;padding:44px}
+  .d5 .sample .kicker{font-size:10px;letter-spacing:0.3em;text-transform:uppercase;color:#8a6a3d;font-weight:500}
+  .d5 .sample h5{font-family:"Playfair Display",serif;font-size:40px;font-weight:400;letter-spacing:-0.01em;margin:10px 0 6px;color:#fff;line-height:1.05}
+  .d5 .sample .sub{font-size:14px;color:#9a948a;margin-bottom:24px}
+  .d5 .sample .stat{display:flex;justify-content:space-between;padding:14px 0;border-bottom:1px solid #2a2927;font-size:13px}
+  .d5 .sample .stat span:first-child{color:#9a948a;letter-spacing:0.04em;text-transform:uppercase;font-size:11px}
+  .d5 .sample .stat span:last-child{color:#e8e3d8;font-weight:500;font-variant-numeric:tabular-nums}
+  .d5 .sample button{margin-top:22px;background:transparent;color:#e8e3d8;border:1px solid #8a6a3d;padding:14px 28px;font-size:11px;letter-spacing:0.24em;text-transform:uppercase;font-weight:500;cursor:pointer}
+  .d5 .sample button.primary{background:#8a6a3d;color:#0c0c0d;border-color:#8a6a3d;margin-left:10px}
+
+  /* Recommendation block */
+  .rec{background:var(--ink);color:var(--paper);padding:64px 40px;margin:80px -40px 0}
+  .rec .inner{max-width:1200px;margin:0 auto}
+  .rec h2{color:var(--paper)}
+  .rec .eyebrow{color:#b9b2a3}
+  .rec .grid{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px}
+  .rec .slot{border:1px solid #2a2a2a;padding:32px;background:#141414}
+  .rec .slot h3{color:#b9b2a3}
+  .rec .slot .dir{font-family:"Playfair Display",serif;font-size:28px;font-weight:400;margin:0 0 6px}
+  .rec .slot ul{font-size:14px;color:#d9d4c9;padding-left:18px}
+
+  .questions{background:#fffaf0;border:1px solid #eadfc4;padding:32px;margin-top:56px}
+  .questions h3{margin-top:0;color:var(--ink)}
+  .questions ol{padding-left:22px;font-size:15px;line-height:1.7}
+
+  @media (max-width:900px){
+    .two-col,.direction .body,.rec .grid{grid-template-columns:1fr}
+    .direction .sample{border-right:0;border-bottom:1px solid var(--line)}
+    .direction .meta{grid-template-columns:1fr}
+    .direction .meta .verdict{justify-self:start}
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="eyebrow">DMS v1.0 · Design Direction · Round 1</div>
+  <h1>Modern. Restrained. <em>Crafted.</em><br>Five directions to react to.</h1>
+  <p class="lede">A pre-owned luxury car dealership has two user surfaces that should not look the same. The customer-facing surface must feel like a brand you'd trust with ₹80L. The internal staff surface must feel like a precision tool you'd trust with 50 deals a week. We pick a direction for each. We share one token system. That's how we get modern + great UX.</p>
+
+  <div class="rule"></div>
+
+  <div class="eyebrow">The two-surface frame</div>
+  <h2>One brand. Two expressions.</h2>
+  <p style="max-width:780px;margin-top:14px;color:#444">Most DMS products fail at exactly this. They make internal tools too editorial (beautiful, slow, unusable at scale) or the customer surface too enterprise (feels cheap for the price tag). We keep shared brand primitives — typography family, color primitives, spacing scale, motion grammar, iconography — but density, chrome, and content treatment diverge.</p>
+
+  <div class="two-col" style="margin-top:32px">
+    <div class="surface">
+      <div class="label">Surface A</div>
+      <h4>Customer-facing</h4>
+      <p style="font-size:14px;color:#444;margin:0">Storefront · VDP · Customer portal · Consignor portal · CPO certificate view · Invoice share · Service booking · Delivery experience.</p>
+      <p style="font-size:13px;color:#777;margin-top:12px"><strong>Qualities needed:</strong> editorial, emotional, photography-forward, aspirational, trust-building, conversion-aware.</p>
+    </div>
+    <div class="surface">
+      <div class="label">Surface B</div>
+      <h4>Internal staff</h4>
+      <p style="font-size:14px;color:#444;margin:0">Sales CRM · Lead pipeline · Inventory management · RO board · Parts counter · Body shop · Finance · Admin · 24-role access controls.</p>
+      <p style="font-size:13px;color:#777;margin-top:12px"><strong>Qualities needed:</strong> dense, keyboard-first, data-rich, scannable, fast, zero-animation theatre, dark-mode ready.</p>
+    </div>
+  </div>
+
+  <div class="rule"></div>
+  <h2 style="margin-bottom:8px">Five directions</h2>
+  <p style="color:#555">Each card is rendered in its own aesthetic so you see, not imagine. Verdict chip at top-right tells you where I'd land.</p>
+
+  <!-- DIRECTION 1 -->
+  <div class="direction d1">
+    <div class="meta">
+      <div>
+        <div class="num">01</div>
+        <div class="title">Editorial Luxury</div>
+        <div class="refs">References: Porsche.com · Aston Martin · Saint Laurent · Hermès · SSENSE</div>
+      </div>
+      <div class="verdict neutral">Customer · partial use</div>
+    </div>
+    <div class="body">
+      <div class="sample">
+        <div class="kicker">PORSCHE APPROVED</div>
+        <div class="big">The 911 <em>Carrera S</em></div>
+        <div class="sub">Certified pre-owned. Two previous custodians. A car worth the chapter it's written about.</div>
+        <div class="frame">
+          <div class="small">Price on request</div>
+          <div class="price">₹ 1,82,00,000</div>
+          <button>Arrange a viewing</button>
+        </div>
+      </div>
+      <div class="spec">
+        <dl>
+          <dt>Voice</dt><dd>Editorial, literary, restrained</dd>
+          <dt>Type</dt><dd>Serif headline + clean sans body (Cormorant / Playfair + Inter)</dd>
+          <dt>Color</dt><dd>Warm paper + ink + one brass accent</dd>
+          <dt>Motion</dt><dd>Slow, cinematic reveals; considered crossfades</dd>
+          <dt>Density</dt><dd>Low — whitespace is the feature</dd>
+          <dt>Photography</dt><dd>Hero, not thumbnail</dd>
+        </dl>
+        <div class="swatches" style="margin-top:20px">
+          <span style="background:#f6f2ec" data-hex="#f6f2ec"></span>
+          <span style="background:#22201b" data-hex="#22201b"></span>
+          <span style="background:#8a6a3d" data-hex="#8a6a3d"></span>
+          <span style="background:#d7c9ad" data-hex="#d7c9ad"></span>
+        </div>
+        <h3>Pros</h3>
+        <ul class="pros"><li>Raises perceived price ceiling</li><li>Signals the brand is serious about taste</li><li>Memorable versus every other Indian used-car site</li></ul>
+        <h3>Cons</h3>
+        <ul class="cons"><li>Slow to scan; bad for comparison shopping</li><li>Internal tools in this style = productivity killer</li><li>Hard to maintain consistency across 100+ screens without a dedicated art director</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIRECTION 2 -->
+  <div class="direction d2">
+    <div class="meta">
+      <div>
+        <div class="num">02</div>
+        <div class="title">Boutique E-commerce</div>
+        <div class="refs">References: Aesop · Rimowa · Mr Porter · Carl Friedrik · Studio Proper · 1stDibs</div>
+      </div>
+      <div class="verdict">Recommended · Customer surface</div>
+    </div>
+    <div class="body">
+      <div class="sample">
+        <div class="crumbs">Inventory › Sedan › BMW</div>
+        <h4 class="model">BMW 7 Series</h4>
+        <div class="variant">740Li · M Sport · 2022 · Mineral White</div>
+        <div class="photo"></div>
+        <div class="spec-line"><span>Kilometers</span><span>18,400 km</span></div>
+        <div class="spec-line"><span>Previous owners</span><span>1</span></div>
+        <div class="spec-line"><span>CPO</span><span>Certified · 180-point</span></div>
+        <div class="spec-line"><span>Warranty</span><span>24 months included</span></div>
+        <div class="spec-line"><span>Location</span><span>Bangalore — Indiranagar</span></div>
+        <div class="cta">
+          <button>Book a test drive</button>
+          <button class="ghost">Talk to specialist</button>
+        </div>
+      </div>
+      <div class="spec">
+        <dl>
+          <dt>Voice</dt><dd>Confident, quiet, product-first</dd>
+          <dt>Type</dt><dd>One sans family, wide weight range (Inter 300-700)</dd>
+          <dt>Color</dt><dd>Warm off-white + ink + single deep accent</dd>
+          <dt>Motion</dt><dd>Micro — hover, focus, reveal; never theatrical</dd>
+          <dt>Density</dt><dd>Medium — product breathes, facts visible</dd>
+          <dt>Photography</dt><dd>Editorial crops with clear spec tables beside them</dd>
+        </dl>
+        <div class="swatches" style="margin-top:20px">
+          <span style="background:#f4f2ee" data-hex="#f4f2ee"></span>
+          <span style="background:#1a1816" data-hex="#1a1816"></span>
+          <span style="background:#8b8477" data-hex="#8b8477"></span>
+          <span style="background:#d9d4ca" data-hex="#d9d4ca"></span>
+        </div>
+        <h3>Pros</h3>
+        <ul class="pros"><li>Feels genuinely luxury without being try-hard</li><li>Product info readable and scannable</li><li>Scales across 100 VDPs without losing voice</li><li>Mobile-friendly out of the box</li></ul>
+        <h3>Cons</h3>
+        <ul class="cons"><li>Less visually distinctive than Editorial Luxury</li><li>Needs excellent vehicle photography to work — every shot</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIRECTION 3 -->
+  <div class="direction d3">
+    <div class="meta">
+      <div>
+        <div class="num">03</div>
+        <div class="title">Modern Product Interface</div>
+        <div class="refs">References: Linear · Stripe Dashboard · Vercel · Height · Notion · Raycast</div>
+      </div>
+      <div class="verdict">Recommended · Staff surface</div>
+    </div>
+    <div class="body">
+      <div class="sample">
+        <div class="topbar">
+          <span class="dot"></span>
+          <span class="active">Inventory</span>
+          <span>Leads</span>
+          <span>Deals</span>
+          <span>Service</span>
+          <span>Finance</span>
+          <span style="margin-left:auto;font-variant-numeric:tabular-nums">⌘K</span>
+        </div>
+        <h5>42 vehicles · Bangalore outlet</h5>
+        <div class="small">Filter: Listed · Acquired after 1 Mar 2026 · Sort: Days on lot</div>
+        <table>
+          <thead><tr><th>VIN</th><th>Model</th><th>Price</th><th>Days on lot</th><th>State</th><th>Certified</th></tr></thead>
+          <tbody>
+            <tr><td class="k">WBA4J1108NBN2819</td><td>BMW 740Li</td><td>1.24 Cr</td><td>8</td><td><span class="chip green">Listed</span></td><td>✓</td></tr>
+            <tr><td class="k">WP0AB2A9XNS226404</td><td>Porsche Cayenne</td><td>1.68 Cr</td><td>14</td><td><span class="chip amber">Reserved</span></td><td>✓</td></tr>
+            <tr><td class="k">WAU0CGFF8N1017228</td><td>Audi Q8</td><td>94.5 L</td><td>22</td><td><span class="chip green">Listed</span></td><td>✓</td></tr>
+            <tr><td class="k">SALGA2AV7NA455221</td><td>Range Rover Sport</td><td>1.32 Cr</td><td>3</td><td><span class="chip blue">Refurb</span></td><td>—</td></tr>
+            <tr><td class="k">WBACJ5102NBN9183</td><td>BMW 3 Series</td><td>56.8 L</td><td>47</td><td><span class="chip grey">Stale</span></td><td>✓</td></tr>
+          </tbody>
+        </table>
+        <div class="small" style="margin-top:12px">Shift+↑↓ to select · E to edit · ⌘P to publish · ⌘/ for commands</div>
+      </div>
+      <div class="spec">
+        <dl>
+          <dt>Voice</dt><dd>Precise, calm, utility-first</dd>
+          <dt>Type</dt><dd>Inter UI + IBM Plex Mono for IDs, numbers, keys</dd>
+          <dt>Color</dt><dd>Near-white base; state chips in restrained muted palette; dark-mode parity</dd>
+          <dt>Motion</dt><dd>80–160ms only; confirms actions, never decorates</dd>
+          <dt>Density</dt><dd>High — tables, keyboard, command palette</dd>
+          <dt>Photography</dt><dd>Minimal; thumbnails only where helpful</dd>
+        </dl>
+        <div class="swatches" style="margin-top:20px">
+          <span style="background:#fbfbfa" data-hex="#fbfbfa"></span>
+          <span style="background:#0a0a0a" data-hex="#0a0a0a"></span>
+          <span style="background:#6b7280" data-hex="#6b7280"></span>
+          <span style="background:#10b981" data-hex="#10b981"></span>
+          <span style="background:#b45309" data-hex="#b45309"></span>
+        </div>
+        <h3>Pros</h3>
+        <ul class="pros"><li>Best-in-class for staff productivity (keyboard, command palette, density)</li><li>Scales to 100+ screens with consistency</li><li>shadcn/ui gives us 80% of components day one</li><li>Dark mode is the default people actually want for long shifts</li></ul>
+        <h3>Cons</h3>
+        <ul class="cons"><li>Wrong for customer surface — feels clinical for ₹80L purchase</li><li>"Modern SaaS" is generic if we don't differentiate typography + motion</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIRECTION 4 -->
+  <div class="direction d4">
+    <div class="meta">
+      <div>
+        <div class="num">04</div>
+        <div class="title">Transactional Marketplace</div>
+        <div class="refs">References: Carvana · Vroom · Airbnb · Zillow · MakeMyTrip</div>
+      </div>
+      <div class="verdict reject">Not recommended</div>
+    </div>
+    <div class="body">
+      <div class="sample">
+        <div class="hero">
+          <div class="title">Find your next car.</div>
+          <div class="sub">3,400+ certified pre-owned. Inspected. Warrantied. Home delivery.</div>
+        </div>
+        <div class="filters">
+          <span class="on">BMW</span><span class="on">SUV</span><span>₹50L-1Cr</span><span>Bangalore</span><span>2020+</span><span>Under 25,000 km</span>
+        </div>
+        <div class="card">
+          <div class="img"></div>
+          <div class="info">
+            <div class="nm">BMW X5 xDrive40i M Sport</div>
+            <div class="px">₹ 94.5 L</div>
+            <div class="emi">EMI from ₹1,18,421/mo · Soft-pull in 30s</div>
+            <button class="cta-full">Reserve for ₹25,000</button>
+          </div>
+        </div>
+      </div>
+      <div class="spec">
+        <dl>
+          <dt>Voice</dt><dd>Friendly, direct, conversion-focused</dd>
+          <dt>Type</dt><dd>Modern geometric sans (Space Grotesk / Inter)</dd>
+          <dt>Color</dt><dd>Bright accent + neutral ground; high-saturation CTA</dd>
+          <dt>Motion</dt><dd>Confident, snappy; gamified feedback on filter changes</dd>
+          <dt>Density</dt><dd>Medium-high; grids and filter chips</dd>
+          <dt>Photography</dt><dd>Consistent thumbnail framing; hero optional</dd>
+        </dl>
+        <div class="swatches" style="margin-top:20px">
+          <span style="background:#ffffff" data-hex="#ffffff"></span>
+          <span style="background:#0d1b2a" data-hex="#0d1b2a"></span>
+          <span style="background:#ff6d3a" data-hex="#ff6d3a"></span>
+          <span style="background:#64748b" data-hex="#64748b"></span>
+        </div>
+        <h3>Pros</h3>
+        <ul class="pros"><li>Proven conversion patterns (filters, EMI, reserve CTA)</li><li>Affordability-forward — great for broader market</li><li>Users know exactly what to do</li></ul>
+        <h3>Cons</h3>
+        <ul class="cons"><li>Commoditizes the product — kills the luxury premium</li><li>Orange-button energy feels wrong at ₹1 Cr price points</li><li>Exact space BBT / Spinny occupy; we want to be above this</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- DIRECTION 5 -->
+  <div class="direction d5">
+    <div class="meta">
+      <div>
+        <div class="num">05</div>
+        <div class="title">Dark Premium</div>
+        <div class="refs">References: Tesla · Porsche Taycan configurator · Bowers & Wilkins · Genesis · Aston Martin Q</div>
+      </div>
+      <div class="verdict neutral">Consider · Feature moments</div>
+    </div>
+    <div class="body">
+      <div class="sample">
+        <div class="kicker">COLLECTION · RARE</div>
+        <h5>Porsche 911 Carrera GTS</h5>
+        <div class="sub">2021 · 7,200 km · Guards Red · Full documented history</div>
+        <div class="stat"><span>Price</span><span>₹ 2,14,00,000</span></div>
+        <div class="stat"><span>Certification</span><span>Own-brand 180-pt · 24 mo warranty</span></div>
+        <div class="stat"><span>Previous owners</span><span>1</span></div>
+        <div class="stat"><span>Location</span><span>Mumbai — Worli</span></div>
+        <div>
+          <button>Request viewing</button>
+          <button class="primary">Reserve · ₹5 lakh</button>
+        </div>
+      </div>
+      <div class="spec">
+        <dl>
+          <dt>Voice</dt><dd>Cinematic, exclusive, high-stakes</dd>
+          <dt>Type</dt><dd>Serif + sans pairing; high contrast weights</dd>
+          <dt>Color</dt><dd>Near-black base + brass/copper + warm cream</dd>
+          <dt>Motion</dt><dd>Dramatic; scroll-tied reveals; hero video backgrounds</dd>
+          <dt>Density</dt><dd>Low; theatrical</dd>
+          <dt>Photography</dt><dd>High-contrast, studio-lit, hero-sized</dd>
+        </dl>
+        <div class="swatches" style="margin-top:20px">
+          <span style="background:#0c0c0d" data-hex="#0c0c0d"></span>
+          <span style="background:#e8e3d8" data-hex="#e8e3d8"></span>
+          <span style="background:#8a6a3d" data-hex="#8a6a3d"></span>
+          <span style="background:#2a2927" data-hex="#2a2927"></span>
+        </div>
+        <h3>Pros</h3>
+        <ul class="pros"><li>Distinctive; hard to confuse with competitors</li><li>Perfect for "collection" / "rare" tier vehicles (top 5% of inventory)</li><li>Fits marketing moments, VIP events, launch films</li></ul>
+        <h3>Cons</h3>
+        <ul class="cons"><li>Exhausting for long session use; hostile to staff tools</li><li>Dark-only limits daytime outdoor readability on mobile</li><li>Can feel try-hard if every screen tries to be cinematic</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="rec">
+    <div class="inner">
+      <div class="eyebrow">Recommendation</div>
+      <h2>Pair 02 + 03. Keep 05 as a feature layer.</h2>
+      <p style="max-width:780px;color:#b9b2a3;margin-top:14px">Customer surface gets Boutique E-commerce (02). Staff surface gets Modern Product Interface (03). We layer Dark Premium (05) into specific moments — top-tier collection vehicles, VIP delivery flows, launch pages — without letting it take over. Editorial Luxury (01) informs tone and voice but is too low-density to be a daily driver. Transactional Marketplace (04) is what we're deliberately not.</p>
+      <div class="grid">
+        <div class="slot">
+          <h3>Customer surface</h3>
+          <div class="dir">02 · Boutique E-commerce</div>
+          <p style="color:#b9b2a3;margin:0 0 12px">Storefront, VDP, customer portal, consignor portal, invoice/certificate share.</p>
+          <ul>
+            <li>Warm off-white paper + ink; single deep accent</li>
+            <li>Inter across the whole system; weight range 300-700</li>
+            <li>Editorial crops + clean spec tables (not hero-only)</li>
+            <li>Micro-motion: hover, focus, reveal</li>
+            <li>Mobile-first; 60% of luxury buyers browse on phone</li>
+            <li>Dark-mode optional, not required</li>
+          </ul>
+        </div>
+        <div class="slot">
+          <h3>Staff surface</h3>
+          <div class="dir">03 · Modern Product Interface</div>
+          <p style="color:#b9b2a3;margin:0 0 12px">Sales CRM, RO board, inventory, parts, body shop, finance, admin.</p>
+          <ul>
+            <li>Near-white base + near-black ink; muted state palette</li>
+            <li>Inter UI + IBM Plex Mono for IDs and numbers</li>
+            <li>Dense tables, keyboard-first, command palette (⌘K)</li>
+            <li>Motion 80-160ms max; confirms, never decorates</li>
+            <li>Desktop-first; mobile as companion view for field roles</li>
+            <li>Dark mode is the default actually shipped</li>
+          </ul>
+        </div>
+      </div>
+      <p style="margin-top:30px;max-width:780px;color:#b9b2a3">Both surfaces share: the same color primitives, the same type family (Inter), the same spacing scale, the same motion grammar, the same iconography. What diverges: density, chrome, content treatment, interaction vocabulary. That's the two-surface design system.</p>
+    </div>
+  </div>
+
+  <div class="questions">
+    <h3>Before we lock this — where do you push back?</h3>
+    <ol>
+      <li>Do you agree with the two-surface frame, or do you want one visual system across customer + staff (I'd argue against, but you know your team)?</li>
+      <li>Is 02 Boutique E-commerce the right pick for customer surface, or does 05 Dark Premium feel closer to the brand you want?</li>
+      <li>Is 03 Modern Product Interface right for staff, or do you want something more distinctive (risk: less off-the-shelf component support from shadcn)?</li>
+      <li>Should 05 Dark Premium be reserved for top-tier "collection" vehicles only, or applied to the whole customer surface?</li>
+      <li>Typography: Inter everywhere, or should customer surface use a serif display face (Playfair / Cormorant) for headlines?</li>
+      <li>Photography: who shoots the cars? Studio-grade photography is non-negotiable for 02 or 05 to work. This is a cost line item we haven't discussed.</li>
+    </ol>
+  </div>
+
+  <p style="margin-top:48px;font-size:13px;color:var(--muted)">Directions rendered inline in this document using real typography and color, not lorem mockups. If a direction looks wrong to you here, it will look wrong in production.</p>
+
+</div>
+</body>
+</html>

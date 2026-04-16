@@ -1,0 +1,331 @@
+{
+  "meta": {
+    "title": "BN Automobiles",
+    "description": "A quieter way to own a great car. Hand-selected pre-owned luxury vehicles in Bangalore, Mumbai, and Chennai."
+  },
+  "nav": {
+    "collection": "The Collection",
+    "certification": "Certification",
+    "sell": "Sell Your Car",
+    "service": "Service",
+    "journal": "Journal",
+    "signIn": "Sign In",
+    "citySelector": "Select City",
+    "allCities": "All Cities"
+  },
+  "hero": {
+    "headline": "A quieter way to own a great car",
+    "subline": "Each vehicle hand-selected, inspected on 210 points, and shown in three cities.",
+    "cta": "View the collection",
+    "sellLink": "Or sell your car privately",
+    "season": "SPRING 2026 · NO. 04"
+  },
+  "trust": {
+    "headline": "The BN Standard",
+    "checks": "210 checks",
+    "warranty": "12 month warranty",
+    "network": "3 outlet network",
+    "learnMore": "Learn about our certification"
+  },
+  "collection": {
+    "eyebrow": "THE COLLECTION",
+    "headline": "The Collection",
+    "subtitle": "Every vehicle in our care, presented without reservation. Filter by what matters to you.",
+    "showing": "Showing {count} of {total} vehicles",
+    "sortBy": "Sort by",
+    "sortNewest": "Newest",
+    "sortPriceAsc": "Price: Low to High",
+    "sortPriceDesc": "Price: High to Low",
+    "sortKmAsc": "Lowest Kilometres",
+    "clearAll": "Clear all filters",
+    "noResults": "No vehicles match your current filters.",
+    "noResultsHint": "Try broadening your search or clearing some filters.",
+    "filterMake": "Make",
+    "filterBody": "Body Type",
+    "filterFuel": "Fuel",
+    "filterTransmission": "Transmission",
+    "filterCity": "City",
+    "filterCertified": "Certified Only",
+    "filterPrice": "Price Range",
+    "priceUnder50": "Under ₹50 Lakh",
+    "price50to100": "₹50L – ₹1 Crore",
+    "price100to200": "₹1Cr – ₹2 Crore",
+    "priceAbove200": "Above ₹2 Crore",
+    "viewAll": "Browse the full collection",
+    "allMakes": "All Makes",
+    "allTypes": "All Types",
+    "allFuels": "All Fuels",
+    "allTransmissions": "All",
+    "allCities": "All Cities",
+    "allPrices": "Any Price",
+    "page": "Page {current} of {total}",
+    "previous": "Previous",
+    "next": "Next",
+    "quote": "Luxury is not about ownership, it is about the stewardship of history.",
+    "view": "View"
+  },
+  "services": {
+    "maintenance": {
+      "title": "Service & Maintenance",
+      "description": "Manufacturer-trained technicians. Genuine parts. Every service documented in your vehicle's digital ledger."
+    },
+    "inspection": {
+      "title": "Pre-Purchase Inspection",
+      "description": "Commission an independent 210-point assessment before you commit. Transparency is not optional."
+    },
+    "sell": {
+      "title": "Sell Privately",
+      "description": "A discreet, curated exit for your vehicle. Valuation within 48 hours. No obligation."
+    },
+    "learnMore": "Learn more"
+  },
+  "journal": {
+    "headline": "Dispatches from The Atelier"
+  },
+  "footer": {
+    "visit": "Visit",
+    "contact": "Contact",
+    "company": "Company",
+    "about": "About",
+    "certification": "Certification",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "newsletter": {
+      "placeholder": "Your email address",
+      "subscribe": "Subscribe",
+      "consent": "By subscribing, you agree to receive quarterly updates. Unsubscribe anytime."
+    },
+    "copyright": "© 2026 BN Automobiles. A multi-city concern."
+  },
+  "common": {
+    "km": "km",
+    "certified": "CPO · 210-Point",
+    "reserved": "Reserved",
+    "comingSoon": "Coming soon",
+    "retry": "Try again",
+    "loading": "Loading",
+    "error": "Something went wrong. Please try again."
+  },
+  "cities": {
+    "meta": {
+      "title": "Our Cities | BN Automobiles",
+      "description": "Visit BN Automobiles across Bangalore, Mumbai, and Chennai. Three distinguished showrooms dedicated to pre-owned luxury automotive excellence."
+    },
+    "eyebrow": "ARCHIVE PRESENCE",
+    "headline": "Our Cities",
+    "subtitle": "A curated network of showrooms across the subcontinent, dedicated to the preservation and provenance of automotive excellence.",
+    "mapLabel": "Three locations across India",
+    "bangaloreTag": "SOUTHERN HQ",
+    "mumbaiTag": "COASTAL ATELIER",
+    "chennaiTag": "EAST COAST STUDIO",
+    "bangaloreRole": "The Flagship",
+    "mumbaiRole": "The Atelier",
+    "chennaiRole": "The Studio",
+    "bangaloreDesc": "Nestled in the heart of Indiranagar, our Bangalore headquarters serves as the primary showroom and certification facility for the collection. A destination for discerning buyers across the Deccan plateau.",
+    "mumbaiDesc": "Our Mumbai atelier in Bandra West focuses on curated collection management and private transactions for our coastal clients. Modern, discreet, and meticulously appointed.",
+    "chennaiDesc": "Our Chennai studio on Khader Nawaz Khan Road brings the BN Standard to the East Coast, serving Nungambakkam's most discerning clientele with a hand-picked inventory.",
+    "hoursLabel": "Hours",
+    "weekday": "Mon – Fri",
+    "saturday": "Saturday",
+    "sunday": "Sunday",
+    "vehiclesLabel": "vehicles currently in residence",
+    "bookVisit": "Book a visit",
+    "viewInventory": "View inventory",
+    "teamLabel": "The Team",
+    "serviceMatrix": {
+      "title": "Service Availability",
+      "subtitle": "Cross-regional support infrastructure for the BN fleet.",
+      "capability": "Capability",
+      "sales": "Sales",
+      "service": "After-Sales Service",
+      "bodyShop": "Body Shop",
+      "parts": "Parts",
+      "certification": "Certification",
+      "detailing": "Detailing"
+    }
+  },
+  "certification": {
+    "meta": {
+      "title": "Certification — The BN Standard | BN Automobiles",
+      "description": "Every vehicle in our collection undergoes a rigorous 210-point inspection. The BN Standard is our promise of mechanical and aesthetic integrity."
+    },
+    "eyebrow": "THE PROTOCOL",
+    "headline": "The BN Standard.",
+    "subtitle": "Every automobile curated by BN Automobiles undergoes a rigorous 210-point inspection protocol. We do not merely verify maintenance; we validate the soul of the machine through mechanical forensics and aesthetic preservation.",
+    "statNumber": "210",
+    "statLabel": "point inspection",
+    "statCaption": "Critical validation checkpoints ensuring technical and aesthetic absolute perfection.",
+    "pillarsTitle": "Three Pillars of Assurance",
+    "pillar1Title": "Mechanical Integrity",
+    "pillar1Desc": "A forensic examination of every system — from powertrain fluid spectral analysis to thermal imaging of cooling circuits and suspension geometry.",
+    "pillar1Item1": "Powertrain and transmission fluid spectral analysis",
+    "pillar1Item2": "Compression testing across all cylinders",
+    "pillar1Item3": "Thermal imaging of cooling systems",
+    "pillar1Item4": "Suspension geometry and bushing elasticity",
+    "pillar2Title": "Cosmetic Preservation",
+    "pillar2Desc": "Surface integrity examined at a micron level. Every panel, every stitch, every surface assessed against factory specification.",
+    "pillar2Item1": "Micron-level paint depth consistency check",
+    "pillar2Item2": "UV damage assessment on leather and wood trim",
+    "pillar2Item3": "High-definition undercarriage scanning",
+    "pillar2Item4": "Wheel surface and structural integrity",
+    "pillar3Title": "Provenance & History",
+    "pillar3Desc": "A complete chain of custody for every vehicle. Every service record, every ownership transfer, every regulatory checkpoint verified.",
+    "pillar3Item1": "Exhaustive global ownership history trace",
+    "pillar3Item2": "Digital maintenance record verification",
+    "pillar3Item3": "Certification of original component matching",
+    "pillar3Item4": "Import and regulatory compliance audit",
+    "darkBandEyebrow": "THE VERIFIED SEAL",
+    "darkBandHeadline": "Engineering Absolute Trust.",
+    "darkBandBody": "When a vehicle bears the BN Verified seal, it means every structural point has been measured against factory blueprints within a 0.5mm tolerance. It means the provenance is unimpeachable. It means you are buying exactly what we say you are buying.",
+    "processTitle": "The 210-Point Process",
+    "processSubtitle": "What our specialists look at — and why it matters to you.",
+    "processItems": {
+      "mechanical": "Mechanical",
+      "cosmetic": "Cosmetic",
+      "documentation": "Documentation"
+    },
+    "quoteText": "We don't look for what is there; we look for what is missing. A car tells its story through its imperfections. My job is to ensure that story has a perfect next chapter.",
+    "quoteAttribution": "Vikram Singh, Certification Lead",
+    "ctaTitle": "Ready to experience the BN Standard?",
+    "ctaBrowse": "Browse certified collection",
+    "ctaInspection": "Book a pre-purchase inspection"
+  },
+  "vdp": {
+    "breadcrumb": {
+      "collection": "The Collection"
+    },
+    "gallery": {
+      "viewPhoto": "View photo {index} of {total}",
+      "openGallery": "Open full gallery"
+    },
+    "price": {
+      "gstCaption": "inclusive of GST margin · TCS applicable",
+      "reserve": "Reserve for ₹1,00,000",
+      "scheduleViewing": "Schedule a viewing",
+      "askFinancing": "Ask about financing"
+    },
+    "specs": {
+      "provenance": "Provenance",
+      "technical": "Technical",
+      "ownership": "Ownership",
+      "previousOwners": "Previous Owners",
+      "serviceHistory": "Service History",
+      "originalRegion": "Original Region",
+      "keysProvided": "Keys Provided",
+      "accidentHistory": "Accident History",
+      "engine": "Engine",
+      "power": "Power",
+      "torque": "Torque",
+      "transmission": "Transmission",
+      "topSpeed": "Top Speed",
+      "acceleration": "0-100 km/h",
+      "driveType": "Drive Type",
+      "insuranceValidity": "Insurance Valid",
+      "tyreCondition": "Tyre Condition",
+      "warranty": "Warranty",
+      "roadTax": "Road Tax",
+      "registrationState": "Registration"
+    },
+    "certification": {
+      "title": "210-point certification",
+      "description": "Every vehicle in our collection undergoes a rigorous verification process conducted by factory-trained specialists. We leave nothing to chance.",
+      "downloadPdf": "Download inspection report (PDF)",
+      "mechanical": "Mechanical",
+      "cosmetic": "Cosmetic",
+      "documentation": "Documentation"
+    },
+    "similar": {
+      "title": "Curated Alternatives",
+      "viewAll": "View Full Collection"
+    },
+    "reserve": {
+      "success": "Your reservation request has been received. Our team will contact you within 2 hours.",
+      "bookingSuccess": "Your viewing request has been submitted. We will confirm your slot shortly."
+    }
+  },
+  "service": {
+    "hero": {
+      "titleLine1": "The Care of",
+      "titleLine2": "Excellence.",
+      "subtitle": "Manufacturer-trained technicians at three ateliers in Bangalore, Mumbai, and Chennai offer bespoke care for your investment.",
+      "status": "Available",
+      "certified": "CPO Certified"
+    },
+    "serviceTypes": {
+      "heading": "Select Mastery",
+      "bookNow": "Book now",
+      "step": "Starting from"
+    },
+    "atelier": {
+      "heading": "Atelier Location",
+      "address": "Address",
+      "phone": "Phone",
+      "hours": "Hours",
+      "weekday": "Mon – Fri",
+      "saturday": "Saturday",
+      "sunday": "Sunday",
+      "step": "vehicles in residence"
+    },
+    "booking": {
+      "heading": "Book a Service",
+      "name": "Full Name",
+      "phone": "Phone",
+      "vehicleMake": "Vehicle Make",
+      "vehicleModel": "Vehicle Model",
+      "serviceType": "Service Type",
+      "preferredDate": "Preferred Date",
+      "city": "Preferred City",
+      "select": "Select",
+      "submit": "Request Appointment",
+      "submitting": "Submitting...",
+      "successMessage": "Your service request has been received. We will confirm your appointment within 24 hours.",
+      "required": "This field is required",
+      "consent": "By submitting, you consent to being contacted regarding your service request."
+    }
+  },
+  "journal": {
+    "headline": "Dispatches from The Atelier",
+    "hero": {
+      "eyebrow": "THE BN JOURNAL",
+      "title": "The Journal"
+    },
+    "latestDispatch": "Latest Dispatch",
+    "readArticle": "Read article",
+    "newsletter": {
+      "title": "Curated insight, delivered.",
+      "subtitle": "A quarterly journal of automotive culture, delivered to your inbox.",
+      "success": "Thank you. Expect quarterly dispatches."
+    }
+  },
+  "sell": {
+    "hero": {
+      "eyebrow": "PRIVATE CONSIGNMENT",
+      "titleLine1": "A discreet, curated",
+      "titleLine2": "exit for your",
+      "titleLine3": "masterpiece.",
+      "subtitle": "BN Automobiles offers a private consignment service for distinguished vehicles. Valuation within 48 hours. No obligation."
+    },
+    "form": {
+      "vehicleHeading": "Identify the vehicle",
+      "contactHeading": "Secure the Connection",
+      "make": "Make",
+      "model": "Model",
+      "year": "Year",
+      "kilometres": "Kilometres",
+      "condition": "Condition",
+      "city": "City",
+      "fullName": "Full Name",
+      "phone": "Phone",
+      "email": "Email",
+      "contactMethod": "Preferred Contact",
+      "notes": "Additional Notes",
+      "notesPlaceholder": "Anything we should know about the vehicle or your timeline.",
+      "select": "Select",
+      "submit": "Submit for Valuation",
+      "submitting": "Submitting...",
+      "successMessage": "Thank you. Our acquisition team will contact you within 48 hours with a preliminary valuation.",
+      "required": "This field is required",
+      "consent": "By submitting, you consent to BN Automobiles contacting you regarding your vehicle. We respect your privacy."
+    }
+  }
+}

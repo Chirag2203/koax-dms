@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;family=Inter:wght@100..900&amp;family=IBM+Plex+Mono:wght@300;400;500;600&amp;family=Space+Grotesk:wght@300..700&amp;family=Newsreader:ital,opsz,wght@0,6..72,200..800;1,6..72,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#dcdad5",
+                        "secondary-fixed": "#ffdcbc",
+                        "on-surface-variant": "#4d4542",
+                        "on-surface": "#1c1c19",
+                        "on-background": "#1c1c19",
+                        "surface-container-highest": "#e5e2dd",
+                        "tertiary-fixed": "#bceed3",
+                        "primary-fixed-dim": "#ccc5c3",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#888381",
+                        "outline-variant": "#d1c4c0",
+                        "outline": "#7f7572",
+                        "surface-tint": "#625d5c",
+                        "tertiary-fixed-dim": "#a1d1b8",
+                        "primary-container": "#1e1b1a",
+                        "primary": "#000000",
+                        "primary-fixed": "#e9e1df",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#002114",
+                        "surface-container-high": "#ebe8e3",
+                        "error-container": "#ffdad6",
+                        "inverse-on-surface": "#f3f0eb",
+                        "on-secondary-fixed-variant": "#5d4122",
+                        "on-tertiary-container": "#5f8d77",
+                        "on-secondary-fixed": "#2c1700",
+                        "on-tertiary-fixed-variant": "#214f3c",
+                        "on-primary-fixed-variant": "#4a4644",
+                        "on-primary-fixed": "#1e1b1a",
+                        "tertiary": "#000000",
+                        "surface": "#fcf9f4",
+                        "secondary-fixed-dim": "#e8bf97",
+                        "on-primary": "#ffffff",
+                        "background": "#fcf9f4",
+                        "inverse-surface": "#31302d",
+                        "secondary-container": "#fcd3a9",
+                        "on-secondary": "#ffffff",
+                        "surface-container-low": "#f6f3ee",
+                        "on-tertiary-fixed": "#002114",
+                        "surface-container": "#f0ede9",
+                        "inverse-primary": "#ccc5c3",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-variant": "#e5e2dd",
+                        "on-error-container": "#93000a",
+                        "on-secondary-container": "#785938",
+                        "surface-bright": "#fcf9f4",
+                        "secondary": "#775838",
+                        "on-error": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Playfair Display", "serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Space Grotesk", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fcf9f4;
+            color: #1c1c19;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface">
+<!-- TopNavBar -->
+<nav class="bg-[#fcf9f4]/80 dark:bg-[#171413]/80 backdrop-blur-md text-[#171413] dark:text-[#fcf9f4] docked full-width top-0 sticky border-b border-[#171413]/5 z-50">
+<div class="flex justify-between items-center w-full px-12 py-6 max-w-[1440px] mx-auto">
+<div class="text-2xl font-serif tracking-tighter text-[#171413] dark:text-[#fcf9f4]">Monogram</div>
+<div class="hidden md:flex space-x-8">
+<a class="font-serif tracking-tight text-sm uppercase text-[#775838] border-b border-[#775838] pb-1 hover:opacity-100 transition-colors duration-300" href="#">The Collection</a>
+<a class="font-serif tracking-tight text-sm uppercase text-[#171413] dark:text-[#fcf9f4] opacity-80 hover:opacity-100 hover:text-[#775838] transition-colors duration-300" href="#">Certification</a>
+<a class="font-serif tracking-tight text-sm uppercase text-[#171413] dark:text-[#fcf9f4] opacity-80 hover:opacity-100 hover:text-[#775838] transition-colors duration-300" href="#">Sell Your Car</a>
+<a class="font-serif tracking-tight text-sm uppercase text-[#171413] dark:text-[#fcf9f4] opacity-80 hover:opacity-100 hover:text-[#775838] transition-colors duration-300" href="#">Service</a>
+<a class="font-serif tracking-tight text-sm uppercase text-[#171413] dark:text-[#fcf9f4] opacity-80 hover:opacity-100 hover:text-[#775838] transition-colors duration-300" href="#">Journal</a>
+</div>
+<div class="flex items-center gap-6">
+<span class="font-serif tracking-tight text-sm uppercase text-[#171413] dark:text-[#fcf9f4] opacity-80 hidden lg:block">Bangalore</span>
+<div class="flex gap-4">
+<span class="material-symbols-outlined scale-95 transition-transform duration-200 cursor-pointer">location_on</span>
+<span class="material-symbols-outlined scale-95 transition-transform duration-200 cursor-pointer">search</span>
+<span class="material-symbols-outlined scale-95 transition-transform duration-200 cursor-pointer">shopping_bag</span>
+</div>
+</div>
+</div>
+</nav>
+<!-- Filter Bar -->
+<section class="w-full bg-surface-container-low border-b border-outline-variant/10">
+<div class="max-w-[1440px] mx-auto px-12 py-4 flex justify-between items-center">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-3">
+<span class="font-mono text-[10px] uppercase tracking-widest text-outline">Filter by Make</span>
+<div class="flex items-center gap-1 cursor-pointer group">
+<span class="font-body text-xs font-medium uppercase tracking-wider">All Marques</span>
+<span class="material-symbols-outlined text-sm group-hover:translate-y-0.5 transition-transform">expand_more</span>
+</div>
+</div>
+<div class="hidden sm:flex items-center gap-3">
+<span class="font-mono text-[10px] uppercase tracking-widest text-outline">Body Style</span>
+<div class="flex items-center gap-1 cursor-pointer group">
+<span class="font-body text-xs font-medium uppercase tracking-wider">Any</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-3">
+<span class="font-mono text-[10px] uppercase tracking-widest text-outline">Sort by</span>
+<div class="flex items-center gap-1 cursor-pointer group">
+<span class="font-body text-xs font-medium uppercase tracking-wider">Newest Arrivals</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Main Collection Grid -->
+<main class="max-w-[1440px] mx-auto px-12 py-16">
+<header class="mb-16">
+<h1 class="font-headline text-5xl md:text-6xl tracking-tighter mb-4 italic">The Collection</h1>
+<p class="font-body text-sm text-outline max-w-md uppercase tracking-wide leading-relaxed">A meticulously curated assembly of automotive excellence, where heritage meets contemporary performance.</p>
+</header>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-y-20 gap-x-8">
+<!-- Card 1 -->
+<div class="md:col-span-4 group cursor-pointer">
+<div class="aspect-[4/5] overflow-hidden bg-surface-container mb-6 rounded-sm">
+<img alt="911 Carrera" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" data-alt="front profile of a vintage silver porsche 911 parked in a minimalist concrete gallery with soft architectural lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD3YmHkTCn7dy56ejQlhnazjuAt1U9GV8b_qJilWICv4IEeA96ZZ4lUCeiEF-4j6Ju5DPlXIXV191lTaRTtFLNeXpZxMscH5Y3M3CklQ6WLN55jPKTlhwv2EhRBbLUNTNww1qefmmp1k9TwGj2XlwosGjgNAgB-1_DyS8CilSDXbI3atJY5zkidtd5Jajb18Wnr5tcQusTRbcjZHhdV_kUvVw4uxsdIi5HmQWjuAG0xm26YMkKxPy8XIYSQsBn5hfPLqxc8eKgtHE8"/>
+</div>
+<div class="space-y-2">
+<p class="font-mono text-[12px] text-secondary tracking-widest uppercase">2022 · 8,420 KM · BENGALURU</p>
+<h3 class="font-headline text-2xl tracking-tight text-on-surface">911 Carrera S Heritage</h3>
+<p class="font-mono text-xl text-on-surface-variant">₹ 1,84,00,000</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="md:col-span-4 group cursor-pointer">
+<div class="aspect-[4/5] overflow-hidden bg-surface-container mb-6 rounded-sm">
+<img alt="Aston Martin" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" data-alt="side view of a British racing green Aston Martin Vantage parked on a quiet cobblestone street at dawn" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDiK47QfZzrDXIGE-AcYEEFI_wTupBNeCyYLZ4GkZuzOG0oa1MmzNHgZptH558rzi5wFcPBmJutpTBmhXCQ2snFurOmUaKEJJIFqRB1JDlIIoKgzZwYdsy_n-OiNlPWFYnHEc8HdWjm6CZKA3xec8WbFJ8Qct9O4EuNDyQJmYz6qDJCSuDeqV48DVPY0fIwmVRtRWi3pb88asKCWjw4AjRtHIwszpZginCsgX83a0ks8D08PNRbRJOwqaHnnTSoWsd7j4fe5902Rp8"/>
+</div>
+<div class="space-y-2">
+<p class="font-mono text-[12px] text-secondary tracking-widest uppercase">2021 · 12,100 KM · MUMBAI</p>
+<h3 class="font-headline text-2xl tracking-tight text-on-surface">Aston Martin Vantage V8</h3>
+<p class="font-mono text-xl text-on-surface-variant">₹ 2,45,00,000</p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="md:col-span-4 group cursor-pointer">
+<div class="aspect-[4/5] overflow-hidden bg-surface-container mb-6 rounded-sm">
+<img alt="Ferrari Roma" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" data-alt="dramatic rear view of a deep red ferrari roma with focused lighting highlighting its elegant curves and tail lights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGfsG4AV7jfFvHXT6a4Iy_aITqK-3tx5lkOUoaXKNPm-CTfn_-fTn7NPCLuXKmS2r3pgQH91-GfXeVS_klsjr87JmGjxu8i7HippPRW29MZ9ri-2z-Bz5e70vFVA62s2SzFwmdiTbYR_KGLkEVI6CECCsEIhAbM3tlZeB8oBBMlIhNLEmMrn34nQ51Xn9aGNUMf6JTlfMZ8KdnToZaIOXOLC7ee38Y1pJOrlzwju11sryFtF-As8Wj5z-El3_BLQ7__2zFg-tABM8"/>
+</div>
+<div class="space-y-2">
+<p class="font-mono text-[12px] text-secondary tracking-widest uppercase">2023 · 1,200 KM · DELHI</p>
+<h3 class="font-headline text-2xl tracking-tight text-on-surface">Ferrari Roma Spider</h3>
+<p class="font-mono text-xl text-on-surface-variant">₹ 4,12,00,000</p>
+</div>
+</div>
+<!-- Asymmetry: Large Feature Card -->
+<div class="md:col-span-8 md:col-start-3 my-12 bg-surface-container-low p-1 rounded-sm">
+<div class="grid md:grid-cols-2 h-full items-center">
+<div class="aspect-[4/3] md:aspect-auto h-full overflow-hidden">
+<img alt="Architecture" class="w-full h-full object-cover" data-alt="high contrast black and white architectural shot of brutalist concrete geometric shadows and sharp angles" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB5G1TI8Yen-TPRJ0MY-YxCzYIzDHUgBMsy_P_HOrBykbWb62YBEqd_84fcm0xNnWoQ_LNMkhgG4U36tfVnEALuN27RV5fRvwdjjZ9hf2Pv23sNPS1ddnUX21N5HsnHYWxo4Sruc5HHgpkkwfVk2LR7tpdfseH_o5GzqTBPmviLr9yplwSQEciiUluTh89wXPiao9ljqFEDmAGSa6nG35NGrUp7BN85DiDTYpyBtQnRIJZyq2i_hwimEoNqwKrpkIkECvMeVbOb7wg"/>
+</div>
+<div class="p-12 md:p-20 flex flex-col justify-center space-y-8">
+<span class="font-mono text-xs uppercase tracking-[0.2em] text-outline">The Monogram Philosophy</span>
+<h2 class="font-headline text-4xl leading-tight tracking-tighter">"Luxury is not about ownership, it is about the stewardship of history."</h2>
+<div class="pt-4">
+<a class="inline-block border-b border-on-surface pb-1 font-mono text-xs uppercase tracking-widest hover:text-secondary hover:border-secondary transition-colors" href="#">Our Certification Process</a>
+</div>
+</div>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="md:col-span-4 group cursor-pointer">
+<div class="aspect-[4/5] overflow-hidden bg-surface-container mb-6 rounded-sm">
+<img alt="Corvette" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" data-alt="low angle shot of a white modern corvette parked in a dark moody studio with stark white overhead lights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD7mRFIRzz7U2lRXdFZw16AaG2ZvtxKMT9bxCb-lP5OX-XXYKnbsZPLxAAD8ZoCLAAzszWwYgPA98NcFuuMvrVmlVhKVgj50vQsDxrNzJZaIaT3kkyrbfxNbf37-DsRIxiFH33HmqXEdy4SRoN25r3oum7rGkY96nwgx-YDv0c3U5rBOM12j2eUdGFACVe5iaxxl8AqzItsais9uuLdvLFEhZX4tieaDe4dn9ufZCHaoz7PGAz5TRlRo-I7dgcGNC9kV15eZ6_YOpA"/>
+</div>
+<div class="space-y-2">
+<p class="font-mono text-[12px] text-secondary tracking-widest uppercase">2022 · 5,600 KM · BENGALURU</p>
+<h3 class="font-headline text-2xl tracking-tight text-on-surface">Corvette C8 Stingray</h3>
+<p class="font-mono text-xl text-on-surface-variant">₹ 1,55,00,000</p>
+</div>
+</div>
+<!-- Card 5 -->
+<div class="md:col-span-4 group cursor-pointer">
+<div class="aspect-[4/5] overflow-hidden bg-surface-container mb-6 rounded-sm">
+<img alt="Range Rover" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" data-alt="close up of a modern Range Rover grill and headlight in a matte black finish against a dark grey background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC08p40w5MCNhaDYhvG1UATAOImiTct-GqyRUrf1CmBiUk8SddPvNCMWjX5k3xZjESDdCLCc2gDpLtwT_dw7X4ZfD5eatOV1YbQvnEUxfJUNUhaDtUmbWV1OOQNzslWAopGKd9hoGbFKkS1yut5_HdjF2MRLTzt7_v6jcOFrGpFGehkJnpHTemHT69zZD8PPW4sfYr9MHqTyMO2kg4Mb7JUyVqyrmZrl7jDv9jVK3w19oLQwH6NpoQI9ESXEG124hJJeFHgvjgBnbc"/>
+</div>
+<div class="space-y-2">
+<p class="font-mono text-[12px] text-secondary tracking-widest uppercase">2023 · 2,400 KM · CHENNAI</p>
+<h3 class="font-headline text-2xl tracking-tight text-on-surface">Range Rover SV Autobiography</h3>
+<p class="font-mono text-xl text-on-surface-variant">₹ 3,90,00,000</p>
+</div>
+</div>
+<!-- Card 6 -->
+<div class="md:col-span-4 group cursor-pointer">
+<div class="aspect-[4/5] overflow-hidden bg-surface-container mb-6 rounded-sm">
+<img alt="Jaguar E-Type" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" data-alt="stunning profile of a classic 1960s Jaguar E-Type in deep blue with chrome wire wheels in a sunlit meadow" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXydSsitDZIKyizkZp4qZ8a0nGwdThIAxgtVIuErKYxvSIcmwV82hzNTIJ6OJZjBf5Ime0rz9mYdxxuqorzMCoPK6KqxDQb7lmv2khrbOGNRdCz_6yeNrun2PgWOKNBVavWIzrK_pr1XamqKTVhdHpzasTwrC2vOch1FAtRNbaqTXFWs9w1sHAaaGaW01FzVPR7GaOh0YfdgsilKVyAgxKeCYhos5vTbLKonJ2mXvtRXRgbRPZjwTULmom1-yEz0eYtUD8cDtLHqo"/>
+</div>
+<div class="space-y-2">
+<p class="font-mono text-[12px] text-secondary tracking-widest uppercase">1967 · REBUILT · BENGALURU</p>
+<h3 class="font-headline text-2xl tracking-tight text-on-surface">Jaguar E-Type Series 1</h3>
+<p class="font-mono text-xl text-on-surface-variant">₹ 2,10,00,000</p>
+</div>
+</div>
+</div>
+<!-- Pagination / Load More -->
+<div class="mt-32 flex justify-center">
+<button class="bg-primary text-on-primary rounded-full px-12 py-4 font-body text-xs uppercase tracking-widest hover:bg-secondary transition-colors duration-300">
+                View All Inventory
+            </button>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-[#171413] dark:bg-[#0a0908] text-[#fcf9f4] dark:text-[#e5e2dd] w-full mt-24">
+<div class="grid grid-cols-1 md:grid-cols-12 gap-8 px-12 py-20 w-full max-w-[1440px] mx-auto">
+<div class="col-span-12 md:col-span-4 space-y-8">
+<div class="font-serif text-3xl text-[#fcf9f4]">Monogram</div>
+<p class="font-mono text-xs uppercase tracking-widest opacity-60 leading-loose">
+                    Curating the world's finest automotive artifacts for the discerning Indian collector. Every vehicle is a narrative.
+                </p>
+</div>
+<div class="col-span-12 md:col-span-2 space-y-4">
+<h4 class="font-mono text-xs uppercase tracking-widest text-[#775838]">Navigation</h4>
+<ul class="space-y-2">
+<li><a class="font-mono text-xs uppercase tracking-widest text-[#fcf9f4]/60 hover:text-[#fcf9f4] transition-opacity" href="#">Visit</a></li>
+<li><a class="font-mono text-xs uppercase tracking-widest text-[#fcf9f4]/60 hover:text-[#fcf9f4] transition-opacity" href="#">Contact</a></li>
+<li><a class="font-mono text-xs uppercase tracking-widest text-[#fcf9f4]/60 hover:text-[#fcf9f4] transition-opacity" href="#">Company</a></li>
+</ul>
+</div>
+<div class="col-span-12 md:col-span-2 space-y-4">
+<h4 class="font-mono text-xs uppercase tracking-widest text-[#775838]">Legal</h4>
+<ul class="space-y-2">
+<li><a class="font-mono text-xs uppercase tracking-widest text-[#fcf9f4]/60 hover:text-[#fcf9f4] transition-opacity" href="#">Privacy</a></li>
+<li><a class="font-mono text-xs uppercase tracking-widest text-[#fcf9f4]/60 hover:text-[#fcf9f4] transition-opacity" href="#">Terms</a></li>
+</ul>
+</div>
+<div class="col-span-12 md:col-span-4 space-y-4">
+<h4 class="font-mono text-xs uppercase tracking-widest text-[#775838]">Connect</h4>
+<div class="flex flex-col gap-4">
+<div class="border-b border-outline-variant/20 pb-2">
+<input class="bg-transparent border-none p-0 font-mono text-xs uppercase tracking-widest focus:ring-0 w-full" placeholder="JOIN THE LIST" type="email"/>
+</div>
+</div>
+</div>
+<div class="col-span-12 pt-16 mt-16 border-t border-outline-variant/10 flex flex-col md:flex-row justify-between gap-4">
+<p class="font-mono text-xs uppercase tracking-widest opacity-40">© 2024 Monogram. Curated in India.</p>
+<div class="flex gap-8">
+<span class="font-mono text-xs uppercase tracking-widest text-[#775838]">Instagram</span>
+<span class="font-mono text-xs uppercase tracking-widest text-[#775838]">LinkedIn</span>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

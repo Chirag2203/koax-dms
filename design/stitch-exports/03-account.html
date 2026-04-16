@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&amp;family=Inter:wght@300;400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#2d5a46",
+                        "background": "#fffcf7",
+                        "secondary-fixed-dim": "#aedfc6",
+                        "tertiary-dim": "#705232",
+                        "on-primary-fixed-variant": "#5f5a59",
+                        "surface-tint": "#625d5c",
+                        "on-tertiary-container": "#5e4223",
+                        "on-background": "#373831",
+                        "surface": "#FAF7F2",
+                        "outline-variant": "#babab0",
+                        "on-surface-variant": "#64655d",
+                        "surface-container-low": "#fcf9f3",
+                        "error-dim": "#4e0309",
+                        "inverse-primary": "#ffffff",
+                        "on-error-container": "#752121",
+                        "surface-bright": "#fffcf7",
+                        "secondary": "#406d58",
+                        "tertiary": "#7e5e3d",
+                        "on-tertiary-fixed-variant": "#684b2b",
+                        "primary": "#171413",
+                        "tertiary-fixed": "#f3caa1",
+                        "on-tertiary-fixed": "#482f12",
+                        "secondary-dim": "#34614d",
+                        "primary-container": "#e9e1df",
+                        "secondary-container": "#bceed3",
+                        "surface-dim": "#e4e3d7",
+                        "on-secondary-fixed-variant": "#376450",
+                        "surface-container": "#f6f4ec",
+                        "on-error": "#ffffff",
+                        "primary-dim": "#565150",
+                        "outline": "#818178",
+                        "tertiary-fixed-dim": "#e5bc95",
+                        "surface-variant": "#eae9de",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#fef6f4",
+                        "error-container": "#fe8983",
+                        "surface-container-highest": "#eae9de",
+                        "inverse-surface": "#0e0e0c",
+                        "tertiary-container": "#f3caa1",
+                        "on-secondary-fixed": "#194735",
+                        "on-surface": "#373831",
+                        "secondary-fixed": "#bceed3",
+                        "on-secondary": "#ffffff",
+                        "primary-fixed-dim": "#dad3d1",
+                        "on-primary-fixed": "#433e3d",
+                        "surface-container-lowest": "#ffffff",
+                        "inverse-on-surface": "#9e9d98",
+                        "on-primary-container": "#55514f",
+                        "error": "#a64542",
+                        "primary-fixed": "#e9e1df",
+                        "surface-container-high": "#f0eee5",
+                        "brass": "#7A5B3A",
+                        "forest": "#1F4D3A",
+                        "paper": "#FAF7F2",
+                        "ink": "#171413"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "2px",
+                        "lg": "2px",
+                        "xl": "2px",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Playfair Display", "serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["IBM Plex Mono", "monospace"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            font-size: 20px;
+        }
+        body {
+            background-color: #FAF7F2;
+            color: #171413;
+            -webkit-font-smoothing: antialiased;
+        }
+        .editorial-grid {
+            display: grid;
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+            gap: 2rem;
+        }
+        .thin-hairline {
+            border-top: 1px solid #BABAB0;
+        }
+    </style>
+</head>
+<body class="font-body selection:bg-brass selection:text-paper">
+<!-- TopNavBar -->
+<nav class="fixed top-0 left-0 w-full z-50 bg-[#FAF7F2]/90 backdrop-blur-xl border-b border-[#BABAB0] flex justify-between items-center px-12 h-16">
+<div class="text-xl font-headline font-medium tracking-tighter text-ink uppercase">MONOGRAM</div>
+<div class="hidden md:flex items-center gap-10">
+<a class="font-label text-[11px] tracking-[0.1em] text-ink/60 hover:text-ink transition-colors" href="#">THE COLLECTION</a>
+<a class="font-label text-[11px] tracking-[0.1em] text-ink/60 hover:text-ink transition-colors" href="#">CERTIFICATION</a>
+<a class="font-label text-[11px] tracking-[0.1em] text-ink/60 hover:text-ink transition-colors" href="#">SELL YOUR CAR</a>
+<a class="font-label text-[11px] tracking-[0.1em] text-ink/60 hover:text-ink transition-colors" href="#">SERVICE</a>
+<a class="font-label text-[11px] tracking-[0.1em] text-ink/60 hover:text-ink transition-colors" href="#">JOURNAL</a>
+</div>
+<div class="flex items-center gap-6">
+<span class="material-symbols-outlined cursor-pointer hover:opacity-70" data-icon="search">search</span>
+<div class="flex items-center gap-3 pl-6 border-l border-outline-variant">
+<span class="font-label text-[10px] tracking-[0.1em] text-ink/60">GUEST CURATOR</span>
+<div class="w-8 h-8 rounded-full bg-ink text-paper flex items-center justify-center font-label text-[11px]">JS</div>
+</div>
+</div>
+</nav>
+<main class="pt-32 pb-24 max-w-screen-2xl mx-auto px-12">
+<!-- Hero Greeting -->
+<header class="editorial-grid mb-24">
+<div class="col-span-12 md:col-span-8">
+<p class="font-label text-[12px] tracking-[0.2em] text-brass uppercase mb-4">MEMBER PROFILE</p>
+<h1 class="font-headline text-6xl md:text-8xl text-ink leading-[1.1] mb-8">Good morning, Julian.</h1>
+<p class="font-body text-xl text-ink/70 leading-relaxed max-w-xl">
+                    Your collection is currently under the stewardship of our primary curators. View your pending acquisitions and service schedules below.
+                </p>
+</div>
+<div class="col-span-12 md:col-span-4 flex flex-col justify-end items-end gap-2 text-right">
+<span class="font-label text-[10px] text-ink/40">LAST LOGIN</span>
+<span class="font-label text-sm text-ink uppercase">OCT 24, 2024 • LONDON, UK</span>
+</div>
+</header>
+<!-- Saved Acquisitions Shelf -->
+<section class="mb-32">
+<div class="flex justify-between items-end mb-12 border-b border-ink/10 pb-4">
+<h2 class="font-headline text-3xl italic">Saved Acquisitions</h2>
+<a class="font-label text-[11px] tracking-[0.1em] text-ink/60 hover:text-ink flex items-center gap-2" href="#">
+                    VIEW ALL <span class="material-symbols-outlined" style="font-size: 14px;">arrow_forward</span>
+</a>
+</div>
+<div class="editorial-grid">
+<!-- Vehicle Card 1 -->
+<div class="col-span-12 md:col-span-4 group cursor-pointer">
+<div class="aspect-[4/5] overflow-hidden bg-surface-variant mb-6 relative">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Classic silver Porsche 911 parked in a minimalist concrete gallery with soft natural side lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKkzaHNxNfX9ivBFGh5SlmcCNjVSjmE0GJAEZZSl4OX9pxL-gc4NwibFiZ6iH4rL85xz5RIwAUfjItAEiwV6AOAWNlHgIh-BBMA2WIEiPzX7B3chgoHegRoG_mTa3F0Oj4tPz8U5TcgjHP9VIfqChHRg5EZD24EvWnFW8LcEudY1TiJUPqn3ewRT4hXxDvX2vsy-HouUvsXvEJM86UAfGa-KriAGv0hsOUGe6R3is62QVzHLkSqapBFLMl6-Dc2aTSoIEd4VNSQ6o"/>
+<div class="absolute top-4 right-4 bg-paper/80 backdrop-blur-sm p-2">
+<span class="material-symbols-outlined text-ink" data-icon="favorite" data-weight="fill" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</div>
+</div>
+<span class="font-label text-[10px] tracking-[0.2em] text-ink/40 uppercase mb-2 block">1973 PROVENANCE</span>
+<h3 class="font-headline text-2xl mb-2">Porsche 911 Carrera RS 2.7</h3>
+<p class="font-label text-[11px] text-brass uppercase">HOLDING AT £425,000</p>
+</div>
+<!-- Vehicle Card 2 -->
+<div class="col-span-12 md:col-span-4 group cursor-pointer">
+<div class="aspect-[4/5] overflow-hidden bg-surface-variant mb-6 relative">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Dark green vintage Jaguar E-Type in a dramatic studio setting with moody lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDD6xSI1BOrRedAMrrOCQdUeEU4aMVQdcLlSwkSEceYHYa8c5z6uEpoTO3GTWOlCdUaD168l8_z_j8PeVYr2VxwN7N36cMfRgYCxZsfcGsCYOdNCtX5cxKXZSa8ARQF4o2--2jaiL57SHTQ526MGvxQCTkz0IQUYpDXWApzhGMpjBlz5saSJxwSKh_Z7-p-HRjujxELc8ubrIwX8P2wdzheWX1SQToNB7CpjEIFpFPC5pCZnSi3sTjFr2r_UMfWvGGPAArO-p1L8XA"/>
+</div>
+<span class="font-label text-[10px] tracking-[0.2em] text-ink/40 uppercase mb-2 block">1961 HERITAGE</span>
+<h3 class="font-headline text-2xl mb-2">Jaguar E-Type Series I</h3>
+<p class="font-label text-[11px] text-brass uppercase">AUCTION OCT 29</p>
+</div>
+<!-- Vehicle Card 3 -->
+<div class="col-span-12 md:col-span-4 group cursor-pointer">
+<div class="aspect-[4/5] overflow-hidden bg-surface-variant mb-6 relative">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Ferrari F40 in Rosso Corsa parked on a coastal road at sunrise" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRjLvOKOExWO3D38inTleHNoG2eX36B_Vtb_EZEfXb6ThXqgIToLJGmihNfBub3-3YHKyr7WkVDbMr20IS6T4n7gj0BW7fC4w6T1-aSWnzxStNWQrmYuQqbPBlqwl_smWHhpPsNtLm0CR3nVib7spbntlcM6xkTOqSdi9_Mbq8wYYQQHpTksFJwsXWHIHCJ7zsIloYKLfzNtkUngRoh80Q603tQbXatWD1gkZuZGxFGSC_ykwkivDb4tzjjgTA_QA9ieFSkQyw1cI"/>
+</div>
+<span class="font-label text-[10px] tracking-[0.2em] text-ink/40 uppercase mb-2 block">1987 PERFORMANCE</span>
+<h3 class="font-headline text-2xl mb-2">Ferrari F40</h3>
+<p class="font-label text-[11px] text-brass uppercase">PRIVATE SALE ENQUIRY</p>
+</div>
+</div>
+</section>
+<!-- Reservations & Visits -->
+<section class="editorial-grid gap-y-16 mb-32">
+<!-- Current Holds -->
+<div class="col-span-12 md:col-span-6 bg-surface-container-low p-12 border border-outline-variant/30 h-full">
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-forest" data-icon="lock">lock</span>
+<h2 class="font-headline text-3xl">Current Holds</h2>
+</div>
+<div class="space-y-10">
+<div class="group">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-headline text-xl">Ferrari 250 GT Lusso</h4>
+<span class="font-label text-[10px] text-forest px-2 py-1 bg-secondary-container">ACTIVE HOLD</span>
+</div>
+<p class="font-body text-sm text-ink/60 mb-4 leading-relaxed">Expires in 48 hours. Please complete the financial verification to proceed to purchase.</p>
+<div class="flex gap-4">
+<button class="bg-ink text-paper px-6 py-2 text-[10px] font-label uppercase tracking-widest hover:opacity-90">FINALIZE</button>
+<button class="border border-ink/20 px-6 py-2 text-[10px] font-label uppercase tracking-widest hover:bg-ink hover:text-paper transition-all">RELEASE</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Upcoming Visits -->
+<div class="col-span-12 md:col-span-6 bg-surface-container-low p-12 border border-outline-variant/30 h-full">
+<div class="flex items-center gap-3 mb-8">
+<span class="material-symbols-outlined text-brass" data-icon="calendar_today">calendar_today</span>
+<h2 class="font-headline text-3xl">Upcoming Visits</h2>
+</div>
+<div class="space-y-10">
+<div class="border-l-2 border-brass pl-6">
+<span class="font-label text-[10px] text-ink/40 uppercase mb-1 block">LONDON ATELIER</span>
+<h4 class="font-headline text-xl mb-1">Private Inspection</h4>
+<p class="font-label text-xs text-ink/80 mb-3">NOV 02 • 10:30 AM</p>
+<div class="flex items-center gap-2 text-brass">
+<span class="material-symbols-outlined" style="font-size: 16px;">map</span>
+<span class="font-label text-[10px] tracking-wider uppercase">GET DIRECTIONS</span>
+</div>
+</div>
+<div class="border-l-2 border-outline-variant pl-6 opacity-60">
+<span class="font-label text-[10px] text-ink/40 uppercase mb-1 block">VIRTUAL CONCIERGE</span>
+<h4 class="font-headline text-xl mb-1">Spec Selection Call</h4>
+<p class="font-label text-xs text-ink/80">NOV 15 • 4:00 PM</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Service History Ledger (Journal Style) -->
+<section class="mb-32">
+<div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+<div class="max-w-md">
+<p class="font-label text-[12px] tracking-[0.2em] text-brass uppercase mb-4">THE LEDGER</p>
+<h2 class="font-headline text-4xl mb-4 leading-tight">Service &amp; Restoration History</h2>
+<p class="font-body text-sm text-ink/60 leading-relaxed">A permanent record of every technical intervention performed by Monogram curators.</p>
+</div>
+<div class="mt-8 md:mt-0">
+<button class="font-label text-[10px] tracking-[0.1em] border border-ink px-8 py-3 uppercase hover:bg-ink hover:text-paper transition-all">REQUEST SERVICE</button>
+</div>
+</div>
+<div class="bg-paper border border-outline-variant shadow-sm overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-highest/50 border-b border-outline-variant">
+<tr>
+<th class="px-8 py-4 font-label text-[10px] tracking-[0.2em] text-ink/50 uppercase">DATE</th>
+<th class="px-8 py-4 font-label text-[10px] tracking-[0.2em] text-ink/50 uppercase">VEHICLE</th>
+<th class="px-8 py-4 font-label text-[10px] tracking-[0.2em] text-ink/50 uppercase">OPERATION</th>
+<th class="px-8 py-4 font-label text-[10px] tracking-[0.2em] text-ink/50 uppercase">STATUS</th>
+<th class="px-8 py-4 font-label text-[10px] tracking-[0.2em] text-ink/50 uppercase text-right">CERTIFICATE</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/30">
+<!-- Entry 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-8 py-6 font-label text-xs text-ink/80">14.09.2024</td>
+<td class="px-8 py-6">
+<span class="font-headline text-lg block italic">Porsche 911 2.7 RS</span>
+<span class="font-label text-[9px] text-ink/40 uppercase tracking-widest">VIN: 9113600542</span>
+</td>
+<td class="px-8 py-6 font-body text-sm text-ink/70">Engine Valve Clearance Adjustment &amp; Fluid Preservation</td>
+<td class="px-8 py-6">
+<span class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-forest"></span>
+<span class="font-label text-[10px] text-forest uppercase">COMPLETED</span>
+</span>
+</td>
+<td class="px-8 py-6 text-right">
+<span class="material-symbols-outlined text-ink/40 group-hover:text-ink cursor-pointer" data-icon="description">description</span>
+</td>
+</tr>
+<!-- Entry 2 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-8 py-6 font-label text-xs text-ink/80">02.08.2024</td>
+<td class="px-8 py-6">
+<span class="font-headline text-lg block italic">Jaguar E-Type S1</span>
+<span class="font-label text-[9px] text-ink/40 uppercase tracking-widest">VIN: 885002</span>
+</td>
+<td class="px-8 py-6 font-body text-sm text-ink/70">Annual Provenance Certification &amp; Paint Depth Mapping</td>
+<td class="px-8 py-6">
+<span class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-forest"></span>
+<span class="font-label text-[10px] text-forest uppercase">COMPLETED</span>
+</span>
+</td>
+<td class="px-8 py-6 text-right">
+<span class="material-symbols-outlined text-ink/40 group-hover:text-ink cursor-pointer" data-icon="description">description</span>
+</td>
+</tr>
+<!-- Entry 3 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-8 py-6 font-label text-xs text-ink/80">22.10.2024</td>
+<td class="px-8 py-6">
+<span class="font-headline text-lg block italic">Aston Martin DB5</span>
+<span class="font-label text-[9px] text-ink/40 uppercase tracking-widest">VIN: DB5/1429/R</span>
+</td>
+<td class="px-8 py-6 font-body text-sm text-ink/70">Exhaust Manifold Refurbishment</td>
+<td class="px-8 py-6">
+<span class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-brass"></span>
+<span class="font-label text-[10px] text-brass uppercase">IN PROGRESS</span>
+</span>
+</td>
+<td class="px-8 py-6 text-right">
+<span class="material-symbols-outlined text-ink/20" data-icon="pending">pending</span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- Documents & Titles (Dense but Elegant) -->
+<section class="editorial-grid">
+<div class="col-span-12 md:col-span-4">
+<h2 class="font-headline text-3xl mb-6">Archive &amp; Documents</h2>
+<p class="font-body text-sm text-ink/60 mb-8 leading-relaxed">Secure digital storage for your ownership titles, tax records, and logistical documentation.</p>
+<div class="p-6 bg-surface-container border border-outline-variant/40 flex items-center gap-4">
+<span class="material-symbols-outlined text-brass" data-icon="encrypted">encrypted</span>
+<div>
+<p class="font-label text-[10px] uppercase text-ink/50">STORAGE STATUS</p>
+<p class="font-body text-sm font-medium">Fully Encrypted Private Vault</p>
+</div>
+</div>
+</div>
+<div class="col-span-12 md:col-span-8 grid grid-cols-2 gap-4">
+<div class="p-8 border border-outline-variant hover:border-ink transition-colors group">
+<span class="material-symbols-outlined mb-6 block text-ink/40 group-hover:text-brass" data-icon="lab_profile">lab_profile</span>
+<h4 class="font-label text-xs tracking-widest uppercase mb-1">Vehicle Titles</h4>
+<p class="font-headline text-lg mb-4 italic">4 Records Found</p>
+<a class="font-label text-[9px] text-brass flex items-center gap-2" href="#">ACCESS VAULT <span class="material-symbols-outlined" style="font-size: 12px;">north_east</span></a>
+</div>
+<div class="p-8 border border-outline-variant hover:border-ink transition-colors group">
+<span class="material-symbols-outlined mb-6 block text-ink/40 group-hover:text-brass" data-icon="receipt_long">receipt_long</span>
+<h4 class="font-label text-xs tracking-widest uppercase mb-1">Tax Documents</h4>
+<p class="font-headline text-lg mb-4 italic">FY 2023-24 Consolidated</p>
+<a class="font-label text-[9px] text-brass flex items-center gap-2" href="#">DOWNLOAD PDF <span class="material-symbols-outlined" style="font-size: 12px;">download</span></a>
+</div>
+<div class="p-8 border border-outline-variant hover:border-ink transition-colors group">
+<span class="material-symbols-outlined mb-6 block text-ink/40 group-hover:text-brass" data-icon="local_shipping">local_shipping</span>
+<h4 class="font-label text-xs tracking-widest uppercase mb-1">Logistics &amp; Export</h4>
+<p class="font-headline text-lg mb-4 italic">Pending Air Freight</p>
+<a class="font-label text-[9px] text-brass flex items-center gap-2" href="#">TRACKING DATA <span class="material-symbols-outlined" style="font-size: 12px;">location_on</span></a>
+</div>
+<div class="p-8 border border-outline-variant hover:border-ink transition-colors group">
+<span class="material-symbols-outlined mb-6 block text-ink/40 group-hover:text-brass" data-icon="policy">policy</span>
+<h4 class="font-label text-xs tracking-widest uppercase mb-1">Insurance Policies</h4>
+<p class="font-headline text-lg mb-4 italic">Unified High-Net-Worth</p>
+<a class="font-label text-[9px] text-brass flex items-center gap-2" href="#">MANAGE COVER <span class="material-symbols-outlined" style="font-size: 12px;">open_in_new</span></a>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="w-full py-20 px-12 grid grid-cols-12 gap-8 text-left bg-ink text-paper border-t border-[#33312E]">
+<div class="col-span-12 md:col-span-4">
+<div class="text-2xl font-headline italic mb-6">Monogram</div>
+<p class="font-body text-sm text-paper/60 leading-[1.6] max-w-xs">
+                A digital sanctuary for the automotive enthusiast. Curated provenance, technical precision, and absolute discretion.
+            </p>
+</div>
+<div class="col-span-6 md:col-span-2">
+<h5 class="font-label text-[10px] tracking-[0.1em] text-paper/40 uppercase mb-6">VISIT</h5>
+<ul class="space-y-4 font-body text-sm text-paper/70">
+<li><a class="hover:text-paper transition-colors" href="#">The Atelier</a></li>
+<li><a class="hover:text-paper transition-colors" href="#">Private Viewing</a></li>
+<li><a class="hover:text-paper transition-colors" href="#">Events</a></li>
+</ul>
+</div>
+<div class="col-span-6 md:col-span-2">
+<h5 class="font-label text-[10px] tracking-[0.1em] text-paper/40 uppercase mb-6">CONTACT</h5>
+<ul class="space-y-4 font-body text-sm text-paper/70">
+<li><a class="hover:text-paper transition-colors" href="#">Concierge</a></li>
+<li><a class="hover:text-paper transition-colors" href="#">Support</a></li>
+<li><a class="hover:text-paper transition-colors" href="#">Press</a></li>
+</ul>
+</div>
+<div class="col-span-6 md:col-span-2">
+<h5 class="font-label text-[10px] tracking-[0.1em] text-paper/40 uppercase mb-6">COMPANY</h5>
+<ul class="space-y-4 font-body text-sm text-paper/70">
+<li><a class="hover:text-paper transition-colors" href="#">About Us</a></li>
+<li><a class="hover:text-paper transition-colors" href="#">Legal</a></li>
+<li><a class="hover:text-paper transition-colors" href="#">Privacy</a></li>
+</ul>
+</div>
+<div class="col-span-6 md:col-span-2">
+<h5 class="font-label text-[10px] tracking-[0.1em] text-paper/40 uppercase mb-6">NEWSLETTER</h5>
+<div class="flex border-b border-paper/20 pb-2">
+<input class="bg-transparent border-none focus:ring-0 text-sm font-body text-paper placeholder-paper/30 w-full p-0" placeholder="Email Address" type="email"/>
+<button class="material-symbols-outlined text-paper/60 hover:text-paper">arrow_forward</button>
+</div>
+</div>
+<div class="col-span-12 mt-16 pt-8 border-t border-paper/10 flex justify-between items-center">
+<p class="font-label text-[10px] tracking-[0.1em] text-paper/40">© 2024 MONOGRAM. ALL RIGHTS RESERVED.</p>
+<div class="flex gap-6 text-paper/40">
+<span class="font-label text-[10px] tracking-[0.1em] cursor-pointer hover:text-paper transition-colors">INSTAGRAM</span>
+<span class="font-label text-[10px] tracking-[0.1em] cursor-pointer hover:text-paper transition-colors">LINKEDIN</span>
+</div>
+</div>
+</footer>
+</body></html>
