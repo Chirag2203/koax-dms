@@ -1,0 +1,30 @@
+{
+  "staff": {
+    "meta": {
+      "title": "BN Automobiles DMS",
+      "description": "Internal dealer management system"
+    },
+    "nav": {
+      "dashboard": "Dashboard",
+      "inventory": "Inventory",
+      "sales": "Sales",
+      "service": "Service",
+      "parts": "Parts",
+      "customers": "Customers",
+      "finance": "Finance",
+      "reports": "Reports",
+      "notifications": "Notifications",
+      "settings": "Settings",
+      "audit": "Audit Log",
+      "signOut": "Sign Out"
+    },
+    "shell": {
+      "searchPlaceholder": "Search or jump to...",
+      "outletSelector": "Select outlet"
+    },
+    "common": {
+      "comingSoon": "Coming soon",
+      "loading": "Loading..."
+    }
+  }
+}
