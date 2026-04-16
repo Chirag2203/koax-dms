@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Velocity Console - Feature Flags</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#004395",
+                        "on-primary-fixed": "#003c86",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "on-secondary-container": "#c1bfbe",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "surface": "#0e0e0e",
+                        "on-surface": "#e7e5e4",
+                        "surface-dim": "#0e0e0e",
+                        "secondary-fixed": "#e5e2e1",
+                        "on-tertiary-container": "#47445f",
+                        "error-dim": "#bb5551",
+                        "surface-container": "#191a1a",
+                        "on-background": "#e7e5e4",
+                        "tertiary-container": "#d3ceef",
+                        "tertiary-fixed": "#d3ceef",
+                        "on-surface-variant": "#acabaa",
+                        "surface-container-highest": "#252626",
+                        "tertiary": "#e1dcfd",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "secondary": "#9f9d9d",
+                        "surface-variant": "#252626",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "surface-tint": "#adc6ff",
+                        "surface-container-high": "#1f2020",
+                        "on-secondary": "#202020",
+                        "on-tertiary-fixed": "#34314b",
+                        "surface-bright": "#2c2c2c",
+                        "on-secondary-fixed": "#403f3f",
+                        "inverse-on-surface": "#565554",
+                        "background": "#0e0e0e",
+                        "on-tertiary": "#504d68",
+                        "inverse-surface": "#fcf8f8",
+                        "secondary-dim": "#9f9d9d",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "error-container": "#7f2927",
+                        "surface-container-lowest": "#000000",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "on-primary-container": "#bdd0ff",
+                        "outline-variant": "#484848",
+                        "tertiary-dim": "#c5c0e0",
+                        "inverse-primary": "#005bc4",
+                        "surface-container-low": "#131313",
+                        "on-primary": "#003d88",
+                        "on-error-container": "#ff9993",
+                        "primary-fixed": "#d8e2ff",
+                        "error": "#ee7d77",
+                        "primary": "#adc6ff",
+                        "on-error": "#490106",
+                        "primary-dim": "#98b8ff",
+                        "outline": "#767575",
+                        "secondary-container": "#3c3b3b"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem",
+                        "md": "0.375rem",
+                        "sm": "0.125rem"
+                    },
+                    "fontFamily": {
+                        "sans": ["Inter", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Tonal layering utilities that fall back nicely if classes don't cover it */
+        .ghost-border { border: 1px solid rgba(72, 72, 72, 0.15); }
+        .focus-ghost-border:focus-within { border-color: rgba(173, 198, 255, 0.2); }
+        
+        /* Toggle Switch Custom CSS */
+        .toggle-checkbox:checked { right: 0; border-color: #68D391; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #005bc4; }
+        .toggle-checkbox:checked + .toggle-label:after { transform: translateX(100%); border-color: white; }
+        .toggle-label:after {
+            content: "";
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-[#0A0A0A] text-on-surface font-sans antialiased min-h-screen flex flex-col selection:bg-primary-container selection:text-white">
+<!-- TopNavBar (Shared Component) -->
+<header class="bg-[#0A0A0A] dark:bg-[#0A0A0A] font-sans tracking-tight font-medium docked full-width fixed top-0 left-0 right-0 z-50 flex justify-between items-center h-12 px-6 w-full border-b-[1px] border-transparent" style="box-shadow: 0 1px 0 rgba(23, 23, 23, 1);">
+<!-- Left: Brand & Search -->
+<div class="flex items-center gap-6 h-full">
+<span class="text-lg font-semibold tracking-tighter text-white">Velocity Console</span>
+<div class="relative hidden md:flex items-center group h-7 focus-ghost-border transition-colors rounded-md bg-surface-container px-2 w-[240px]">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant mr-2" data-icon="search">search</span>
+<input class="bg-transparent border-none p-0 text-sm text-on-surface placeholder:text-on-surface-variant focus:ring-0 w-full h-full font-sans tracking-normal" placeholder="Search inventory or operations..." type="text"/>
+<div class="flex items-center gap-1 ml-2">
+<span class="font-mono text-[10px] text-on-surface-variant bg-surface-container-highest px-1.5 py-0.5 rounded">⌘K</span>
+</div>
+</div>
+</div>
+<!-- Center: Navigation -->
+<nav class="hidden lg:flex items-center h-full space-x-6">
+<a class="text-neutral-500 hover:text-white transition-colors text-sm h-full flex items-center" href="#">Inventory</a>
+<a class="text-neutral-500 hover:text-white transition-colors text-sm h-full flex items-center" href="#">Valuations</a>
+<a class="text-neutral-500 hover:text-white transition-colors text-sm h-full flex items-center" href="#">Logistics</a>
+<a class="text-neutral-500 hover:text-white transition-colors text-sm h-full flex items-center" href="#">Operations</a>
+</nav>
+<!-- Right: Actions & Profile -->
+<div class="flex items-center gap-4">
+<button class="text-neutral-500 hover:text-white transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="notifications">notifications</span>
+</button>
+<button class="text-neutral-500 hover:text-white transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="help">help</span>
+</button>
+<button class="text-neutral-500 hover:text-white transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="command">keyboard_command_key</span>
+</button>
+<div class="w-7 h-7 rounded-full bg-surface-container-highest border border-outline-variant overflow-hidden">
+<img alt="User avatar" class="w-full h-full object-cover" data-alt="professional headshot of a person looking forward against neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAV8Lqo3BzXw0iac0mK6cFQIceBOzepjZcEGv1KtLNqPswYcBd2C0LU1Kmo_fTSXQdBthRzTcc01rGhP8eKrGWeYv0TQGmFET8kK5HCzduA_TMWtRnrvmbJWSw_LuRWQBkcdmVZBnHFV7dIee1TRAYGBDtA5rsQR_X1llQWkAmUYmq24_bFKR5m-tjMxt9yVaMe35sxRJ5mZp4Kpt_Qf9T7fXDw-TzPJXGnJnFk9KQAs8ciIMdGCNeNB-8QzN3NdhsXDIsflmZw-e4"/>
+</div>
+</div>
+</header>
+<!-- Main Layout -->
+<div class="flex flex-1 pt-12">
+<!-- SideNavBar (Shared Component) -->
+<nav class="bg-[#171717] dark:bg-[#171717] font-sans text-sm tracking-normal h-screen w-[220px] fixed left-0 top-12 flex flex-col py-4 pr-2 z-40 border-r-[1px] border-transparent" style="box-shadow: 1px 0 0 rgba(23, 23, 23, 0);">
+<!-- Header -->
+<div class="px-4 mb-6 flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center text-on-primary-fixed font-bold">
+                    V
+                </div>
+<div>
+<h2 class="text-white font-bold text-[13px] leading-tight">Settings</h2>
+<p class="text-neutral-400 text-[11px]">Manage Workspace</p>
+</div>
+</div>
+<!-- Links -->
+<div class="flex flex-col gap-0.5">
+<a class="flex items-center gap-3 px-4 py-2 text-neutral-400 hover:bg-[#262626] hover:text-neutral-200 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-neutral-200" data-icon="corporate_fare" style="font-variation-settings: 'FILL' 0;">corporate_fare</span>
+<span>Organization</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-neutral-400 hover:bg-[#262626] hover:text-neutral-200 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-neutral-200" data-icon="storefront" style="font-variation-settings: 'FILL' 0;">storefront</span>
+<span>Outlets</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-neutral-400 hover:bg-[#262626] hover:text-neutral-200 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-neutral-200" data-icon="group" style="font-variation-settings: 'FILL' 0;">group</span>
+<span>Users &amp; Roles</span>
+</a>
+<!-- Active Link -->
+<a class="flex items-center gap-3 px-4 py-2 bg-[#262626] text-white font-medium rounded-r-md transition-transform scale-[0.98]" href="#">
+<span class="material-symbols-outlined text-[18px] text-primary" data-icon="toggle_on" style="font-variation-settings: 'FILL' 1;">toggle_on</span>
+<span>Feature Flags</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-neutral-400 hover:bg-[#262626] hover:text-neutral-200 transition-colors group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-neutral-200" data-icon="settings_input_component" style="font-variation-settings: 'FILL' 0;">settings_input_component</span>
+<span>Integrations</span>
+</a>
+</div>
+</nav>
+<!-- Canvas Area -->
+<main class="flex-1 ml-[220px] p-6 lg:p-8 bg-[#0A0A0A] flex flex-col min-h-[calc(100vh-3rem)]">
+<!-- Page Header -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+<div>
+<h1 class="text-2xl font-semibold tracking-tight text-white mb-1">Feature Flags</h1>
+<p class="text-sm text-on-surface-variant font-sans">Manage experimental features and staged rollouts across your workspace.</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="relative flex items-center group h-9 focus-ghost-border transition-colors rounded-md bg-surface-variant px-3 w-[280px] ghost-border">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant mr-2" data-icon="search">search</span>
+<input class="bg-transparent border-none p-0 text-sm text-on-surface placeholder:text-on-surface-variant focus:ring-0 w-full h-full font-sans tracking-normal" placeholder="Search flags..." type="text"/>
+</div>
+<button class="h-9 px-4 bg-surface-container-highest hover:bg-surface-bright text-white text-sm font-medium rounded-md transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]" data-icon="filter_list">filter_list</span>
+                        Filter
+                    </button>
+</div>
+</div>
+<!-- Data Table Section -->
+<div class="bg-surface-container rounded-lg flex flex-col flex-1 border border-surface-container-highest shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+<!-- Table Header -->
+<div class="grid grid-cols-12 gap-4 px-6 py-3 border-b border-surface-container-highest bg-surface-container-low/50 rounded-t-lg">
+<div class="col-span-4 text-xs font-medium text-on-surface-variant uppercase tracking-wider">Flag Name</div>
+<div class="col-span-2 text-xs font-medium text-on-surface-variant uppercase tracking-wider">Module</div>
+<div class="col-span-3 text-xs font-medium text-on-surface-variant uppercase tracking-wider">Enabled For</div>
+<div class="col-span-2 text-xs font-medium text-on-surface-variant uppercase tracking-wider text-right">Last Changed</div>
+<div class="col-span-1 text-xs font-medium text-on-surface-variant uppercase tracking-wider text-right">Status</div>
+</div>
+<!-- Table Body -->
+<div class="flex flex-col">
+<!-- Row 1 -->
+<div class="grid grid-cols-12 gap-4 px-6 h-14 items-center hover:bg-surface-container-low transition-colors group">
+<div class="col-span-4 flex items-center gap-3">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant group-hover:text-white transition-colors" data-icon="rule">rule</span>
+<span class="text-sm font-medium text-white tracking-tight">Enable Multi-step Inspection</span>
+</div>
+<div class="col-span-2">
+<span class="text-xs text-on-surface-variant font-sans px-2 py-1 bg-surface-container-highest rounded border border-outline-variant/30">Valuations</span>
+</div>
+<div class="col-span-3 flex flex-wrap gap-1.5">
+<span class="text-xs font-sans px-2 py-0.5 rounded bg-surface-container-highest text-on-surface border border-transparent">All Outlets</span>
+</div>
+<div class="col-span-2 text-right">
+<span class="font-mono text-[13px] text-on-surface-variant">24-Oct-23</span>
+</div>
+<div class="col-span-1 flex justify-end">
+<label class="flex items-center cursor-pointer relative">
+<input checked="" class="sr-only toggle-checkbox" type="checkbox"/>
+<div class="toggle-label w-[34px] h-5 bg-surface-variant rounded-full transition-colors relative border border-outline-variant/50 cursor-pointer"></div>
+</label>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="grid grid-cols-12 gap-4 px-6 h-14 items-center hover:bg-surface-container-low transition-colors group bg-surface-container/50">
+<div class="col-span-4 flex items-center gap-3">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant group-hover:text-white transition-colors" data-icon="receipt_long">receipt_long</span>
+<span class="text-sm font-medium text-white tracking-tight">GST Margin Scheme - Mumbai</span>
+</div>
+<div class="col-span-2">
+<span class="text-xs text-on-surface-variant font-sans px-2 py-1 bg-surface-container-highest rounded border border-outline-variant/30">Finance</span>
+</div>
+<div class="col-span-3 flex flex-wrap gap-1.5">
+<span class="text-[11px] font-sans px-1.5 py-0.5 rounded bg-tertiary-container/10 text-tertiary-dim border border-tertiary-container/20">Mumbai Central</span>
+<span class="text-[11px] font-sans px-1.5 py-0.5 rounded bg-tertiary-container/10 text-tertiary-dim border border-tertiary-container/20">Andheri West</span>
+</div>
+<div class="col-span-2 text-right">
+<span class="font-mono text-[13px] text-on-surface-variant">12-Nov-23</span>
+</div>
+<div class="col-span-1 flex justify-end">
+<label class="flex items-center cursor-pointer relative">
+<input checked="" class="sr-only toggle-checkbox" type="checkbox"/>
+<div class="toggle-label w-[34px] h-5 bg-surface-variant rounded-full transition-colors relative border border-outline-variant/50 cursor-pointer"></div>
+</label>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="grid grid-cols-12 gap-4 px-6 h-14 items-center hover:bg-surface-container-low transition-colors group">
+<div class="col-span-4 flex items-center gap-3">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant group-hover:text-white transition-colors" data-icon="payments">payments</span>
+<span class="text-sm font-medium text-white tracking-tight">New Payment Gateway</span>
+</div>
+<div class="col-span-2">
+<span class="text-xs text-on-surface-variant font-sans px-2 py-1 bg-surface-container-highest rounded border border-outline-variant/30">Checkout</span>
+</div>
+<div class="col-span-3 flex flex-wrap gap-1.5">
+<span class="text-[11px] font-sans px-1.5 py-0.5 rounded bg-surface-container-highest text-on-surface-variant border border-transparent">Internal Test Group</span>
+</div>
+<div class="col-span-2 text-right">
+<span class="font-mono text-[13px] text-on-surface-variant">05-Dec-23</span>
+</div>
+<div class="col-span-1 flex justify-end">
+<label class="flex items-center cursor-pointer relative">
+<input class="sr-only toggle-checkbox" type="checkbox"/>
+<div class="toggle-label w-[34px] h-5 bg-surface-variant rounded-full transition-colors relative border border-outline-variant/50 cursor-pointer"></div>
+</label>
+</div>
+</div>
+<!-- Row 4 -->
+<div class="grid grid-cols-12 gap-4 px-6 h-14 items-center hover:bg-surface-container-low transition-colors group bg-surface-container/50">
+<div class="col-span-4 flex items-center gap-3">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant group-hover:text-white transition-colors" data-icon="dashboard_customize">dashboard_customize</span>
+<span class="text-sm font-medium text-white tracking-tight">Bay Board Auto-refresh</span>
+</div>
+<div class="col-span-2">
+<span class="text-xs text-on-surface-variant font-sans px-2 py-1 bg-surface-container-highest rounded border border-outline-variant/30">Operations</span>
+</div>
+<div class="col-span-3 flex flex-wrap gap-1.5">
+<span class="text-xs font-sans px-2 py-0.5 rounded bg-surface-container-highest text-on-surface border border-transparent">All Outlets</span>
+</div>
+<div class="col-span-2 text-right">
+<span class="font-mono text-[13px] text-on-surface-variant">18-Jan-24</span>
+</div>
+<div class="col-span-1 flex justify-end">
+<label class="flex items-center cursor-pointer relative">
+<input checked="" class="sr-only toggle-checkbox" type="checkbox"/>
+<div class="toggle-label w-[34px] h-5 bg-surface-variant rounded-full transition-colors relative border border-outline-variant/50 cursor-pointer"></div>
+</label>
+</div>
+</div>
+<!-- Row 5 (Inactive example) -->
+<div class="grid grid-cols-12 gap-4 px-6 h-14 items-center hover:bg-surface-container-low transition-colors group">
+<div class="col-span-4 flex items-center gap-3 opacity-60">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant" data-icon="speed">speed</span>
+<span class="text-sm font-medium text-on-surface-variant tracking-tight line-through decoration-outline-variant">Legacy Performance Mode</span>
+</div>
+<div class="col-span-2 opacity-60">
+<span class="text-xs text-on-surface-variant font-sans px-2 py-1 bg-surface-container-highest rounded border border-outline-variant/30">System</span>
+</div>
+<div class="col-span-3 flex flex-wrap gap-1.5 opacity-60">
+<span class="text-[11px] font-sans px-1.5 py-0.5 rounded bg-surface-container-highest text-on-surface-variant border border-transparent">Deprecated</span>
+</div>
+<div class="col-span-2 text-right opacity-60">
+<span class="font-mono text-[13px] text-on-surface-variant">10-Sep-22</span>
+</div>
+<div class="col-span-1 flex justify-end">
+<label class="flex items-center cursor-pointer relative opacity-50 cursor-not-allowed">
+<input class="sr-only toggle-checkbox" disabled="" type="checkbox"/>
+<div class="toggle-label w-[34px] h-5 bg-surface-container-lowest rounded-full transition-colors relative border border-outline-variant/20 cursor-not-allowed"></div>
+</label>
+</div>
+</div>
+</div>
+</div>
+<!-- Pagination/Footer Area -->
+<div class="flex items-center justify-between mt-4 px-2">
+<span class="text-xs text-on-surface-variant font-sans">Showing 5 of 42 flags</span>
+<div class="flex items-center gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container-highest text-on-surface-variant hover:text-white transition-colors disabled:opacity-50">
+<span class="material-symbols-outlined text-[18px]" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-surface-container-highest text-on-surface-variant hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</main>
+</div>
+</body></html>

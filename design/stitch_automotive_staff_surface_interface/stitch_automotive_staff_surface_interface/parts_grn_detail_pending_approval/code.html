@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GRN Detail - Precision Ops</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#1f2020",
+                        "surface-container-lowest": "#000000",
+                        "error-dim": "#bb5551",
+                        "on-tertiary-container": "#47445f",
+                        "on-secondary": "#202020",
+                        "secondary-container": "#3c3b3b",
+                        "surface-variant": "#252626",
+                        "on-background": "#e7e5e4",
+                        "on-primary-fixed": "#003c86",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "surface-bright": "#2c2c2c",
+                        "primary-dim": "#98b8ff",
+                        "surface-container-low": "#131313",
+                        "secondary": "#9f9d9d",
+                        "on-primary": "#003d88",
+                        "tertiary-fixed": "#d3ceef",
+                        "surface-dim": "#0e0e0e",
+                        "outline": "#767575",
+                        "background": "#0e0e0e",
+                        "secondary-dim": "#9f9d9d",
+                        "inverse-primary": "#005bc4",
+                        "inverse-on-surface": "#565554",
+                        "tertiary-dim": "#c5c0e0",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "surface-tint": "#adc6ff",
+                        "on-primary-container": "#bdd0ff",
+                        "on-secondary-fixed": "#403f3f",
+                        "surface-container": "#191a1a",
+                        "on-surface": "#e7e5e4",
+                        "primary-container": "#004395",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "tertiary": "#e1dcfd",
+                        "inverse-surface": "#fcf8f8",
+                        "error-container": "#7f2927",
+                        "surface-container-highest": "#252626",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "error": "#ee7d77",
+                        "on-tertiary-fixed": "#34314b",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "outline-variant": "#484848",
+                        "on-error-container": "#ff9993",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "primary-fixed": "#d8e2ff",
+                        "on-surface-variant": "#acabaa",
+                        "on-secondary-container": "#c1bfbe",
+                        "surface": "#0e0e0e",
+                        "primary": "#adc6ff",
+                        "secondary-fixed": "#e5e2e1",
+                        "tertiary-container": "#d3ceef",
+                        "on-tertiary": "#504d68",
+                        "on-error": "#490106"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined[data-weight="fill"] {
+            font-variation-settings: 'FILL' 1;
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface font-body min-h-screen flex antialiased">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full flex flex-col py-6 bg-neutral-900 dark:bg-neutral-900 w-[220px] transition-all duration-200 ease-in-out border-r border-neutral-800/20 z-50">
+<div class="px-6 mb-8">
+<h1 class="text-blue-500 font-bold font-headline tracking-tight">Precision Ops</h1>
+<p class="text-xs text-neutral-500 mt-1">Automotive Concierge</p>
+</div>
+<div class="flex-1 px-3 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-['Inter'] text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/30 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">inventory_2</span>
+                Inventory
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-['Inter'] text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/30 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+                Procurement
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-['Inter'] text-blue-400 bg-neutral-800/50 font-medium border-r-2 border-blue-500 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">local_shipping</span>
+                Logistics
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-['Inter'] text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/30 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+                Valuations
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-['Inter'] text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/30 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">leaderboard</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-['Inter'] text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/30 transition-colors" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+                Settings
+            </a>
+</div>
+<div class="px-6 mt-auto">
+<button class="w-full py-2 px-4 bg-primary text-on-primary rounded-DEFAULT text-sm font-medium hover:bg-primary/90 transition-colors">
+                New Entry
+            </button>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="ml-[220px] flex-1 flex flex-col min-h-screen bg-surface-container-lowest">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center w-full px-6 h-12 bg-[#0A0A0A] dark:bg-neutral-950 border-b border-neutral-900/50">
+<div class="flex items-center gap-2 text-sm text-neutral-400">
+<span class="hover:text-neutral-200 cursor-pointer">Parts</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="hover:text-neutral-200 cursor-pointer">GRN</span>
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+<span class="text-neutral-200 font-mono">GRN-2026-0089</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-3">
+<button class="text-neutral-400 hover:text-neutral-200 transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-neutral-400 hover:text-neutral-200 transition-colors active:scale-95 duration-150">
+<span class="material-symbols-outlined">keyboard_command_key</span>
+</button>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant/30">
+<img alt="User profile avatar" class="w-full h-full object-cover" data-alt="close up professional headshot of man in dark setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA_EU2NHxOOAzV9gJo7a3lGMnScAvIZskW9DLt9WJRWdSifZE0wefVmHczzlaZRgYMDMOSoFBhSTKBDPSIa8bmB2k7y6lV5RoptS89JvQ-0FQL9I_8woqotl8ydGFy8XwEeh9i57bhDo41HSPOBa38tzZlFh9zQraPiLVtykoFOPNuFH9zWOgnnDTT00-mxQ4swhX0bYiAHHWGA4XrU9m6tj2Yu8ykGWKC0jXuTooqALEMA1gvuEkzdHJzVIigikvTiK1XIEWqY8BI"/>
+</div>
+</div>
+</header>
+<!-- Page Content -->
+<div class="flex-1 p-6 space-y-6">
+<!-- Header Section -->
+<div class="flex justify-between items-start">
+<div>
+<div class="flex items-center gap-4 mb-2">
+<h2 class="text-2xl font-semibold tracking-tight text-on-surface font-mono">GRN-2026-0089</h2>
+<span class="px-2 py-1 rounded-[4px] bg-[#3B2D1D] text-[#E5A853] text-xs font-medium flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-[#E5A853]"></span>
+                            Pending Approval
+                        </span>
+</div>
+<p class="text-sm text-on-surface-variant">Goods Receipt Note for Incoming Inventory</p>
+</div>
+</div>
+<!-- Supplier Info Card -->
+<div class="bg-surface-container rounded-lg p-6 flex flex-col md:flex-row gap-8">
+<div class="flex-1 space-y-4">
+<h3 class="text-sm font-medium text-on-surface border-b border-surface-container-high pb-2">Supplier Details</h3>
+<div class="grid grid-cols-2 gap-4 text-sm">
+<div>
+<p class="text-on-surface-variant mb-1 text-xs">Supplier Name</p>
+<p class="font-medium">Bosch Automotive India</p>
+</div>
+<div>
+<p class="text-on-surface-variant mb-1 text-xs">GSTIN</p>
+<p class="font-mono text-on-surface-variant">29ABCDE1234F1Z5</p>
+</div>
+</div>
+</div>
+<div class="w-px bg-surface-container-high hidden md:block"></div>
+<div class="flex-1 space-y-4">
+<h3 class="text-sm font-medium text-on-surface border-b border-surface-container-high pb-2">Receipt Details</h3>
+<div class="grid grid-cols-2 gap-4 text-sm">
+<div>
+<p class="text-on-surface-variant mb-1 text-xs">PO Reference</p>
+<p class="font-mono text-on-surface-variant">PO-2026-0412</p>
+</div>
+<div>
+<p class="text-on-surface-variant mb-1 text-xs">Delivery Date</p>
+<p>14 Mar 2026</p>
+</div>
+<div>
+<p class="text-on-surface-variant mb-1 text-xs">Received By</p>
+<p>Kiran S.</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Line Items Table -->
+<div class="bg-surface-container rounded-lg overflow-hidden">
+<div class="p-4 border-b border-surface-container-high flex justify-between items-center bg-surface-container-low">
+<h3 class="text-sm font-medium text-on-surface">Line Items</h3>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-xs text-on-surface-variant bg-surface-container-low border-b border-surface-container-high">
+<th class="py-3 px-4 font-medium w-[15%]">Part #</th>
+<th class="py-3 px-4 font-medium w-[30%]">Description</th>
+<th class="py-3 px-4 font-medium text-right w-[10%]">PO Qty</th>
+<th class="py-3 px-4 font-medium text-right w-[15%]">Recv Qty</th>
+<th class="py-3 px-4 font-medium text-right w-[15%]">Unit Price</th>
+<th class="py-3 px-4 font-medium text-right w-[15%]">Total</th>
+</tr>
+</thead>
+<tbody class="text-sm divide-y divide-surface-container-high">
+<tr class="hover:bg-surface-container-low transition-colors h-[44px]">
+<td class="py-2 px-4 font-mono text-on-surface-variant">BOS-O2-984</td>
+<td class="py-2 px-4 text-on-surface">Oxygen Sensor V8</td>
+<td class="py-2 px-4 text-right">50</td>
+<td class="py-2 px-4 text-right">
+<input class="w-16 bg-surface-variant border border-outline-variant/15 rounded-[4px] px-2 py-1 text-right text-sm focus:border-accent focus:ring-0 text-on-surface" type="number" value="50"/>
+</td>
+<td class="py-2 px-4 text-right font-mono text-on-surface-variant">₹ 4,500.00</td>
+<td class="py-2 px-4 text-right font-mono">₹ 2,25,000.00</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors h-[44px]">
+<td class="py-2 px-4 font-mono text-on-surface-variant">BOS-ALT-112</td>
+<td class="py-2 px-4 text-on-surface">Alternator Assembly 150A</td>
+<td class="py-2 px-4 text-right">12</td>
+<td class="py-2 px-4 text-right">
+<input class="w-16 bg-[#2B2218] border border-[#E5A853]/50 rounded-[4px] px-2 py-1 text-right text-sm focus:border-accent focus:ring-0 text-[#E5A853]" type="number" value="10"/>
+</td>
+<td class="py-2 px-4 text-right font-mono text-on-surface-variant">₹ 18,200.00</td>
+<td class="py-2 px-4 text-right font-mono text-[#E5A853]">₹ 1,82,000.00</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors h-[44px]">
+<td class="py-2 px-4 font-mono text-on-surface-variant">BOS-FP-445</td>
+<td class="py-2 px-4 text-on-surface">High Pressure Fuel Pump</td>
+<td class="py-2 px-4 text-right">5</td>
+<td class="py-2 px-4 text-right">
+<input class="w-16 bg-surface-variant border border-outline-variant/15 rounded-[4px] px-2 py-1 text-right text-sm focus:border-accent focus:ring-0 text-on-surface" type="number" value="5"/>
+</td>
+<td class="py-2 px-4 text-right font-mono text-on-surface-variant">₹ 32,500.00</td>
+<td class="py-2 px-4 text-right font-mono">₹ 1,62,500.00</td>
+</tr>
+</tbody>
+<tfoot class="bg-surface-container-low border-t border-surface-container-high">
+<tr>
+<td class="py-3 px-4" colspan="4"></td>
+<td class="py-3 px-4 text-right font-medium text-sm text-on-surface-variant">Total GRN Value</td>
+<td class="py-3 px-4 text-right font-mono font-medium text-lg text-on-surface">₹ 5,69,500.00</td>
+</tr>
+</tfoot>
+</table>
+</div>
+</div>
+<!-- Approval Footer -->
+<div class="mt-8 pt-6 border-t border-surface-container flex items-center justify-between">
+<div class="flex items-center gap-2 text-sm text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px] text-primary">verified_user</span>
+<span>Dual-control authorization required (Value &gt; ₹5L)</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-sm text-primary hover:text-primary-dim transition-colors px-4 py-2">
+                        Add Note
+                    </button>
+<button class="px-6 py-2 rounded-lg text-sm font-medium bg-surface-container-highest text-error hover:bg-error-container/20 transition-colors border border-error-container/50">
+                        Reject
+                    </button>
+<button class="px-6 py-2 rounded-lg text-sm font-medium bg-primary text-on-primary hover:bg-primary/90 transition-all bg-gradient-to-r from-primary to-primary-container bg-[length:100%_100%]">
+                        Approve GRN
+                    </button>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<footer class="w-full py-4 px-8 flex justify-between items-center bg-neutral-950 border-t border-neutral-800/20 mt-auto">
+<p class="font-['Inter'] text-xs text-neutral-500">© 2024 Precision Concierge Automotive Operations. All rights reserved.</p>
+<div class="flex gap-4">
+<a class="font-['Inter'] text-xs text-neutral-600 hover:text-neutral-300 transition-colors" href="#">Support</a>
+<a class="font-['Inter'] text-xs text-neutral-600 hover:text-neutral-300 transition-colors" href="#">Compliance</a>
+<a class="font-['Inter'] text-xs text-neutral-600 hover:text-neutral-300 transition-colors" href="#">Terms</a>
+</div>
+</footer>
+</main>
+</body></html>

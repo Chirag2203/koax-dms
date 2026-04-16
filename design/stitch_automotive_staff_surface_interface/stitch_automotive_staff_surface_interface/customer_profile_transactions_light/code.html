@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Customer Profile Transactions - Precision Concierge</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-high": "#1f2020",
+                      "on-primary-fixed-variant": "#0057bd",
+                      "on-primary-fixed": "#003c86",
+                      "outline": "#767575",
+                      "tertiary-dim": "#c5c0e0",
+                      "primary-fixed": "#d8e2ff",
+                      "tertiary-fixed": "#d3ceef",
+                      "tertiary-fixed-dim": "#c5c0e0",
+                      "primary-dim": "#98b8ff",
+                      "outline-variant": "#484848",
+                      "on-secondary-container": "#c1bfbe",
+                      "inverse-primary": "#005bc4",
+                      "surface-bright": "#2c2c2c",
+                      "primary": "#adc6ff",
+                      "error-dim": "#bb5551",
+                      "surface-container-low": "#131313",
+                      "secondary-dim": "#9f9d9d",
+                      "surface": "#0e0e0e",
+                      "secondary": "#9f9d9d",
+                      "on-secondary-fixed-variant": "#5c5b5b",
+                      "surface-container": "#191a1a",
+                      "on-error-container": "#ff9993",
+                      "on-tertiary-fixed-variant": "#504e69",
+                      "error-container": "#7f2927",
+                      "on-tertiary": "#504d68",
+                      "primary-container": "#004395",
+                      "background": "#0e0e0e",
+                      "primary-fixed-dim": "#c3d4ff",
+                      "surface-dim": "#0e0e0e",
+                      "on-tertiary-container": "#47445f",
+                      "inverse-surface": "#fcf8f8",
+                      "inverse-on-surface": "#565554",
+                      "tertiary": "#e1dcfd",
+                      "secondary-container": "#3c3b3b",
+                      "secondary-fixed-dim": "#d6d4d3",
+                      "on-error": "#490106",
+                      "on-tertiary-fixed": "#34314b",
+                      "on-primary": "#003d88",
+                      "surface-tint": "#adc6ff",
+                      "tertiary-container": "#d3ceef",
+                      "surface-variant": "#252626",
+                      "on-secondary": "#202020",
+                      "on-primary-container": "#bdd0ff",
+                      "on-surface-variant": "#acabaa",
+                      "error": "#ee7d77",
+                      "on-secondary-fixed": "#403f3f",
+                      "secondary-fixed": "#e5e2e1",
+                      "surface-container-highest": "#252626",
+                      "surface-container-lowest": "#000000",
+                      "on-surface": "#e7e5e4",
+                      "on-background": "#e7e5e4"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {},
+              "fontFamily": {
+                      "headline": [
+                              "Inter"
+                      ],
+                      "body": [
+                              "Inter"
+                      ],
+                      "label": [
+                              "Inter"
+                      ],
+                      "mono": [
+                              "IBM Plex Mono"
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #FBFBFA; color: #0A0A0A; } /* Forced light mode base for this specific screen per prompt */
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        /* Custom scrollbar for tables */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #e5e5e5; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #d4d4d4; }
+        
+        /* Overriding theme to light for this specific output as requested by "Light Variant" */
+        .light-theme-override {
+            --tw-bg-opacity: 1;
+            background-color: #FBFBFA;
+            color: #0A0A0A;
+        }
+        .light-surface-low { background-color: #F4F4F5; }
+        .light-surface { background-color: #FFFFFF; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        .light-surface-high { background-color: #FFFFFF; box-shadow: 0 4px 12px rgba(0,0,0,0.08); border: 1px solid #E4E4E7; }
+        .light-text-secondary { color: #52525B; }
+        .light-border { border-color: #E4E4E7; }
+        .light-hover:hover { background-color: #F4F4F5; }
+    </style>
+</head>
+<body class="light-theme-override min-h-screen antialiased flex">
+<!-- TopNavBar -->
+<nav class="fixed top-0 right-0 w-[calc(100%-220px)] h-[48px] bg-white border-b light-border flex items-center justify-between px-6 z-40 ml-[220px]">
+<div class="flex items-center gap-6">
+<a class="font-sans text-sm tracking-tight font-medium text-neutral-500 hover:text-neutral-900 transition-colors scale-95 duration-100" href="#">Inventory</a>
+<a class="font-sans text-sm tracking-tight font-medium text-neutral-500 hover:text-neutral-900 transition-colors scale-95 duration-100" href="#">Valuation</a>
+<a class="font-sans text-sm tracking-tight font-medium text-neutral-900 border-b-2 border-blue-600 pb-1 scale-95 duration-100" href="#">Logistics</a>
+<a class="font-sans text-sm tracking-tight font-medium text-neutral-500 hover:text-neutral-900 transition-colors scale-95 duration-100" href="#">Analytics</a>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-2 text-sm text-neutral-500 bg-neutral-100 px-3 py-1.5 rounded-md hover:bg-neutral-200 transition-colors">
+<span class="material-symbols-outlined text-[18px]">search</span>
+<span>Command Palette</span>
+<span class="font-mono text-xs ml-2 px-1 bg-white rounded border light-border">⌘K</span>
+</button>
+<div class="flex items-center gap-3 text-neutral-500">
+<button class="hover:text-neutral-900 transition-colors"><span class="material-symbols-outlined text-[20px]" data-icon="notifications">notifications</span></button>
+<button class="hover:text-neutral-900 transition-colors"><span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span></button>
+</div>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-[220px] bg-neutral-50 border-r light-border flex flex-col py-8 z-50">
+<div class="px-6 mb-8 hidden">
+<span class="text-lg font-semibold tracking-tighter text-neutral-900">Precision Concierge</span>
+</div>
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold">OP</div>
+<div>
+<div class="text-sm font-semibold text-neutral-900">Operations Hub</div>
+<div class="text-xs text-neutral-500">Precision Logistics</div>
+</div>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full bg-blue-600 text-white text-sm font-medium py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add</span> New Entry
+            </button>
+</div>
+<nav class="flex-1 flex flex-col gap-1 px-3">
+<a class="flex items-center gap-3 px-3 py-2 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 rounded-md transition-all font-sans text-xs uppercase tracking-widest font-bold translate-x-1" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="dashboard">dashboard</span> Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 rounded-md transition-all font-sans text-xs uppercase tracking-widest font-bold translate-x-1" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="directions_car">directions_car</span> Active Inventory
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 rounded-md transition-all font-sans text-xs uppercase tracking-widest font-bold translate-x-1" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="payments">payments</span> Procurement
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-blue-700 bg-blue-50 rounded-md transition-all font-sans text-xs uppercase tracking-widest font-bold translate-x-1 border-l-2 border-blue-600" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="local_shipping">local_shipping</span> Shipments
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 rounded-md transition-all font-sans text-xs uppercase tracking-widest font-bold translate-x-1" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="account_balance">account_balance</span> Financials
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900 rounded-md transition-all font-sans text-xs uppercase tracking-widest font-bold translate-x-1" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="group">group</span> User Access
+            </a>
+</nav>
+<div class="mt-auto px-3 flex flex-col gap-1 border-t light-border pt-4">
+<a class="flex items-center gap-3 px-3 py-2 text-neutral-500 hover:text-neutral-900 transition-colors text-sm" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="analytics">analytics</span> System Health
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-neutral-500 hover:text-neutral-900 transition-colors text-sm" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="help_center">help_center</span> Support
+            </a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-[220px] mt-[48px] p-8 w-full">
+<!-- Header Section -->
+<header class="mb-8 flex items-end justify-between">
+<div>
+<div class="text-sm light-text-secondary mb-1 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">person</span> Customer Profile
+                </div>
+<h1 class="text-2xl font-semibold tracking-tight text-neutral-900">Alexander Sterling</h1>
+<div class="text-sm light-text-secondary mt-1 font-mono">ID: CUST-88392-A</div>
+</div>
+<div class="flex gap-3">
+<button class="px-4 py-2 bg-white border light-border rounded-md text-sm font-medium text-neutral-700 hover:bg-neutral-50 transition-colors flex items-center gap-2 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">download</span> Export Ledger
+                </button>
+</div>
+</header>
+<!-- Stats Bento -->
+<div class="grid grid-cols-3 gap-4 mb-8">
+<div class="light-surface p-5 rounded-lg border light-border">
+<div class="text-xs font-semibold uppercase tracking-widest light-text-secondary mb-2">Total Volume</div>
+<div class="text-2xl font-mono text-neutral-900">₹ 4,82,50,000</div>
+</div>
+<div class="light-surface p-5 rounded-lg border light-border">
+<div class="text-xs font-semibold uppercase tracking-widest light-text-secondary mb-2">Active Vehicles</div>
+<div class="text-2xl font-mono text-neutral-900">3</div>
+</div>
+<div class="light-surface p-5 rounded-lg border light-border">
+<div class="text-xs font-semibold uppercase tracking-widest light-text-secondary mb-2">Last Transaction</div>
+<div class="text-lg font-mono text-neutral-900 mt-1">12 Oct 2023</div>
+</div>
+</div>
+<!-- High-Density Transaction Table -->
+<div class="light-surface rounded-lg border light-border overflow-hidden">
+<div class="px-5 py-4 border-b light-border flex justify-between items-center bg-neutral-50">
+<h2 class="text-sm font-semibold text-neutral-900">Transaction History</h2>
+<div class="flex items-center gap-2">
+<span class="text-xs light-text-secondary">Showing 6 entries</span>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-xs uppercase tracking-wider light-text-secondary border-b light-border bg-white">
+<th class="px-5 py-3 font-medium">Date</th>
+<th class="px-5 py-3 font-medium">Type</th>
+<th class="px-5 py-3 font-medium">Vehicle / Asset</th>
+<th class="px-5 py-3 font-medium">Payment Method</th>
+<th class="px-5 py-3 font-medium text-right">Amount</th>
+<th class="px-5 py-3 font-medium text-right">Status</th>
+</tr>
+</thead>
+<tbody class="text-sm text-neutral-800">
+<tr class="border-b border-neutral-100 light-hover transition-colors">
+<td class="px-5 py-3 font-mono text-xs whitespace-nowrap">12 Oct 2023</td>
+<td class="px-5 py-3"><span class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-blue-600">call_made</span> Acquisition</span></td>
+<td class="px-5 py-3">
+<div>Porsche 911 GT3</div>
+<div class="font-mono text-[10px] light-text-secondary mt-0.5 bg-neutral-100 inline-block px-1 rounded">VIN: WP0AA2994MS2</div>
+</td>
+<td class="px-5 py-3 text-neutral-600 text-xs">Wire Transfer ••••8892</td>
+<td class="px-5 py-3 font-mono text-right font-medium">₹ 2,85,00,000</td>
+<td class="px-5 py-3 text-right">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-800">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Settled
+                                </span>
+</td>
+</tr>
+<tr class="border-b border-neutral-100 light-hover transition-colors">
+<td class="px-5 py-3 font-mono text-xs whitespace-nowrap">28 Sep 2023</td>
+<td class="px-5 py-3"><span class="flex items-center gap-2"><span class="material-symbols-outlined text-[16px] text-green-600">call_received</span> Disposition</span></td>
+<td class="px-5 py-3">
+<div>Mercedes-AMG G63</div>
+<div class="font-mono text-[10px] light-text-secondary mt-0.5 bg-neutral-100 inline-block px-1 rounded">VIN: WDC4632761X3</div>
+</td>
+<td class="px-5 py-3 text-neutral-600 text-xs">ACH ••••4412</td>
+<td class="px-5 py-3 font-mono text-right font-medium text-green-700">+ ₹ 1,95,00,000</td>
+<td class="px-5 py-3 text-right">
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-green-100 text-green-800">
+<span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Cleared
+                                </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</main>
+</body></html>

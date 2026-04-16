@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Precision Concierge - Sales Pipeline</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-highest": "#252626",
+                        "primary-dim": "#98b8ff",
+                        "on-error": "#490106",
+                        "on-secondary": "#202020",
+                        "tertiary": "#e1dcfd",
+                        "inverse-surface": "#fcf8f8",
+                        "surface-tint": "#adc6ff",
+                        "on-surface": "#e7e5e4",
+                        "surface-dim": "#0e0e0e",
+                        "on-error-container": "#ff9993",
+                        "surface-variant": "#252626",
+                        "error-container": "#7f2927",
+                        "surface-bright": "#2c2c2c",
+                        "surface-container-high": "#1f2020",
+                        "on-background": "#e7e5e4",
+                        "error-dim": "#bb5551",
+                        "surface-container-lowest": "#000000",
+                        "surface": "#0e0e0e",
+                        "outline-variant": "#484848",
+                        "outline": "#767575",
+                        "secondary": "#9f9d9d",
+                        "secondary-fixed": "#e5e2e1",
+                        "on-tertiary-container": "#47445f",
+                        "surface-container-low": "#131313",
+                        "background": "#0e0e0e",
+                        "on-tertiary-fixed": "#34314b",
+                        "tertiary-fixed": "#d3ceef",
+                        "secondary-dim": "#9f9d9d",
+                        "on-surface-variant": "#acabaa",
+                        "primary": "#adc6ff",
+                        "surface-container": "#191a1a",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "inverse-on-surface": "#565554",
+                        "secondary-container": "#3c3b3b",
+                        "on-primary": "#003d88",
+                        "on-primary-container": "#bdd0ff",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "tertiary-dim": "#c5c0e0",
+                        "on-secondary-container": "#c1bfbe",
+                        "primary-fixed": "#d8e2ff",
+                        "tertiary-container": "#d3ceef",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "on-secondary-fixed": "#403f3f",
+                        "on-tertiary": "#504d68",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "inverse-primary": "#005bc4",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "primary-container": "#004395",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "on-primary-fixed": "#003c86",
+                        "error": "#ee7d77"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom scrollbar for Kanban board to match luxury feel */
+        ::-webkit-scrollbar {
+            height: 6px;
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #131313; /* surface-container-low */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #252626; /* surface-container-highest */
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #484848; /* outline-variant */
+        }
+        .ghost-border {
+            box-shadow: inset 0 0 0 1px rgba(72, 72, 72, 0.15); /* outline-variant at 15% */
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body text-sm antialiased overflow-hidden">
+<!-- TopNavBar -->
+<nav class="h-12 w-[calc(100%-220px)] fixed top-0 right-0 z-50 bg-neutral-900/80 backdrop-blur-xl flex items-center justify-between px-6 ml-[220px]">
+<div class="text-sm font-mono text-neutral-400">Concierge v1.0</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-3 text-neutral-400">
+<button class="hover:bg-neutral-800/50 p-1.5 rounded-DEFAULT transition-colors duration-150 focus-within:ring-1 ring-blue-500/20">
+<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 300;">notifications</span>
+</button>
+<button class="hover:bg-neutral-800/50 p-1.5 rounded-DEFAULT transition-colors duration-150 focus-within:ring-1 ring-blue-500/20">
+<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 300;">search</span>
+</button>
+<button class="hover:bg-neutral-800/50 p-1.5 rounded-DEFAULT transition-colors duration-150 focus-within:ring-1 ring-blue-500/20">
+<span class="material-symbols-outlined" style="font-variation-settings: 'wght' 300;">keyboard_command_key</span>
+</button>
+</div>
+<button class="text-[10px] font-bold font-sans uppercase tracking-widest text-blue-500 dark:text-blue-400 hover:bg-neutral-800/50 px-3 py-1.5 rounded-DEFAULT transition-colors duration-150 scale-98 active:opacity-80">
+                Quick Action
+            </button>
+</div>
+</nav>
+<!-- SideNavBar -->
+<aside class="w-[220px] h-screen fixed left-0 top-0 border-r-0 bg-neutral-900 dark:bg-[#0A0A0A] flex flex-col h-full py-6 z-40">
+<div class="px-6 mb-8">
+<h1 class="text-lg font-semibold tracking-tighter text-neutral-100">Precision Operations</h1>
+<p class="font-sans tracking-tight font-medium text-[10px] uppercase text-neutral-500 mt-1">Luxury Asset Mgmt</p>
+</div>
+<nav class="flex-1 flex flex-col gap-1 px-3">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/40 transition-colors duration-150 font-sans tracking-tight font-medium text-sm scale-98 active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[18px]">directions_car</span>
+                Inventory
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-blue-400 bg-neutral-800/50 font-semibold transition-colors duration-150 font-sans tracking-tight text-sm scale-98 active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">sell</span>
+                Sales
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/40 transition-colors duration-150 font-sans tracking-tight font-medium text-sm scale-98 active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[18px]">build</span>
+                Service
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/40 transition-colors duration-150 font-sans tracking-tight font-medium text-sm scale-98 active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[18px]">settings_input_component</span>
+                Parts
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/40 transition-colors duration-150 font-sans tracking-tight font-medium text-sm scale-98 active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[18px]">account_balance</span>
+                Finance
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/40 transition-colors duration-150 font-sans tracking-tight font-medium text-sm scale-98 active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[18px]">assessment</span>
+                Reports
+            </a>
+</nav>
+<div class="px-3 mt-auto">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/40 transition-colors duration-150 font-sans tracking-tight font-medium text-sm scale-98 active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+                Settings
+            </a>
+<div class="mt-4 px-3 flex items-center gap-3">
+<img alt="User profile" class="w-8 h-8 rounded-full bg-surface-container-highest" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFPAFxfXHkrfcMRviP9rYj0cgP78n6h7yeE4Vh6WvsftkK4eKe8Sj1rdvkrzOK8G0tmCoBCKaeav9GQasGI_FJ2TxAE14mZGAhxKP_DpBgku6lBfKLmIVFKoBkGWTIHr7F2mPFADKdrb_4XoUHwZT_qEr-24SuGQ011lwOLMGADnBVRVTf0VuAXMHLA-5VAB2Oaplz-_UFG2DWeXhjj10ztZx1UBYaHFRnrUgWfmuj50CqZDTvRoWN33n0n-j9Ep457RyrM1E9R94"/>
+<div class="flex flex-col">
+<span class="text-xs font-medium text-neutral-200">A. Mehta</span>
+<span class="text-[10px] font-mono text-neutral-500">OP-DIR</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-[220px] pt-12 h-screen flex flex-col bg-background relative z-0">
+<!-- Header -->
+<header class="px-8 py-6 flex items-center justify-between shrink-0">
+<div>
+<h2 class="text-xl font-headline font-semibold tracking-tight text-on-surface">Deal Pipeline</h2>
+<div class="flex items-center gap-3 mt-1.5">
+<span class="text-xs font-mono text-on-surface-variant">Q3 FY24</span>
+<span class="w-1 h-1 rounded-full bg-surface-container-highest"></span>
+<span class="text-xs font-mono text-on-surface-variant">42 Active</span>
+<span class="w-1 h-1 rounded-full bg-surface-container-highest"></span>
+<span class="text-xs font-mono text-primary">₹ 28,45,00,000 Pipeline</span>
+</div>
+</div>
+<div class="flex gap-3">
+<button class="bg-surface-container-highest text-on-surface px-4 py-2 rounded-[6px] font-medium text-xs hover:bg-surface-bright transition-colors duration-150 flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">filter_list</span>
+                    Filter
+                </button>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-[6px] font-medium text-xs hover:brightness-110 transition-all duration-150 flex items-center gap-2" style="background-image: linear-gradient(to bottom, rgba(255,255,255,0.1), transparent);">
+<span class="material-symbols-outlined text-[16px]">add</span>
+                    New Deal
+                </button>
+</div>
+</header>
+<!-- Kanban Board Area -->
+<div class="flex-1 overflow-x-auto px-8 pb-8">
+<div class="flex gap-6 min-w-max h-full">
+<!-- Column: New Lead -->
+<div class="w-[280px] flex flex-col gap-3">
+<div class="flex items-center justify-between px-1 mb-2">
+<h3 class="font-headline font-medium text-sm text-on-surface tracking-tight">New Lead</h3>
+<span class="font-mono text-xs text-on-surface-variant bg-surface-container px-1.5 py-0.5 rounded-DEFAULT">3</span>
+</div>
+<div class="bg-surface-container rounded-lg p-3.5 flex flex-col gap-2.5 hover:bg-surface-container-high transition-colors cursor-grab group">
+<div class="flex justify-between items-start">
+<span class="font-headline font-medium text-sm text-on-surface truncate">V. Singhania</span>
+<div class="w-1.5 h-1.5 rounded-full bg-error mt-1.5 shrink-0" title="High Priority"></div>
+</div>
+<div class="text-xs text-on-surface-variant truncate">2022 Range Rover Autobiography</div>
+<div class="flex justify-between items-end mt-1">
+<div class="font-mono text-[10px] bg-surface-container-highest px-1.5 py-0.5 rounded-[4px] text-on-surface-variant">TBD</div>
+<div class="font-mono text-xs text-on-surface font-medium">₹ 2,85,00,000</div>
+</div>
+</div>
+<div class="bg-surface-container rounded-lg p-3.5 flex flex-col gap-2.5 hover:bg-surface-container-high transition-colors cursor-grab group">
+<div class="flex justify-between items-start">
+<span class="font-headline font-medium text-sm text-on-surface truncate">N. Desai</span>
+</div>
+<div class="text-xs text-on-surface-variant truncate">2021 Porsche Cayenne Coupe</div>
+<div class="flex justify-between items-end mt-1">
+<div class="font-mono text-[10px] bg-surface-container-highest px-1.5 py-0.5 rounded-[4px] text-on-surface-variant">TBD</div>
+<div class="font-mono text-xs text-on-surface font-medium">₹ 1,45,00,000</div>
+</div>
+</div>
+<button class="w-full py-2 border border-dashed border-outline-variant/30 rounded-lg text-xs font-medium text-on-surface-variant hover:text-on-surface hover:bg-surface-container-lowest/50 transition-colors flex justify-center items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[14px]">add</span> Add
+                    </button>
+</div>
+<!-- Column: Contacted -->
+<div class="w-[280px] flex flex-col gap-3">
+<div class="flex items-center justify-between px-1 mb-2">
+<h3 class="font-headline font-medium text-sm text-on-surface tracking-tight">Contacted</h3>
+<span class="font-mono text-xs text-on-surface-variant bg-surface-container px-1.5 py-0.5 rounded-DEFAULT">2</span>
+</div>
+<div class="bg-surface-container rounded-lg p-3.5 flex flex-col gap-2.5 hover:bg-surface-container-high transition-colors cursor-grab group">
+<div class="flex justify-between items-start">
+<span class="font-headline font-medium text-sm text-on-surface truncate">A. Kapoor</span>
+<span class="text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded">Call back</span>
+</div>
+<div class="text-xs text-on-surface-variant truncate">2020 Mercedes-Benz G63 AMG</div>
+<div class="flex justify-between items-end mt-1">
+<div class="font-mono text-[10px] bg-surface-container-highest px-1.5 py-0.5 rounded-[4px] text-on-surface-variant">WDC463...</div>
+<div class="font-mono text-xs text-on-surface font-medium">₹ 2,10,00,000</div>
+</div>
+</div>
+<div class="bg-surface-container rounded-lg p-3.5 flex flex-col gap-2.5 hover:bg-surface-container-high transition-colors cursor-grab group">
+<div class="flex justify-between items-start">
+<span class="font-headline font-medium text-sm text-on-surface truncate">S. Reddy</span>
+</div>
+<div class="text-xs text-on-surface-variant truncate">2023 BMW M3 Competition</div>
+<div class="flex justify-between items-end mt-1">
+<div class="font-mono text-[10px] bg-surface-container-highest px-1.5 py-0.5 rounded-[4px] text-on-surface-variant">WBS33A...</div>
+<div class="font-mono text-xs text-on-surface font-medium">₹ 1,58,00,000</div>
+</div>
+</div>
+</div>
+<!-- Column: Test Drive -->
+<div class="w-[280px] flex flex-col gap-3">
+<div class="flex items-center justify-between px-1 mb-2">
+<h3 class="font-headline font-medium text-sm text-on-surface tracking-tight">Test Drive</h3>
+<span class="font-mono text-xs text-on-surface-variant bg-surface-container px-1.5 py-0.5 rounded-DEFAULT">1</span>
+</div>
+<div class="bg-surface-container rounded-lg p-3.5 flex flex-col gap-2.5 hover:bg-surface-container-high transition-colors cursor-grab group ghost-border">
+<div class="flex justify-between items-start">
+<span class="font-headline font-medium text-sm text-on-surface truncate">Dr. M. Joshi</span>
+<span class="text-[10px] font-medium text-on-surface-variant bg-surface-container-highest px-1.5 py-0.5 rounded">Today, 4 PM</span>
+</div>
+<div class="text-xs text-on-surface-variant truncate">2019 Bentley Continental GT</div>
+<div class="flex justify-between items-end mt-1">
+<div class="font-mono text-[10px] bg-surface-container-highest px-1.5 py-0.5 rounded-[4px] text-on-surface-variant">SCBCE6...</div>
+<div class="font-mono text-xs text-on-surface font-medium">₹ 3,20,00,000</div>
+</div>
+</div>
+</div>
+<!-- Column: Reserved -->
+<div class="w-[280px] flex flex-col gap-3">
+<div class="flex items-center justify-between px-1 mb-2">
+<h3 class="font-headline font-medium text-sm text-on-surface tracking-tight">Reserved</h3>
+<span class="font-mono text-xs text-on-surface-variant bg-surface-container px-1.5 py-0.5 rounded-DEFAULT">2</span>
+</div>
+<div class="bg-surface-container rounded-lg p-3.5 flex flex-col gap-2.5 hover:bg-surface-container-high transition-colors cursor-grab group">
+<div class="flex justify-between items-start">
+<span class="font-headline font-medium text-sm text-on-surface truncate">P. Patel</span>
+<div class="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 shrink-0" title="Deposit Received"></div>
+</div>
+<div class="text-xs text-on-surface-variant truncate">2022 Porsche 911 GT3</div>
+<div class="flex justify-between items-end mt-1">
+<div class="font-mono text-[10px] bg-surface-container-highest px-1.5 py-0.5 rounded-[4px] text-on-surface-variant">WP0AC2...</div>
+<div class="font-mono text-xs text-on-surface font-medium">₹ 3,45,00,000</div>
+</div>
+</div>
+<div class="bg-surface-container rounded-lg p-3.5 flex flex-col gap-2.5 hover:bg-surface-container-high transition-colors cursor-grab group">
+<div class="flex justify-between items-start">
+<span class="font-headline font-medium text-sm text-on-surface truncate">R. Khanna</span>
+</div>
+<div class="text-xs text-on-surface-variant truncate">2021 Land Rover Defender 110</div>
+<div class="flex justify-between items-end mt-1">
+<div class="font-mono text-[10px] bg-surface-container-highest px-1.5 py-0.5 rounded-[4px] text-on-surface-variant">SALLE2...</div>
+<div class="font-mono text-xs text-on-surface font-medium">₹ 1,18,00,000</div>
+</div>
+</div>
+</div>
+<!-- Column: Sales Order -->
+<div class="w-[280px] flex flex-col gap-3 opacity-90">
+<div class="flex items-center justify-between px-1 mb-2">
+<h3 class="font-headline font-medium text-sm text-on-surface tracking-tight">Sales Order</h3>
+<span class="font-mono text-xs text-on-surface-variant bg-surface-container px-1.5 py-0.5 rounded-DEFAULT">1</span>
+</div>
+<div class="bg-surface-container-highest/80 rounded-lg p-3.5 flex flex-col gap-2.5 hover:bg-surface-container-highest transition-colors cursor-grab group">
+<div class="flex justify-between items-start">
+<span class="font-headline font-medium text-sm text-on-surface truncate">K. Agarwal</span>
+<span class="text-[10px] font-medium text-primary bg-primary/10 px-1.5 py-0.5 rounded">Financing</span>
+</div>
+<div class="text-xs text-on-surface-variant truncate">2020 Rolls-Royce Ghost</div>
+<div class="flex justify-between items-end mt-1">
+<div class="font-mono text-[10px] bg-surface-container-low px-1.5 py-0.5 rounded-[4px] text-on-surface-variant">SCA66A...</div>
+<div class="font-mono text-xs text-on-surface font-medium">₹ 4,80,00,000</div>
+</div>
+</div>
+</div>
+<!-- Column: Delivered -->
+<div class="w-[280px] flex flex-col gap-3 opacity-60">
+<div class="flex items-center justify-between px-1 mb-2">
+<h3 class="font-headline font-medium text-sm text-on-surface tracking-tight">Delivered</h3>
+<span class="font-mono text-xs text-on-surface-variant bg-surface-container px-1.5 py-0.5 rounded-DEFAULT">8</span>
+</div>
+<!-- Only showing a couple to indicate density without cluttering -->
+<div class="bg-surface-container-lowest rounded-lg p-3.5 flex flex-col gap-2 border border-surface-container-highest cursor-default">
+<div class="flex justify-between items-start">
+<span class="font-headline font-medium text-sm text-on-surface-variant truncate line-through decoration-outline-variant">L. Mittal</span>
+<span class="material-symbols-outlined text-[14px] text-outline">check_circle</span>
+</div>
+<div class="flex justify-between items-end mt-1">
+<div class="font-mono text-[10px] text-outline">WDD223...</div>
+<div class="font-mono text-xs text-outline">₹ 1,85,00,000</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

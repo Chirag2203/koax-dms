@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Precision Concierge - Job Card Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#252626",
+                        "primary-dim": "#98b8ff",
+                        "on-error": "#490106",
+                        "on-secondary": "#202020",
+                        "tertiary": "#e1dcfd",
+                        "inverse-surface": "#fcf8f8",
+                        "surface-tint": "#adc6ff",
+                        "on-surface": "#e7e5e4",
+                        "surface-dim": "#0e0e0e",
+                        "on-error-container": "#ff9993",
+                        "surface-variant": "#252626",
+                        "error-container": "#7f2927",
+                        "surface-bright": "#2c2c2c",
+                        "surface-container-high": "#1f2020",
+                        "on-background": "#e7e5e4",
+                        "error-dim": "#bb5551",
+                        "surface-container-lowest": "#000000",
+                        "surface": "#0e0e0e",
+                        "outline-variant": "#484848",
+                        "outline": "#767575",
+                        "secondary": "#9f9d9d",
+                        "secondary-fixed": "#e5e2e1",
+                        "on-tertiary-container": "#47445f",
+                        "surface-container-low": "#131313",
+                        "background": "#0e0e0e",
+                        "on-tertiary-fixed": "#34314b",
+                        "tertiary-fixed": "#d3ceef",
+                        "secondary-dim": "#9f9d9d",
+                        "on-surface-variant": "#acabaa",
+                        "primary": "#adc6ff",
+                        "surface-container": "#191a1a",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "inverse-on-surface": "#565554",
+                        "secondary-container": "#3c3b3b",
+                        "on-primary": "#003d88",
+                        "on-primary-container": "#bdd0ff",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "tertiary-dim": "#c5c0e0",
+                        "on-secondary-container": "#c1bfbe",
+                        "primary-fixed": "#d8e2ff",
+                        "tertiary-container": "#d3ceef",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "on-secondary-fixed": "#403f3f",
+                        "on-tertiary": "#504d68",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "inverse-primary": "#005bc4",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "primary-container": "#004395",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "on-primary-fixed": "#003c86",
+                        "error": "#ee7d77"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "sans": ["Inter", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: theme('colors.surface-container-low');
+            color: theme('colors.on-surface');
+        }
+        .data-mono {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1;
+        }
+        
+        /* Ghost borders and surface layering */
+        .surface-card {
+            background-color: theme('colors.surface-container');
+        }
+        .surface-card-high {
+            background-color: theme('colors.surface-container-highest');
+        }
+        .ghost-border {
+            border: 1px solid theme('colors.outline-variant');
+        }
+        
+        /* Custom scrollbar for dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: theme('colors.surface-container-low');
+        }
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.surface-variant');
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: theme('colors.outline-variant');
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden text-sm bg-surface-container-low">
+<!-- SideNavBar Component -->
+<nav class="w-[220px] h-screen fixed left-0 top-0 border-r-0 bg-neutral-900 dark:bg-[#0A0A0A] flex flex-col h-full py-6 z-40">
+<!-- Brand Header -->
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined filled text-lg">diamond</span>
+</div>
+<div>
+<h1 class="text-lg font-semibold tracking-tighter text-neutral-100 leading-tight">Precision Operations</h1>
+<p class="text-[10px] text-neutral-400 font-mono uppercase tracking-widest mt-0.5">Luxury Asset Mgmt</p>
+</div>
+</div>
+<!-- Navigation Tabs -->
+<div class="flex-1 px-3 space-y-1 overflow-y-auto">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/40 transition-colors duration-150 scale-98 active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="directions_car">directions_car</span>
+<span class="font-sans tracking-tight font-medium text-sm">Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/40 transition-colors duration-150 scale-98 active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="sell">sell</span>
+<span class="font-sans tracking-tight font-medium text-sm">Sales</span>
+</a>
+<!-- Active Tab: Service -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-blue-400 bg-neutral-800/50 font-semibold scale-98 active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[20px] filled" data-icon="build">build</span>
+<span class="font-sans tracking-tight font-medium text-sm">Service</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/40 transition-colors duration-150 scale-98 active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings_input_component">settings_input_component</span>
+<span class="font-sans tracking-tight font-medium text-sm">Parts</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/40 transition-colors duration-150 scale-98 active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="account_balance">account_balance</span>
+<span class="font-sans tracking-tight font-medium text-sm">Finance</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/40 transition-colors duration-150 scale-98 active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="assessment">assessment</span>
+<span class="font-sans tracking-tight font-medium text-sm">Reports</span>
+</a>
+</div>
+<!-- Settings Tab at Bottom -->
+<div class="px-3 mt-auto">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/40 transition-colors duration-150 scale-98 active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+<span class="font-sans tracking-tight font-medium text-sm">Settings</span>
+</a>
+</div>
+</nav>
+<!-- TopNavBar Component -->
+<header class="h-12 w-[calc(100%-220px)] fixed top-0 right-0 z-50 bg-neutral-900/80 backdrop-blur-xl flex items-center justify-between px-6 ml-[220px]">
+<!-- Brand/Product Name -->
+<div class="flex items-center">
+<span class="font-sans uppercase tracking-widest text-[10px] font-bold text-neutral-400">Concierge v1.0</span>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-4">
+<button class="text-neutral-400 hover:bg-neutral-800/50 p-1.5 rounded-md transition-colors focus-within:ring-1 ring-blue-500/20">
+<span class="material-symbols-outlined text-[18px]" data-icon="search">search</span>
+</button>
+<button class="text-neutral-400 hover:bg-neutral-800/50 p-1.5 rounded-md transition-colors focus-within:ring-1 ring-blue-500/20">
+<span class="material-symbols-outlined text-[18px]" data-icon="command">keyboard_command_key</span>
+</button>
+<button class="text-neutral-400 hover:bg-neutral-800/50 p-1.5 rounded-md transition-colors focus-within:ring-1 ring-blue-500/20 relative">
+<span class="material-symbols-outlined text-[18px]" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-primary rounded-full"></span>
+</button>
+<div class="h-4 w-px bg-outline-variant/50 mx-2"></div>
+<button class="flex items-center gap-2 bg-surface-container-highest hover:bg-surface-variant text-on-surface px-3 py-1.5 rounded-md transition-colors text-xs font-medium">
+<span>Quick Action</span>
+<span class="material-symbols-outlined text-[14px]">add</span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-[220px] mt-12 flex-1 h-[calc(100vh-48px)] overflow-y-auto w-full flex flex-col">
+<!-- Job Card Header Area -->
+<div class="px-8 py-6 bg-surface-container flex-shrink-0 border-b border-surface-container-high">
+<div class="flex justify-between items-start mb-6">
+<div>
+<div class="flex items-center gap-3 mb-2">
+<h2 class="text-2xl font-semibold tracking-tight text-on-surface">Job Card <span class="data-mono text-primary-dim">JC-88204-DEL</span></h2>
+<span class="bg-primary-container text-on-primary-container px-2.5 py-0.5 rounded text-[11px] font-bold uppercase tracking-wider">Ready for Delivery</span>
+</div>
+<p class="text-secondary-fixed-dim text-sm flex items-center gap-4">
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">person</span> Client: Aryan Patel</span>
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">calendar_today</span> In: 12 Oct 2023</span>
+<span class="flex items-center gap-1.5"><span class="material-symbols-outlined text-[16px]">directions_car</span> Porsche 911 Carrera S (2021)</span>
+</p>
+</div>
+<div class="flex gap-3">
+<button class="bg-surface-container-highest hover:bg-surface-variant text-on-surface px-4 py-2 rounded-md transition-colors text-sm font-medium flex items-center gap-2 ghost-border">
+<span class="material-symbols-outlined text-[18px]">print</span>
+                        Print Invoice
+                    </button>
+<button class="bg-primary hover:bg-primary-dim text-on-primary px-4 py-2 rounded-md transition-colors text-sm font-semibold flex items-center gap-2 shadow-[0_4px_14px_rgba(0,0,0,0.2)]">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+                        Mark Delivered
+                    </button>
+</div>
+</div>
+<!-- Progress Stepper (Ready for Delivery Step) -->
+<div class="flex items-center w-full max-w-4xl pt-2">
+<!-- Step 1 -->
+<div class="flex flex-col items-center relative flex-1">
+<div class="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center text-primary-dim z-10 mb-2">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+<span class="text-[11px] font-medium text-secondary-fixed-dim uppercase tracking-wider">Intake</span>
+<div class="absolute top-4 left-1/2 w-full h-0.5 bg-outline-variant -z-0"></div>
+</div>
+<!-- Step 2 -->
+<div class="flex flex-col items-center relative flex-1">
+<div class="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center text-primary-dim z-10 mb-2">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+<span class="text-[11px] font-medium text-secondary-fixed-dim uppercase tracking-wider">Diagnosis</span>
+<div class="absolute top-4 left-1/2 w-full h-0.5 bg-outline-variant -z-0"></div>
+</div>
+<!-- Step 3 -->
+<div class="flex flex-col items-center relative flex-1">
+<div class="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center text-primary-dim z-10 mb-2">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+<span class="text-[11px] font-medium text-secondary-fixed-dim uppercase tracking-wider">Repair</span>
+<div class="absolute top-4 left-1/2 w-full h-0.5 bg-outline-variant -z-0"></div>
+</div>
+<!-- Step 4 -->
+<div class="flex flex-col items-center relative flex-1">
+<div class="w-8 h-8 rounded-full bg-surface-container-high border border-outline-variant flex items-center justify-center text-primary-dim z-10 mb-2">
+<span class="material-symbols-outlined text-[16px]">check</span>
+</div>
+<span class="text-[11px] font-medium text-secondary-fixed-dim uppercase tracking-wider">QC</span>
+<div class="absolute top-4 left-1/2 w-full h-0.5 bg-primary-dim/30 -z-0"></div>
+</div>
+<!-- Step 5 (Current/Final) -->
+<div class="flex flex-col items-center relative flex-1">
+<div class="w-8 h-8 rounded-full bg-primary-container border-2 border-primary-dim flex items-center justify-center text-on-primary-container z-10 mb-2 shadow-[0_0_15px_rgba(152,184,255,0.2)]">
+<span class="material-symbols-outlined text-[18px] filled">local_shipping</span>
+</div>
+<span class="text-[11px] font-bold text-primary-dim uppercase tracking-wider">Ready</span>
+</div>
+</div>
+<!-- Contextual Tabs -->
+<div class="flex gap-6 mt-8 border-b border-surface-container-high">
+<button class="pb-3 text-primary-dim border-b-2 border-primary-dim font-medium text-sm">Overview &amp; Totals</button>
+<button class="pb-3 text-secondary-dim hover:text-on-surface font-medium text-sm transition-colors">Line Items</button>
+<button class="pb-3 text-secondary-dim hover:text-on-surface font-medium text-sm transition-colors">QC Report</button>
+<button class="pb-3 text-secondary-dim hover:text-on-surface font-medium text-sm transition-colors">Communications</button>
+</div>
+</div>
+<!-- Dashboard Content Canvas -->
+<div class="p-8 flex-1 grid grid-cols-12 gap-6 items-start">
+<!-- Left Column: Final Overview (8 cols) -->
+<div class="col-span-8 flex flex-col gap-6">
+<!-- Bento Block: Delivery Checklist -->
+<div class="surface-card rounded-xl p-6 relative overflow-hidden group">
+<h3 class="text-sm font-semibold uppercase tracking-wider text-secondary-fixed-dim mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">fact_check</span> Delivery Protocol
+                    </h3>
+<div class="space-y-3">
+<div class="flex items-center justify-between p-3 rounded-lg bg-surface-container-highest ghost-border">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-dim">check_box</span>
+<span>Final Wash &amp; Detailing Complete</span>
+</div>
+<span class="text-xs text-secondary-dim">Today, 09:30 AM</span>
+</div>
+<div class="flex items-center justify-between p-3 rounded-lg bg-surface-container-highest ghost-border">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-dim">check_box</span>
+<span>Keys &amp; Documents Organized</span>
+</div>
+<span class="text-xs text-secondary-dim">Today, 10:15 AM</span>
+</div>
+<div class="flex items-center justify-between p-3 rounded-lg bg-surface-container-highest ghost-border">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary-dim">check_box</span>
+<span>Payment Confirmed</span>
+</div>
+<span class="text-xs text-secondary-dim font-mono text-primary-dim">REF-992A-44</span>
+</div>
+</div>
+</div>
+<!-- Data Table: High Level Summary -->
+<div class="surface-card rounded-xl p-6">
+<h3 class="text-sm font-semibold uppercase tracking-wider text-secondary-fixed-dim mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">receipt_long</span> Financial Summary
+                    </h3>
+<div class="w-full">
+<div class="grid grid-cols-12 text-xs font-semibold text-secondary-dim uppercase tracking-wider mb-2 px-2">
+<div class="col-span-6">Category</div>
+<div class="col-span-2 text-right">Parts</div>
+<div class="col-span-2 text-right">Labor</div>
+<div class="col-span-2 text-right">Total</div>
+</div>
+<div class="space-y-1">
+<!-- Row -->
+<div class="grid grid-cols-12 text-sm py-2 px-2 rounded hover:bg-surface-container-highest transition-colors items-center">
+<div class="col-span-6 font-medium">Scheduled Maintenance (30k)</div>
+<div class="col-span-2 text-right data-mono text-secondary-fixed-dim">₹ 45,200</div>
+<div class="col-span-2 text-right data-mono text-secondary-fixed-dim">₹ 18,500</div>
+<div class="col-span-2 text-right data-mono font-medium">₹ 63,700</div>
+</div>
+<!-- Row -->
+<div class="grid grid-cols-12 text-sm py-2 px-2 rounded hover:bg-surface-container-highest transition-colors items-center">
+<div class="col-span-6 font-medium">Brake System Overhaul</div>
+<div class="col-span-2 text-right data-mono text-secondary-fixed-dim">₹ 1,12,000</div>
+<div class="col-span-2 text-right data-mono text-secondary-fixed-dim">₹ 22,000</div>
+<div class="col-span-2 text-right data-mono font-medium">₹ 1,34,000</div>
+</div>
+<!-- Row -->
+<div class="grid grid-cols-12 text-sm py-2 px-2 rounded hover:bg-surface-container-highest transition-colors items-center">
+<div class="col-span-6 font-medium">Diagnostic Fee (Waived)</div>
+<div class="col-span-2 text-right data-mono text-secondary-fixed-dim">-</div>
+<div class="col-span-2 text-right data-mono text-secondary-fixed-dim">₹ 0</div>
+<div class="col-span-2 text-right data-mono font-medium text-secondary-dim">₹ 0</div>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-surface-container-highest">
+<div class="flex justify-between items-center text-sm mb-2 px-2">
+<span class="text-secondary-fixed-dim">Subtotal</span>
+<span class="data-mono">₹ 1,97,700</span>
+</div>
+<div class="flex justify-between items-center text-sm mb-2 px-2">
+<span class="text-secondary-fixed-dim">Tax (18% GST)</span>
+<span class="data-mono">₹ 35,586</span>
+</div>
+<div class="flex justify-between items-center text-lg font-semibold mt-4 pt-2 border-t border-surface-container-highest px-2">
+<span>Total Amount</span>
+<span class="data-mono text-primary-dim">₹ 2,33,286</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Context & Actions (4 cols) -->
+<div class="col-span-4 flex flex-col gap-6">
+<!-- Vehicle Context Card -->
+<div class="surface-card rounded-xl p-5 border-l-2 border-primary-dim">
+<div class="flex items-start justify-between mb-4">
+<div>
+<h4 class="font-medium text-sm mb-1">Vehicle Handover</h4>
+<div class="inline-flex items-center px-2 py-0.5 rounded bg-surface-container-highest data-mono text-xs text-secondary-fixed-dim">
+                                VIN: WPOZZZ99ZMS249012
+                            </div>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px] text-secondary-fixed-dim">directions_car</span>
+</div>
+</div>
+<div class="space-y-4 text-sm">
+<div class="flex justify-between">
+<span class="text-secondary-dim">Location</span>
+<span class="font-medium">Delivery Bay 02</span>
+</div>
+<div class="flex justify-between">
+<span class="text-secondary-dim">Service Advisor</span>
+<span class="font-medium">Vikram Singh</span>
+</div>
+<div class="flex justify-between">
+<span class="text-secondary-dim">Key Tag</span>
+<span class="font-mono text-primary-dim">#912</span>
+</div>
+</div>
+<button class="w-full mt-5 bg-surface-container-highest hover:bg-surface-variant py-2 rounded text-sm font-medium transition-colors border border-outline-variant/30 flex justify-center items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">sms</span> Message Client
+                    </button>
+</div>
+<!-- Internal Notes -->
+<div class="surface-card rounded-xl p-5">
+<h3 class="text-sm font-semibold uppercase tracking-wider text-secondary-fixed-dim mb-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">note_alt</span> Final Notes
+                    </h3>
+<div class="bg-surface-container-lowest p-3 rounded-lg text-sm text-secondary-fixed-dim leading-relaxed italic border border-outline-variant/20">
+                        "Client requested we save the old brake pads for their inspection upon pickup. Pads are boxed and placed in the frunk. Please remind them regarding the 500km bed-in period for the new rotors."
+                    </div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

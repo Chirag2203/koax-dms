@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Warranty Claim Initiation</title>
+<!-- Fonts: Inter (Sans) and IBM Plex Mono (Data) -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Theme Config -->
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-container": "#3c3b3b",
+                        "surface-container-highest": "#252626",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "primary-container": "#004395",
+                        "surface-container-lowest": "#000000",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "secondary-fixed": "#e5e2e1",
+                        "secondary-dim": "#9f9d9d",
+                        "surface-variant": "#252626",
+                        "secondary": "#9f9d9d",
+                        "inverse-surface": "#fcf8f8",
+                        "on-surface-variant": "#acabaa",
+                        "on-secondary-fixed": "#403f3f",
+                        "tertiary": "#e1dcfd",
+                        "on-tertiary-fixed": "#34314b",
+                        "surface-container-low": "#131313",
+                        "tertiary-dim": "#c5c0e0",
+                        "outline-variant": "#484848",
+                        "on-tertiary-container": "#47445f",
+                        "outline": "#767575",
+                        "on-error-container": "#ff9993",
+                        "on-primary-container": "#bdd0ff",
+                        "on-error": "#490106",
+                        "surface-container": "#191a1a",
+                        "tertiary-fixed": "#d3ceef",
+                        "on-tertiary": "#504d68",
+                        "on-surface": "#e7e5e4",
+                        "on-background": "#e7e5e4",
+                        "primary": "#adc6ff",
+                        "on-secondary-container": "#c1bfbe",
+                        "error-dim": "#bb5551",
+                        "on-primary": "#003d88",
+                        "surface-tint": "#adc6ff",
+                        "surface-container-high": "#1f2020",
+                        "surface-dim": "#0e0e0e",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "on-primary-fixed": "#003c86",
+                        "tertiary-container": "#d3ceef",
+                        "inverse-on-surface": "#565554",
+                        "inverse-primary": "#005bc4",
+                        "on-secondary": "#202020",
+                        "primary-fixed": "#d8e2ff",
+                        "error-container": "#7f2927",
+                        "surface-bright": "#2c2c2c",
+                        "primary-dim": "#98b8ff",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "error": "#ee7d77",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "background": "#0e0e0e",
+                        "surface": "#0e0e0e"
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.125rem",
+                        lg: "0.25rem",
+                        xl: "0.5rem",
+                        full: "0.75rem"
+                    },
+                    fontFamily: {
+                        headline: ["Inter", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                        label: ["Inter", "sans-serif"],
+                        mono: ["IBM Plex Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Precision styling overrides */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1);
+            opacity: 0.6;
+            cursor: pointer;
+        }
+        /* Custom scrollbar for high-density feel */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0e0e0e; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #252626; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3c3b3b; 
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body antialiased selection:bg-primary/20 selection:text-primary overflow-y-auto overflow-x-hidden min-h-screen flex flex-col">
+<header class="sticky top-0 z-50 bg-surface/90 backdrop-blur-xl px-6 h-14 flex items-center justify-between shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
+<div class="flex items-center gap-4">
+<button aria-label="Close form" class="w-8 h-8 flex items-center justify-center rounded bg-surface-container-highest text-on-surface hover:bg-surface-bright transition-colors">
+<span class="material-symbols-outlined" style="font-size: 20px;">close</span>
+</button>
+<div class="font-headline font-medium tracking-tight text-on-surface">New Warranty Claim</div>
+</div>
+<div class="flex items-center gap-3 text-sm text-on-surface-variant">
+<span class="w-2 h-2 rounded-full bg-outline-variant"></span>
+            Draft Mode
+        </div>
+</header>
+<main class="flex-1 w-full max-w-5xl mx-auto px-6 py-8 pb-32">
+<div class="bg-surface-container rounded-lg p-6 mb-8 flex flex-wrap gap-x-16 gap-y-6 items-center shadow-[0_8px_32px_rgba(0,0,0,0.2)]">
+<div>
+<div class="text-xs font-medium text-on-surface-variant uppercase tracking-wider mb-1">Vehicle VIN</div>
+<div class="font-mono text-xl text-primary font-medium tracking-tight">WBA0A0A0000A0A0A0</div>
+</div>
+<div>
+<div class="text-xs font-medium text-on-surface-variant uppercase tracking-wider mb-1">Claim #</div>
+<div class="font-mono text-xl text-on-surface font-medium tracking-tight">CLM-2023-8894A</div>
+</div>
+<div class="ml-auto">
+<div class="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-surface-container-highest border border-outline-variant/20">
+<span class="material-symbols-outlined text-primary" style="font-size: 16px;">verified_user</span>
+<span class="text-xs font-medium text-on-surface">Coverage Active</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-[1fr_320px] gap-8">
+<div class="space-y-10">
+<section>
+<h2 class="font-headline font-medium text-lg mb-5 text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-size: 20px;">info</span>
+                        Incident Details
+                    </h2>
+<div class="grid grid-cols-2 gap-x-6 gap-y-5">
+<div class="col-span-1">
+<label class="block text-sm font-medium text-on-surface-variant mb-2">Date of Failure</label>
+<input class="w-full bg-surface-variant text-on-surface text-sm rounded border border-transparent focus:border-outline-variant/30 focus:ring-0 px-3 py-2.5 outline-none transition-colors" type="date" value="2023-10-24"/>
+</div>
+<div class="col-span-1">
+<label class="block text-sm font-medium text-on-surface-variant mb-2">Odometer reading</label>
+<div class="relative flex items-center bg-surface-variant rounded border border-transparent focus-within:border-outline-variant/30 transition-colors overflow-hidden">
+<input class="w-full bg-transparent text-on-surface font-mono text-sm border-0 focus:ring-0 px-3 py-2.5 outline-none text-right placeholder:text-on-surface-variant/50" placeholder="0" type="text" value="42,500"/>
+<span class="pr-3 pl-2 text-sm text-on-surface-variant font-mono bg-surface-variant">km</span>
+</div>
+</div>
+<div class="col-span-2">
+<label class="block text-sm font-medium text-on-surface-variant mb-2">Fault Description</label>
+<textarea class="w-full bg-surface-variant text-on-surface text-sm rounded border border-transparent focus:border-outline-variant/30 focus:ring-0 px-3 py-3 outline-none transition-colors resize-none placeholder:text-on-surface-variant/50" placeholder="Describe the symptoms, conditions when fault occurs, and initial assessment..." rows="4"></textarea>
+</div>
+</div>
+</section>
+<section>
+<div class="flex items-center justify-between mb-5">
+<h2 class="font-headline font-medium text-lg text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-size: 20px;">build</span>
+                            Parts required
+                        </h2>
+</div>
+<div class="relative mb-3">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" style="font-size: 18px;">search</span>
+<input class="w-full bg-surface-container text-on-surface text-sm rounded border border-transparent focus:border-outline-variant/30 focus:ring-0 pl-10 pr-3 py-2.5 outline-none transition-colors placeholder:text-on-surface-variant" placeholder="Search catalog by Part ID or Name..." type="text"/>
+</div>
+<div class="bg-surface-container rounded overflow-hidden">
+<div class="flex px-4 py-2.5 bg-surface-container-low text-xs font-medium text-on-surface-variant tracking-wide">
+<div class="w-[140px]">Part ID</div>
+<div class="flex-1">Description</div>
+<div class="w-[80px] text-right">Qty</div>
+<div class="w-[100px] text-right">Est. Cost</div>
+</div>
+<div class="flex flex-col">
+<div class="flex px-4 py-2.5 items-center hover:bg-surface-container-high transition-colors group cursor-default">
+<div class="w-[140px] font-mono text-sm text-primary">11-42-7-566</div>
+<div class="flex-1 text-sm text-on-surface truncate pr-4">High-Pressure Pump Assy</div>
+<div class="w-[80px] text-right font-mono text-sm text-on-surface">1</div>
+<div class="w-[100px] text-right font-mono text-sm text-on-surface-variant">₹ 85,400</div>
+</div>
+<div class="flex px-4 py-2.5 items-center hover:bg-surface-container-high transition-colors group cursor-default bg-surface-container-low/30">
+<div class="w-[140px] font-mono text-sm text-primary">13-53-7-589</div>
+<div class="flex-1 text-sm text-on-surface truncate pr-4">Injector Seal Kit</div>
+<div class="w-[80px] text-right font-mono text-sm text-on-surface">6</div>
+<div class="w-[100px] text-right font-mono text-sm text-on-surface-variant">₹ 12,200</div>
+</div>
+</div>
+<div class="px-4 py-3 bg-surface-container-low border-t border-surface flex justify-between items-center">
+<span class="text-xs font-medium text-on-surface-variant">2 items selected</span>
+<div class="flex items-center gap-4">
+<span class="text-xs font-medium text-on-surface-variant uppercase">Total Est</span>
+<span class="font-mono text-sm text-on-surface font-medium">₹ 97,600</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+<div class="md:col-span-1">
+<section class="sticky top-24 bg-surface-container rounded-lg p-5">
+<h2 class="font-headline font-medium text-base mb-4 text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary" style="font-size: 20px;">analytics</span>
+                        Diagnostic Report
+                    </h2>
+<div class="bg-surface-variant border-2 border-dashed border-outline-variant/30 rounded p-6 flex flex-col items-center justify-center text-center hover:bg-surface-container-high transition-colors cursor-pointer min-h-[160px] mb-4 group">
+<span class="material-symbols-outlined text-3xl text-on-surface-variant mb-2 group-hover:text-primary transition-colors">cloud_upload</span>
+<div class="text-sm font-medium text-on-surface mb-1">Upload Telemetry</div>
+<div class="text-xs text-on-surface-variant leading-relaxed">Drag logs or scans here<br/>Max 50MB</div>
+</div>
+<div class="space-y-2">
+<div class="flex items-center gap-3 bg-surface-container-high p-2.5 rounded border border-outline-variant/10">
+<span class="material-symbols-outlined text-primary" style="font-size: 20px;">description</span>
+<div class="flex-1 min-w-0">
+<div class="text-xs font-medium text-on-surface truncate">FASTA_Log_Oct24.pdf</div>
+<div class="text-[11px] text-on-surface-variant">2.4 MB • Complete</div>
+</div>
+<button class="w-6 h-6 flex items-center justify-center text-on-surface-variant hover:text-error transition-colors rounded">
+<span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
+</button>
+</div>
+<div class="flex items-center gap-3 bg-surface-container-high p-2.5 rounded border border-outline-variant/10">
+<span class="material-symbols-outlined text-primary" style="font-size: 20px;">image</span>
+<div class="flex-1 min-w-0">
+<div class="text-xs font-medium text-on-surface truncate">Component_Photo_1.jpg</div>
+<div class="text-[11px] text-on-surface-variant">1.1 MB • Complete</div>
+</div>
+<button class="w-6 h-6 flex items-center justify-center text-on-surface-variant hover:text-error transition-colors rounded">
+<span class="material-symbols-outlined" style="font-size: 16px;">delete</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+<footer class="fixed bottom-0 left-0 w-full bg-surface-container/95 backdrop-blur-xl border-t border-surface-container-low px-6 py-4 flex items-center justify-end gap-3 z-50 shadow-[0_-10px_40px_rgba(0,0,0,0.5)]">
+<button class="bg-surface-container-highest text-on-surface hover:bg-surface-bright transition-colors px-5 py-2 rounded text-sm font-medium">
+            Save Draft
+        </button>
+<button class="bg-primary text-on-primary hover:opacity-90 transition-opacity px-5 py-2 rounded text-sm font-medium shadow-[0_4px_12px_rgba(173,198,255,0.15)] flex items-center gap-2">
+            Submit for Approval
+            <span class="material-symbols-outlined" style="font-size: 18px;">send</span>
+</button>
+</footer>
+</body></html>

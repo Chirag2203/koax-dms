@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Velocity Console | Invoice Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .mono { font-family: 'IBM+Plex+Mono', monospace; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for high-density feel */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #0e0e0e; }
+        ::-webkit-scrollbar-thumb { background: #252626; border-radius: 10px; }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-fixed": "#e5e2e1",
+                      "secondary-dim": "#9f9d9d",
+                      "inverse-primary": "#005bc4",
+                      "tertiary-dim": "#c5c0e0",
+                      "primary-container": "#004395",
+                      "secondary-container": "#3c3b3b",
+                      "surface-container-low": "#131313",
+                      "on-tertiary-fixed-variant": "#504e69",
+                      "on-tertiary-fixed": "#34314b",
+                      "surface-container-high": "#1f2020",
+                      "primary-fixed": "#d8e2ff",
+                      "surface-bright": "#2c2c2c",
+                      "on-primary-container": "#bdd0ff",
+                      "on-error-container": "#ff9993",
+                      "surface-dim": "#0e0e0e",
+                      "surface-tint": "#adc6ff",
+                      "primary-dim": "#98b8ff",
+                      "primary": "#adc6ff",
+                      "on-tertiary-container": "#47445f",
+                      "surface-container-lowest": "#000000",
+                      "tertiary-container": "#d3ceef",
+                      "on-secondary-fixed-variant": "#5c5b5b",
+                      "inverse-on-surface": "#565554",
+                      "tertiary": "#e1dcfd",
+                      "inverse-surface": "#fcf8f8",
+                      "secondary-fixed-dim": "#d6d4d3",
+                      "on-primary": "#003d88",
+                      "background": "#0e0e0e",
+                      "on-tertiary": "#504d68",
+                      "on-secondary": "#202020",
+                      "error-dim": "#bb5551",
+                      "error": "#ee7d77",
+                      "on-surface": "#e7e5e4",
+                      "tertiary-fixed-dim": "#c5c0e0",
+                      "surface-container-highest": "#252626",
+                      "on-secondary-container": "#c1bfbe",
+                      "surface": "#0e0e0e",
+                      "on-background": "#e7e5e4",
+                      "on-surface-variant": "#acabaa",
+                      "surface-variant": "#252626",
+                      "primary-fixed-dim": "#c3d4ff",
+                      "tertiary-fixed": "#d3ceef",
+                      "secondary": "#9f9d9d",
+                      "surface-container": "#191a1a",
+                      "outline": "#767575",
+                      "on-error": "#490106",
+                      "outline-variant": "#484848",
+                      "on-primary-fixed-variant": "#0057bd",
+                      "on-primary-fixed": "#003c86",
+                      "on-secondary-fixed": "#403f3f",
+                      "error-container": "#7f2927"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              }
+            }
+          }
+        }
+    </script>
+</head>
+<body class="bg-surface-container-lowest text-on-surface selection:bg-primary-container selection:text-on-primary-container min-h-screen flex">
+<!-- SideNavBar (JSON Derived) -->
+<aside class="hidden md:flex flex-col py-4 bg-neutral-950 border-r border-neutral-800/30 w-[220px] h-screen sticky top-0 shrink-0">
+<div class="px-6 mb-8">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container text-lg">payments</span>
+</div>
+<div>
+<h1 class="font-bold text-neutral-50 leading-none">Finance Ops</h1>
+<p class="text-[10px] text-neutral-500 uppercase tracking-widest mt-1">GST &amp; Compliance</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-3 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-sm text-neutral-500 hover:text-neutral-300 hover:bg-neutral-900/50 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-xl">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm text-neutral-500 hover:text-neutral-300 hover:bg-neutral-900/50 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-xl">directions_car</span>
+<span>Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm bg-neutral-900 text-blue-400 font-medium transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-xl">receipt_long</span>
+<span>Invoices</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm text-neutral-500 hover:text-neutral-300 hover:bg-neutral-900/50 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-xl">group</span>
+<span>Customers</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm text-neutral-500 hover:text-neutral-300 hover:bg-neutral-900/50 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-xl">verified_user</span>
+<span>Compliance</span>
+</a>
+</nav>
+<div class="px-3 pt-4 border-t border-neutral-800/30 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-sm text-neutral-500 hover:text-neutral-300 hover:bg-neutral-900/50 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-xl">archive</span>
+<span>Archived</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-sm text-neutral-500 hover:text-neutral-300 hover:bg-neutral-900/50 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-xl">contact_support</span>
+<span>Support</span>
+</a>
+</div>
+</aside>
+<main class="flex-1 flex flex-col min-w-0">
+<!-- TopNavBar (JSON Derived) -->
+<header class="flex justify-between items-center h-12 px-6 w-full bg-neutral-900/80 backdrop-blur-xl border-b border-neutral-800/50 sticky top-0 z-50">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 text-neutral-400 text-xs tracking-tight">
+<span>Finance</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span>Invoices</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-neutral-100 mono">INV-2026-0234</span>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<nav class="hidden lg:flex items-center gap-6 h-full text-xs font-sans tracking-tight">
+<a class="text-neutral-400 hover:text-neutral-200 transition-colors" href="#">Analytics</a>
+<a class="text-neutral-400 hover:text-neutral-200 transition-colors" href="#">Taxes</a>
+<a class="text-neutral-400 hover:text-neutral-200 transition-colors" href="#">Settings</a>
+</nav>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-neutral-400 text-xl cursor-pointer hover:text-neutral-200 transition-colors">notifications</span>
+<div class="w-7 h-7 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant/30">
+<img class="w-full h-full object-cover" data-alt="professional male profile photo with neutral background in low key lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzHsG-eM_HtvB3r3XqAf3wckU5e743oPWqY7Pm_ndEGwnskwXv8-Kk5OGid4oAVlXAFAY7TCOa7lmV6DUP44kkwo4TFOIOuzbF7hMrmXcmErAWDQYoq7ZYpj6gJcBFru0814DIHqxWdzWQrdr_qcjHMMM_dAyOzUPLzkr8soHG5Xy9eJyRYxhPNVzU_aI_W-Bn_IwpjcDlfSRIpEjSINR5kLQHb2k9uOL-0TUTYVJ_dgClkIWPURZxYgGF9sAAAiUwqnbX3KPuBqY"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<div class="p-6 lg:p-10 max-w-7xl mx-auto w-full">
+<!-- Page Header -->
+<div class="flex items-end justify-between mb-8">
+<div>
+<div class="flex items-center gap-3 mb-1">
+<h2 class="text-2xl font-semibold tracking-tight text-on-surface mono">INV-2026-0234</h2>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-primary-container/20 text-primary border border-primary/20">Filed</span>
+</div>
+<p class="text-on-surface-variant text-sm">Issued on March 14, 2026 • Vehicle Sale (Pre-owned)</p>
+</div>
+<div class="flex gap-3">
+<button class="px-4 py-2 text-xs font-medium rounded-lg bg-surface-container-high hover:bg-surface-container-highest border border-outline-variant/50 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">download</span>
+                        Download PDF
+                    </button>
+<button class="px-4 py-2 text-xs font-medium rounded-lg bg-primary text-on-primary hover:opacity-90 transition-opacity flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">send</span>
+                        Send to Customer
+                    </button>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+<!-- Left Column: Invoice Form (60%) -->
+<div class="lg:col-span-7 space-y-8">
+<!-- Address Section -->
+<div class="grid grid-cols-2 gap-8 p-6 rounded-xl bg-surface-container-low border border-outline-variant/10">
+<div>
+<p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3">From (Outlet)</p>
+<div class="space-y-1">
+<p class="text-sm font-semibold">Velocity Luxury Motors India</p>
+<p class="text-xs text-on-surface-variant leading-relaxed">
+                                    Plot 14, Sector 18, Gurugram<br/>
+                                    Haryana, 122015, India
+                                </p>
+<div class="mt-2 text-[11px] mono text-primary/80">GSTIN: 06AAACV1234F1Z5</div>
+</div>
+</div>
+<div>
+<p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-3">To (Customer)</p>
+<div class="space-y-1">
+<p class="text-sm font-semibold">Arjun Vardhan</p>
+<p class="text-xs text-on-surface-variant leading-relaxed">
+                                    Skyline Towers, Flat 402, Jubilee Hills<br/>
+                                    Hyderabad, TS, 500033
+                                </p>
+<div class="mt-2 space-y-0.5">
+<div class="text-[11px] mono text-on-surface-variant">PAN: BCPPVXXXXL</div>
+<div class="text-[11px] mono text-on-surface-variant">GSTIN: 36AABCB0000A1Z1</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Line Items Table -->
+<div class="rounded-xl overflow-hidden bg-surface-container border border-outline-variant/10">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-high/50 text-[10px] uppercase tracking-wider font-bold text-on-surface-variant">
+<th class="px-4 py-3">Description</th>
+<th class="px-4 py-3 mono">HSN</th>
+<th class="px-4 py-3 text-right">Qty</th>
+<th class="px-4 py-3 text-right">Rate</th>
+<th class="px-4 py-3 text-right">Total</th>
+</tr>
+</thead>
+<tbody class="text-sm divide-y divide-outline-variant/10">
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-4 py-4">
+<p class="font-medium">2022 Porsche 911 Carrera S</p>
+<p class="text-[10px] mono text-on-surface-variant mt-1">VIN: WP0AB2A90NS2XXXXX</p>
+</td>
+<td class="px-4 py-4 mono text-xs text-on-surface-variant">8703</td>
+<td class="px-4 py-4 text-right mono">1</td>
+<td class="px-4 py-4 text-right mono">₹ 1,24,00,000</td>
+<td class="px-4 py-4 text-right mono">₹ 1,24,00,000</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="px-4 py-4">
+<p class="font-medium">Transfer &amp; Registration Fees</p>
+<p class="text-[10px] mono text-on-surface-variant mt-1">SAC: 9967</p>
+</td>
+<td class="px-4 py-4 mono text-xs text-on-surface-variant">9967</td>
+<td class="px-4 py-4 text-right mono">1</td>
+<td class="px-4 py-4 text-right mono">₹ 45,000</td>
+<td class="px-4 py-4 text-right mono">₹ 45,000</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- GST Breakdown Panel (Margin Scheme) -->
+<div class="p-6 rounded-xl bg-surface-container-low border-l-2 border-primary/40 space-y-4">
+<div class="flex justify-between items-start">
+<div>
+<h3 class="text-sm font-semibold flex items-center gap-2">
+                                    GST Margin Scheme Calculation
+                                    <span class="material-symbols-outlined text-[16px] text-primary">info</span>
+</h3>
+<p class="text-xs text-on-surface-variant mt-1 italic">Tax levied only on the profit margin as per Rule 32(5) of CGST Rules.</p>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4 pt-2">
+<div class="space-y-2">
+<div class="flex justify-between text-xs">
+<span class="text-on-surface-variant">Taxable Value (Margin)</span>
+<span class="mono font-medium">₹ 30,10,000</span>
+</div>
+<div class="flex justify-between text-xs">
+<span class="text-on-surface-variant">CGST (9%)</span>
+<span class="mono font-medium">₹ 2,70,900</span>
+</div>
+<div class="flex justify-between text-xs">
+<span class="text-on-surface-variant">SGST (9%)</span>
+<span class="mono font-medium">₹ 2,70,900</span>
+</div>
+</div>
+<div class="space-y-2 border-l border-outline-variant/20 pl-4">
+<div class="flex justify-between text-xs">
+<span class="text-on-surface-variant">TCS @ 1% (u/s 206C)</span>
+<span class="mono font-medium">₹ 1,28,500</span>
+</div>
+<div class="flex justify-between text-xs">
+<span class="text-on-surface-variant">Total GST Payable</span>
+<span class="mono font-medium text-primary">₹ 5,41,800</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Grand Total Banner -->
+<div class="flex justify-end p-6 bg-surface-container-high rounded-xl">
+<div class="text-right">
+<p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant mb-1">Total Invoice Value</p>
+<p class="text-3xl font-medium mono tracking-tighter">₹ 1,28,50,000</p>
+<p class="text-[10px] text-on-surface-variant mt-2 italic">Rupees One Crore Twenty Eight Lakh Fifty Thousand Only</p>
+</div>
+</div>
+</div>
+<!-- Right Column: Metadata & Actions (40%) -->
+<div class="lg:col-span-5 space-y-6">
+<!-- E-Invoice Status Card -->
+<div class="p-6 rounded-xl bg-surface-container border border-outline-variant/10 relative overflow-hidden group">
+<div class="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
+<span class="material-symbols-outlined text-6xl">qr_code_2</span>
+</div>
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-primary text-xl">verified</span>
+<h3 class="text-sm font-semibold tracking-tight">Government E-Invoice Verified</h3>
+</div>
+<div class="space-y-4">
+<div>
+<p class="text-[10px] uppercase font-bold text-on-surface-variant mb-1">IRN Number</p>
+<p class="text-[11px] mono break-all leading-relaxed text-on-surface bg-surface-container-lowest p-2 rounded border border-outline-variant/10">
+                                    7c8f921a4b5d3e2f1g0h9i8j7k6l5m4n3o2p1q0r9s8t7u6v5w4x3y2z1a0b9c8d
+                                </p>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div>
+<p class="text-[10px] uppercase font-bold text-on-surface-variant mb-0.5">Ack No.</p>
+<p class="text-xs mono">12226090001245</p>
+</div>
+<div>
+<p class="text-[10px] uppercase font-bold text-on-surface-variant mb-0.5">Ack Date</p>
+<p class="text-xs mono">14/03/2026 14:22</p>
+</div>
+</div>
+<div class="pt-4 border-t border-outline-variant/10 flex items-center justify-between">
+<div class="w-16 h-16 bg-white p-1 rounded">
+<img class="w-full h-full object-contain" data-alt="black and white digital square QR code for electronic invoice authentication on white background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCCaF6wVKIVhuR7SI3PHdylDEB0AeN5iq8a_Jy4Af4pheEnNVlOI5FQRA_vVBcxK22Zk7ad-QgXj7zQYLdqXoqhetxcFlvTvQByHwnzGJi7KMLWMJ4ELEqqORyPi1OM_DhYgFh8Dw_5Ne7xciRgZ5MuQAJtNtpCOTLs3AD9XVG-dsNEyDiRL9UJtfMkMJyT3c-j8REtTFV6LoY1UVvRl4yv4kICXzwhemIysY-4t2YhWGFMHEyCi0MAyOBvNJOR17SKykBH_c0QNJs"/>
+</div>
+<div class="text-right">
+<p class="text-[10px] text-on-surface-variant mb-1">NIC-IRP Portal</p>
+<span class="text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20">Active</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Payment Status -->
+<div class="p-6 rounded-xl bg-surface-container border border-outline-variant/10">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-sm font-semibold">Payment History</h3>
+<span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-green-500/10 text-green-400 border border-green-500/20">Fully Paid</span>
+</div>
+<div class="space-y-4">
+<div class="flex items-center justify-between text-xs">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-highest flex items-center justify-center">
+<span class="material-symbols-outlined text-sm">account_balance</span>
+</div>
+<div>
+<p class="font-medium">NEFT Transfer</p>
+<p class="text-[10px] text-on-surface-variant mono">Ref: HDFC000123499</p>
+</div>
+</div>
+<div class="text-right">
+<p class="mono font-medium">₹ 1,28,50,000</p>
+<p class="text-[10px] text-on-surface-variant">14 Mar, 15:45</p>
+</div>
+</div>
+<button class="w-full py-2 text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant border border-outline-variant/30 rounded-lg hover:bg-surface-container-highest transition-colors">
+                                View Settlement Report
+                            </button>
+</div>
+</div>
+<!-- Critical Actions -->
+<div class="p-6 rounded-xl bg-error-container/5 border border-error-container/20">
+<h3 class="text-sm font-semibold text-error mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">warning</span>
+                            Compliance Controls
+                        </h3>
+<p class="text-xs text-on-surface-variant mb-4 leading-relaxed">
+                            Invoice cancellation is only permitted within 24 hours of IRN generation as per GST regulations.
+                        </p>
+<button class="w-full py-2 text-xs font-semibold rounded-lg bg-error-container text-on-error-container hover:opacity-90 transition-opacity">
+                            Cancel Invoice &amp; IRN
+                        </button>
+</div>
+<!-- Supporting Documents -->
+<div class="p-6 rounded-xl bg-surface-container border border-outline-variant/10">
+<h3 class="text-sm font-semibold mb-4">Attachments</h3>
+<div class="space-y-2">
+<div class="flex items-center justify-between p-2 rounded border border-outline-variant/10 hover:bg-surface-container-highest transition-colors cursor-pointer">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-lg">description</span>
+<span class="text-xs">Vehicle_Fitness_Cert.pdf</span>
+</div>
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">download</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded border border-outline-variant/10 hover:bg-surface-container-highest transition-colors cursor-pointer">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-lg">description</span>
+<span class="text-xs">Form_20_Application.pdf</span>
+</div>
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">download</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Contextual FAB - Only for relevant screens (as per rules) -->
+<!-- Not rendered here as this is a detail/transactional focus page -->
+</body></html>

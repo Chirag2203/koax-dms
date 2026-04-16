@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Admin Console</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary-fixed": "#403f3f",
+                        "surface-container": "#191a1a",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "on-error-container": "#ff9993",
+                        "primary": "#adc6ff",
+                        "error": "#ee7d77",
+                        "secondary-container": "#3c3b3b",
+                        "surface-container-highest": "#252626",
+                        "primary-fixed": "#d8e2ff",
+                        "on-primary": "#003d88",
+                        "tertiary-dim": "#c5c0e0",
+                        "secondary-fixed": "#e5e2e1",
+                        "error-container": "#7f2927",
+                        "secondary": "#9f9d9d",
+                        "on-primary-container": "#bdd0ff",
+                        "background": "#0e0e0e",
+                        "surface-tint": "#adc6ff",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "surface-bright": "#2c2c2c",
+                        "surface-variant": "#252626",
+                        "surface-container-lowest": "#000000",
+                        "tertiary": "#e1dcfd",
+                        "primary-dim": "#98b8ff",
+                        "primary-container": "#004395",
+                        "surface-dim": "#0e0e0e",
+                        "on-tertiary": "#504d68",
+                        "secondary-dim": "#9f9d9d",
+                        "inverse-surface": "#fcf8f8",
+                        "on-surface": "#e7e5e4",
+                        "on-primary-fixed": "#003c86",
+                        "on-secondary": "#202020",
+                        "error-dim": "#bb5551",
+                        "on-tertiary-container": "#47445f",
+                        "on-secondary-container": "#c1bfbe",
+                        "surface": "#0e0e0e",
+                        "tertiary-fixed": "#d3ceef",
+                        "inverse-primary": "#005bc4",
+                        "on-surface-variant": "#acabaa",
+                        "on-error": "#490106",
+                        "surface-container-high": "#1f2020",
+                        "inverse-on-surface": "#565554",
+                        "tertiary-container": "#d3ceef",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "surface-container-low": "#131313",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "on-tertiary-fixed": "#34314b",
+                        "outline": "#767575",
+                        "on-background": "#e7e5e4",
+                        "outline-variant": "#484848"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .font-sans { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        .ghost-border { outline: 1px solid rgba(72, 72, 72, 0.15); }
+        .focus-ghost-border:focus-within { outline: 1px solid rgba(173, 198, 255, 0.2); }
+        .ambient-shadow { box-shadow: 0 20px 50px rgba(0,0,0, 0.3); }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-sans antialiased overflow-hidden selection:bg-primary-container selection:text-on-primary-container">
+<div class="flex h-screen w-full">
+<!-- SideNavBar Component -->
+<aside class="w-[220px] h-screen sticky left-0 top-0 flex flex-col py-4 px-3 bg-[#141414] no-border tonal-layering flat z-40">
+<!-- Header -->
+<div class="mb-8 px-2">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-on-primary-container text-[18px]" style="font-variation-settings: 'FILL' 1;">precision_manufacturing</span>
+</div>
+<div>
+<h1 class="text-lg font-semibold text-white tracking-tighter leading-tight">Precision Motors</h1>
+<p class="text-[10px] text-gray-400 font-mono tracking-wider uppercase mt-0.5">Regional Outlet</p>
+</div>
+</div>
+</div>
+<!-- Navigation Links -->
+<nav class="flex-1 space-y-1 font-sans text-sm tracking-tight Inter">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-blue-600/10 text-blue-400 font-medium transition-colors duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]">dashboard</span>
+                    Dashboard
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-colors duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]">directions_car</span>
+                    Inventory
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-colors duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]">sell</span>
+                    Sales
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-colors duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]">build</span>
+                    Service
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-colors duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]">settings_input_component</span>
+                    Parts
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-colors duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]">groups</span>
+                    Customers
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-colors duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+                    Finance
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-colors duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]">bar_chart</span>
+                    Reports
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-colors duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+                    Settings
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-colors duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]">security</span>
+                    Audit
+                </a>
+</nav>
+<!-- Footer Action -->
+<div class="mt-auto pt-4 border-t border-white/5 space-y-2">
+<button class="w-full flex items-center justify-between px-3 py-2 text-xs text-gray-400 hover:text-white transition-colors duration-150">
+<span>Switch Outlet</span>
+<span class="material-symbols-outlined text-[16px]">swap_horiz</span>
+</button>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-colors duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]">account_circle</span>
+                    User Profile
+                </a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0 bg-[#FBFBFA] text-on-surface">
+<!-- TopNavBar Component -->
+<header class="h-[48px] w-full sticky top-0 z-30 flex justify-between items-center px-6 bg-[#FFFFFF]/90 backdrop-blur-md border-b border-[#ECECEA] font-sans text-xs Inter">
+<!-- Breadcrumbs & Search -->
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 text-gray-500">
+<span class="cursor-pointer hover:text-blue-500 transition-colors duration-150">Dashboard</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-on-secondary-fixed font-semibold">Overview</span>
+</div>
+</div>
+<!-- Trailing Actions -->
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-2 px-2.5 py-1.5 rounded-md bg-surface-variant text-on-surface text-[11px] font-mono hover:bg-surface-container-highest transition-colors ghost-border">
+<span class="material-symbols-outlined text-[14px]">search</span>
+<span>⌘K</span>
+</button>
+<div class="h-4 w-[1px] bg-[#ECECEA]"></div>
+<button class="text-gray-500 hover:text-blue-500 cursor-pointer active:scale-95 transition-all duration-150 flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">notifications</span>
+</button>
+<div class="px-2 py-1 rounded bg-[#ECECEA] text-on-secondary-fixed font-medium text-[11px]">
+                        Outlet Pill
+                    </div>
+<div class="w-7 h-7 rounded-full bg-surface-container-highest overflow-hidden cursor-pointer ghost-border shrink-0">
+<img alt="User Avatar" class="w-full h-full object-cover" data-alt="Professional headshot of a man with short hair and glasses, neutral background, sharp focus" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD2DvzPjLgT7KuU1AsOltMXOCYN8Lfvkk9UkGk2B0rWdTOuAd8WXTC4_jCoy7qVHa1KoVwyKaTQsLX_A6Pm7wNyR1j3DSPxwSR2IBkxGwk0Um2BL3-19T1EEovD6x6bRZWPmxuT_FGgo3lzGL-Sgo2ZMP3Ltfg1k4YvDcfNSnzrNV5cDWdPlPP2ifO7iiv4IIPR_AEZPrd0rUUkTzM2h9GXZe21URwyLfdS9bw-Yk1vbieJetKWvRGLxeguC-7iqMlmyBABNMUt-dQ"/>
+</div>
+</div>
+</header>
+<!-- Scrollable Canvas -->
+<div class="flex-1 overflow-auto p-6 md:p-8 space-y-6">
+<!-- Page Header -->
+<div class="flex items-end justify-between mb-2">
+<div>
+<h2 class="text-2xl font-semibold tracking-tight text-[#0A0A0A] leading-none mb-1">Operational Overview</h2>
+<p class="text-sm text-gray-500">Real-time metrics for Regional Outlet</p>
+</div>
+<div class="flex gap-3">
+<button class="px-4 py-2 rounded-md bg-white text-[#0A0A0A] text-sm font-medium border border-[#ECECEA] hover:bg-[#F4F4F3] transition-colors">Export Report</button>
+<button class="px-4 py-2 rounded-md bg-[#2563EB] text-white text-sm font-medium hover:bg-blue-700 transition-colors" style="background-image: linear-gradient(180deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);">New Intake</button>
+</div>
+</div>
+<!-- Bento Grid / KPIs -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+<!-- Metric 1 -->
+<div class="bg-white rounded-lg p-5 border border-[#ECECEA] flex flex-col justify-between">
+<div class="flex justify-between items-start mb-4">
+<span class="text-xs text-gray-500 font-medium">Active Inventory Val.</span>
+<span class="material-symbols-outlined text-[16px] text-gray-400">directions_car</span>
+</div>
+<div>
+<div class="font-mono text-2xl font-medium text-[#0A0A0A]">₹ 4,28,50,000</div>
+<div class="flex items-center gap-1 mt-1 text-xs">
+<span class="material-symbols-outlined text-[14px] text-emerald-600">trending_up</span>
+<span class="text-emerald-600 font-medium">+2.4%</span>
+<span class="text-gray-400 ml-1">vs last month</span>
+</div>
+</div>
+</div>
+<!-- Metric 2 -->
+<div class="bg-white rounded-lg p-5 border border-[#ECECEA] flex flex-col justify-between">
+<div class="flex justify-between items-start mb-4">
+<span class="text-xs text-gray-500 font-medium">Pending Appraisals</span>
+<span class="material-symbols-outlined text-[16px] text-gray-400">assignment</span>
+</div>
+<div>
+<div class="font-mono text-2xl font-medium text-[#0A0A0A]">14</div>
+<div class="flex items-center gap-1 mt-1 text-xs">
+<span class="material-symbols-outlined text-[14px] text-amber-600">schedule</span>
+<span class="text-amber-600 font-medium">Action Required</span>
+</div>
+</div>
+</div>
+<!-- Metric 3 -->
+<div class="bg-white rounded-lg p-5 border border-[#ECECEA] flex flex-col justify-between">
+<div class="flex justify-between items-start mb-4">
+<span class="text-xs text-gray-500 font-medium">Sales Pipeline</span>
+<span class="material-symbols-outlined text-[16px] text-gray-400">account_balance_wallet</span>
+</div>
+<div>
+<div class="font-mono text-2xl font-medium text-[#0A0A0A]">₹ 1,12,00,000</div>
+<div class="flex items-center gap-1 mt-1 text-xs">
+<span class="text-gray-500 font-medium">5 Units in closing</span>
+</div>
+</div>
+</div>
+<!-- Metric 4 (Featured/Highlight) -->
+<div class="bg-[#0A0A0A] rounded-lg p-5 border border-[#141414] text-white flex flex-col justify-between relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-[#2563EB]/20 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+<div class="flex justify-between items-start mb-4 relative z-10">
+<span class="text-xs text-gray-400 font-medium">Avg. Days to Sale</span>
+<span class="material-symbols-outlined text-[16px] text-[#2563EB]">timer</span>
+</div>
+<div class="relative z-10">
+<div class="font-mono text-2xl font-medium">28.4</div>
+<div class="flex items-center gap-1 mt-1 text-xs">
+<span class="material-symbols-outlined text-[14px] text-emerald-400">trending_down</span>
+<span class="text-emerald-400 font-medium">-1.2 days</span>
+<span class="text-gray-500 ml-1">target: 30</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Layout Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- High-Density Data Table (Spans 2 columns) -->
+<div class="lg:col-span-2 bg-white rounded-xl border border-[#ECECEA] overflow-hidden flex flex-col">
+<div class="px-5 py-4 border-b border-[#ECECEA] flex justify-between items-center bg-[#FBFBFA]">
+<h3 class="text-sm font-semibold text-[#0A0A0A]">Recent Appraisals</h3>
+<button class="text-xs text-[#2563EB] font-medium hover:underline">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-xs text-gray-500 border-b border-[#ECECEA] bg-[#FBFBFA]">
+<th class="px-5 py-3 font-medium w-10">Status</th>
+<th class="px-5 py-3 font-medium">Vehicle Details</th>
+<th class="px-5 py-3 font-medium text-right">VIN / ID</th>
+<th class="px-5 py-3 font-medium text-right">Est. Value</th>
+</tr>
+</thead>
+<tbody class="text-sm text-[#0A0A0A]">
+<tr class="group hover:bg-[#F4F4F3] transition-colors border-b border-[#ECECEA] last:border-0">
+<td class="px-5 py-3">
+<div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+</td>
+<td class="px-5 py-3">
+<div class="font-medium">2022 Porsche 911 Carrera S</div>
+<div class="text-xs text-gray-500">Agate Grey Metallic • 12,450 km</div>
+</td>
+<td class="px-5 py-3 text-right">
+<div class="inline-flex items-center px-2 py-1 rounded bg-[#F4F4F3] text-xs font-mono text-gray-600 border border-[#ECECEA]">
+                                                WPOAB299...
+                                            </div>
+</td>
+<td class="px-5 py-3 text-right font-mono font-medium">
+                                            ₹ 1,85,00,000
+                                        </td>
+</tr>
+<tr class="group hover:bg-[#F4F4F3] transition-colors border-b border-[#ECECEA] last:border-0">
+<td class="px-5 py-3">
+<div class="w-2 h-2 rounded-full bg-amber-500"></div>
+</td>
+<td class="px-5 py-3">
+<div class="font-medium">2021 Range Rover Autobiography</div>
+<div class="text-xs text-gray-500">Santorini Black • 28,100 km</div>
+</td>
+<td class="px-5 py-3 text-right">
+<div class="inline-flex items-center px-2 py-1 rounded bg-[#F4F4F3] text-xs font-mono text-gray-600 border border-[#ECECEA]">
+                                                SALLG254...
+                                            </div>
+</td>
+<td class="px-5 py-3 text-right font-mono font-medium">
+                                            ₹ 2,10,50,000
+                                        </td>
+</tr>
+<tr class="group hover:bg-[#F4F4F3] transition-colors border-b border-[#ECECEA] last:border-0">
+<td class="px-5 py-3">
+<div class="w-2 h-2 rounded-full bg-blue-500"></div>
+</td>
+<td class="px-5 py-3">
+<div class="font-medium">2023 Mercedes-Benz S-Class S 350d</div>
+<div class="text-xs text-gray-500">Obsidian Black • 5,200 km</div>
+</td>
+<td class="px-5 py-3 text-right">
+<div class="inline-flex items-center px-2 py-1 rounded bg-[#F4F4F3] text-xs font-mono text-gray-600 border border-[#ECECEA]">
+                                                WDD22313...
+                                            </div>
+</td>
+<td class="px-5 py-3 text-right font-mono font-medium">
+                                            ₹ 1,72,00,000
+                                        </td>
+</tr>
+<tr class="group hover:bg-[#F4F4F3] transition-colors border-b border-[#ECECEA] last:border-0">
+<td class="px-5 py-3">
+<div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+</td>
+<td class="px-5 py-3">
+<div class="font-medium">2020 BMW M5 Competition</div>
+<div class="text-xs text-gray-500">Marina Bay Blue • 18,900 km</div>
+</td>
+<td class="px-5 py-3 text-right">
+<div class="inline-flex items-center px-2 py-1 rounded bg-[#F4F4F3] text-xs font-mono text-gray-600 border border-[#ECECEA]">
+                                                WBSF9300...
+                                            </div>
+</td>
+<td class="px-5 py-3 text-right font-mono font-medium">
+                                            ₹ 1,45,00,000
+                                        </td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Right Column: Action List / Logistics -->
+<div class="bg-white rounded-xl border border-[#ECECEA] p-5 flex flex-col">
+<h3 class="text-sm font-semibold text-[#0A0A0A] mb-4">Logistics &amp; Service</h3>
+<div class="space-y-4 flex-1">
+<!-- Action Item -->
+<div class="flex items-start gap-3 p-3 rounded-lg hover:bg-[#F4F4F3] transition-colors cursor-pointer border border-transparent hover:border-[#ECECEA]">
+<div class="w-8 h-8 rounded bg-blue-50 text-[#2563EB] flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">build</span>
+</div>
+<div>
+<div class="text-sm font-medium text-[#0A0A0A]">PDI Completion Required</div>
+<div class="text-xs text-gray-500 mt-0.5">VIN ...2994 • Bay 4</div>
+<div class="text-[10px] font-mono text-gray-400 mt-2">DUE IN 2H</div>
+</div>
+</div>
+<!-- Action Item -->
+<div class="flex items-start gap-3 p-3 rounded-lg hover:bg-[#F4F4F3] transition-colors cursor-pointer border border-transparent hover:border-[#ECECEA]">
+<div class="w-8 h-8 rounded bg-amber-50 text-amber-600 flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">local_shipping</span>
+</div>
+<div>
+<div class="text-sm font-medium text-[#0A0A0A]">Inbound Transport</div>
+<div class="text-xs text-gray-500 mt-0.5">3 Units from Central Hub</div>
+<div class="text-[10px] font-mono text-gray-400 mt-2">ETA 14:30</div>
+</div>
+</div>
+<!-- Action Item -->
+<div class="flex items-start gap-3 p-3 rounded-lg hover:bg-[#F4F4F3] transition-colors cursor-pointer border border-transparent hover:border-[#ECECEA]">
+<div class="w-8 h-8 rounded bg-gray-100 text-gray-600 flex items-center justify-center shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">key</span>
+</div>
+<div>
+<div class="text-sm font-medium text-[#0A0A0A]">Key Handover</div>
+<div class="text-xs text-gray-500 mt-0.5">Customer: Sharma, R.</div>
+<div class="text-[10px] font-mono text-gray-400 mt-2">SCHED 16:00</div>
+</div>
+</div>
+</div>
+<button class="w-full mt-4 py-2 rounded-md bg-[#FBFBFA] text-[#0A0A0A] text-xs font-medium border border-[#ECECEA] hover:bg-[#F4F4F3] transition-colors">
+                            Open Logistics Board
+                        </button>
+</div>
+</div>
+</div>
+</main>
+<!-- Command Palette Overlay (Hidden by default, shown for demonstration) -->
+<div class="fixed inset-0 z-50 flex items-start justify-center pt-[122px] bg-[#FBFBFA]/60 backdrop-blur-sm pointer-events-none">
+<!-- Command Palette Container -->
+<div class="w-[560px] bg-white rounded-xl border border-[#ECECEA] ambient-shadow flex flex-col overflow-hidden pointer-events-auto opacity-100 transform scale-100 transition-all">
+<!-- Search Input Area -->
+<div class="flex items-center px-4 py-3 border-b border-[#ECECEA]">
+<span class="material-symbols-outlined text-gray-400 mr-3">search</span>
+<input autofocus="" class="flex-1 bg-transparent border-none text-sm text-[#0A0A0A] placeholder-gray-400 focus:ring-0 p-0" placeholder="Search VIN, models, or commands..." type="text"/>
+<span class="text-[10px] font-mono text-gray-400 bg-[#F4F4F3] px-1.5 py-0.5 rounded border border-[#ECECEA]">ESC</span>
+</div>
+<!-- Results Area -->
+<div class="max-h-[320px] overflow-y-auto p-2">
+<div class="px-2 py-1.5 text-xs font-medium text-gray-500 mt-1">Suggestions</div>
+<button class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg bg-[#2563EB]/10 text-[#0A0A0A] group transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#2563EB] text-[18px]">add_circle</span>
+<span class="text-sm font-medium">Create New Appraisal</span>
+</div>
+<span class="text-xs text-gray-400 font-mono opacity-0 group-hover:opacity-100 transition-opacity">↵</span>
+</button>
+<button class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-[#F4F4F3] text-[#0A0A0A] group transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-gray-400 text-[18px]">receipt_long</span>
+<span class="text-sm font-medium">View Recent Invoices</span>
+</div>
+</button>
+<div class="px-2 py-1.5 text-xs font-medium text-gray-500 mt-2">Recent Inventory Searches</div>
+<button class="w-full flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-[#F4F4F3] text-[#0A0A0A] group transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-6 h-6 rounded bg-gray-100 border border-[#ECECEA] flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-gray-500 text-[14px]">directions_car</span>
+</div>
+<div class="flex flex-col items-start">
+<span class="text-sm font-medium">Porsche 911</span>
+<span class="text-[10px] text-gray-500 font-mono">WPOAB299...</span>
+</div>
+</div>
+</button>
+</div>
+<!-- Footer -->
+<div class="bg-[#FBFBFA] px-4 py-2 border-t border-[#ECECEA] flex justify-between items-center text-[10px] text-gray-500">
+<div class="flex items-center gap-4">
+<span class="flex items-center gap-1"><span class="font-mono bg-white border border-[#ECECEA] rounded px-1">↑↓</span> to navigate</span>
+<span class="flex items-center gap-1"><span class="font-mono bg-white border border-[#ECECEA] rounded px-1">↵</span> to select</span>
+</div>
+<div>Precision Concierge v2.1</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>

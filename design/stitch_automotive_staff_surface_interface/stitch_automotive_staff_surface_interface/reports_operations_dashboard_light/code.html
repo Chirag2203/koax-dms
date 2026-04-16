@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Operations Dashboard - LUXE OPS</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-high": "#1f2020",
+                      "on-secondary": "#202020",
+                      "on-tertiary-fixed": "#34314b",
+                      "secondary": "#9f9d9d",
+                      "surface-variant": "#252626",
+                      "primary-fixed-dim": "#c3d4ff",
+                      "surface-tint": "#adc6ff",
+                      "on-surface-variant": "#acabaa",
+                      "surface-container-highest": "#252626",
+                      "tertiary": "#e1dcfd",
+                      "on-primary-fixed-variant": "#0057bd",
+                      "surface-container": "#191a1a",
+                      "on-background": "#e7e5e4",
+                      "tertiary-container": "#d3ceef",
+                      "tertiary-fixed": "#d3ceef",
+                      "secondary-fixed": "#e5e2e1",
+                      "on-tertiary-container": "#47445f",
+                      "error-dim": "#bb5551",
+                      "surface-dim": "#0e0e0e",
+                      "secondary-fixed-dim": "#d6d4d3",
+                      "on-secondary-container": "#c1bfbe",
+                      "tertiary-fixed-dim": "#c5c0e0",
+                      "surface": "#0e0e0e",
+                      "on-surface": "#e7e5e4",
+                      "primary-container": "#004395",
+                      "on-primary-fixed": "#003c86",
+                      "on-error": "#490106",
+                      "primary-dim": "#98b8ff",
+                      "outline": "#767575",
+                      "secondary-container": "#3c3b3b",
+                      "on-error-container": "#ff9993",
+                      "primary-fixed": "#d8e2ff",
+                      "error": "#ee7d77",
+                      "primary": "#adc6ff",
+                      "on-primary": "#003d88",
+                      "surface-container-low": "#131313",
+                      "surface-container-lowest": "#000000",
+                      "on-secondary-fixed-variant": "#5c5b5b",
+                      "on-primary-container": "#bdd0ff",
+                      "outline-variant": "#484848",
+                      "tertiary-dim": "#c5c0e0",
+                      "inverse-primary": "#005bc4",
+                      "secondary-dim": "#9f9d9d",
+                      "on-tertiary-fixed-variant": "#504e69",
+                      "error-container": "#7f2927",
+                      "on-secondary-fixed": "#403f3f",
+                      "inverse-on-surface": "#565554",
+                      "background": "#0e0e0e",
+                      "on-tertiary": "#504d68",
+                      "inverse-surface": "#fcf8f8",
+                      "surface-bright": "#2c2c2c"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "fontFamily": {
+                      "headline": ["Inter"],
+                      "body": ["Inter"],
+                      "label": ["Inter"],
+                      "mono": ["IBM Plex Mono"]
+              }
+            }
+          }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        /* Tonal layering utilities */
+        .ghost-border { border: 1px solid rgba(118, 117, 117, 0.15); }
+        .ambient-shadow { box-shadow: 0 20px 50px rgba(0,0,0, 0.3); }
+        /* Light mode overrides for the request */
+        .light-mode-canvas { background-color: #FBFBFA; color: #131313; }
+        .light-mode-surface { background-color: #FFFFFF; color: #131313; }
+        .light-mode-text-secondary { color: #5c5b5b; }
+        .light-mode-border { border-color: rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body class="bg-surface-container-low text-on-surface min-h-screen antialiased selection:bg-primary-container selection:text-on-primary-container flex flex-col md:flex-row">
+<!-- TopNavBar (Mobile Only) -->
+<nav class="md:hidden bg-neutral-950 dark:bg-[#0A0A0A] text-blue-500 font-sans text-sm font-medium tracking-tight fixed top-0 w-full h-12 border-b border-white/5 flex justify-between items-center px-6 max-w-[1920px] mx-auto z-50 transition-all duration-100">
+<div class="text-lg font-semibold tracking-tighter text-white">LUXE OPS</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined hover:text-neutral-200 transition-colors cursor-pointer">notifications</span>
+<span class="material-symbols-outlined hover:text-neutral-200 transition-colors cursor-pointer">keyboard_command_key</span>
+</div>
+</nav>
+<!-- SideNavBar (Web Only) -->
+<nav class="hidden md:flex flex-col py-4 gap-2 bg-neutral-900/50 dark:bg-[#0A0A0A] text-blue-500 font-sans text-xs uppercase tracking-widest fixed left-0 top-12 h-[calc(100vh-48px)] w-56 z-40 transition-all duration-200">
+<div class="px-6 mb-8 mt-2">
+<div class="flex items-center gap-3">
+<img alt="Precision Concierge Logo" class="w-8 h-8 rounded-full" data-alt="A small, elegant brand logo for Precision Concierge with abstract geometric shapes" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPIDbf1RwDzDQer3Qyq6SQfxh7pPVFgLQndJoPsbn_1i870ed12TOGbH028yubk3GaSqRMJmWU1P3ncgMM1LxBRUWjLSFDFJPjZIL_RCa3ajZExGjqNhEWsV7ii5YOH4qrkYGWsgejtG6CIQSLYR_udfYpB1rvsfiHJrEogSyEnpPFyFgJbJS864hZqLcBtqX4EsxqMFXJA4SsZGe4gtv8I3DJYQ6VbXdoLJ-wwSgQTQ4Ep7XyVeOZa64H5IpzpidfVK8AdR3Z3CM"/>
+<div>
+<h2 class="text-white font-bold tracking-tight text-sm normal-case">Fleet Command</h2>
+<p class="text-neutral-500 text-[10px] tracking-normal normal-case">VPC - Mumbai North</p>
+</div>
+</div>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full bg-blue-600/10 hover:bg-white/5 text-blue-400 font-bold border-r-2 border-blue-500 py-2.5 px-4 rounded-sm flex items-center gap-2 transition-all duration-200">
+<span class="material-symbols-outlined text-lg">add</span>
+                New Acquisition
+            </button>
+</div>
+<div class="flex-1 flex flex-col gap-1 px-2">
+<a class="flex items-center gap-3 px-4 py-2.5 bg-blue-600/10 text-blue-400 font-bold border-r-2 border-blue-500 transition-all duration-200 rounded-sm" href="#">
+<span class="material-symbols-outlined text-lg">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-neutral-500 hover:bg-white/5 hover:text-neutral-200 transition-all duration-200 rounded-sm" href="#">
+<span class="material-symbols-outlined text-lg">gavel</span>
+                Live Auctions
+            </a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-neutral-500 hover:bg-white/5 hover:text-neutral-200 transition-all duration-200 rounded-sm" href="#">
+<span class="material-symbols-outlined text-lg">layers</span>
+                Floor Plan
+            </a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-neutral-500 hover:bg-white/5 hover:text-neutral-200 transition-all duration-200 rounded-sm" href="#">
+<span class="material-symbols-outlined text-lg">description</span>
+                Title Docs
+            </a>
+<a class="flex items-center gap-3 px-4 py-2.5 text-neutral-500 hover:bg-white/5 hover:text-neutral-200 transition-all duration-200 rounded-sm" href="#">
+<span class="material-symbols-outlined text-lg">storefront</span>
+                Outlets
+            </a>
+</div>
+<div class="mt-auto px-2 pb-4 border-t border-neutral-900/50 pt-4 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-4 py-2 text-neutral-500 hover:bg-white/5 hover:text-neutral-200 transition-all duration-200 rounded-sm" href="#">
+<span class="material-symbols-outlined text-lg">help_center</span>
+                Support
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-neutral-500 hover:bg-white/5 hover:text-neutral-200 transition-all duration-200 rounded-sm" href="#">
+<span class="material-symbols-outlined text-lg">terminal</span>
+                API
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 mt-2 text-neutral-500 hover:bg-white/5 hover:text-neutral-200 transition-all duration-200 rounded-sm" href="#">
+<span class="material-symbols-outlined text-lg">settings</span>
+                Settings
+            </a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 w-full md:pl-56 pt-12 md:pt-12 min-h-screen bg-surface-container-low transition-colors duration-300">
+<!-- Top App Bar (Web Extension) -->
+<header class="hidden md:flex h-12 bg-[#0A0A0A] fixed top-0 right-0 left-56 z-30 border-b border-white/5 justify-between items-center px-8 transition-colors duration-300">
+<div class="flex gap-6">
+<a class="text-white border-b border-blue-500 pb-3 mt-3 text-sm font-medium tracking-tight" href="#">Inventory</a>
+<a class="text-neutral-500 hover:text-neutral-200 transition-colors text-sm font-medium tracking-tight pb-3 mt-3" href="#">Valuations</a>
+<a class="text-neutral-500 hover:text-neutral-200 transition-colors text-sm font-medium tracking-tight pb-3 mt-3" href="#">Logistics</a>
+<a class="text-neutral-500 hover:text-neutral-200 transition-colors text-sm font-medium tracking-tight pb-3 mt-3" href="#">Compliance</a>
+</div>
+<div class="flex items-center gap-6">
+<button class="text-neutral-500 hover:text-neutral-200 text-sm font-medium transition-colors flex items-center gap-1">
+                    Outlet Selector
+                    <span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+<div class="flex items-center gap-4 text-neutral-500">
+<span class="material-symbols-outlined hover:text-neutral-200 transition-colors cursor-pointer" style="font-variation-settings: 'FILL' 0;">notifications</span>
+<span class="material-symbols-outlined hover:text-neutral-200 transition-colors cursor-pointer" style="font-variation-settings: 'FILL' 0;">keyboard_command_key</span>
+</div>
+<img alt="Executive User Avatar" class="w-7 h-7 rounded-full cursor-pointer hover:opacity-80 transition-opacity" data-alt="A professional looking user avatar for an executive profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmiW1ih_sBZh1V3xQrYYLzicwFJ6Vr80KwD-fXohyBCfxqmWmR_xMzPE4Kv2aUFOUvqtYBYoBLpNhgaOnAoayISto9k_gmyg7PokWL9BJisNvbfKa8Ii5k1AtZ1-06EwnfzbkfboOxvtiBYHEU-8akAt8Wcnq00q1AnyisVDvRRD6bYin7iPD0UlANrff3FpYqcz_MNeL1-Dv5pQHkYy2okJD4qp5tYoEQTFYJC1qJ_M5YK7-Jh4nsg6uKMOfeKK21NiBDadfvSv4"/>
+</div>
+</header>
+<div class="p-8 max-w-7xl mx-auto flex flex-col gap-8">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 pb-4">
+<div>
+<h1 class="text-3xl font-semibold tracking-tight text-on-surface">Operations Dashboard</h1>
+<p class="text-on-surface-variant mt-1 text-sm">Mumbai North VPC Overview</p>
+</div>
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2 bg-surface-container px-3 py-1.5 rounded-md ghost-border text-sm">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">calendar_today</span>
+<span class="font-mono text-on-surface">Q3 FY24</span>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant cursor-pointer">arrow_drop_down</span>
+</div>
+</div>
+</div>
+<!-- KPI Strip (Bento Grid Style) -->
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+<!-- Card 1 -->
+<div class="bg-surface-container p-4 rounded-lg flex flex-col gap-1 hover:bg-surface-container-highest transition-colors cursor-pointer group relative overflow-hidden">
+<div class="text-on-surface-variant text-xs uppercase tracking-wider font-medium mb-1 flex justify-between items-center">
+                        Inventory Value
+                        <span class="material-symbols-outlined text-[16px] opacity-0 group-hover:opacity-100 transition-opacity">open_in_new</span>
+</div>
+<div class="font-mono text-xl text-on-surface">₹ 45,28,50,000</div>
+<div class="text-[10px] text-primary flex items-center mt-1">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+                        +2.4% MoM
+                    </div>
+<div class="absolute bottom-0 left-0 h-0.5 bg-primary w-1/3"></div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container p-4 rounded-lg flex flex-col gap-1 hover:bg-surface-container-highest transition-colors cursor-pointer">
+<div class="text-on-surface-variant text-xs uppercase tracking-wider font-medium mb-1">Days to Sell</div>
+<div class="font-mono text-xl text-on-surface">42<span class="text-sm text-on-surface-variant ml-1">avg</span></div>
+<div class="text-[10px] text-error flex items-center mt-1">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+                        +5 days
+                    </div>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container p-4 rounded-lg flex flex-col gap-1 hover:bg-surface-container-highest transition-colors cursor-pointer relative overflow-hidden">
+<div class="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none"></div>
+<div class="text-on-surface-variant text-xs uppercase tracking-wider font-medium mb-1 z-10">Revenue (MTD)</div>
+<div class="font-mono text-xl text-on-surface z-10">₹ 8,12,00,000</div>
+<div class="text-[10px] text-primary flex items-center mt-1 z-10">
+<span class="material-symbols-outlined text-[14px]">trending_up</span>
+                        On track
+                    </div>
+</div>
+<!-- Card 4 -->
+<div class="bg-surface-container p-4 rounded-lg flex flex-col gap-1 hover:bg-surface-container-highest transition-colors cursor-pointer">
+<div class="text-on-surface-variant text-xs uppercase tracking-wider font-medium mb-1">Bay Utilization</div>
+<div class="flex items-end gap-2">
+<div class="font-mono text-xl text-on-surface">88%</div>
+</div>
+<div class="w-full bg-surface-container-low h-1 mt-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[88%]"></div>
+</div>
+</div>
+<!-- Card 5 (Restricted) -->
+<div class="bg-surface-container p-4 rounded-lg flex flex-col gap-1 border border-outline-variant border-dashed relative overflow-hidden opacity-70">
+<div class="text-on-surface-variant text-xs uppercase tracking-wider font-medium mb-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">lock</span>
+                        Gross Margin
+                    </div>
+<div class="font-mono text-xl text-on-surface-variant blur-sm select-none">XX.X%</div>
+<div class="text-[10px] text-on-surface-variant mt-1">Restricted Access</div>
+</div>
+<!-- Card 6 -->
+<div class="bg-surface-container p-4 rounded-lg flex flex-col gap-1 hover:bg-surface-container-highest transition-colors cursor-pointer">
+<div class="text-on-surface-variant text-xs uppercase tracking-wider font-medium mb-1">Active Deals</div>
+<div class="font-mono text-xl text-on-surface">124</div>
+<div class="flex gap-1 mt-1">
+<span class="w-2 h-2 rounded-full bg-primary inline-block"></span>
+<span class="w-2 h-2 rounded-full bg-tertiary inline-block"></span>
+<span class="w-2 h-2 rounded-full bg-secondary inline-block"></span>
+</div>
+</div>
+</div>
+<!-- Charts Row -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Main Chart (Takes up 2 cols) -->
+<div class="lg:col-span-2 bg-surface-container rounded-xl p-6 flex flex-col relative overflow-hidden">
+<div class="flex justify-between items-center mb-6">
+<h3 class="text-sm font-semibold tracking-tight text-on-surface">Revenue Trend</h3>
+<div class="flex gap-2 text-xs">
+<button class="px-2 py-1 rounded bg-surface-container-highest text-on-surface">W</button>
+<button class="px-2 py-1 rounded bg-surface-variant text-on-surface-variant">M</button>
+<button class="px-2 py-1 rounded bg-surface-variant text-on-surface-variant">Y</button>
+</div>
+</div>
+<!-- Placeholder for Chart -->
+<div class="flex-1 min-h-[200px] w-full relative flex items-end">
+<div class="absolute inset-0 flex flex-col justify-between opacity-10">
+<div class="border-b border-white w-full h-0"></div>
+<div class="border-b border-white w-full h-0"></div>
+<div class="border-b border-white w-full h-0"></div>
+<div class="border-b border-white w-full h-0"></div>
+</div>
+<!-- Abstract Line Chart Representation -->
+<div class="w-full h-full bg-gradient-to-t from-primary/10 to-transparent relative clip-path-polygon">
+<svg class="w-full h-full absolute inset-0 preserve-aspect-none" style="stroke: var(--tw-colors-primary); stroke-width: 0.5; fill: none; overflow: visible;" viewbox="0 0 100 50">
+<path d="M0,40 L10,35 L20,38 L30,25 L40,30 L50,15 L60,20 L70,10 L80,18 L90,5 L100,10"></path>
+</svg>
+</div>
+</div>
+</div>
+<!-- Secondary Chart -->
+<div class="bg-surface-container rounded-xl p-6 flex flex-col">
+<h3 class="text-sm font-semibold tracking-tight text-on-surface mb-6">Inventory Composition</h3>
+<div class="flex-1 flex flex-col gap-4 justify-center">
+<!-- Progress Bars as Stacked Chart -->
+<div class="flex flex-col gap-2">
+<div class="flex justify-between text-xs text-on-surface-variant">
+<span>Sedans</span>
+<span class="font-mono">45%</span>
+</div>
+<div class="w-full bg-surface-container-low h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[45%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between text-xs text-on-surface-variant">
+<span>SUVs</span>
+<span class="font-mono">35%</span>
+</div>
+<div class="w-full bg-surface-container-low h-2 rounded-full overflow-hidden">
+<div class="bg-tertiary h-full w-[35%]"></div>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<div class="flex justify-between text-xs text-on-surface-variant">
+<span>Coupes/Sports</span>
+<span class="font-mono">20%</span>
+</div>
+<div class="w-full bg-surface-container-low h-2 rounded-full overflow-hidden">
+<div class="bg-secondary h-full w-[20%]"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Tables Section -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<!-- Data Table: Stale Inventory -->
+<div class="bg-surface-container rounded-xl flex flex-col overflow-hidden">
+<div class="p-5 border-b border-surface-container-low flex justify-between items-center">
+<h3 class="text-sm font-semibold tracking-tight text-on-surface">Stale Inventory List</h3>
+<button class="text-xs text-primary hover:text-primary-dim transition-colors">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-xs text-on-surface-variant uppercase tracking-wider bg-surface-container-low/50">
+<th class="py-3 px-5 font-medium">Asset ID</th>
+<th class="py-3 px-5 font-medium">Model</th>
+<th class="py-3 px-5 font-medium text-right">Days</th>
+<th class="py-3 px-5 font-medium text-right">Valuation</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<tr class="border-t border-surface-container-low hover:bg-surface-container-highest transition-colors group cursor-pointer">
+<td class="py-3 px-5 font-mono text-on-surface">VIN-8492X</td>
+<td class="py-3 px-5 text-on-surface-variant">Porsche 911 Carrera</td>
+<td class="py-3 px-5 font-mono text-error text-right">92</td>
+<td class="py-3 px-5 font-mono text-on-surface text-right">₹ 1,85,00,000</td>
+</tr>
+<tr class="border-t border-surface-container-low hover:bg-surface-container-highest transition-colors group cursor-pointer">
+<td class="py-3 px-5 font-mono text-on-surface">VIN-1029Y</td>
+<td class="py-3 px-5 text-on-surface-variant">Mercedes S-Class</td>
+<td class="py-3 px-5 font-mono text-error text-right">88</td>
+<td class="py-3 px-5 font-mono text-on-surface text-right">₹ 1,42,50,000</td>
+</tr>
+<tr class="border-t border-surface-container-low hover:bg-surface-container-highest transition-colors group cursor-pointer">
+<td class="py-3 px-5 font-mono text-on-surface">VIN-4431Z</td>
+<td class="py-3 px-5 text-on-surface-variant">BMW X7 xDrive</td>
+<td class="py-3 px-5 font-mono text-error text-right">75</td>
+<td class="py-3 px-5 font-mono text-on-surface text-right">₹ 1,28,00,000</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Data Table: Upcoming Filings -->
+<div class="bg-surface-container rounded-xl flex flex-col overflow-hidden">
+<div class="p-5 border-b border-surface-container-low flex justify-between items-center">
+<h3 class="text-sm font-semibold tracking-tight text-on-surface">Upcoming Filings</h3>
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant cursor-pointer">filter_list</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-xs text-on-surface-variant uppercase tracking-wider bg-surface-container-low/50">
+<th class="py-3 px-5 font-medium">Doc Ref</th>
+<th class="py-3 px-5 font-medium">Type</th>
+<th class="py-3 px-5 font-medium text-right">Due Date</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<tr class="border-t border-surface-container-low hover:bg-surface-container-highest transition-colors group cursor-pointer">
+<td class="py-3 px-5 font-mono text-on-surface">RTO-TR-01</td>
+<td class="py-3 px-5 text-on-surface-variant">Transfer of Title</td>
+<td class="py-3 px-5 font-mono text-error text-right">Tomorrow</td>
+</tr>
+<tr class="border-t border-surface-container-low hover:bg-surface-container-highest transition-colors group cursor-pointer">
+<td class="py-3 px-5 font-mono text-on-surface">INS-RN-44</td>
+<td class="py-3 px-5 text-on-surface-variant">Insurance Renewal</td>
+<td class="py-3 px-5 font-mono text-on-surface text-right">In 3 Days</td>
+</tr>
+<tr class="border-t border-surface-container-low hover:bg-surface-container-highest transition-colors group cursor-pointer">
+<td class="py-3 px-5 font-mono text-on-surface">TAX-Q3-09</td>
+<td class="py-3 px-5 text-on-surface-variant">Road Tax Deposit</td>
+<td class="py-3 px-5 font-mono text-on-surface text-right">In 7 Days</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

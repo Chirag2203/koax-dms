@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>LUXE_OPS - Inventory</title>
+<!-- Google Fonts: Inter & IBM Plex Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=Inter:wght@400;500;600;700;900&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-low": "#131313",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "inverse-primary": "#005bc4",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "on-tertiary-container": "#47445f",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "secondary": "#9f9d9d",
+                        "on-surface": "#e7e5e4",
+                        "secondary-fixed": "#e5e2e1",
+                        "tertiary-container": "#d3ceef",
+                        "on-error-container": "#ff9993",
+                        "on-primary-container": "#bdd0ff",
+                        "secondary-dim": "#9f9d9d",
+                        "secondary-container": "#3c3b3b",
+                        "error": "#ee7d77",
+                        "on-background": "#e7e5e4",
+                        "error-container": "#7f2927",
+                        "primary-container": "#004395",
+                        "tertiary-dim": "#c5c0e0",
+                        "error-dim": "#bb5551",
+                        "surface-container": "#191a1a",
+                        "surface-dim": "#0e0e0e",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "surface-container-high": "#1f2020",
+                        "surface": "#0e0e0e",
+                        "on-tertiary": "#504d68",
+                        "on-primary": "#003d88",
+                        "on-error": "#490106",
+                        "surface-variant": "#252626",
+                        "surface-container-lowest": "#000000",
+                        "on-secondary-container": "#c1bfbe",
+                        "on-surface-variant": "#acabaa",
+                        "outline-variant": "#484848",
+                        "background": "#0e0e0e",
+                        "inverse-on-surface": "#565554",
+                        "surface-container-highest": "#252626",
+                        "primary-dim": "#98b8ff",
+                        "outline": "#767575",
+                        "surface-bright": "#2c2c2c",
+                        "primary": "#adc6ff",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "inverse-surface": "#fcf8f8",
+                        "on-secondary-fixed": "#403f3f",
+                        "surface-tint": "#adc6ff",
+                        "primary-fixed": "#d8e2ff",
+                        "on-secondary": "#202020",
+                        "tertiary": "#e1dcfd",
+                        "on-tertiary-fixed": "#34314b",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "tertiary-fixed": "#d3ceef",
+                        "on-primary-fixed": "#003c86"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body antialiased flex selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar -->
+<nav class="h-screen w-[220px] fixed left-0 top-0 z-40 bg-neutral-950 border-r border-neutral-800/30 flex flex-col py-4 px-3 gap-y-2">
+<!-- Header -->
+<div class="px-3 mb-6 mt-2">
+<h1 class="text-lg font-black text-white font-sans">Precision Concierge</h1>
+<p class="text-xs text-neutral-500 font-sans tracking-tight uppercase mt-0.5">Operational Hub</p>
+</div>
+<!-- Main Tabs -->
+<div class="flex-1 flex flex-col gap-y-1">
+<a class="flex items-center gap-x-3 px-3 py-2 text-neutral-500 hover:text-neutral-200 hover:bg-neutral-900 transition-all duration-200 ease-in-out font-sans text-sm font-medium rounded-md" href="#">
+<span class="material-symbols-outlined text-[18px]">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-x-3 px-3 py-2 bg-neutral-800 text-white rounded-md transition-all duration-200 ease-in-out font-sans text-sm font-medium" href="#">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">directions_car</span>
+                Inventory
+            </a>
+<a class="flex items-center gap-x-3 px-3 py-2 text-neutral-500 hover:text-neutral-200 hover:bg-neutral-900 transition-all duration-200 ease-in-out font-sans text-sm font-medium rounded-md" href="#">
+<span class="material-symbols-outlined text-[18px]">local_shipping</span>
+                Logistics
+            </a>
+<a class="flex items-center gap-x-3 px-3 py-2 text-neutral-500 hover:text-neutral-200 hover:bg-neutral-900 transition-all duration-200 ease-in-out font-sans text-sm font-medium rounded-md" href="#">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+                Valuations
+            </a>
+<a class="flex items-center gap-x-3 px-3 py-2 text-neutral-500 hover:text-neutral-200 hover:bg-neutral-900 transition-all duration-200 ease-in-out font-sans text-sm font-medium rounded-md" href="#">
+<span class="material-symbols-outlined text-[18px]">analytics</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-x-3 px-3 py-2 text-neutral-500 hover:text-neutral-200 hover:bg-neutral-900 transition-all duration-200 ease-in-out font-sans text-sm font-medium rounded-md" href="#">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+                Settings
+            </a>
+</div>
+<!-- Footer Tabs -->
+<div class="mt-auto border-t border-neutral-800/30 pt-4 flex flex-col gap-y-1">
+<a class="flex items-center gap-x-3 px-3 py-2 text-neutral-500 hover:text-neutral-200 hover:bg-neutral-900 transition-all duration-200 ease-in-out font-sans text-sm font-medium rounded-md" href="#">
+<span class="material-symbols-outlined text-[18px]">help</span>
+                Help
+            </a>
+<a class="flex items-center gap-x-3 px-3 py-2 text-neutral-500 hover:text-neutral-200 hover:bg-neutral-900 transition-all duration-200 ease-in-out font-sans text-sm font-medium rounded-md" href="#">
+<span class="material-symbols-outlined text-[18px]">headset_mic</span>
+                Support
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="ml-[220px] w-[calc(100%-220px)] min-h-screen flex flex-col relative">
+<!-- TopNavBar -->
+<header class="flex justify-between items-center h-12 px-6 w-full docked full-width top-0 sticky z-50 bg-neutral-900/80 backdrop-blur-xl bg-neutral-800/50 shadow-2xl shadow-black/50">
+<div class="flex items-center gap-x-6 w-1/3">
+<span class="text-xl font-bold tracking-tighter text-white">LUXE_OPS</span>
+<!-- Command Palette Trigger (Search on Left) -->
+<button class="flex items-center gap-x-2 px-3 py-1.5 rounded-md bg-surface-container/50 border border-outline-variant/15 text-sm text-on-surface-variant hover:bg-surface-container transition-colors w-64 text-left">
+<span class="material-symbols-outlined text-[18px]">search</span>
+<span class="flex-1 font-sans tracking-tight font-medium">Search inventory...</span>
+<kbd class="font-mono text-[10px] bg-surface-container-high px-1.5 py-0.5 rounded text-on-surface-variant border border-outline-variant/30">⌘K</kbd>
+</button>
+</div>
+<div class="flex items-center justify-end gap-x-4 w-1/3">
+<div class="flex items-center gap-x-1">
+<button class="p-2 rounded-md text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors active:scale-95 duration-100 flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="p-2 rounded-md text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors active:scale-95 duration-100 flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">keyboard_command_key</span>
+</button>
+</div>
+<div class="w-px h-5 bg-neutral-800/50 mx-2"></div>
+<button class="px-4 py-1.5 bg-primary text-on-primary text-sm font-sans tracking-tight font-medium rounded-md hover:opacity-90 transition-opacity flex items-center gap-x-2">
+<span class="material-symbols-outlined text-[16px]">add</span>
+                    Add Vehicle
+                </button>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest border border-outline-variant/30 overflow-hidden ml-2 flex-shrink-0">
+<img alt="Operator Profile" class="w-full h-full object-cover" data-alt="close up professional headshot of a person looking forward slightly smiling against a dark studio background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCthV2k6iJkMfZG008o5ezHTJtRlN884Z49VVhd8eyQMMM2zbQCr1_qJ1gqfogwNzRyRWbiVmwzadhjw71ase1ihbCQRMwbuVS8ksiNRp8Uzu82HZ1ftR4HR_juAjZMs7MAOmsIDsPLfjIK_9JkAOesroWH77GAQnK8bLVO1x147PAG8PchoJyqd6XO-FFTuQHTn3Ct0G51e4jkQi3tbuuNj42_IzuLDX3KHOmEqjA9t8UZ9GeKB9WBvSYWajwR8S2UKMOud9jTfk8"/>
+</div>
+</div>
+</header>
+<!-- Canvas Area / Empty State -->
+<div class="flex-1 flex flex-col items-center justify-center p-8 bg-surface-container-low">
+<div class="flex flex-col items-center text-center max-w-md">
+<!-- Muted Icon Container -->
+<div class="w-20 h-20 rounded-full bg-surface-container border border-outline-variant/10 flex items-center justify-center mb-6 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+<span class="material-symbols-outlined text-4xl text-outline-variant opacity-50" style="font-variation-settings: 'wght' 200;">directions_car</span>
+</div>
+<h2 class="text-xl font-headline font-medium text-on-surface mb-2 tracking-tight">No vehicles found</h2>
+<p class="text-on-surface-variant text-sm font-body mb-8 leading-relaxed">
+                    There are currently no vehicles in your active inventory view that match the applied filters.
+                </p>
+<button class="text-primary hover:text-primary-dim transition-colors text-sm font-medium font-sans flex items-center gap-x-1 border-b border-transparent hover:border-primary-dim pb-0.5 active:scale-95 duration-100">
+<span class="material-symbols-outlined text-[16px]">filter_list_off</span>
+                    Clear filters
+                </button>
+</div>
+</div>
+</main>
+</body></html>

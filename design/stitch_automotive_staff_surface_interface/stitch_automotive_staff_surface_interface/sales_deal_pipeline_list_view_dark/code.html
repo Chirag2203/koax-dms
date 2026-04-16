@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sales Pipeline - Velocity Console</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#767575",
+                        "surface-tint": "#adc6ff",
+                        "error-dim": "#bb5551",
+                        "outline-variant": "#484848",
+                        "on-primary-fixed": "#003c86",
+                        "surface-container-lowest": "#000000",
+                        "on-background": "#e7e5e4",
+                        "on-surface": "#e7e5e4",
+                        "on-secondary-container": "#c1bfbe",
+                        "on-secondary": "#202020",
+                        "secondary": "#9f9d9d",
+                        "on-tertiary-fixed": "#34314b",
+                        "surface-dim": "#0e0e0e",
+                        "surface-container-low": "#131313",
+                        "tertiary": "#e1dcfd",
+                        "error-container": "#7f2927",
+                        "surface-variant": "#252626",
+                        "on-primary": "#003d88",
+                        "surface-container": "#191a1a",
+                        "error": "#ee7d77",
+                        "surface-bright": "#2c2c2c",
+                        "on-error-container": "#ff9993",
+                        "primary-fixed": "#d8e2ff",
+                        "primary-container": "#004395",
+                        "inverse-on-surface": "#565554",
+                        "surface-container-highest": "#252626",
+                        "surface": "#0e0e0e",
+                        "primary": "#adc6ff",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "tertiary-dim": "#c5c0e0",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "on-surface-variant": "#acabaa",
+                        "secondary-fixed": "#e5e2e1",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "tertiary-fixed": "#d3ceef",
+                        "surface-container-high": "#1f2020",
+                        "inverse-primary": "#005bc4",
+                        "background": "#0e0e0e",
+                        "on-primary-container": "#bdd0ff",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "tertiary-container": "#d3ceef",
+                        "secondary-container": "#3c3b3b",
+                        "on-secondary-fixed": "#403f3f",
+                        "secondary-dim": "#9f9d9d",
+                        "primary-dim": "#98b8ff",
+                        "on-tertiary-container": "#47445f",
+                        "on-tertiary": "#504d68",
+                        "inverse-surface": "#fcf8f8",
+                        "on-error": "#490106"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        .fill-icon { font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24; }
+        
+        /* Custom scrollbar for high-density tables */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0A0A0A; }
+        ::-webkit-scrollbar-thumb { background: #252626; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #484848; }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface h-screen flex overflow-hidden">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col h-screen w-56 py-4 bg-neutral-950 dark:bg-[#0A0A0A] flex-shrink-0 z-20" style="background-color: var(--color-surface-container-low);">
+<!-- Header -->
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-highest flex items-center justify-center flex-shrink-0 overflow-hidden">
+<img alt="Dealership Logo" class="w-full h-full object-cover" data-alt="Minimalist abstract geometric logo mark in light blue on dark grey background, representing luxury operations" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAj8peq2lC14mZSOUjHyb3Pu9pT8KLP6l4FiOnwEO8jgbqmDY5B4iz-ndKCmSU29Yb8kfpYM7Aot9avzQ7AextE_67G343KSFIeP789zG2cxf6wDjs6bYhMG34XNZ7Ghz_w0mMxGNWqAMAG6etRuQ_occaSsdk5Tiq7aRpbZbd1N3YJmNeXBUVNYlTM5qs3TpdZwzTPM0DnaFO7H_EXoqzy5Ha4UwNsM312HIk411IKCIgRe2L-lPMM2KbQ_Pg0GI1LbZR1yFMSvbY"/>
+</div>
+<div>
+<h1 class="text-blue-500 font-bold text-sm tracking-tight leading-tight whitespace-nowrap overflow-hidden text-ellipsis">Luxury Operations</h1>
+<p class="text-on-surface-variant text-[10px] uppercase tracking-widest font-mono">V-Console v2.4</p>
+</div>
+</div>
+<!-- Main Navigation -->
+<div class="flex-1 px-3 space-y-1 overflow-y-auto">
+<a class="flex items-center gap-3 px-3 py-2 rounded text-sm font-sans tracking-tight bg-blue-600/10 text-blue-400 font-bold border-r-2 border-blue-500 transition-all duration-200" href="#">
+<span class="material-symbols-outlined fill-icon text-[18px]">tty</span>
+<span>Pipeline</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-sm font-sans tracking-tight text-neutral-500 hover:bg-neutral-900 hover:text-neutral-300 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[18px]">directions_car</span>
+<span>Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-sm font-sans tracking-tight text-neutral-500 hover:bg-neutral-900 hover:text-neutral-300 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+<span>Valuations</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-sm font-sans tracking-tight text-neutral-500 hover:bg-neutral-900 hover:text-neutral-300 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[18px]">group</span>
+<span>Customers</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-sm font-sans tracking-tight text-neutral-500 hover:bg-neutral-900 hover:text-neutral-300 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[18px]">analytics</span>
+<span>Reports</span>
+</a>
+</div>
+<!-- CTA -->
+<div class="px-4 mt-6 mb-6">
+<button class="w-full py-2 px-4 rounded bg-primary text-on-primary font-medium text-sm transition-all duration-200 hover:bg-primary-dim shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[16px]">add</span>
+                New Deal
+            </button>
+</div>
+<!-- Footer Navigation -->
+<div class="px-3 space-y-1 pt-4 border-t border-surface-container/50">
+<a class="flex items-center gap-3 px-3 py-2 rounded text-xs font-sans tracking-tight text-neutral-500 hover:bg-neutral-900 hover:text-neutral-300 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[16px]">help</span>
+<span>Support</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-xs font-sans tracking-tight text-neutral-500 hover:bg-neutral-900 hover:text-neutral-300 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[16px]">inventory_2</span>
+<span>Archive</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 flex flex-col h-screen overflow-hidden bg-surface-container-lowest">
+<!-- TopNavBar (Mobile Only) -->
+<header class="md:hidden flex justify-between items-center w-full px-4 h-14 bg-neutral-950 dark:bg-[#0A0A0A] flex-shrink-0 z-20">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface">menu</span>
+<span class="text-lg font-semibold tracking-tighter text-white">Velocity Console</span>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<span class="material-symbols-outlined hover:text-white transition-colors scale-95 duration-150">notifications</span>
+<span class="material-symbols-outlined hover:text-white transition-colors scale-95 duration-150">settings</span>
+<img alt="User profile" class="w-7 h-7 rounded-full bg-surface-container-highest" data-alt="Minimalist abstract geometric user avatar icon in light grey on dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgvw_XS6yJzAIxi2YawOXuENP55Tw6dhENClhtfH6GlK1kZteYtmQlkGvYE6kUidRKksyXL-ZfX6sSZcQJ3c4lr7-rFE2wm6X4SQnba4HD46znvvWCUl6hq1CViVX9dWPDUo80aR2a-L5dnLVLZupBj4yIX0t9THB5hwGuOAM81ISVDmDCGukDLQLXhP2wjB3NpgeDTi4xEpvPZE1HbCSj3wkMQEmfMTiu8dhB33dWKoW1Vr1HULcLRQPDmNR_fOb7SxUzFccP6ow"/>
+</div>
+</header>
+<!-- Page Header & Controls -->
+<div class="px-8 pt-8 pb-4 flex-shrink-0 z-10">
+<div class="flex justify-between items-end mb-6">
+<div>
+<h2 class="text-2xl font-headline font-semibold tracking-tight text-on-surface">Sales Pipeline</h2>
+<p class="text-sm text-on-surface-variant mt-1">Active deals in negotiation and closing stages.</p>
+</div>
+<div class="flex gap-3">
+<button class="h-9 px-4 rounded bg-surface-container-highest hover:bg-surface-variant text-sm font-medium transition-colors flex items-center gap-2 text-on-surface border border-outline-variant/20">
+<span class="material-symbols-outlined text-[18px]">download</span>
+                        Export
+                    </button>
+<button class="h-9 w-9 rounded bg-surface-container-highest hover:bg-surface-variant flex items-center justify-center text-on-surface border border-outline-variant/20 transition-colors">
+<span class="material-symbols-outlined text-[18px]">view_column</span>
+</button>
+</div>
+</div>
+<!-- Search & Filter Bar -->
+<div class="flex gap-4 items-center bg-surface-container-low p-2 rounded-lg">
+<div class="relative flex-1 max-w-md">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="w-full h-9 pl-9 pr-4 bg-surface-variant text-sm text-on-surface rounded border-none focus:ring-1 focus:ring-primary/20 placeholder:text-on-surface-variant/50 transition-shadow" placeholder="Search by Deal ID, Customer, or Vehicle..." type="text"/>
+<div class="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+<span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-container-highest text-on-surface-variant">⌘</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-container-highest text-on-surface-variant">K</span>
+</div>
+</div>
+<div class="h-6 w-px bg-surface-container-highest"></div>
+<button class="flex items-center gap-2 px-3 h-9 rounded hover:bg-surface-container-highest text-sm text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[16px]">filter_list</span>
+                    Filter
+                    <span class="bg-primary/20 text-primary text-[10px] font-bold px-1.5 rounded-full ml-1">2</span>
+</button>
+<button class="flex items-center gap-2 px-3 h-9 rounded hover:bg-surface-container-highest text-sm text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined text-[16px]">sort</span>
+                    Sort
+                </button>
+</div>
+</div>
+<!-- High-Density Data Table -->
+<div class="flex-1 overflow-auto px-8 pb-8 relative">
+<div class="bg-surface-container rounded-lg overflow-hidden border border-outline-variant/10">
+<table class="w-full text-left border-collapse">
+<thead class="sticky top-0 bg-surface-container-high z-10 shadow-[0_1px_0_rgba(255,255,255,0.05)]">
+<tr>
+<th class="py-3 px-4 text-xs font-medium text-on-surface-variant uppercase tracking-wider w-12 text-center">
+<input class="rounded-[4px] border-outline-variant/30 bg-surface-container focus:ring-0 focus:ring-offset-0 text-primary w-4 h-4" type="checkbox"/>
+</th>
+<th class="py-3 px-4 text-xs font-medium text-on-surface-variant uppercase tracking-wider w-32">Deal ID</th>
+<th class="py-3 px-4 text-xs font-medium text-on-surface-variant uppercase tracking-wider">Customer</th>
+<th class="py-3 px-4 text-xs font-medium text-on-surface-variant uppercase tracking-wider">Vehicle</th>
+<th class="py-3 px-4 text-xs font-medium text-on-surface-variant uppercase tracking-wider w-32">Status</th>
+<th class="py-3 px-4 text-xs font-medium text-on-surface-variant uppercase tracking-wider w-40">Assigned Advisor</th>
+<th class="py-3 px-4 text-xs font-medium text-on-surface-variant uppercase tracking-wider w-32">Last Activity</th>
+<th class="py-3 px-4 text-xs font-medium text-on-surface-variant uppercase tracking-wider text-right w-40">Amount</th>
+</tr>
+</thead>
+<tbody class="text-sm divide-y divide-transparent">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group h-11 border-b border-surface-container-highest/30 last:border-0">
+<td class="py-1 px-4 text-center">
+<input class="rounded-[4px] border-outline-variant/30 bg-surface-container focus:ring-0 focus:ring-offset-0 text-primary w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" type="checkbox"/>
+</td>
+<td class="py-1 px-4"><span class="font-mono text-xs text-on-surface-variant bg-surface-container-highest px-2 py-0.5 rounded-[4px]">D-8902</span></td>
+<td class="py-1 px-4 font-medium text-on-surface">Rajesh Kumar</td>
+<td class="py-1 px-4 text-on-surface-variant text-xs">2022 Porsche 911 Carrera S</td>
+<td class="py-1 px-4">
+<div class="flex items-center gap-1.5">
+<div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+<span class="text-xs text-primary-dim">Negotiation</span>
+</div>
+</td>
+<td class="py-1 px-4">
+<div class="flex items-center gap-2">
+<img alt="Advisor" class="w-5 h-5 rounded-full" data-alt="Minimalist abstract portrait icon in light grey on dark grey background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCh8EQ6HzPotDuCb5UUu6Qx9y9b7P8n4p0T1DXOPWA6WetSUTceWMOp9ApmuxBzKEEWHZP9Xr2WF7o4NnHSdHFd3HkLCfM59FdXXhu26bAY5iEkoEK_Ynx0EcYhP3EFQlTH31jtDLjwsmDWVSl-WW0NIUEGsxqEyhfWAGH88JVbmbS1905m7T6Uvhz9Sg-DMQRb2wJDptQT1jSVAy0SAI0lzGeKkSYO8UxyvGmE9R4KbaQpb8HloV2urjgqRwLlZjj5OL_aV1XvNis"/>
+<span class="text-xs text-on-surface-variant">Arjun S.</span>
+</div>
+</td>
+<td class="py-1 px-4 text-xs text-on-surface-variant">2 hours ago</td>
+<td class="py-1 px-4 font-mono text-xs text-right text-on-surface">₹ 1,85,00,000</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors group h-11 border-b border-surface-container-highest/30 last:border-0">
+<td class="py-1 px-4 text-center">
+<input class="rounded-[4px] border-outline-variant/30 bg-surface-container focus:ring-0 focus:ring-offset-0 text-primary w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" type="checkbox"/>
+</td>
+<td class="py-1 px-4"><span class="font-mono text-xs text-on-surface-variant bg-surface-container-highest px-2 py-0.5 rounded-[4px]">D-8901</span></td>
+<td class="py-1 px-4 font-medium text-on-surface">Priya Sharma</td>
+<td class="py-1 px-4 text-on-surface-variant text-xs">2023 Mercedes-Benz G63 AMG</td>
+<td class="py-1 px-4">
+<div class="flex items-center gap-1.5">
+<div class="w-1.5 h-1.5 rounded-full bg-[#10b981]"></div>
+<span class="text-xs text-[#34d399]">Closing</span>
+</div>
+</td>
+<td class="py-1 px-4">
+<div class="flex items-center gap-2">
+<img alt="Advisor" class="w-5 h-5 rounded-full" data-alt="Minimalist abstract portrait icon in light grey on dark grey background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA451_JC2YvvH9HtnqOCILwqzWDeWdTrETvdzkSLXR2_jNB5ib1kl_OZI7uYW5FZmaNVZH4afQs0wTcfpapNP24kAsVXeAvuTCiwMQV5sJKmkRO7Pr_gacZAaYh-r7R30uHsC86bZpQMO375K7-MaeKRAtNd0AwAjexjSNAuT7oVDnwcONxBgHT9AOyryfzGTmFBCzqB72Kcoen5Bi1FnjmKhmDZJY9dF9Ujw0DMSSoRKlmf9i2V4g7XVPgYRkVrkSDHOBaXPQS6Rc"/>
+<span class="text-xs text-on-surface-variant">Neha V.</span>
+</div>
+</td>
+<td class="py-1 px-4 text-xs text-on-surface-variant">5 hours ago</td>
+<td class="py-1 px-4 font-mono text-xs text-right text-on-surface">₹ 3,45,00,000</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors group h-11 border-b border-surface-container-highest/30 last:border-0 bg-surface-container-low/30">
+<td class="py-1 px-4 text-center">
+<input class="rounded-[4px] border-outline-variant/30 bg-surface-container focus:ring-0 focus:ring-offset-0 text-primary w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" type="checkbox"/>
+</td>
+<td class="py-1 px-4"><span class="font-mono text-xs text-on-surface-variant bg-surface-container-highest px-2 py-0.5 rounded-[4px]">D-8898</span></td>
+<td class="py-1 px-4 font-medium text-on-surface">Anand Patel</td>
+<td class="py-1 px-4 text-on-surface-variant text-xs">2021 BMW M5 Competition</td>
+<td class="py-1 px-4">
+<div class="flex items-center gap-1.5">
+<div class="w-1.5 h-1.5 rounded-full bg-error"></div>
+<span class="text-xs text-error-dim">Stalled</span>
+</div>
+</td>
+<td class="py-1 px-4">
+<div class="flex items-center gap-2">
+<img alt="Advisor" class="w-5 h-5 rounded-full" data-alt="Minimalist abstract portrait icon in light grey on dark grey background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIBGRm0KBATOo0aaKA1yTipVtpG9bvIcLYaDUrLc9qWAtx6fPqbh2QzZNYfBEkjgkpaPdHl9pflqhHpUT4drmH_vtRSPikdYBFPaD7PZvn1HSF-qrgjICyr8zNTV6t8vbvlXSjrz4vDmnzU371hw1eG8bwO_b4gmSpkcSgWRTmrMMZRvl3NpKxlOgLAx5FlcRbttmBz0GwksRsSSIIXrpQwFw4WzILvVqDF2Dgv6D0f-YWjzv8aEBcdsoZTeAVq1wdUbr35Vct0ys"/>
+<span class="text-xs text-on-surface-variant">Arjun S.</span>
+</div>
+</td>
+<td class="py-1 px-4 text-xs text-on-surface-variant">2 days ago</td>
+<td class="py-1 px-4 font-mono text-xs text-right text-on-surface">₹ 1,55,00,000</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low transition-colors group h-11 border-b border-surface-container-highest/30 last:border-0">
+<td class="py-1 px-4 text-center">
+<input class="rounded-[4px] border-outline-variant/30 bg-surface-container focus:ring-0 focus:ring-offset-0 text-primary w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity" type="checkbox"/>
+</td>
+<td class="py-1 px-4"><span class="font-mono text-xs text-on-surface-variant bg-surface-container-highest px-2 py-0.5 rounded-[4px]">D-8895</span></td>
+<td class="py-1 px-4 font-medium text-on-surface">Vikram Singh</td>
+<td class="py-1 px-4 text-on-surface-variant text-xs">2024 Land Rover Defender 110</td>
+<td class="py-1 px-4">
+<div class="flex items-center gap-1.5">
+<div class="w-1.5 h-1.5 rounded-full bg-tertiary-dim"></div>
+<span class="text-xs text-tertiary-dim">Lead</span>
+</div>
+</td>
+<td class="py-1 px-4">
+<div class="flex items-center gap-2">
+<img alt="Advisor" class="w-5 h-5 rounded-full" data-alt="Minimalist abstract portrait icon in light grey on dark grey background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBm-RUJJzrlFGAP1Fl93wNDpH2SArSAVbQuyhsw7Oa2-929U6brHAozjGsk16hOlmUAnMmrjo2XbAVO8Pmnh2OK6sBKWBmaVLMMmYj5c_EEV16YqCl8Ssj9DAXD7H8RqqaUSTbO6i5K2ziBBBY-auRlx0xJ4C6SdqNp1D626Zj9FqFnXCTuR39SbNPWjCOQXPjeavcZ4aL-tdxsE0gk3jh4TQ9JDwTZpKvJwrkQw_HUEGwuk5Mux1L-m5sNLlguv4o5IgEwot53NUY"/>
+<span class="text-xs text-on-surface-variant">Rahul K.</span>
+</div>
+</td>
+<td class="py-1 px-4 text-xs text-on-surface-variant">Just now</td>
+<td class="py-1 px-4 font-mono text-xs text-right text-on-surface">₹ 1,35,00,000</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer Pagination/Info -->
+<div class="mt-4 flex justify-between items-center text-xs text-on-surface-variant">
+<span>Showing 4 of 24 active deals</span>
+<div class="flex gap-2 items-center">
+<button class="w-6 h-6 rounded bg-surface-container hover:bg-surface-container-highest flex items-center justify-center transition-colors disabled:opacity-50">
+<span class="material-symbols-outlined text-[16px]">chevron_left</span>
+</button>
+<span class="font-mono">1 / 6</span>
+<button class="w-6 h-6 rounded bg-surface-container hover:bg-surface-container-highest flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[16px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

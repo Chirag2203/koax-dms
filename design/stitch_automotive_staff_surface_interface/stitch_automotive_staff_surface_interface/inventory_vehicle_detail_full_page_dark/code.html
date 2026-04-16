@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>2022 Porsche Panamera 4 - DMS Pro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#c3d4ff",
+                        "on-secondary": "#202020",
+                        "tertiary-dim": "#c5c0e0",
+                        "secondary-dim": "#9f9d9d",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "on-surface": "#e7e5e4",
+                        "outline": "#767575",
+                        "secondary": "#9f9d9d",
+                        "surface-dim": "#0e0e0e",
+                        "secondary-container": "#3c3b3b",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "surface-container-high": "#1f2020",
+                        "tertiary-container": "#d3ceef",
+                        "surface-container-highest": "#252626",
+                        "on-primary": "#003d88",
+                        "inverse-primary": "#005bc4",
+                        "on-error": "#490106",
+                        "on-background": "#e7e5e4",
+                        "on-error-container": "#ff9993",
+                        "error": "#ee7d77",
+                        "primary-dim": "#98b8ff",
+                        "primary-fixed": "#d8e2ff",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "surface-tint": "#adc6ff",
+                        "surface": "#0e0e0e",
+                        "primary": "#adc6ff",
+                        "outline-variant": "#484848",
+                        "error-dim": "#bb5551",
+                        "tertiary": "#e1dcfd",
+                        "on-primary-fixed": "#003c86",
+                        "on-secondary-container": "#c1bfbe",
+                        "secondary-fixed": "#e5e2e1",
+                        "surface-container-low": "#131313",
+                        "surface-container-lowest": "#000000",
+                        "surface-container": "#191a1a",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "on-tertiary-fixed": "#34314b",
+                        "on-surface-variant": "#acabaa",
+                        "on-primary-container": "#bdd0ff",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "on-tertiary": "#504d68",
+                        "surface-bright": "#2c2c2c",
+                        "on-tertiary-container": "#47445f",
+                        "inverse-on-surface": "#565554",
+                        "inverse-surface": "#fcf8f8",
+                        "tertiary-fixed": "#d3ceef",
+                        "background": "#0e0e0e",
+                        "surface-variant": "#252626",
+                        "error-container": "#7f2927",
+                        "on-secondary-fixed": "#403f3f",
+                        "primary-container": "#004395"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        /* Tonal Layering Ghost Borders */
+        .ghost-border { outline: 1px solid rgba(72, 72, 72, 0.15); }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface min-h-screen flex flex-col antialiased selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<nav class="bg-neutral-900 w-full h-12 flex items-center flex justify-between px-6 w-full max-w-full relative z-20">
+<div class="flex items-center gap-8">
+<span class="text-lg font-semibold text-white tracking-tighter">DMS Pro</span>
+<div class="hidden md:flex gap-6 items-center">
+<a class="text-neutral-400 hover:text-neutral-200 transition-colors font-sans tracking-tight text-sm font-medium hover:bg-neutral-800 px-2 py-1 rounded" href="#">Inventory</a>
+<a class="text-neutral-400 hover:text-neutral-200 transition-colors font-sans tracking-tight text-sm font-medium hover:bg-neutral-800 px-2 py-1 rounded" href="#">Logistics</a>
+<a class="text-neutral-400 hover:text-neutral-200 transition-colors font-sans tracking-tight text-sm font-medium hover:bg-neutral-800 px-2 py-1 rounded" href="#">Valuation</a>
+<a class="text-neutral-400 hover:text-neutral-200 transition-colors font-sans tracking-tight text-sm font-medium hover:bg-neutral-800 px-2 py-1 rounded" href="#">Sales</a>
+</div>
+</div>
+<!-- Search Bar (on_left configuration visually integrated but conceptually left of actions) -->
+<div class="flex-1 max-w-md mx-6 hidden md:block">
+<div class="relative flex items-center w-full h-8 rounded bg-surface-variant ghost-border text-on-surface-variant focus-within:outline-primary/20 focus-within:outline transition-all">
+<span class="material-symbols-outlined ml-2 text-[18px]">search</span>
+<input class="w-full bg-transparent border-none text-sm focus:ring-0 placeholder:text-on-surface-variant/50 px-2 font-mono" placeholder="Search VIN, model, or tags... ⌘K" type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-neutral-400 hover:text-neutral-200 transition-colors font-sans tracking-tight text-sm font-medium scale-95 duration-100 hover:bg-neutral-800 px-2 py-1 rounded">Help</button>
+<div class="flex items-center gap-2">
+<button class="text-neutral-400 hover:text-neutral-200 transition-colors scale-95 duration-100 p-1 rounded hover:bg-neutral-800">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="text-neutral-400 hover:text-neutral-200 transition-colors scale-95 duration-100 p-1 rounded hover:bg-neutral-800">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant/30 ml-2 cursor-pointer">
+<img alt="Operator Profile" class="w-full h-full object-cover" data-alt="professional headshot of operator in modern office lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC02IUVCuohQgUW4sdsS-kEfFhrh3FQtF8XhbIOQXtNTXzaNPcVGqQKhg5qWGKR7-oOYPPVgBsbdVsaiy3dUX1TpnW6rwLdnRFiab1Q1yuiarfFJMs02METFDTGoSpPfjfjTHVMQ4sfJIq9GvbF09GLji70iegEfhtdJnJ1sj6aFJx26LGBMed7-R7TIA5cofFb4GWRIIuQlZkHiih5511Ua0Y7U6WY4FmxlSmDEKk5jrYxw9abBcY1yj4zD22p-KbxUCYPEQlu80o"/>
+</div>
+</div>
+</nav>
+<div class="flex flex-1 overflow-hidden relative">
+<!-- SideNavBar -->
+<aside class="bg-neutral-900 w-[220px] h-screen fixed left-0 top-0 flex flex-col h-full py-4 border-r border-neutral-800 z-30 transition-all duration-200 mt-12 md:mt-0 pt-12 md:pt-4">
+<div class="px-4 mb-8 hidden md:block">
+<!-- Header hidden on mobile if top nav handles it, but keeping structure per JSON -->
+<div class="flex items-center gap-3 mb-6">
+<div class="w-8 h-8 rounded bg-surface-container-highest flex items-center justify-center text-on-surface-variant">
+<span aria-label="Vehicle VIN Icon" class="material-symbols-outlined text-[18px]">directions_car</span>
+</div>
+<div>
+<h2 class="font-sans text-sm font-bold text-on-surface tracking-tight leading-tight">Inventory Detail</h2>
+<p class="font-mono text-xs text-on-surface-variant mt-0.5">VIN: 1ABC...D901</p>
+</div>
+</div>
+</div>
+<div class="flex flex-col flex-1 gap-1 px-2">
+<a class="flex items-center gap-3 px-3 py-2 rounded text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/50 transition-all duration-200 group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-on-surface transition-colors">dashboard</span>
+<span class="font-mono text-xs uppercase tracking-widest">Overview</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded bg-neutral-800 text-blue-400 font-bold border-r-2 border-blue-500 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+<span class="font-mono text-xs uppercase tracking-widest">Cost Ledger</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/50 transition-all duration-200 group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-on-surface transition-colors">image</span>
+<span class="font-mono text-xs uppercase tracking-widest">Photos</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/50 transition-all duration-200 group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-on-surface transition-colors">analytics</span>
+<span class="font-mono text-xs uppercase tracking-widest">Appraisal</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/50 transition-all duration-200 group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-on-surface transition-colors">history</span>
+<span class="font-mono text-xs uppercase tracking-widest">Timeline</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/50 transition-all duration-200 group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-on-surface transition-colors">description</span>
+<span class="font-mono text-xs uppercase tracking-widest">Documents</span>
+</a>
+</div>
+<div class="px-4 mt-auto mb-4">
+<button class="w-full py-2 px-4 rounded bg-primary text-on-primary font-sans text-sm font-medium hover:bg-primary/90 transition-colors text-center shadow-[0_2px_10px_rgba(0,0,0,0.2)]">Publish Vehicle</button>
+</div>
+<div class="mt-4 pt-4 border-t border-neutral-800 px-2 flex flex-col gap-1 pb-16 md:pb-0">
+<a class="flex items-center gap-3 px-3 py-2 rounded text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/50 transition-all duration-200 group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-on-surface transition-colors">contact_support</span>
+<span class="font-mono text-xs uppercase tracking-widest">Support</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/50 transition-all duration-200 group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-on-surface transition-colors">terminal</span>
+<span class="font-mono text-xs uppercase tracking-widest">Logs</span>
+</a>
+</div>
+</aside>
+<!-- Main Canvas Area -->
+<main class="flex-1 ml-[220px] bg-surface-container-low min-h-screen flex overflow-hidden">
+<!-- Center Content (Scrollable) -->
+<div class="flex-1 overflow-y-auto relative">
+<!-- Hero Photo Area -->
+<div class="relative w-full h-[400px] bg-surface-container-lowest">
+<img alt="2022 Porsche Panamera 4" class="w-full h-full object-cover opacity-90" data-alt="sleek black 2022 Porsche Panamera 4 parked in an industrial studio setting with dramatic overhead lighting highlighting curves" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9BrbzoiGtxONxBrPZpk2I7G4e6aPupxKL-95AUZiu3UxfjmMuK6O1TQI4Rqko_IG-cTM2yxWtA5IvnbiAep1H3Of4RxdHt18PwFgVIfVbdaXMJ1uz2uN2EYe0DIxa18WLNEAVVPr9XfV8ABTS8v7Ui6O0jQZ_2Gtryz8OPfV8zcDcKYalTZkdqVXAyJF7dY7zb-srMfv6awjKrqMS2D2Vim-PO5irHc2e-2p14ZmzMpxWQ1CnENlWbh-Wjsn1kriId5xok9dtzac"/>
+<!-- Gradient overlay for text legibility if needed, keeping it minimal -->
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-transparent to-transparent"></div>
+<!-- Thumbnail Dots -->
+<div class="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+<div class="w-2 h-2 rounded-full bg-primary shadow-sm"></div>
+<div class="w-2 h-2 rounded-full bg-white/30 backdrop-blur-sm cursor-pointer hover:bg-white/50 transition-colors"></div>
+<div class="w-2 h-2 rounded-full bg-white/30 backdrop-blur-sm cursor-pointer hover:bg-white/50 transition-colors"></div>
+<div class="w-2 h-2 rounded-full bg-white/30 backdrop-blur-sm cursor-pointer hover:bg-white/50 transition-colors"></div>
+<div class="w-2 h-2 rounded-full bg-white/30 backdrop-blur-sm cursor-pointer hover:bg-white/50 transition-colors"></div>
+</div>
+</div>
+<div class="p-8 max-w-5xl mx-auto">
+<!-- Page Header -->
+<header class="mb-8">
+<div class="flex items-start justify-between">
+<div>
+<h1 class="font-headline text-3xl font-bold tracking-tight text-on-surface mb-2">2022 Porsche Panamera 4</h1>
+<div class="flex items-center gap-4 text-sm text-on-surface-variant">
+<div class="flex items-center gap-1.5 bg-surface-container-highest px-2 py-1 rounded ghost-border">
+<span class="material-symbols-outlined text-[16px] opacity-70">tag</span>
+<span class="font-mono">WP0ZZZ97ZNS123456</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px] opacity-70">phone</span>
+<span class="font-mono text-xs">+91 98*** **345</span>
+</div>
+<div class="flex items-center gap-1.5">
+<div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+<span>In Inventory</span>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- Cost Ledger Content -->
+<section class="bg-surface-container rounded-lg p-6 ghost-border relative z-10">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline font-semibold text-lg">Expense Breakdown</h3>
+<button class="flex items-center gap-2 text-sm text-primary hover:text-primary-container transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                                Add Entry
+                            </button>
+</div>
+<div class="w-full">
+<!-- Table Header -->
+<div class="grid grid-cols-12 gap-4 pb-3 border-b border-surface-container-highest text-xs font-medium text-on-surface-variant uppercase tracking-wider">
+<div class="col-span-5">Category</div>
+<div class="col-span-3 text-right">Date</div>
+<div class="col-span-4 text-right">Amount (₹)</div>
+</div>
+<!-- Table Rows -->
+<div class="flex flex-col gap-1 mt-2">
+<div class="grid grid-cols-12 gap-4 items-center py-3 px-2 rounded hover:bg-surface-container-low transition-colors group">
+<div class="col-span-5 flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-lowest flex items-center justify-center ghost-border">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">directions_car</span>
+</div>
+<span class="font-medium">Base Acquisition</span>
+</div>
+<div class="col-span-3 text-right font-mono text-sm text-on-surface-variant">12 Oct 2023</div>
+<div class="col-span-4 text-right font-mono text-sm font-medium">₹ 90,00,000</div>
+</div>
+<div class="grid grid-cols-12 gap-4 items-center py-3 px-2 rounded hover:bg-surface-container-low transition-colors group">
+<div class="col-span-5 flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-lowest flex items-center justify-center ghost-border">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">local_car_wash</span>
+</div>
+<span class="font-medium">Refurbishment (Detailing)</span>
+</div>
+<div class="col-span-3 text-right font-mono text-sm text-on-surface-variant">15 Oct 2023</div>
+<div class="col-span-4 text-right font-mono text-sm">₹ 1,50,000</div>
+</div>
+<div class="grid grid-cols-12 gap-4 items-center py-3 px-2 rounded hover:bg-surface-container-low transition-colors group">
+<div class="col-span-5 flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-lowest flex items-center justify-center ghost-border">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">local_shipping</span>
+</div>
+<span class="font-medium">Inbound Transport</span>
+</div>
+<div class="col-span-3 text-right font-mono text-sm text-on-surface-variant">13 Oct 2023</div>
+<div class="col-span-4 text-right font-mono text-sm">₹ 40,000</div>
+</div>
+<div class="grid grid-cols-12 gap-4 items-center py-3 px-2 rounded hover:bg-surface-container-low transition-colors group">
+<div class="col-span-5 flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-lowest flex items-center justify-center ghost-border">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">receipt_long</span>
+</div>
+<span class="font-medium">State Registration Tax</span>
+</div>
+<div class="col-span-3 text-right font-mono text-sm text-on-surface-variant">20 Oct 2023</div>
+<div class="col-span-4 text-right font-mono text-sm">₹ 6,50,000</div>
+</div>
+</div>
+<!-- Totals -->
+<div class="mt-4 pt-4 border-t border-surface-container-highest grid grid-cols-12 gap-4 items-center px-2">
+<div class="col-span-8 text-right font-medium text-sm text-on-surface-variant">Total Landed Cost</div>
+<div class="col-span-4 text-right font-mono text-lg font-bold text-primary">₹ 98,40,000</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<!-- Right Sidebar Panel (Financial Summary) -->
+<aside class="w-[320px] bg-surface-container border-l border-surface-container-highest flex flex-col shrink-0 hidden lg:flex">
+<div class="p-6 flex flex-col h-full">
+<h3 class="font-headline font-semibold text-sm text-on-surface-variant uppercase tracking-widest mb-6">Financial Snapshot</h3>
+<div class="flex flex-col gap-6 flex-1">
+<!-- Ask Price Block -->
+<div class="bg-surface-container-highest rounded-lg p-5 ghost-border">
+<div class="text-xs text-on-surface-variant mb-1">Ask Price</div>
+<div class="font-mono text-2xl font-bold text-on-surface">₹ 1,28,50,000</div>
+</div>
+<!-- Secondary Metrics -->
+<div class="flex flex-col gap-4 px-2">
+<div class="flex justify-between items-center pb-3 border-b border-surface-container-highest">
+<div class="text-sm text-on-surface-variant">Landed Cost</div>
+<div class="font-mono text-sm font-medium">₹ 98,40,000</div>
+</div>
+<div class="flex justify-between items-center pb-3 border-b border-surface-container-highest">
+<div class="text-sm text-on-surface-variant">Projected Margin</div>
+<div class="text-right">
+<div class="font-mono text-sm font-medium text-emerald-400">₹ 30,10,000</div>
+<div class="font-mono text-xs text-emerald-500/70">30.6%</div>
+</div>
+</div>
+<div class="flex justify-between items-center">
+<div class="text-sm text-on-surface-variant">Days in Inv.</div>
+<div class="font-mono text-sm font-medium">14</div>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="mt-auto pt-6 flex flex-col gap-3">
+<button class="w-full h-10 rounded-md bg-gradient-to-b from-primary to-primary-container text-on-primary font-medium text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-[18px]">storefront</span>
+                            View on Storefront
+                        </button>
+<button class="w-full h-10 rounded-md bg-surface-container-highest text-on-surface font-medium text-sm hover:bg-surface-variant transition-colors ghost-border">
+                            Unpublish
+                        </button>
+</div>
+</div>
+</aside>
+</main>
+</div>
+</body></html>

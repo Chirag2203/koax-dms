@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DMS Pro - Vehicle Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "primary-fixed-dim": "#c3d4ff",
+                    "on-secondary": "#ffffff",
+                    "tertiary-dim": "#c5c0e0",
+                    "secondary-dim": "#9f9d9d",
+                    "on-secondary-fixed-variant": "#5c5b5b",
+                    "on-surface": "#191a1a",
+                    "outline": "#767575",
+                    "secondary": "#5c5b5b",
+                    "surface-dim": "#fbfbfa",
+                    "secondary-container": "#e5e2e1",
+                    "on-tertiary-fixed-variant": "#504e69",
+                    "surface-container-high": "#e5e2e1",
+                    "tertiary-container": "#d3ceef",
+                    "surface-container-highest": "#d6d4d3",
+                    "on-primary": "#ffffff",
+                    "inverse-primary": "#adc6ff",
+                    "on-error": "#ffffff",
+                    "on-background": "#191a1a",
+                    "on-error-container": "#490106",
+                    "error": "#bb5551",
+                    "primary-dim": "#2563eb", /* adjusted primary to accent blue per user prompt */
+                    "primary-fixed": "#d8e2ff",
+                    "tertiary-fixed-dim": "#c5c0e0",
+                    "surface-tint": "#2563eb",
+                    "surface": "#ffffff",
+                    "primary": "#2563eb", /* adjusted primary */
+                    "outline-variant": "#c1bfbe",
+                    "error-dim": "#bb5551",
+                    "tertiary": "#34314b",
+                    "on-primary-fixed": "#003c86",
+                    "on-secondary-container": "#403f3f",
+                    "secondary-fixed": "#e5e2e1",
+                    "surface-container-low": "#fbfbfa", /* adjusted per prompt */
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container": "#ffffff", /* adjusted per prompt */
+                    "on-primary-fixed-variant": "#0057bd",
+                    "on-tertiary-fixed": "#34314b",
+                    "on-surface-variant": "#403f3f",
+                    "on-primary-container": "#003d88",
+                    "secondary-fixed-dim": "#d6d4d3",
+                    "on-tertiary": "#ffffff",
+                    "surface-bright": "#ffffff",
+                    "on-tertiary-container": "#34314b",
+                    "inverse-on-surface": "#fcf8f8",
+                    "inverse-surface": "#252626",
+                    "tertiary-fixed": "#d3ceef",
+                    "background": "#fbfbfa", /* adjusted per prompt */
+                    "surface-variant": "#fcf8f8",
+                    "error-container": "#ff9993",
+                    "on-secondary-fixed": "#403f3f",
+                    "primary-container": "#d8e2ff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {},
+            "fontFamily": {
+                    "headline": [
+                            "Inter"
+                    ],
+                    "body": [
+                            "Inter"
+                    ],
+                    "label": [
+                            "Inter"
+                    ],
+                    "mono": [
+                            "IBM Plex Mono"
+                    ]
+            }
+    },
+        },
+      }
+    </script>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: theme('colors.surface-container-low');
+            color: theme('colors.on-surface');
+        }
+        .font-mono {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        /* Custom scrollbar for data tables */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: theme('colors.surface-container-low');
+        }
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.outline-variant');
+            border-radius: theme('borderRadius.full');
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: theme('colors.outline');
+        }
+    </style>
+</head>
+<body class="flex h-screen overflow-hidden antialiased text-sm">
+<!-- TopNavBar (Horizontal, for Web Context) -->
+<nav class="hidden md:flex w-full h-12 items-center justify-between px-6 bg-surface-container border-b border-surface-container-highest fixed top-0 z-50">
+<div class="flex items-center gap-8 h-full">
+<span class="text-lg font-semibold text-primary tracking-tighter">DMS Pro</span>
+<div class="flex h-full">
+<a class="h-full px-4 flex items-center text-primary border-b-2 border-primary font-medium tracking-tight" href="#">Inventory</a>
+<a class="h-full px-4 flex items-center text-on-surface-variant hover:text-on-surface transition-colors font-medium tracking-tight" href="#">Logistics</a>
+<a class="h-full px-4 flex items-center text-on-surface-variant hover:text-on-surface transition-colors font-medium tracking-tight" href="#">Valuation</a>
+<a class="h-full px-4 flex items-center text-on-surface-variant hover:text-on-surface transition-colors font-medium tracking-tight" href="#">Sales</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-on-surface text-sm font-medium transition-colors scale-95 duration-100">Help</button>
+<div class="flex gap-2">
+<button class="text-on-surface-variant hover:text-on-surface transition-colors scale-95 duration-100 flex items-center justify-center w-8 h-8 rounded-full hover:bg-surface-container-highest">
+<span class="material-symbols-outlined text-lg">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-on-surface transition-colors scale-95 duration-100 flex items-center justify-center w-8 h-8 rounded-full hover:bg-surface-container-highest">
+<span class="material-symbols-outlined text-lg">settings</span>
+</button>
+</div>
+<div class="w-8 h-8 rounded-full bg-secondary-container overflow-hidden ml-2">
+<img alt="Operator Profile" class="w-full h-full object-cover" data-alt="professional headshot of an operator in a clean studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDNq9r08DL9Qcw_H53tWFMbH2LXrQiLOpF2mRxWEnNZjTp5cDY0KlqHUCaA79MH6UVW6-_3DeSzRUVJPCuFNcmklSR2_OBSY43RmLcrj7ZsqfrssPs0EK8Bp2nXZXq7EUliEFq-bf4mBGQlM0EhntJecS8E8GRCmJiqhXmyL1CRYyZdC_o_r7Snvl5Qh-3DgVrURvggtMgRNC4RbM8R48gzlWUdSDxbqcZo0oWsPm7u5ewjPKru9n_aM2UAp4WfvTihfXVnpSS3ncg"/>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 flex overflow-hidden mt-12 bg-surface-container-low">
+<!-- Left Sidebar (Contextual for Inventory Item) -->
+<aside class="w-[220px] h-full flex flex-col py-4 border-r border-surface-container-highest bg-surface-container shrink-0">
+<div class="px-6 mb-8">
+<h2 class="font-semibold text-on-surface tracking-tight truncate">2022 Porsche Panamera 4</h2>
+<div class="mt-2 inline-flex items-center px-2 py-0.5 rounded-sm bg-surface-container-highest">
+<span class="font-mono text-xs text-on-surface-variant tracking-wider">VIN: 1ABC...D901</span>
+</div>
+</div>
+<nav class="flex-1 flex flex-col gap-1 px-3">
+<a class="flex items-center gap-3 px-3 py-2 rounded-md text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">dashboard</span>
+<span class="font-mono text-xs uppercase tracking-widest">Overview</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-md bg-surface-container-highest text-primary font-bold border-r-2 border-primary transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">payments</span>
+<span class="font-mono text-xs uppercase tracking-widest">Cost Ledger</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-md text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">image</span>
+<span class="font-mono text-xs uppercase tracking-widest">Photos</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-md text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">analytics</span>
+<span class="font-mono text-xs uppercase tracking-widest">Appraisal</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-md text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">history</span>
+<span class="font-mono text-xs uppercase tracking-widest">Timeline</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-md text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">description</span>
+<span class="font-mono text-xs uppercase tracking-widest">Documents</span>
+</a>
+</nav>
+<div class="px-6 mt-auto mb-4">
+<button class="w-full py-2 bg-primary text-on-primary rounded-md font-medium text-sm tracking-tight hover:bg-primary-container transition-colors shadow-sm">
+                    Publish Vehicle
+                </button>
+</div>
+<div class="px-3 flex flex-col gap-1 border-t border-surface-container-highest pt-4">
+<a class="flex items-center gap-3 px-3 py-1.5 rounded-md text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[18px]">contact_support</span>
+<span class="font-mono text-[10px] uppercase tracking-widest">Support</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-1.5 rounded-md text-on-surface-variant hover:bg-surface-container-highest hover:text-on-surface transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+<span class="font-mono text-[10px] uppercase tracking-widest">Logs</span>
+</a>
+</div>
+</aside>
+<!-- Center Data Canvas -->
+<div class="flex-1 overflow-y-auto p-6 flex gap-6">
+<div class="flex-1 flex flex-col gap-6 max-w-4xl">
+<!-- Hero Header -->
+<header class="flex justify-between items-end pb-4 border-b border-surface-container-highest">
+<div>
+<h1 class="text-2xl font-semibold tracking-tight text-on-surface mb-1">Cost Ledger</h1>
+<p class="text-on-surface-variant text-sm">Financial breakdown and acquisition costs.</p>
+</div>
+<div class="flex gap-2">
+<button class="px-3 py-1.5 bg-surface-container-highest text-on-surface rounded text-sm font-medium hover:bg-surface-container-high transition-colors border border-surface-container-highest">
+                            Export CSV
+                        </button>
+<button class="px-3 py-1.5 bg-primary text-on-primary rounded text-sm font-medium hover:bg-primary-container transition-colors shadow-sm">
+                            Add Line Item
+                        </button>
+</div>
+</header>
+<!-- High Density Data Table: Acquisition -->
+<section class="bg-surface-container rounded-lg border border-surface-container-highest overflow-hidden">
+<div class="px-4 py-3 border-b border-surface-container-highest bg-surface-container-low flex justify-between items-center">
+<h3 class="font-medium text-sm tracking-tight text-on-surface">Acquisition Phase</h3>
+<span class="font-mono text-xs text-on-surface-variant">4 ITEMS</span>
+</div>
+<div class="w-full">
+<div class="grid grid-cols-12 gap-4 px-4 py-2 border-b border-surface-container-highest bg-surface text-xs font-medium text-on-surface-variant tracking-wider uppercase">
+<div class="col-span-2">Date</div>
+<div class="col-span-5">Description</div>
+<div class="col-span-2">Ref ID</div>
+<div class="col-span-3 text-right">Amount</div>
+</div>
+<!-- Table Rows -->
+<div class="group grid grid-cols-12 gap-4 px-4 py-2 border-b border-surface-container-highest hover:bg-surface-container-low transition-colors items-center text-sm">
+<div class="col-span-2 text-on-surface-variant font-mono text-xs">2023-10-12</div>
+<div class="col-span-5 text-on-surface font-medium truncate">Vehicle Purchase (Auction)</div>
+<div class="col-span-2 font-mono text-xs text-on-surface-variant">AUC-8921</div>
+<div class="col-span-3 text-right font-mono text-primary font-medium">₹ 1,12,50,000</div>
+</div>
+<div class="group grid grid-cols-12 gap-4 px-4 py-2 border-b border-surface-container-highest hover:bg-surface-container-low transition-colors items-center text-sm">
+<div class="col-span-2 text-on-surface-variant font-mono text-xs">2023-10-14</div>
+<div class="col-span-5 text-on-surface truncate">Transportation to Hub</div>
+<div class="col-span-2 font-mono text-xs text-on-surface-variant">LOG-441</div>
+<div class="col-span-3 text-right font-mono text-on-surface">₹ 45,000</div>
+</div>
+<div class="group grid grid-cols-12 gap-4 px-4 py-2 border-b border-surface-container-highest hover:bg-surface-container-low transition-colors items-center text-sm">
+<div class="col-span-2 text-on-surface-variant font-mono text-xs">2023-10-15</div>
+<div class="col-span-5 text-on-surface truncate">State Entry Tax</div>
+<div class="col-span-2 font-mono text-xs text-on-surface-variant">TAX-992</div>
+<div class="col-span-3 text-right font-mono text-on-surface">₹ 1,20,000</div>
+</div>
+<div class="group grid grid-cols-12 gap-4 px-4 py-2 hover:bg-surface-container-low transition-colors items-center text-sm">
+<div class="col-span-2 text-on-surface-variant font-mono text-xs">2023-10-18</div>
+<div class="col-span-5 text-on-surface truncate">RC Transfer Fees</div>
+<div class="col-span-2 font-mono text-xs text-on-surface-variant">RTO-001</div>
+<div class="col-span-3 text-right font-mono text-on-surface">₹ 15,500</div>
+</div>
+</div>
+<div class="px-4 py-3 bg-surface-container-low border-t border-surface-container-highest flex justify-between items-center">
+<span class="text-sm font-medium text-on-surface-variant">Acquisition Subtotal</span>
+<span class="font-mono font-semibold text-base text-on-surface">₹ 1,14,30,500</span>
+</div>
+</section>
+<!-- High Density Data Table: Refurbishment -->
+<section class="bg-surface-container rounded-lg border border-surface-container-highest overflow-hidden">
+<div class="px-4 py-3 border-b border-surface-container-highest bg-surface-container-low flex justify-between items-center">
+<h3 class="font-medium text-sm tracking-tight text-on-surface">Refurbishment Phase</h3>
+<span class="font-mono text-xs text-on-surface-variant">2 ITEMS</span>
+</div>
+<div class="w-full">
+<div class="grid grid-cols-12 gap-4 px-4 py-2 border-b border-surface-container-highest bg-surface text-xs font-medium text-on-surface-variant tracking-wider uppercase">
+<div class="col-span-2">Date</div>
+<div class="col-span-5">Description</div>
+<div class="col-span-2">Ref ID</div>
+<div class="col-span-3 text-right">Amount</div>
+</div>
+<!-- Table Rows -->
+<div class="group grid grid-cols-12 gap-4 px-4 py-2 border-b border-surface-container-highest hover:bg-surface-container-low transition-colors items-center text-sm">
+<div class="col-span-2 text-on-surface-variant font-mono text-xs">2023-10-22</div>
+<div class="col-span-5 text-on-surface font-medium truncate">Paint Correction &amp; Ceramic</div>
+<div class="col-span-2 font-mono text-xs text-on-surface-variant">WRK-771</div>
+<div class="col-span-3 text-right font-mono text-on-surface">₹ 85,000</div>
+</div>
+<div class="group grid grid-cols-12 gap-4 px-4 py-2 hover:bg-surface-container-low transition-colors items-center text-sm">
+<div class="col-span-2 text-on-surface-variant font-mono text-xs">2023-10-25</div>
+<div class="col-span-5 text-on-surface truncate">Alloy Wheel Refinishing (x4)</div>
+<div class="col-span-2 font-mono text-xs text-on-surface-variant">WRK-772</div>
+<div class="col-span-3 text-right font-mono text-on-surface">₹ 32,000</div>
+</div>
+</div>
+<div class="px-4 py-3 bg-surface-container-low border-t border-surface-container-highest flex justify-between items-center">
+<span class="text-sm font-medium text-on-surface-variant">Refurbishment Subtotal</span>
+<span class="font-mono font-semibold text-base text-on-surface">₹ 1,17,000</span>
+</div>
+</section>
+</div>
+<!-- Right Sidebar (Financial Summary) -->
+<aside class="w-[320px] shrink-0 flex flex-col gap-4">
+<!-- Vehicle Hero Thumbnail -->
+<div class="bg-surface-container rounded-lg border border-surface-container-highest overflow-hidden">
+<div class="h-40 bg-surface-container-high relative">
+<img alt="Porsche Panamera" class="w-full h-full object-cover" data-alt="sleek modern sports car parked in a well-lit showroom with reflections" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOb-Hi-dsFgRNK_4VO833UfroXynpQMdr4UKJdyA5jdXqzZtg-DTzhhO-mAdUvIsbQf4L8hPtA5ORF0WzTwjRyueLZpLY4Qh7op1quW__d3AcdFaGkTlN61IR0U_gIMsIIeM9w6-RIzl9H4MVhGZUR7E_tkCk-sPm5TQVs0jRVkY1w2VDKIQv-aN8RjZ9qhcnWHBE5fRmWE8AbWcJUE6a7pBwVk0NvPvOzUDROndodSCO3fZqcyQN5UYyFW0Xa8jfMnu6_As8jlCg"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/80 to-transparent"></div>
+<div class="absolute bottom-3 left-3 flex gap-2">
+<div class="px-2 py-0.5 rounded-sm bg-surface-container-highest border border-surface-variant/20 backdrop-blur-md">
+<span class="font-mono text-xs text-on-surface font-semibold">MH-01-AB-1234</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Financial Summary Card -->
+<div class="bg-surface-container rounded-lg border border-surface-container-highest p-5 flex flex-col gap-4">
+<h3 class="font-semibold tracking-tight text-on-surface border-b border-surface-container-highest pb-2">Financial Summary</h3>
+<div class="flex flex-col gap-3">
+<div class="flex justify-between items-end">
+<span class="text-sm text-on-surface-variant">Total Landed Cost</span>
+<span class="font-mono text-lg font-semibold text-on-surface">₹ 1,15,47,500</span>
+</div>
+<div class="flex justify-between items-end">
+<span class="text-sm text-on-surface-variant">Target Margin (12%)</span>
+<span class="font-mono text-sm text-primary">₹ 13,85,700</span>
+</div>
+<div class="h-px bg-surface-container-highest my-1"></div>
+<div class="flex justify-between items-end">
+<span class="text-sm font-medium text-on-surface">Listing Price</span>
+<span class="font-mono text-xl font-bold text-primary">₹ 1,29,33,200</span>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-surface-container-highest flex gap-2">
+<div class="flex-1 bg-surface-container-low rounded p-3 flex flex-col items-center justify-center border border-surface-container-highest">
+<span class="text-xs text-on-surface-variant mb-1">Days in Inv.</span>
+<span class="font-mono text-lg font-semibold text-on-surface">14</span>
+</div>
+<div class="flex-1 bg-surface-container-low rounded p-3 flex flex-col items-center justify-center border border-surface-container-highest">
+<span class="text-xs text-on-surface-variant mb-1">Views</span>
+<span class="font-mono text-lg font-semibold text-on-surface">842</span>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</main>
+</body></html>

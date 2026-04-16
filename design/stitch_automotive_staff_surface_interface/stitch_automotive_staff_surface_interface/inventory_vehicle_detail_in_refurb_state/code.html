@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vehicle Details - In Refurb</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-low": "#131313",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "inverse-primary": "#005bc4",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "on-tertiary-container": "#47445f",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "secondary": "#9f9d9d",
+                        "on-surface": "#e7e5e4",
+                        "secondary-fixed": "#e5e2e1",
+                        "tertiary-container": "#d3ceef",
+                        "on-error-container": "#ff9993",
+                        "on-primary-container": "#bdd0ff",
+                        "secondary-dim": "#9f9d9d",
+                        "secondary-container": "#3c3b3b",
+                        "error": "#ee7d77",
+                        "on-background": "#e7e5e4",
+                        "error-container": "#7f2927",
+                        "primary-container": "#004395",
+                        "tertiary-dim": "#c5c0e0",
+                        "error-dim": "#bb5551",
+                        "surface-container": "#191a1a",
+                        "surface-dim": "#0e0e0e",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "surface-container-high": "#1f2020",
+                        "surface": "#0e0e0e",
+                        "on-tertiary": "#504d68",
+                        "on-primary": "#003d88",
+                        "on-error": "#490106",
+                        "surface-variant": "#252626",
+                        "surface-container-lowest": "#000000",
+                        "on-secondary-container": "#c1bfbe",
+                        "on-surface-variant": "#acabaa",
+                        "outline-variant": "#484848",
+                        "background": "#0e0e0e",
+                        "inverse-on-surface": "#565554",
+                        "surface-container-highest": "#252626",
+                        "primary-dim": "#98b8ff",
+                        "outline": "#767575",
+                        "surface-bright": "#2c2c2c",
+                        "primary": "#adc6ff",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "inverse-surface": "#fcf8f8",
+                        "on-secondary-fixed": "#403f3f",
+                        "surface-tint": "#adc6ff",
+                        "primary-fixed": "#d8e2ff",
+                        "on-secondary": "#202020",
+                        "tertiary": "#e1dcfd",
+                        "on-tertiary-fixed": "#34314b",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "tertiary-fixed": "#d3ceef",
+                        "on-primary-fixed": "#003c86"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    fontFamily: {
+                        "sans": ["Inter", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #0A0A0A; color: #e7e5e4; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        .ghost-border { outline: 1px solid rgba(72, 72, 72, 0.15); }
+        .glass-panel { background: rgba(31, 32, 32, 0.8); backdrop-filter: blur(12px); }
+        /* Ambient shadow for slide-in */
+        .ambient-shadow { box-shadow: -20px 0 50px rgba(0,0,0, 0.5); }
+        
+        /* Hide scrollbar for clean look */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3c3b3b; border-radius: 4px; }
+    </style>
+</head>
+<body class="h-screen w-full flex overflow-hidden">
+<!-- Main Content Area (Dimmed background) -->
+<div class="flex-1 bg-surface-container-low opacity-40 transition-opacity">
+<!-- Mock background content to show context -->
+<div class="p-8">
+<div class="h-8 w-64 bg-surface-variant rounded mb-8"></div>
+<div class="h-96 w-full bg-surface-container rounded ghost-border"></div>
+</div>
+</div>
+<!-- Slide-in Panel -->
+<div class="w-[600px] h-full bg-surface-container glass-panel ambient-shadow flex flex-col fixed right-0 top-0 z-50 border-l border-outline-variant/20">
+<!-- Header -->
+<header class="flex justify-between items-start p-6 pb-4 bg-surface-container-low/50 border-b border-surface-variant">
+<div>
+<div class="flex items-center gap-3 mb-1">
+<h2 class="text-xl font-semibold tracking-tight text-on-surface">2021 Porsche 911 Carrera S</h2>
+<span class="px-2 py-0.5 rounded text-xs font-medium bg-error/20 text-error flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+                        In Refurb
+                    </span>
+</div>
+<div class="flex items-center gap-4 text-sm text-on-surface-variant">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">tag</span>
+<span class="font-mono text-on-surface">WP0AB299XMS2XXXXX</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[16px]">pin_drop</span>
+<span>Facility B - Bay 4</span>
+</div>
+</div>
+</div>
+<button class="p-2 rounded hover:bg-surface-variant text-on-surface-variant transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-6 space-y-8">
+<!-- Quick Actions & Valuation -->
+<div class="flex gap-4">
+<div class="flex-1 bg-surface-container-highest p-4 rounded-lg ghost-border">
+<p class="text-xs text-on-surface-variant mb-1 uppercase tracking-wider">Acquisition Cost</p>
+<p class="font-mono text-lg text-on-surface">₹ 1,42,50,000</p>
+</div>
+<div class="flex-1 bg-surface-container-highest p-4 rounded-lg ghost-border">
+<p class="text-xs text-on-surface-variant mb-1 uppercase tracking-wider">Est. Refurb Cost</p>
+<p class="font-mono text-lg text-error">₹ 4,50,000</p>
+</div>
+<button class="flex items-center justify-center w-12 h-12 rounded-lg bg-primary-container text-on-primary-container hover:bg-primary-container/80 transition-colors">
+<span class="material-symbols-outlined">edit_document</span>
+</button>
+</div>
+<!-- Refurbishment Status -->
+<section>
+<div class="flex justify-between items-end mb-4">
+<h3 class="text-sm font-medium text-on-surface tracking-tight uppercase">Active Refurbishment</h3>
+<div class="text-right">
+<p class="text-xs text-on-surface-variant">Est. Completion</p>
+<p class="text-sm font-medium text-primary">Oct 24, 2023</p>
+</div>
+</div>
+<div class="bg-surface-container-low rounded-lg p-1">
+<!-- Task List (High Density Table Style) -->
+<div class="flex flex-col">
+<!-- Header Row -->
+<div class="flex px-4 py-2 border-b border-surface-variant text-xs text-on-surface-variant font-medium">
+<div class="w-8"></div>
+<div class="flex-1">Task Description</div>
+<div class="w-24 text-right">Vendor</div>
+<div class="w-32 text-right">Status</div>
+</div>
+<!-- Row 1 -->
+<div class="flex items-center px-4 h-11 hover:bg-surface-variant/50 transition-colors rounded">
+<div class="w-8">
+<span class="material-symbols-outlined text-[18px] text-primary">check_circle</span>
+</div>
+<div class="flex-1 text-sm text-on-surface line-through opacity-70">
+                                Replace Rear Brake Pads
+                            </div>
+<div class="w-24 text-right text-xs text-on-surface-variant">In-House</div>
+<div class="w-32 text-right">
+<span class="text-xs font-medium text-primary">Completed</span>
+</div>
+</div>
+<!-- Row 2 -->
+<div class="flex items-center px-4 h-11 bg-surface-container-highest/30 rounded ghost-border">
+<div class="w-8">
+<span class="material-symbols-outlined text-[18px] text-error">pending</span>
+</div>
+<div class="flex-1 text-sm text-on-surface font-medium">
+                                Paint Correction &amp; Ceramic Coating
+                            </div>
+<div class="w-24 text-right text-xs text-on-surface-variant">AutoShine Pro</div>
+<div class="w-32 text-right">
+<span class="text-xs font-medium text-error">In Progress</span>
+</div>
+</div>
+<!-- Row 3 -->
+<div class="flex items-center px-4 h-11 hover:bg-surface-variant/50 transition-colors rounded">
+<div class="w-8">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant">schedule</span>
+</div>
+<div class="flex-1 text-sm text-on-surface">
+                                Leather Upholstery Conditioning
+                            </div>
+<div class="w-24 text-right text-xs text-on-surface-variant">In-House</div>
+<div class="w-32 text-right">
+<span class="text-xs text-on-surface-variant">Queued</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Linked Documents -->
+<section>
+<h3 class="text-sm font-medium text-on-surface tracking-tight uppercase mb-4">Linked Documents</h3>
+<div class="grid grid-cols-2 gap-3">
+<div class="flex items-start gap-3 p-3 rounded-lg bg-surface-container-low hover:bg-surface-variant transition-colors cursor-pointer ghost-border">
+<div class="p-2 rounded bg-surface-variant text-primary">
+<span class="material-symbols-outlined text-[20px]">receipt_long</span>
+</div>
+<div>
+<p class="text-sm font-medium text-on-surface">Job Card #JC-882</p>
+<p class="text-xs text-on-surface-variant">Created Oct 18</p>
+</div>
+</div>
+<div class="flex items-start gap-3 p-3 rounded-lg bg-surface-container-low hover:bg-surface-variant transition-colors cursor-pointer ghost-border">
+<div class="p-2 rounded bg-surface-variant text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">image</span>
+</div>
+<div>
+<p class="text-sm font-medium text-on-surface">Intake Photos</p>
+<p class="text-xs text-on-surface-variant">24 Items</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Inspector Notes -->
+<section>
+<h3 class="text-sm font-medium text-on-surface tracking-tight uppercase mb-3">Inspector Notes</h3>
+<div class="p-4 rounded-lg bg-surface-container-low text-sm text-on-surface leading-relaxed">
+                    Minor clear coat scratches on rear left quarter panel. Interior shows minimal wear, driver bolster needs light conditioning. Mechanically sound, passed 150-point inspection. Brake pads measured at 3mm, mandatory replacement initiated.
+                </div>
+</section>
+</div>
+<!-- Footer Actions -->
+<div class="p-4 bg-surface-container border-t border-surface-variant flex justify-end gap-3">
+<button class="px-4 py-2 rounded-lg bg-surface-container-highest text-on-surface text-sm font-medium hover:bg-surface-variant transition-colors">
+                Hold Process
+            </button>
+<button class="px-4 py-2 rounded-lg bg-primary text-on-primary text-sm font-medium hover:opacity-90 transition-opacity">
+                Update Status
+            </button>
+</div>
+</div>
+</body></html>

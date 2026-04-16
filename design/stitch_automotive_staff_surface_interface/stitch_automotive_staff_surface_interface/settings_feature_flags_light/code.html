@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Precision Concierge - Feature Flags</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#1f2020",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "on-primary-fixed": "#003c86",
+                        "outline": "#767575",
+                        "tertiary-dim": "#c5c0e0",
+                        "primary-fixed": "#d8e2ff",
+                        "tertiary-fixed": "#d3ceef",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "primary-dim": "#98b8ff",
+                        "outline-variant": "#484848",
+                        "on-secondary-container": "#c1bfbe",
+                        "inverse-primary": "#005bc4",
+                        "surface-bright": "#2c2c2c",
+                        "primary": "#adc6ff",
+                        "error-dim": "#bb5551",
+                        "surface-container-low": "#131313",
+                        "secondary-dim": "#9f9d9d",
+                        "surface": "#0e0e0e",
+                        "secondary": "#9f9d9d",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "surface-container": "#191a1a",
+                        "on-error-container": "#ff9993",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "error-container": "#7f2927",
+                        "on-tertiary": "#504d68",
+                        "primary-container": "#004395",
+                        "background": "#0e0e0e",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "surface-dim": "#0e0e0e",
+                        "on-tertiary-container": "#47445f",
+                        "inverse-surface": "#fcf8f8",
+                        "inverse-on-surface": "#565554",
+                        "tertiary": "#e1dcfd",
+                        "secondary-container": "#3c3b3b",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "on-error": "#490106",
+                        "on-tertiary-fixed": "#34314b",
+                        "on-primary": "#003d88",
+                        "surface-tint": "#adc6ff",
+                        "tertiary-container": "#d3ceef",
+                        "surface-variant": "#252626",
+                        "on-secondary": "#202020",
+                        "on-primary-container": "#bdd0ff",
+                        "on-surface-variant": "#acabaa",
+                        "error": "#ee7d77",
+                        "on-secondary-fixed": "#403f3f",
+                        "secondary-fixed": "#e5e2e1",
+                        "surface-container-highest": "#252626",
+                        "surface-container-lowest": "#000000",
+                        "on-surface": "#e7e5e4",
+                        "on-background": "#e7e5e4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined.fill { font-variation-settings: 'FILL' 1; }
+        /* Tonal layering utilities */
+        .ghost-border { border: 1px solid rgba(72, 72, 72, 0.15); }
+    </style>
+</head>
+<body class="bg-surface-container-low text-on-surface min-h-screen antialiased flex">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-screen w-[220px] bg-neutral-950 flex flex-col py-8 z-50 border-r border-neutral-800/50">
+<div class="px-6 mb-8 hidden">
+<h1 class="text-white font-headline text-lg font-semibold tracking-tighter">Precision Concierge</h1>
+</div>
+<div class="px-6 mb-8 flex flex-col gap-1">
+<h2 class="text-white font-headline font-semibold text-sm">Operations Hub</h2>
+<p class="text-neutral-500 font-label text-xs">Precision Logistics</p>
+</div>
+<button class="mx-4 mb-8 bg-primary text-on-primary rounded-md py-2 px-4 font-headline text-sm font-medium hover:bg-primary-dim transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add</span>
+            New Entry
+        </button>
+<div class="flex-1 flex flex-col gap-1 px-2">
+<!-- Tabs -->
+<a class="flex items-center gap-3 px-4 py-2 text-neutral-500 font-sans text-xs uppercase tracking-widest font-bold hover:bg-neutral-900 hover:text-neutral-200 transition-all rounded-r-md group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-neutral-500 font-sans text-xs uppercase tracking-widest font-bold hover:bg-neutral-900 hover:text-neutral-200 transition-all rounded-r-md group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">directions_car</span>
+                Active Inventory
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-neutral-500 font-sans text-xs uppercase tracking-widest font-bold hover:bg-neutral-900 hover:text-neutral-200 transition-all rounded-r-md group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">payments</span>
+                Procurement
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-neutral-500 font-sans text-xs uppercase tracking-widest font-bold hover:bg-neutral-900 hover:text-neutral-200 transition-all rounded-r-md group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">local_shipping</span>
+                Shipments
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-neutral-500 font-sans text-xs uppercase tracking-widest font-bold hover:bg-neutral-900 hover:text-neutral-200 transition-all rounded-r-md group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">account_balance</span>
+                Financials
+            </a>
+<!-- Active Tab: User Access -> Settings Context -->
+<a class="flex items-center gap-3 px-4 py-2 bg-neutral-800 text-white font-sans text-xs uppercase tracking-widest font-bold rounded-r-md translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined text-[20px] fill">group</span>
+                User Access
+            </a>
+</div>
+<div class="mt-auto flex flex-col gap-1 px-2 pt-4 border-t border-neutral-800/50">
+<a class="flex items-center gap-3 px-4 py-2 text-neutral-500 font-sans text-xs uppercase tracking-widest font-bold hover:bg-neutral-900 hover:text-neutral-200 transition-all rounded-r-md group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">analytics</span>
+                System Health
+            </a>
+<a class="flex items-center gap-3 px-4 py-2 text-neutral-500 font-sans text-xs uppercase tracking-widest font-bold hover:bg-neutral-900 hover:text-neutral-200 transition-all rounded-r-md group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:scale-110 transition-transform">help_center</span>
+                Support
+            </a>
+</div>
+</nav>
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-220px)] h-[48px] bg-neutral-900 flex items-center justify-between px-6 z-40 ml-[220px]">
+<div class="flex items-center gap-8 h-full">
+<h1 class="text-lg font-semibold tracking-tighter text-white font-headline">Precision Concierge</h1>
+<nav class="flex h-full gap-6">
+<a class="flex items-center h-full text-neutral-400 font-sans text-sm tracking-tight font-medium hover:bg-neutral-800 hover:text-white transition-colors px-2" href="#">Inventory</a>
+<a class="flex items-center h-full text-neutral-400 font-sans text-sm tracking-tight font-medium hover:bg-neutral-800 hover:text-white transition-colors px-2" href="#">Valuation</a>
+<a class="flex items-center h-full text-neutral-400 font-sans text-sm tracking-tight font-medium hover:bg-neutral-800 hover:text-white transition-colors px-2" href="#">Logistics</a>
+<a class="flex items-center h-full text-neutral-400 font-sans text-sm tracking-tight font-medium hover:bg-neutral-800 hover:text-white transition-colors px-2" href="#">Analytics</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-2 bg-surface-variant text-on-surface-variant px-3 py-1.5 rounded-DEFAULT text-sm font-medium hover:bg-surface-container-highest transition-colors ghost-border">
+<span class="material-symbols-outlined text-[16px]">search</span>
+<span>Command Palette</span>
+<span class="font-mono text-xs opacity-70 ml-2">⌘K</span>
+</button>
+<div class="flex items-center gap-2">
+<button class="p-1.5 text-neutral-400 hover:text-white hover:bg-neutral-800 rounded-DEFAULT transition-colors">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="p-1.5 text-white hover:bg-neutral-800 rounded-DEFAULT transition-colors bg-neutral-800">
+<span class="material-symbols-outlined text-[20px] fill">settings</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-[220px] mt-[48px] p-8 w-full max-w-[1440px] mx-auto flex flex-col gap-8">
+<!-- Page Header -->
+<header class="flex justify-between items-end">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-2 text-sm text-on-surface-variant">
+<a class="hover:text-primary transition-colors" href="#">Settings</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-on-surface">Feature Flags</span>
+</div>
+<h2 class="text-2xl font-headline font-semibold tracking-tight">Feature Flags &amp; Modules</h2>
+<p class="text-sm text-on-surface-variant max-w-2xl">Manage system-wide feature availability. Toggle advanced modules for specific outlets or global release.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 bg-surface-container-highest text-on-surface rounded-DEFAULT font-headline text-sm font-medium hover:bg-surface-variant transition-colors ghost-border">Discard Changes</button>
+<button class="px-4 py-2 bg-primary text-on-primary rounded-DEFAULT font-headline text-sm font-medium hover:bg-primary-dim transition-colors">Save Configuration</button>
+</div>
+</header>
+<!-- Configuration Layout -->
+<div class="grid grid-cols-12 gap-8">
+<!-- Side Context Menu (Settings specific) -->
+<aside class="col-span-3 flex flex-col gap-1">
+<a class="px-4 py-2.5 text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface rounded-DEFAULT transition-colors" href="#">General Settings</a>
+<a class="px-4 py-2.5 text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface rounded-DEFAULT transition-colors" href="#">User Management</a>
+<a class="px-4 py-2.5 text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface rounded-DEFAULT transition-colors" href="#">API Keys</a>
+<a class="px-4 py-2.5 text-sm font-medium bg-surface-container text-primary rounded-DEFAULT transition-colors" href="#">Feature Flags</a>
+<a class="px-4 py-2.5 text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface rounded-DEFAULT transition-colors" href="#">Audit Logs</a>
+</aside>
+<!-- Main Data Table Area -->
+<div class="col-span-9 flex flex-col gap-6">
+<!-- Filters/Search Bar for Flags -->
+<div class="bg-surface-container p-4 rounded-xl flex items-center justify-between ghost-border">
+<div class="flex items-center gap-4 w-1/2">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="w-full bg-surface-variant border-none rounded-DEFAULT pl-10 pr-4 py-2 text-sm text-on-surface placeholder:text-on-surface-variant focus:ring-1 focus:ring-primary/20 ghost-border outline-none transition-all" placeholder="Search flags, modules..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                            Filter
+                        </button>
+<select class="bg-surface-variant border-none rounded-DEFAULT text-sm text-on-surface py-1.5 pl-3 pr-8 ghost-border outline-none appearance-none cursor-pointer">
+<option>All Modules</option>
+<option>Valuation Engine</option>
+<option>Logistics</option>
+</select>
+</div>
+</div>
+<!-- High-Density Data Table -->
+<div class="bg-surface-container rounded-xl overflow-hidden ghost-border">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-high/50 text-xs text-on-surface-variant uppercase tracking-widest font-headline">
+<th class="px-6 py-3 font-medium w-[200px]">Module Flag</th>
+<th class="px-6 py-3 font-medium">Description</th>
+<th class="px-6 py-3 font-medium w-[250px]">Enabled For (Outlets)</th>
+<th class="px-6 py-3 font-medium w-[100px] text-right">Status</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="font-mono text-primary font-medium">FLAG_VAL_AI_V2</span>
+<span class="text-xs text-on-surface-variant mt-0.5">Valuation Engine</span>
+</div>
+</td>
+<td class="px-6 py-4 text-on-surface-variant pr-8">Enables the v2 predictive pricing model based on real-time auction scraping.</td>
+<td class="px-6 py-4">
+<div class="flex flex-wrap gap-1.5">
+<span class="px-2 py-0.5 bg-surface-container-highest text-on-surface text-xs rounded-DEFAULT font-mono ghost-border">MUM-01</span>
+<span class="px-2 py-0.5 bg-surface-container-highest text-on-surface text-xs rounded-DEFAULT font-mono ghost-border">DEL-04</span>
+<button class="px-1 py-0.5 text-on-surface-variant hover:text-primary transition-colors flex items-center">
+<span class="material-symbols-outlined text-[14px]">add</span>
+</button>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<label class="relative inline-flex items-center cursor-pointer justify-end w-full">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-9 h-5 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[18px] after:bg-on-surface after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="font-mono text-on-surface font-medium">FLAG_LOG_GPS_TRK</span>
+<span class="text-xs text-on-surface-variant mt-0.5">Logistics Core</span>
+</div>
+</td>
+<td class="px-6 py-4 text-on-surface-variant pr-8">Live GPS tracking for flatbed carrier network integration.</td>
+<td class="px-6 py-4">
+<div class="flex flex-wrap gap-1.5">
+<span class="px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-DEFAULT font-mono font-medium">GLOBAL</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<label class="relative inline-flex items-center cursor-pointer justify-end w-full">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-9 h-5 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[18px] after:bg-on-surface after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-6 py-4">
+<div class="flex flex-col">
+<span class="font-mono text-on-surface font-medium opacity-50">FLAG_INV_DEPRECIATE</span>
+<span class="text-xs text-on-surface-variant mt-0.5">Inventory Management</span>
+</div>
+</td>
+<td class="px-6 py-4 text-on-surface-variant pr-8 opacity-50">Automated daily asset depreciation calculation in ledger.</td>
+<td class="px-6 py-4">
+<div class="flex flex-wrap gap-1.5 opacity-50">
+<span class="text-xs text-on-surface-variant italic">None</span>
+</div>
+</td>
+<td class="px-6 py-4 text-right">
+<label class="relative inline-flex items-center cursor-pointer justify-end w-full">
+<input class="sr-only peer" type="checkbox" value=""/>
+<div class="w-9 h-5 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-on-surface-variant after:border-transparent after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+</body></html>

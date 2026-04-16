@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sales HQ - Kanban</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-variant": "#252626",
+                        "surface-container": "#191a1a",
+                        "on-primary-container": "#bdd0ff",
+                        "tertiary-dim": "#c5c0e0",
+                        "surface-container-low": "#131313",
+                        "secondary-dim": "#9f9d9d",
+                        "on-surface": "#e7e5e4",
+                        "on-secondary-container": "#c1bfbe",
+                        "on-error": "#490106",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "error-container": "#7f2927",
+                        "surface-container-highest": "#252626",
+                        "surface": "#0e0e0e",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "secondary-fixed": "#e5e2e1",
+                        "error": "#ee7d77",
+                        "on-primary-fixed": "#003c86",
+                        "inverse-on-surface": "#565554",
+                        "error-dim": "#bb5551",
+                        "on-tertiary-container": "#47445f",
+                        "surface-bright": "#2c2c2c",
+                        "surface-container-high": "#1f2020",
+                        "background": "#0e0e0e",
+                        "tertiary-fixed": "#d3ceef",
+                        "inverse-surface": "#fcf8f8",
+                        "on-secondary": "#202020",
+                        "secondary-container": "#3c3b3b",
+                        "primary-dim": "#98b8ff",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "on-primary": "#003d88",
+                        "outline-variant": "#484848",
+                        "surface-container-lowest": "#000000",
+                        "on-tertiary": "#504d68",
+                        "tertiary-container": "#d3ceef",
+                        "on-surface-variant": "#acabaa",
+                        "on-background": "#e7e5e4",
+                        "surface-tint": "#adc6ff",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "inverse-primary": "#005bc4",
+                        "primary-fixed": "#d8e2ff",
+                        "primary-container": "#004395",
+                        "secondary": "#9f9d9d",
+                        "on-tertiary-fixed": "#34314b",
+                        "primary": "#adc6ff",
+                        "on-error-container": "#ff9993",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "tertiary": "#e1dcfd",
+                        "surface-dim": "#0e0e0e",
+                        "on-secondary-fixed": "#403f3f",
+                        "outline": "#767575"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined[data-weight="fill"] { font-variation-settings: 'FILL' 1; }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body h-screen flex overflow-hidden">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-12 h-[calc(100vh-48px)] w-[220px] bg-neutral-950 text-blue-500 font-sans text-sm flex flex-col py-4 border-r border-neutral-800 hidden md:flex z-40">
+<div class="px-6 mb-8">
+<h1 class="text-white font-bold tracking-tight">Sales HQ</h1>
+<p class="text-neutral-500 text-xs mt-1">Operational Precision</p>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full bg-primary text-on-primary font-medium py-2 px-4 rounded flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                New Deal
+            </button>
+</div>
+<div class="flex-1 flex flex-col gap-1 px-3 overflow-y-auto">
+<a class="flex items-center gap-3 px-3 py-2 rounded text-neutral-500 hover:bg-neutral-900 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="dashboard">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded bg-neutral-800 text-white font-semibold transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="monetization_on">monetization_on</span>
+                Active Deals
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-neutral-500 hover:bg-neutral-900 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="hourglass_empty">hourglass_empty</span>
+                Pending
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-neutral-500 hover:bg-neutral-900 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="check_circle">check_circle</span>
+                Closed
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-neutral-500 hover:bg-neutral-900 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="leaderboard">leaderboard</span>
+                Analytics
+            </a>
+</div>
+<div class="mt-auto px-3 flex flex-col gap-1 border-t border-neutral-800 pt-4">
+<a class="flex items-center gap-3 px-3 py-2 rounded text-neutral-500 hover:bg-neutral-900 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="help">help</span>
+                Support
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-neutral-500 hover:bg-neutral-900 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="archive">archive</span>
+                Archive
+            </a>
+</div>
+</nav>
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-neutral-900/80 backdrop-blur-xl border-b border-neutral-800/50 shadow-2xl shadow-black/40 flex items-center justify-between px-6 h-12">
+<div class="flex items-center gap-6">
+<div class="text-lg font-semibold tracking-tighter text-white mr-8 hidden md:block">Luxury Assets Ops</div>
+<nav class="hidden md:flex items-center gap-1 font-sans tracking-tight font-medium text-sm h-full">
+<a class="px-3 h-full flex items-center text-neutral-400 hover:text-white transition-colors" href="#">Inventory</a>
+<a class="px-3 h-full flex items-center text-blue-400 border-b-2 border-blue-500" href="#">Pipeline</a>
+<a class="px-3 h-full flex items-center text-neutral-400 hover:text-white transition-colors" href="#">Logistics</a>
+<a class="px-3 h-full flex items-center text-neutral-400 hover:text-white transition-colors" href="#">Valuations</a>
+</nav>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-1.5 text-neutral-400 hover:text-white hover:bg-white/5 transition-all rounded scale-95 active:scale-90 flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="search">search</span>
+</button>
+<button class="p-1.5 text-neutral-400 hover:text-white hover:bg-white/5 transition-all rounded scale-95 active:scale-90 flex items-center justify-center relative">
+<span class="material-symbols-outlined text-[20px]" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-error rounded-full"></span>
+</button>
+<button class="p-1.5 text-neutral-400 hover:text-white hover:bg-white/5 transition-all rounded scale-95 active:scale-90 flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+</button>
+<div class="h-6 w-6 ml-2 rounded-full overflow-hidden border border-neutral-700 bg-neutral-800">
+<img alt="User Profile Avatar" class="w-full h-full object-cover" data-alt="professional headshot of a man with short hair wearing a dark suit against a neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJQnW4ewX8QR00qLDCi4RJrk03A216TKxJgo1ir7FdEECnGieQgr0td7ORdXD4z6E8U24w-VSIdvZbG7k9rpuvQlr9gdDuluEY3NeoCA0K71aeM8TQeD0xxtHv1RfoeaYSVH_K0qpRh4HHm5y9RTrj-lZtJu_Z5zhC2TrB0lsg0QQuNElusf7444yKaR_8dZ1b2u9I6gKXsshTXes3epUQJRmkmvXL9_Y_kv2Oq8ldeiHTXNdTPUZIKJ4peN5mY1IKNiiL8m39vAg"/>
+</div>
+</div>
+</header>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-[220px] mt-12 mb-10 overflow-hidden flex flex-col bg-surface-container-lowest">
+<!-- Header / Filters (Sub-nav level) -->
+<div class="px-8 py-4 flex items-center justify-between border-b border-surface-container/50 bg-surface-container-low shrink-0">
+<div class="flex items-center gap-4">
+<h2 class="text-xl font-semibold tracking-tight text-on-surface">Active Pipeline</h2>
+<div class="h-4 w-px bg-outline-variant"></div>
+<div class="flex gap-2">
+<span class="px-2 py-1 text-xs font-medium bg-surface-container rounded text-on-surface-variant flex items-center gap-1">
+                        Region: North
+                        <span class="material-symbols-outlined text-[14px]">arrow_drop_down</span>
+</span>
+<span class="px-2 py-1 text-xs font-medium bg-surface-container rounded text-on-surface-variant flex items-center gap-1">
+                        Asset Class: Automotive
+                        <span class="material-symbols-outlined text-[14px]">arrow_drop_down</span>
+</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-2.5 top-1.5 text-[16px] text-on-surface-variant">search</span>
+<input class="bg-surface-variant border-none text-sm text-on-surface rounded pl-8 pr-3 py-1.5 w-64 focus:ring-1 focus:ring-outline-variant/20 placeholder:text-on-surface-variant/50" placeholder="Search VIN, Client..." type="text"/>
+</div>
+<button class="p-1.5 bg-surface-container text-on-surface-variant rounded hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+</button>
+</div>
+</div>
+<!-- Kanban Board Area -->
+<div class="flex-1 overflow-x-auto overflow-y-hidden p-8">
+<div class="flex gap-6 h-full items-start min-w-max">
+<!-- Column 1: New Lead -->
+<div class="w-[320px] flex flex-col h-full bg-surface-container-low/30 rounded-lg p-3 border border-surface-container">
+<div class="flex items-center justify-between mb-4 px-1">
+<h3 class="font-medium text-sm text-on-surface flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary-dim"></span>
+                            New Lead
+                        </h3>
+<div class="text-right">
+<span class="font-mono text-xs text-on-surface-variant">3 Deals</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto space-y-3 pb-4 scrollbar-hide">
+<!-- Card 1 -->
+<div class="bg-surface-container p-4 rounded border border-transparent hover:border-outline-variant/20 transition-colors cursor-grab">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-mono bg-surface-container-highest px-1.5 py-0.5 rounded text-on-surface-variant">DL-2241</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant hover:text-on-surface cursor-pointer">more_horiz</span>
+</div>
+<h4 class="font-medium text-on-surface text-sm mb-1">Rohan Mehta</h4>
+<p class="text-xs text-on-surface-variant mb-3">2021 Porsche 911 Carrera S</p>
+<div class="flex items-center justify-between border-t border-surface-container-highest pt-2">
+<div class="font-mono text-sm text-on-surface">₹ 1,85,00,000</div>
+<div class="flex -space-x-1">
+<div class="w-5 h-5 rounded-full bg-surface-container-high border border-surface-container flex items-center justify-center text-[8px] text-on-surface-variant">RM</div>
+</div>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container p-4 rounded border border-transparent hover:border-outline-variant/20 transition-colors cursor-grab">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-mono bg-surface-container-highest px-1.5 py-0.5 rounded text-on-surface-variant">DL-2245</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant hover:text-on-surface cursor-pointer">more_horiz</span>
+</div>
+<h4 class="font-medium text-on-surface text-sm mb-1">Arjun Kapoor</h4>
+<p class="text-xs text-on-surface-variant mb-3">2023 Range Rover Autobiography</p>
+<div class="flex items-center justify-between border-t border-surface-container-highest pt-2">
+<div class="font-mono text-sm text-on-surface">₹ 3,10,00,000</div>
+<div class="flex -space-x-1">
+<div class="w-5 h-5 rounded-full bg-surface-container-high border border-surface-container flex items-center justify-center text-[8px] text-on-surface-variant">AK</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Column 2: Contacted (Source of drag) -->
+<div class="w-[320px] flex flex-col h-full bg-surface-container-low/30 rounded-lg p-3 border border-surface-container">
+<div class="flex items-center justify-between mb-4 px-1">
+<h3 class="font-medium text-sm text-on-surface flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary-dim"></span>
+                            Contacted
+                        </h3>
+<div class="text-right">
+<span class="font-mono text-xs text-on-surface-variant">2 Deals</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto space-y-3 pb-4 scrollbar-hide relative">
+<!-- Ghost slot where card used to be -->
+<div class="bg-surface-container/20 border border-dashed border-outline-variant/30 rounded h-[124px]"></div>
+<!-- Card 3 -->
+<div class="bg-surface-container p-4 rounded border border-transparent hover:border-outline-variant/20 transition-colors cursor-grab mt-3">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-mono bg-surface-container-highest px-1.5 py-0.5 rounded text-on-surface-variant">DL-2238</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant hover:text-on-surface cursor-pointer">more_horiz</span>
+</div>
+<h4 class="font-medium text-on-surface text-sm mb-1">Priya Sharma</h4>
+<p class="text-xs text-on-surface-variant mb-3">2020 Mercedes-Benz G63 AMG</p>
+<div class="flex items-center justify-between border-t border-surface-container-highest pt-2">
+<div class="font-mono text-sm text-on-surface">₹ 2,45,00,000</div>
+<div class="flex -space-x-1">
+<div class="w-5 h-5 rounded-full bg-surface-container-high border border-surface-container flex items-center justify-center text-[8px] text-on-surface-variant">PS</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Column 3: Test Drive (Drop Zone Active) -->
+<div class="w-[320px] flex flex-col h-full bg-primary-container/5 rounded-lg p-3 border border-primary-container/30 relative">
+<!-- Drop Zone Overlay Highlight -->
+<div class="absolute inset-0 bg-primary/5 rounded-lg pointer-events-none"></div>
+<div class="flex items-center justify-between mb-4 px-1 relative z-10">
+<h3 class="font-medium text-sm text-on-surface flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+                            Test Drive
+                        </h3>
+<div class="text-right">
+<span class="font-mono text-xs text-primary/80">Drop to update</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto space-y-3 pb-4 scrollbar-hide relative z-10">
+<!-- Drop target indicator -->
+<div class="h-2 bg-primary/20 rounded-full mb-2"></div>
+<!-- Card 4 -->
+<div class="bg-surface-container p-4 rounded border border-transparent hover:border-outline-variant/20 transition-colors cursor-grab opacity-60">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-mono bg-surface-container-highest px-1.5 py-0.5 rounded text-on-surface-variant">DL-2230</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant hover:text-on-surface cursor-pointer">more_horiz</span>
+</div>
+<h4 class="font-medium text-on-surface text-sm mb-1">Anand Patel</h4>
+<p class="text-xs text-on-surface-variant mb-3">2022 BMW M5 Competition</p>
+<div class="flex items-center justify-between border-t border-surface-container-highest pt-2">
+<div class="font-mono text-sm text-on-surface">₹ 1,95,00,000</div>
+<div class="flex -space-x-1">
+<div class="w-5 h-5 rounded-full bg-surface-container-high border border-surface-container flex items-center justify-center text-[8px] text-on-surface-variant">AP</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Column 4: Negotiation -->
+<div class="w-[320px] flex flex-col h-full bg-surface-container-low/30 rounded-lg p-3 border border-surface-container">
+<div class="flex items-center justify-between mb-4 px-1">
+<h3 class="font-medium text-sm text-on-surface flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary-dim"></span>
+                            Negotiation
+                        </h3>
+<div class="text-right">
+<span class="font-mono text-xs text-on-surface-variant">1 Deal</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto space-y-3 pb-4 scrollbar-hide">
+<!-- Card 5 -->
+<div class="bg-surface-container p-4 rounded border border-transparent hover:border-outline-variant/20 transition-colors cursor-grab">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-mono bg-surface-container-highest px-1.5 py-0.5 rounded text-on-surface-variant">DL-2225</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant hover:text-on-surface cursor-pointer">more_horiz</span>
+</div>
+<h4 class="font-medium text-on-surface text-sm mb-1">Neha Gupta</h4>
+<p class="text-xs text-on-surface-variant mb-3">2021 Audi RS Q8</p>
+<div class="flex items-center justify-between border-t border-surface-container-highest pt-2">
+<div class="font-mono text-sm text-on-surface">₹ 2,15,00,000</div>
+<div class="flex -space-x-1">
+<div class="w-5 h-5 rounded-full bg-surface-container-high border border-surface-container flex items-center justify-center text-[8px] text-on-surface-variant">NG</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- The Dragged Card (Absolutely positioned to simulate drag state) -->
+<div class="absolute z-50 top-[280px] left-[780px] w-[296px] bg-surface-container p-4 rounded border border-outline-variant/40 shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform scale-[1.02] cursor-grabbing rotate-[-1deg]">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-mono bg-surface-container-highest px-1.5 py-0.5 rounded text-on-surface-variant">DL-2242</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant cursor-pointer">more_horiz</span>
+</div>
+<h4 class="font-medium text-on-surface text-sm mb-1">Vikram Desai</h4>
+<p class="text-xs text-on-surface-variant mb-3">2022 Lamborghini Urus Pearl Capsule</p>
+<div class="flex items-center justify-between border-t border-surface-container-highest pt-2">
+<div class="font-mono text-sm text-primary">₹ 3,85,00,000</div>
+<div class="flex -space-x-1">
+<div class="w-5 h-5 rounded-full bg-primary-container border border-surface-container flex items-center justify-center text-[8px] text-on-primary-container">VD</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer / Bottom Status Bar -->
+<footer class="fixed bottom-0 left-[220px] right-0 h-10 bg-neutral-900 border-t border-neutral-800 flex items-center justify-between px-8 z-40 hidden md:flex">
+<div class="font-mono text-[10px] uppercase tracking-widest text-neutral-500 flex items-center gap-4">
+<span>© 2024 Luxury Assets Ops</span>
+<span class="w-1 h-1 rounded-full bg-neutral-700"></span>
+<span class="text-primary-dim">17 active deals · ₹8.4 Cr pipeline</span>
+</div>
+<div class="flex gap-4 font-mono text-[10px] uppercase tracking-widest text-neutral-500">
+<a class="hover:text-blue-400 transition-colors" href="#">Terms</a>
+<a class="hover:text-blue-400 transition-colors" href="#">Privacy</a>
+<a class="hover:text-blue-400 transition-colors" href="#">API</a>
+</div>
+</footer>
+</body></html>

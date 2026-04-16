@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>GRN Detail - Precision Concierge</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-high": "#1f2020",
+                        "surface-container-lowest": "#000000",
+                        "error-dim": "#bb5551",
+                        "on-tertiary-container": "#47445f",
+                        "on-secondary": "#202020",
+                        "secondary-container": "#3c3b3b",
+                        "surface-variant": "#252626",
+                        "on-background": "#e7e5e4",
+                        "on-primary-fixed": "#003c86",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "surface-bright": "#2c2c2c",
+                        "primary-dim": "#98b8ff",
+                        "surface-container-low": "#131313",
+                        "secondary": "#9f9d9d",
+                        "on-primary": "#003d88",
+                        "tertiary-fixed": "#d3ceef",
+                        "surface-dim": "#0e0e0e",
+                        "outline": "#767575",
+                        "background": "#0e0e0e",
+                        "secondary-dim": "#9f9d9d",
+                        "inverse-primary": "#005bc4",
+                        "inverse-on-surface": "#565554",
+                        "tertiary-dim": "#c5c0e0",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "surface-tint": "#adc6ff",
+                        "on-primary-container": "#bdd0ff",
+                        "on-secondary-fixed": "#403f3f",
+                        "surface-container": "#191a1a",
+                        "on-surface": "#e7e5e4",
+                        "primary-container": "#004395",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "tertiary": "#e1dcfd",
+                        "inverse-surface": "#fcf8f8",
+                        "error-container": "#7f2927",
+                        "surface-container-highest": "#252626",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "error": "#ee7d77",
+                        "on-tertiary-fixed": "#34314b",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "outline-variant": "#484848",
+                        "on-error-container": "#ff9993",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "primary-fixed": "#d8e2ff",
+                        "on-surface-variant": "#acabaa",
+                        "on-secondary-container": "#c1bfbe",
+                        "surface": "#0e0e0e",
+                        "primary": "#adc6ff",
+                        "secondary-fixed": "#e5e2e1",
+                        "tertiary-container": "#d3ceef",
+                        "on-tertiary": "#504d68",
+                        "on-error": "#490106",
+                        "amber-dim": "#d97706",
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="bg-surface-container-low text-on-surface flex min-h-screen">
+<!-- SideNavBar -->
+<nav class="bg-neutral-900 dark:bg-neutral-900 text-blue-500 font-['Inter'] text-sm tracking-normal docked full-height left-0 w-[220px] fixed left-0 top-0 h-full flex flex-col py-6 shrink-0 z-50">
+<div class="px-6 mb-8">
+<div class="text-blue-500 font-bold text-lg mb-1">Precision Ops</div>
+<div class="text-neutral-500 text-xs">Automotive Concierge</div>
+</div>
+<div class="flex-1 flex flex-col gap-2 w-full">
+<a class="flex items-center gap-3 px-6 py-2.5 text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/30 transition-all duration-200 ease-in-out w-full" href="#">
+<span class="material-symbols-outlined text-[20px]">inventory_2</span>
+<span>Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-2.5 text-blue-400 bg-neutral-800/50 font-medium border-r-2 border-blue-500 transition-all duration-200 ease-in-out w-full" href="#">
+<span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+<span>Procurement</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-2.5 text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/30 transition-all duration-200 ease-in-out w-full" href="#">
+<span class="material-symbols-outlined text-[20px]">local_shipping</span>
+<span>Logistics</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-2.5 text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/30 transition-all duration-200 ease-in-out w-full" href="#">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+<span>Valuations</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-2.5 text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/30 transition-all duration-200 ease-in-out w-full" href="#">
+<span class="material-symbols-outlined text-[20px]">leaderboard</span>
+<span>Analytics</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-2.5 text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/30 transition-all duration-200 ease-in-out w-full" href="#">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+<span>Settings</span>
+</a>
+</div>
+<div class="px-6 mt-auto">
+<button class="w-full py-2 bg-primary text-on-primary rounded-lg text-sm font-medium hover:bg-primary-dim transition-colors">
+                New Entry
+            </button>
+<div class="mt-6 flex items-center gap-3">
+<img alt="Inventory Manager" class="w-8 h-8 rounded-full border border-outline-variant" data-alt="Headshot of professional man in dark lighting, subtle rim light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAp-Qe2Res39bW0e7ceiIhdi8ffG9dD0jWPFBZ2XHJOMROXyqOf2tp3qKuwZELdi4a2PvewGveXTPaJoKmNTVOZygDaW4ljpJYwzgQHf3WOoSmooSWSbQn9aR-m7MSwT74v5Tw9-1N6CxOeaks1Xh0tfe5sMfNtECuq9u2cRRJHtp-Mp-YygTmQHfGOyhDNZFab4ON9NxUI-0ZYTUrB4dhSM8MSYSMem-UpIPMvhITxOP-jb-Huys1rIyA3NI49XNTjNoECpkVQins"/>
+<div class="text-xs text-neutral-400">J. Smith</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="ml-[220px] flex-1 flex flex-col min-h-screen">
+<!-- TopNavBar -->
+<header class="bg-[#0A0A0A] dark:bg-neutral-950 text-blue-500 dark:text-blue-400 font-['Inter'] font-medium tracking-tight text-sm docked full-width top-0 bg-neutral-900/50 flat no shadows flex justify-between items-center w-full px-6 h-12 sticky z-40 backdrop-blur-md border-b border-white/[0.02]">
+<div class="flex items-center gap-4">
+<span class="text-lg font-semibold tracking-tighter text-neutral-100 dark:text-white">GRN Management</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden md:block">
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-[18px] text-neutral-500">search</span>
+<input class="bg-surface-variant border-none rounded-md py-1 pl-8 pr-3 text-xs w-64 focus:ring-1 focus:ring-primary focus:outline-none placeholder-neutral-500 text-on-surface" placeholder="Search GRN..." type="text"/>
+</div>
+<button class="text-neutral-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="text-neutral-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-[20px]">keyboard_command_key</span>
+</button>
+</div>
+</header>
+<div class="flex-1 p-6 lg:p-8 max-w-[1220px] mx-auto w-full flex flex-col gap-6">
+<!-- Breadcrumbs -->
+<nav class="flex items-center gap-2 text-xs text-on-surface-variant font-medium">
+<a class="hover:text-primary transition-colors" href="#">Parts</a>
+<span class="material-symbols-outlined text-[14px] text-outline">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">GRN</a>
+<span class="material-symbols-outlined text-[14px] text-outline">chevron_right</span>
+<span class="text-on-surface font-mono">GRN-2026-0089</span>
+</nav>
+<!-- Page Header -->
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-2">
+<h1 class="font-mono text-2xl font-medium tracking-tight text-on-surface flex items-center gap-3">
+                        GRN-2026-0089
+                        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-surface-container-highest text-amber-500 text-xs font-sans tracking-normal border border-outline-variant/30">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                            Pending Approval
+                        </span>
+</h1>
+<p class="text-sm text-on-surface-variant">Goods Receipt Note for Purchase Order PO-2026-0412</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="text-sm text-primary hover:text-primary-dim transition-colors flex items-center gap-1 font-medium">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                        Add Note
+                    </button>
+<button class="px-4 py-2 bg-surface-container-highest text-on-surface rounded-md text-sm font-medium hover:bg-surface-variant transition-colors border border-outline-variant/20">
+                        Edit Details
+                    </button>
+</div>
+</div>
+<!-- Bento Grid: Meta Information -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+<!-- Supplier Info -->
+<div class="bg-surface-container rounded-xl p-5 flex flex-col gap-4 border border-white/[0.02]">
+<div class="flex items-center gap-2 text-on-surface-variant text-sm font-medium">
+<span class="material-symbols-outlined text-[18px]">storefront</span>
+                        Supplier Details
+                    </div>
+<div>
+<div class="text-base font-semibold text-on-surface mb-1">Bosch Automotive India</div>
+<div class="flex flex-col gap-1 text-sm text-on-surface-variant">
+<div class="flex justify-between">
+<span>GSTIN</span>
+<span class="font-mono text-on-surface">29ABCDE1234F1Z5</span>
+</div>
+<div class="flex justify-between">
+<span>Vendor ID</span>
+<span class="font-mono text-on-surface">VEN-1048</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Logistics Info -->
+<div class="bg-surface-container rounded-xl p-5 flex flex-col gap-4 border border-white/[0.02]">
+<div class="flex items-center gap-2 text-on-surface-variant text-sm font-medium">
+<span class="material-symbols-outlined text-[18px]">local_shipping</span>
+                        Logistics
+                    </div>
+<div class="flex flex-col gap-2 text-sm">
+<div class="flex justify-between items-center py-1 border-b border-surface-container-highest">
+<span class="text-on-surface-variant">PO Reference</span>
+<span class="font-mono text-primary cursor-pointer hover:underline">PO-2026-0412</span>
+</div>
+<div class="flex justify-between items-center py-1 border-b border-surface-container-highest">
+<span class="text-on-surface-variant">Delivery Date</span>
+<span class="text-on-surface">14 Mar 2026</span>
+</div>
+<div class="flex justify-between items-center py-1">
+<span class="text-on-surface-variant">Received By</span>
+<span class="text-on-surface flex items-center gap-2">
+<span class="w-5 h-5 rounded-full bg-surface-container-highest flex items-center justify-center text-[10px] text-on-surface">KS</span>
+                                Kiran S.
+                            </span>
+</div>
+</div>
+</div>
+<!-- Financial Summary (Placeholder/Contextual) -->
+<div class="bg-surface-container rounded-xl p-5 flex flex-col gap-4 border border-white/[0.02] relative overflow-hidden">
+<div class="absolute right-0 top-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+<div class="flex items-center gap-2 text-on-surface-variant text-sm font-medium z-10">
+<span class="material-symbols-outlined text-[18px]">account_balance_wallet</span>
+                        Total Value
+                    </div>
+<div class="mt-auto z-10">
+<div class="font-mono text-2xl font-medium text-on-surface">₹ 14,85,200</div>
+<div class="text-xs text-on-surface-variant mt-1 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-primary">verified_user</span>
+                            Dual-control required (Threshold &gt; ₹10L)
+                        </div>
+</div>
+</div>
+</div>
+<!-- Line Items Table Section -->
+<div class="bg-surface-container rounded-xl border border-white/[0.02] overflow-hidden mt-2 flex flex-col flex-1 min-h-[400px]">
+<div class="p-4 border-b border-surface-container-highest flex items-center justify-between bg-surface-container-low/50">
+<h3 class="text-sm font-semibold text-on-surface">Received Line Items</h3>
+<div class="text-xs text-on-surface-variant">4 Items Total</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-xs text-on-surface-variant border-b border-surface-container-highest bg-surface-container-low/30">
+<th class="font-medium px-4 py-3 w-40">Part No.</th>
+<th class="font-medium px-4 py-3">Description</th>
+<th class="font-medium px-4 py-3 text-right w-24">PO Qty</th>
+<th class="font-medium px-4 py-3 text-right w-32">Received Qty</th>
+<th class="font-medium px-4 py-3 text-right w-32">Unit Price</th>
+<th class="font-medium px-4 py-3 text-right w-40">Total</th>
+</tr>
+</thead>
+<tbody class="text-sm divide-y divide-surface-container-highest">
+<!-- Row 1: Match -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="px-4 py-3 align-middle">
+<span class="font-mono text-xs bg-surface-container-highest px-2 py-1 rounded text-on-surface">BOS-O2S-892</span>
+</td>
+<td class="px-4 py-3 align-middle text-on-surface">Oxygen Sensor (Upstream)</td>
+<td class="px-4 py-3 align-middle text-right text-on-surface-variant">120</td>
+<td class="px-4 py-3 align-middle text-right">
+<input class="w-20 bg-surface-variant border-outline-variant/20 rounded-md text-right font-mono text-sm px-2 py-1 focus:ring-1 focus:ring-primary focus:border-primary text-on-surface" type="number" value="120"/>
+</td>
+<td class="px-4 py-3 align-middle text-right font-mono text-on-surface-variant">₹ 4,200</td>
+<td class="px-4 py-3 align-middle text-right font-mono text-on-surface">₹ 5,04,000</td>
+</tr>
+<!-- Row 2: Mismatch (Shortage) -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group bg-error/5">
+<td class="px-4 py-3 align-middle">
+<span class="font-mono text-xs bg-surface-container-highest px-2 py-1 rounded text-on-surface">BOS-MAF-114</span>
+</td>
+<td class="px-4 py-3 align-middle text-on-surface">Mass Air Flow Sensor</td>
+<td class="px-4 py-3 align-middle text-right text-on-surface-variant">50</td>
+<td class="px-4 py-3 align-middle text-right relative">
+<input class="w-20 bg-surface-variant border-amber-500/50 rounded-md text-right font-mono text-sm px-2 py-1 focus:ring-1 focus:ring-amber-500 text-amber-500 font-medium" type="number" value="45"/>
+<div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[120%] text-[10px] text-amber-500 hidden md:block w-max whitespace-nowrap">-5 Short</div>
+</td>
+<td class="px-4 py-3 align-middle text-right font-mono text-on-surface-variant">₹ 12,500</td>
+<td class="px-4 py-3 align-middle text-right font-mono text-on-surface">₹ 5,62,500</td>
+</tr>
+<!-- Row 3: Match -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="px-4 py-3 align-middle">
+<span class="font-mono text-xs bg-surface-container-highest px-2 py-1 rounded text-on-surface">BOS-FJP-002</span>
+</td>
+<td class="px-4 py-3 align-middle text-on-surface">Fuel Injector Set (V6)</td>
+<td class="px-4 py-3 align-middle text-right text-on-surface-variant">10</td>
+<td class="px-4 py-3 align-middle text-right">
+<input class="w-20 bg-surface-variant border-outline-variant/20 rounded-md text-right font-mono text-sm px-2 py-1 focus:ring-1 focus:ring-primary text-on-surface" type="number" value="10"/>
+</td>
+<td class="px-4 py-3 align-middle text-right font-mono text-on-surface-variant">₹ 34,000</td>
+<td class="px-4 py-3 align-middle text-right font-mono text-on-surface">₹ 3,40,000</td>
+</tr>
+<!-- Row 4: Match -->
+<tr class="hover:bg-surface-container-low/50 transition-colors group">
+<td class="px-4 py-3 align-middle">
+<span class="font-mono text-xs bg-surface-container-highest px-2 py-1 rounded text-on-surface">BOS-IGN-881</span>
+</td>
+<td class="px-4 py-3 align-middle text-on-surface">Ignition Coil Pack</td>
+<td class="px-4 py-3 align-middle text-right text-on-surface-variant">24</td>
+<td class="px-4 py-3 align-middle text-right">
+<input class="w-20 bg-surface-variant border-outline-variant/20 rounded-md text-right font-mono text-sm px-2 py-1 focus:ring-1 focus:ring-primary text-on-surface" type="number" value="24"/>
+</td>
+<td class="px-4 py-3 align-middle text-right font-mono text-on-surface-variant">₹ 3,275</td>
+<td class="px-4 py-3 align-middle text-right font-mono text-on-surface">₹ 78,600</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Approval Footer -->
+<div class="mt-auto pt-6 flex items-center justify-between border-t border-surface-container-highest">
+<div class="flex items-center gap-2 text-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">info</span>
+                    Discrepancies must be resolved or noted before approval.
+                </div>
+<div class="flex items-center gap-4">
+<button class="px-5 py-2.5 text-error hover:bg-error/10 rounded-md text-sm font-medium transition-colors border border-transparent hover:border-error/20">
+                        Reject
+                    </button>
+<button class="px-6 py-2.5 bg-primary text-on-primary rounded-md text-sm font-medium hover:bg-primary-dim transition-all shadow-[0_0_20px_rgba(173,198,255,0.1)] flex items-center gap-2">
+                        Approve GRN
+                        <span class="material-symbols-outlined text-[18px]">check_circle</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

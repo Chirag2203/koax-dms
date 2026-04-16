@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Velocity Console - Vehicle Documents</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "background": "#0e0e0e",
+                        "outline": "#767575",
+                        "primary": "#adc6ff",
+                        "secondary-fixed": "#e5e2e1",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "inverse-on-surface": "#565554",
+                        "on-tertiary-fixed": "#34314b",
+                        "secondary-dim": "#9f9d9d",
+                        "surface-container-low": "#131313",
+                        "surface-container-lowest": "#000000",
+                        "primary-fixed": "#d8e2ff",
+                        "on-surface-variant": "#acabaa",
+                        "on-primary-fixed": "#003c86",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "inverse-primary": "#005bc4",
+                        "surface-bright": "#2c2c2c",
+                        "inverse-surface": "#fcf8f8",
+                        "surface-container": "#191a1a",
+                        "outline-variant": "#484848",
+                        "on-tertiary-container": "#47445f",
+                        "on-primary-container": "#bdd0ff",
+                        "on-error": "#490106",
+                        "error": "#ee7d77",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "tertiary": "#e1dcfd",
+                        "tertiary-dim": "#c5c0e0",
+                        "on-primary": "#003d88",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "on-secondary-container": "#c1bfbe",
+                        "surface-tint": "#adc6ff",
+                        "surface-container-highest": "#252626",
+                        "primary-container": "#004395",
+                        "on-secondary": "#202020",
+                        "tertiary-container": "#d3ceef",
+                        "surface-container-high": "#1f2020",
+                        "secondary-container": "#3c3b3b",
+                        "surface-variant": "#252626",
+                        "error-dim": "#bb5551",
+                        "surface": "#0e0e0e",
+                        "tertiary-fixed": "#d3ceef",
+                        "on-tertiary": "#504d68",
+                        "on-surface": "#e7e5e4",
+                        "error-container": "#7f2927",
+                        "secondary": "#9f9d9d",
+                        "surface-dim": "#0e0e0e",
+                        "primary-dim": "#98b8ff",
+                        "on-secondary-fixed": "#403f3f",
+                        "on-background": "#e7e5e4",
+                        "on-error-container": "#ff9993"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "sans": ["Inter", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Ghost borders and typography specific styles */
+        .ghost-border {
+            box-shadow: inset 0 0 0 1px rgba(118, 117, 117, 0.15); /* outline-variant at 15% opacity */
+        }
+        .data-mono {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        .text-tracking-tight {
+            letter-spacing: -0.02em;
+        }
+        
+        /* Hide scrollbar for clean high-density look */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #252626;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface font-sans antialiased min-h-screen flex flex-col overflow-hidden">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-neutral-900/80 backdrop-blur-xl flex items-center justify-between px-6 h-12 w-full bg-neutral-800/50 shadow-2xl shadow-black/50">
+<div class="flex items-center gap-6 h-full">
+<span class="text-lg font-semibold text-white tracking-tighter">Velocity Console</span>
+<div class="h-4 w-px bg-outline-variant/30"></div>
+<!-- Breadcrumbs instead of typical search -->
+<nav class="flex items-center gap-2 text-sm">
+<a class="text-on-surface-variant hover:text-on-surface transition-colors" href="#">Inventory</a>
+<span class="material-symbols-outlined text-[16px] text-outline-variant">chevron_right</span>
+<a class="text-on-surface-variant hover:text-on-surface transition-colors" href="#">Vehicles</a>
+<span class="material-symbols-outlined text-[16px] text-outline-variant">chevron_right</span>
+<span class="text-on-surface font-medium data-mono">WP0ZZZ97•••1234</span>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-neutral-400 hover:text-neutral-200 transition-colors duration-200 active:scale-95">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="text-neutral-400 hover:text-neutral-200 transition-colors duration-200 active:scale-95">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+<div class="w-7 h-7 rounded-full bg-surface-container-highest ghost-border overflow-hidden ml-2">
+<img alt="User profile" class="w-full h-full object-cover" data-alt="professional headshot of man in dark setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCS3bfaXTKmUHOm3TXHIEj7qfjD_EE2yKDkCf7Emp3oi-tUvnb7dz8YZxVGBRKz_HX1ef2tgTHX0j34C-4A_kn7BvXcNggD3F6tFiEdNvpv4xoxIO8CY52SKQqC-T1lFK2fwdRJ4YPP7AVehzHoStiHQAb3H9N87OrzZrJL1KODwsUPs_Erbt_ZZIiDxzPrTOZ9CN4hnbLHsXvcsl1Td7qfW7wDzUHNrGNTflsHsMs-B3HsOjl7VkzoycKMDfygL3JIJjLdaLZi7ZI"/>
+</div>
+</div>
+</header>
+<div class="flex flex-1 pt-12 h-screen overflow-hidden">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-12 h-screen w-[220px] bg-neutral-950 flex flex-col py-4 gap-2 bg-neutral-900 border-r border-transparent">
+<div class="px-4 pb-6 mb-2 border-b border-surface-container-low/50">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-surface-container-highest ghost-border flex items-center justify-center overflow-hidden shrink-0">
+<img alt="Vehicle Profile" class="w-full h-full object-cover" data-alt="side profile of dark grey porsche 911 sports car" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMadtvnyxo1Md3z8NTU2iG-0t1096lYVvcH7vWcPpM1OiJ_OvB5NPzJuQznDU9h5QB_CzQUk9Oluo6jiT2mpBTe2EocOTvPNLrKPkrf-n2e6Qdz_2l9hL_vPaDrGsZhc808amfD2HqZEo-XFSNvMtydX55d55ymfC23eIDPtMvnZcOYBRNtUp3ZRaegWaSE7pr7Elo5XhPkH0RYHRtZdXPaVDakJ1rR-xvzVPN8ZApgan7ArPdiz0JyhDN-1uKJI-hHKfSSk3oYgc"/>
+</div>
+<div class="flex flex-col overflow-hidden">
+<span class="text-white font-bold text-sm truncate">2022 Porsche Panamera 4</span>
+<span class="text-neutral-500 text-xs data-mono truncate">VIN: WP0ZZZ97ZNS123456</span>
+</div>
+</div>
+</div>
+<nav class="flex flex-col gap-1 px-2">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-500 hover:bg-neutral-900 hover:text-neutral-300 transition-all cursor-pointer font-sans text-sm" href="#">
+<span class="material-symbols-outlined text-[18px]">info</span>
+                    Overview
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-500 hover:bg-neutral-900 hover:text-neutral-300 transition-all cursor-pointer font-sans text-sm" href="#">
+<span class="material-symbols-outlined text-[18px]">list_alt</span>
+                    Specifications
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-500 hover:bg-neutral-900 hover:text-neutral-300 transition-all cursor-pointer font-sans text-sm" href="#">
+<span class="material-symbols-outlined text-[18px]">history</span>
+                    History
+                </a>
+<!-- Active Nav Item based on intent -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-neutral-800 text-white font-medium border-l-4 border-blue-500 transition-all cursor-pointer font-sans text-sm" href="#">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">description</span>
+                    Documents
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-500 hover:bg-neutral-900 hover:text-neutral-300 transition-all cursor-pointer font-sans text-sm" href="#">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+                    Valuations
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-500 hover:bg-neutral-900 hover:text-neutral-300 transition-all cursor-pointer font-sans text-sm" href="#">
+<span class="material-symbols-outlined text-[18px]">local_shipping</span>
+                    Logistics
+                </a>
+</nav>
+<div class="mt-auto px-4 pb-16">
+<button class="w-full py-2 bg-surface-container-highest hover:bg-surface-bright text-on-surface text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[16px]">download</span>
+                    Export Data
+                </button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-[220px] flex-1 flex flex-col bg-surface-container-low h-full overflow-hidden">
+<!-- Vehicle Header -->
+<div class="px-8 pt-8 pb-6 flex flex-col gap-6 shrink-0 z-10 relative">
+<div class="flex items-start justify-between">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-3">
+<h1 class="text-2xl font-semibold text-on-surface text-tracking-tight">2022 Porsche Panamera 4</h1>
+<span class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-surface-container-highest ghost-border text-xs font-medium text-primary">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                                Published
+                            </span>
+</div>
+<div class="flex items-center gap-3">
+<div class="px-2 py-1 bg-surface-container-highest rounded data-mono text-xs text-on-surface-variant ghost-border">
+                                WP0ZZZ97ZNS123456
+                            </div>
+<span class="text-sm text-on-surface-variant">Stock: #POR-829</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 bg-surface-container-highest hover:bg-surface-bright text-on-surface text-sm font-medium rounded-lg transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+                            Edit
+                        </button>
+<button class="px-4 py-2 bg-primary/10 text-primary hover:bg-primary/20 text-sm font-medium rounded-lg transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">visibility</span>
+                            View on Storefront
+                        </button>
+</div>
+</div>
+<!-- Secondary Tab Bar -->
+<div class="flex items-center gap-6 border-b border-surface-container-highest/50">
+<a class="pb-3 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors" href="#">Overview</a>
+<a class="pb-3 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors" href="#">Cost Ledger</a>
+<a class="pb-3 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors" href="#">Photos</a>
+<a class="pb-3 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors" href="#">Appraisal</a>
+<a class="pb-3 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors" href="#">Timeline</a>
+<a class="pb-3 text-sm font-medium text-primary border-b-2 border-primary" href="#">Documents</a>
+</div>
+</div>
+<!-- Content Area with Right Sidebar -->
+<div class="flex-1 flex overflow-hidden">
+<!-- Documents Table (Center Panel) -->
+<div class="flex-1 overflow-y-auto p-8 pt-2">
+<div class="flex items-center justify-between mb-4">
+<h2 class="text-base font-medium text-on-surface">File Repository</h2>
+<button class="px-3 py-1.5 bg-surface-container-highest text-on-surface text-xs font-medium rounded-lg flex items-center gap-1.5 hover:bg-surface-bright transition-colors">
+<span class="material-symbols-outlined text-[16px]">upload</span>
+                            Upload File
+                        </button>
+</div>
+<div class="bg-surface-container rounded-xl ghost-border overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-highest/50 border-b border-surface-container-lowest/20">
+<th class="px-4 py-3 text-xs font-medium text-on-surface-variant w-1/3">Document Name</th>
+<th class="px-4 py-3 text-xs font-medium text-on-surface-variant">Type</th>
+<th class="px-4 py-3 text-xs font-medium text-on-surface-variant text-right">Date Uploaded</th>
+<th class="px-4 py-3 text-xs font-medium text-on-surface-variant text-right">Size</th>
+<th class="px-4 py-3 text-xs font-medium text-on-surface-variant text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-lowest/10">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-4 py-3">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[20px] text-primary-dim">badge</span>
+<span class="text-sm font-medium text-on-surface">Registration Certificate (RC)</span>
+</div>
+</td>
+<td class="px-4 py-3">
+<span class="px-2 py-0.5 rounded bg-surface-container-highest text-[11px] text-on-surface-variant uppercase tracking-wider">Legal</span>
+</td>
+<td class="px-4 py-3 text-right data-mono text-sm text-on-surface-variant">
+                                        2023-10-14
+                                    </td>
+<td class="px-4 py-3 text-right data-mono text-sm text-on-surface-variant">
+                                        2.4 MB
+                                    </td>
+<td class="px-4 py-3 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1 text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
+<button class="p-1 text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">download</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-4 py-3">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[20px] text-tertiary-dim">verified_user</span>
+<span class="text-sm font-medium text-on-surface">Insurance Policy</span>
+</div>
+</td>
+<td class="px-4 py-3">
+<span class="px-2 py-0.5 rounded bg-surface-container-highest text-[11px] text-on-surface-variant uppercase tracking-wider">Compliance</span>
+</td>
+<td class="px-4 py-3 text-right data-mono text-sm text-on-surface-variant">
+                                        2023-10-15
+                                    </td>
+<td class="px-4 py-3 text-right data-mono text-sm text-on-surface-variant">
+                                        1.8 MB
+                                    </td>
+<td class="px-4 py-3 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1 text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
+<button class="p-1 text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">download</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-4 py-3">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[20px] text-secondary-dim">assignment</span>
+<span class="text-sm font-medium text-on-surface">Appraisal Report (PDF)</span>
+</div>
+</td>
+<td class="px-4 py-3">
+<span class="px-2 py-0.5 rounded bg-surface-container-highest text-[11px] text-on-surface-variant uppercase tracking-wider">Valuation</span>
+</td>
+<td class="px-4 py-3 text-right data-mono text-sm text-on-surface-variant">
+                                        2023-10-18
+                                    </td>
+<td class="px-4 py-3 text-right data-mono text-sm text-on-surface-variant">
+                                        5.1 MB
+                                    </td>
+<td class="px-4 py-3 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1 text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
+<button class="p-1 text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">download</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container-low transition-colors group">
+<td class="px-4 py-3">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[20px] text-error-dim">data_table</span>
+<span class="text-sm font-medium text-on-surface">Tally Export</span>
+</div>
+</td>
+<td class="px-4 py-3">
+<span class="px-2 py-0.5 rounded bg-surface-container-highest text-[11px] text-on-surface-variant uppercase tracking-wider">Financial</span>
+</td>
+<td class="px-4 py-3 text-right data-mono text-sm text-on-surface-variant">
+                                        2023-10-20
+                                    </td>
+<td class="px-4 py-3 text-right data-mono text-sm text-on-surface-variant">
+                                        0.4 MB
+                                    </td>
+<td class="px-4 py-3 text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1 text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
+<button class="p-1 text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">download</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Right Sidebar: Financial Snapshot -->
+<aside class="w-[320px] bg-surface-container p-6 shrink-0 overflow-y-auto ghost-border">
+<h3 class="text-sm font-medium text-on-surface mb-6 uppercase tracking-wider text-on-surface-variant">Financial Snapshot</h3>
+<div class="flex flex-col gap-6">
+<!-- Ask Price -->
+<div class="flex flex-col gap-1">
+<span class="text-xs text-on-surface-variant">Ask Price</span>
+<span class="text-xl font-semibold text-primary data-mono">₹ 1,28,50,000</span>
+</div>
+<!-- Landed Cost -->
+<div class="flex flex-col gap-1">
+<span class="text-xs text-on-surface-variant">Landed Cost</span>
+<span class="text-lg font-medium text-on-surface data-mono">₹ 1,12,00,000</span>
+</div>
+<div class="h-px bg-surface-container-highest w-full"></div>
+<!-- Projected Margin -->
+<div class="flex items-center justify-between">
+<span class="text-sm text-on-surface-variant">Projected Margin</span>
+<div class="flex items-center gap-2">
+<span class="text-sm font-medium text-error-dim data-mono">₹ 16,50,000</span>
+<span class="px-1.5 py-0.5 rounded bg-surface-container-highest text-[10px] text-error-dim">14.7%</span>
+</div>
+</div>
+<!-- Action -->
+<div class="mt-8 pt-6 border-t border-surface-container-highest">
+<button class="w-full py-2.5 bg-surface-container-highest hover:bg-surface-bright text-error-dim text-sm font-medium rounded-lg transition-colors border border-error-dim/20">
+                                Unpublish Vehicle
+                            </button>
+<p class="text-[10px] text-on-surface-variant text-center mt-3">
+                                Unpublishing will remove this vehicle from all active storefronts and auction channels.
+                            </p>
+</div>
+</div>
+</aside>
+</div>
+</main>
+</div>
+</body></html>

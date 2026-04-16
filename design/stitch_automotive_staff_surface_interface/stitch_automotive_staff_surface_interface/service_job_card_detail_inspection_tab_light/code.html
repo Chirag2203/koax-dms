@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Precision Ops - Job Card Inspection</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-highest": "#252626",
+                        "surface-variant": "#252626",
+                        "surface-container": "#191a1a",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "surface-bright": "#2c2c2c",
+                        "surface-container-low": "#131313",
+                        "error-dim": "#bb5551",
+                        "inverse-surface": "#fcf8f8",
+                        "outline-variant": "#484848",
+                        "tertiary-fixed": "#d3ceef",
+                        "on-error-container": "#ff9993",
+                        "surface-tint": "#adc6ff",
+                        "tertiary-container": "#d3ceef",
+                        "primary-dim": "#98b8ff",
+                        "error": "#ee7d77",
+                        "surface-container-lowest": "#000000",
+                        "inverse-on-surface": "#565554",
+                        "inverse-primary": "#005bc4",
+                        "secondary-container": "#3c3b3b",
+                        "on-tertiary-fixed": "#34314b",
+                        "error-container": "#7f2927",
+                        "on-primary": "#003d88",
+                        "on-primary-container": "#bdd0ff",
+                        "on-surface-variant": "#acabaa",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "surface-dim": "#0e0e0e",
+                        "on-secondary-container": "#c1bfbe",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "background": "#0e0e0e",
+                        "primary-fixed": "#d8e2ff",
+                        "tertiary-dim": "#c5c0e0",
+                        "primary-container": "#004395",
+                        "on-tertiary-container": "#47445f",
+                        "secondary-fixed": "#e5e2e1",
+                        "secondary": "#9f9d9d",
+                        "tertiary": "#e1dcfd",
+                        "primary": "#adc6ff",
+                        "on-surface": "#e7e5e4",
+                        "on-primary-fixed": "#003c86",
+                        "secondary-dim": "#9f9d9d",
+                        "on-error": "#490106",
+                        "surface-container-high": "#1f2020",
+                        "surface": "#0e0e0e",
+                        "on-tertiary": "#504d68",
+                        "on-secondary": "#202020",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "outline": "#767575",
+                        "on-background": "#e7e5e4",
+                        "on-secondary-fixed": "#403f3f"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface h-screen flex overflow-hidden antialiased tracking-tight">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col bg-neutral-900 dark:bg-zinc-900 h-full w-[220px] py-4 border-r border-zinc-800/50 flex-shrink-0">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center text-on-primary-container font-bold">P</div>
+<div>
+<h1 class="text-zinc-100 font-bold text-sm">Workshop Alpha</h1>
+<p class="text-xs text-zinc-400 font-mono">Terminal ID: 8829</p>
+</div>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full bg-primary text-on-primary py-2 px-4 rounded-DEFAULT font-medium text-sm hover:bg-primary-dim transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-lg">add</span>
+                New Job Card
+            </button>
+</div>
+<div class="flex-1 overflow-y-auto px-3 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT bg-zinc-800 text-blue-400 font-semibold transition-colors" href="#">
+<span class="material-symbols-outlined">assignment</span>
+                Job Cards
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200 transition-colors" href="#">
+<span class="material-symbols-outlined">fact_check</span>
+                Inspections
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200 transition-colors" href="#">
+<span class="material-symbols-outlined">build</span>
+                Workshop
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200 transition-colors" href="#">
+<span class="material-symbols-outlined">engineering</span>
+                Technicians
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200 transition-colors" href="#">
+<span class="material-symbols-outlined">minor_crash</span>
+                Inventory
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200 transition-colors" href="#">
+<span class="material-symbols-outlined">analytics</span>
+                Reports
+            </a>
+</div>
+<div class="px-3 pt-4 border-t border-zinc-800/50 space-y-1 mt-auto">
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+                Settings
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-DEFAULT text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200 transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+                Support
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col h-full overflow-hidden">
+<!-- TopNavBar -->
+<header class="bg-neutral-950 dark:bg-zinc-950 flex justify-between items-center px-6 h-12 w-full flex-shrink-0 z-10">
+<div class="flex items-center gap-6 h-full">
+<span class="text-lg font-semibold tracking-tighter text-zinc-100">Precision Ops</span>
+<nav class="hidden md:flex items-center gap-6 h-full">
+<a class="text-zinc-400 pb-2 hover:text-zinc-100 transition-colors text-sm font-medium h-full flex items-center border-b-2 border-transparent" href="#">Inventory</a>
+<a class="text-blue-500 border-b-2 border-blue-500 pb-2 hover:text-zinc-100 transition-colors text-sm font-medium h-full flex items-center" href="#">Service</a>
+<a class="text-zinc-400 pb-2 hover:text-zinc-100 transition-colors text-sm font-medium h-full flex items-center border-b-2 border-transparent" href="#">Logistics</a>
+<a class="text-zinc-400 pb-2 hover:text-zinc-100 transition-colors text-sm font-medium h-full flex items-center border-b-2 border-transparent" href="#">Valuation</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-zinc-400 hover:text-zinc-100 active:opacity-80 transition-opacity">
+<span class="material-symbols-outlined">search</span>
+</button>
+<button class="text-zinc-400 hover:text-zinc-100 active:opacity-80 transition-opacity relative">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full"></span>
+</button>
+<img alt="Service Advisor Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBQy_VmxGCAW11NjLMUXdY6K5rfxGQBZGDPIxUSz6RuOC5H37o6ESsDoYyUCDZ0M5QUvvRRr-2BuqYhF9S2opGOrTq_zRtMg4tvCV9TWmj2HbmezoqBXWiyPtml8f8_SL_pBhtdQWOZQ39hViFH-DZfXWGnVJgTks1Oep-kaHFXkfuNJp7qX2IPn_r3-5IC0GKpLm6GrBK4hA6lgPpAqLQKxNMZhry178uppz0qI4ik32PCeWaBAMRpxcFTeymIUpicbdkGY4_u1kA"/>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-1 overflow-y-auto bg-surface-container-low p-6">
+<div class="max-w-7xl mx-auto space-y-6">
+<!-- Job Card Header & Stepper -->
+<div class="bg-surface-container p-6 rounded-xl flex flex-col gap-6">
+<div class="flex justify-between items-start">
+<div>
+<div class="flex items-center gap-3 mb-2">
+<h2 class="text-2xl font-semibold tracking-tight text-on-surface">JC-2026-0341</h2>
+<span class="bg-primary-container text-on-primary-container text-xs font-medium px-2.5 py-1 rounded-DEFAULT">In Progress</span>
+<span class="bg-surface-container-highest text-on-surface-variant text-xs font-mono px-2.5 py-1 rounded-DEFAULT">Bay 3</span>
+</div>
+<h3 class="text-on-surface-variant text-sm">Porsche Panamera GTS (2022) • <span class="font-mono text-xs">WP0ZZZ97ZNL123456</span></h3>
+</div>
+<button class="bg-surface-container-highest text-on-surface px-4 py-2 rounded-DEFAULT text-sm font-medium hover:bg-surface-bright transition-colors">
+                            Manage Status
+                        </button>
+</div>
+<!-- Stepper -->
+<div class="flex items-center w-full mt-4">
+<div class="flex flex-col items-center flex-1 relative">
+<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-surface-container-lowest z-10">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="text-xs mt-2 text-primary">Received</span>
+<div class="absolute top-3 left-1/2 w-full h-[2px] bg-primary"></div>
+</div>
+<div class="flex flex-col items-center flex-1 relative">
+<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-surface-container-lowest z-10">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="text-xs mt-2 text-primary">Diagnosed</span>
+<div class="absolute top-3 left-1/2 w-full h-[2px] bg-primary"></div>
+<div class="absolute top-3 right-1/2 w-full h-[2px] bg-primary"></div>
+</div>
+<div class="flex flex-col items-center flex-1 relative">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border-2 border-primary flex items-center justify-center z-10">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+</div>
+<span class="text-xs mt-2 text-on-surface font-medium">In Progress</span>
+<div class="absolute top-3 left-1/2 w-full h-[2px] bg-surface-container-highest"></div>
+<div class="absolute top-3 right-1/2 w-full h-[2px] bg-primary"></div>
+</div>
+<div class="flex flex-col items-center flex-1 relative">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest flex items-center justify-center z-10">
+</div>
+<span class="text-xs mt-2 text-on-surface-variant">QC</span>
+<div class="absolute top-3 left-1/2 w-full h-[2px] bg-surface-container-highest"></div>
+<div class="absolute top-3 right-1/2 w-full h-[2px] bg-surface-container-highest"></div>
+</div>
+<div class="flex flex-col items-center flex-1 relative">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest flex items-center justify-center z-10">
+</div>
+<span class="text-xs mt-2 text-on-surface-variant">Ready</span>
+<div class="absolute top-3 right-1/2 w-full h-[2px] bg-surface-container-highest"></div>
+</div>
+</div>
+</div>
+<!-- Tabs -->
+<div class="flex gap-1 border-b border-surface-container-highest">
+<button class="px-4 py-2 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors">Overview</button>
+<button class="px-4 py-2 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors">Labour</button>
+<button class="px-4 py-2 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors">Parts</button>
+<button class="px-4 py-2 text-sm font-medium text-primary border-b-2 border-primary">Inspection</button>
+<button class="px-4 py-2 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors">Timeline</button>
+<button class="px-4 py-2 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors">Invoice Preview</button>
+</div>
+<!-- Inspection Content Area -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Main Inspection Checklist -->
+<div class="lg:col-span-2 space-y-6">
+<!-- Header Card -->
+<div class="bg-surface-container p-6 rounded-xl flex justify-between items-center">
+<div>
+<h3 class="text-lg font-semibold text-on-surface mb-1">210-Point Technical Inspection</h3>
+<p class="text-sm text-on-surface-variant">Completed by Tech ID: <span class="font-mono">TR-882</span></p>
+</div>
+<div class="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center text-xl font-bold border-2 border-primary-dim">
+                                A
+                            </div>
+</div>
+<!-- Categories -->
+<div class="space-y-4">
+<!-- Category: Engine & Powertrain (Collapsed) -->
+<div class="bg-surface-container rounded-xl overflow-hidden">
+<button class="w-full px-6 py-4 flex justify-between items-center hover:bg-surface-container-highest transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">settings_applications</span>
+<span class="font-medium text-on-surface">Engine &amp; Powertrain</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded">Pass</span>
+<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+</div>
+</button>
+</div>
+<!-- Category: Braking System (Expanded) -->
+<div class="bg-surface-container rounded-xl overflow-hidden border border-surface-container-highest">
+<div class="px-6 py-4 flex justify-between items-center bg-surface-container-highest">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-error">car_crash</span>
+<span class="font-medium text-on-surface">Braking System</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-xs font-medium text-error bg-error/10 px-2 py-1 rounded">Needs Attention</span>
+<span class="material-symbols-outlined text-on-surface-variant">expand_less</span>
+</div>
+</div>
+<div class="p-6">
+<!-- High Density Table -->
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-xs text-on-surface-variant border-b border-surface-container-highest">
+<th class="pb-3 font-medium">Checkpoint</th>
+<th class="pb-3 font-medium">Status</th>
+<th class="pb-3 font-medium">Measurement</th>
+<th class="pb-3 font-medium text-right">Action</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<tr class="hover:bg-surface-container-highest transition-colors group">
+<td class="py-3 text-on-surface">Front brake pads</td>
+<td class="py-3">
+<div class="flex items-center gap-2 text-error">
+<div class="w-1.5 h-1.5 rounded-full bg-error"></div>
+<span class="font-medium">Replace</span>
+</div>
+</td>
+<td class="py-3 font-mono text-on-surface-variant">3.2mm</td>
+<td class="py-3 text-right">
+<button class="text-primary hover:text-primary-dim opacity-0 group-hover:opacity-100 transition-opacity">Add to Est.</button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-highest transition-colors group">
+<td class="py-3 text-on-surface">Rear brake pads</td>
+<td class="py-3">
+<div class="flex items-center gap-2 text-primary">
+<div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+<span>Pass</span>
+</div>
+</td>
+<td class="py-3 font-mono text-on-surface-variant">6.8mm</td>
+<td class="py-3 text-right"></td>
+</tr>
+<tr class="hover:bg-surface-container-highest transition-colors group">
+<td class="py-3 text-on-surface">Brake fluid level/condition</td>
+<td class="py-3">
+<div class="flex items-center gap-2 text-primary">
+<div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+<span>Pass</span>
+</div>
+</td>
+<td class="py-3 font-mono text-on-surface-variant">Clear</td>
+<td class="py-3 text-right"></td>
+</tr>
+<tr class="hover:bg-surface-container-highest transition-colors group">
+<td class="py-3 text-on-surface">Rotors / Discs</td>
+<td class="py-3">
+<div class="flex items-center gap-2 text-error">
+<div class="w-1.5 h-1.5 rounded-full bg-error"></div>
+<span class="font-medium">Skim Required</span>
+</div>
+</td>
+<td class="py-3 font-mono text-on-surface-variant">-</td>
+<td class="py-3 text-right">
+<button class="text-primary hover:text-primary-dim opacity-0 group-hover:opacity-100 transition-opacity">Add to Est.</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<!-- Category: Electricals (Collapsed) -->
+<div class="bg-surface-container rounded-xl overflow-hidden">
+<button class="w-full px-6 py-4 flex justify-between items-center hover:bg-surface-container-highest transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">electrical_services</span>
+<span class="font-medium text-on-surface">Electricals</span>
+</div>
+<div class="flex items-center gap-4">
+<span class="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded">Pass</span>
+<span class="material-symbols-outlined text-on-surface-variant">expand_more</span>
+</div>
+</button>
+</div>
+</div>
+</div>
+<!-- Right Sidebar: Advisor Notes Feed -->
+<div class="lg:col-span-1">
+<div class="bg-surface-container rounded-xl p-5 h-[calc(100vh-300px)] flex flex-col">
+<h4 class="text-sm font-semibold text-on-surface mb-4">Advisor Notes</h4>
+<div class="flex-1 overflow-y-auto space-y-4 pr-2">
+<!-- Note Item -->
+<div class="bg-surface-container-highest p-4 rounded-lg">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center text-xs font-bold">SA</div>
+<span class="text-xs font-medium text-on-surface">Sarah Ahmed</span>
+</div>
+<span class="text-xs font-mono text-on-surface-variant">10:42 AM</span>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+                                        Customer authorized front pad replacement. Waiting on parts confirmation from stores for the exact OEM variant.
+                                    </p>
+</div>
+<!-- System Event -->
+<div class="flex items-center gap-3 px-2 py-1">
+<div class="w-2 h-2 rounded-full bg-primary/50"></div>
+<p class="text-xs text-on-surface-variant">Status changed to 'In Progress' <span class="font-mono ml-2">09:15 AM</span></p>
+</div>
+<!-- Note Item -->
+<div class="bg-surface-container-highest p-4 rounded-lg">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center text-xs font-bold">TR</div>
+<span class="text-xs font-medium text-on-surface">Tech 882</span>
+</div>
+<span class="text-xs font-mono text-on-surface-variant">08:30 AM</span>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+                                        Inspection completed. Rotors need skimming, highlighted in checklist. Rest of the mechanicals are sound.
+                                    </p>
+</div>
+</div>
+<!-- Input Area -->
+<div class="mt-4 pt-4 border-t border-surface-container-highest">
+<div class="relative">
+<textarea class="w-full bg-surface-variant text-sm text-on-surface placeholder-on-surface-variant rounded-DEFAULT border-none focus:ring-1 focus:ring-outline-variant p-3 pr-10 resize-none h-20" placeholder="Add a note..."></textarea>
+<button class="absolute bottom-3 right-3 text-primary hover:text-primary-dim transition-colors">
+<span class="material-symbols-outlined text-[20px]">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

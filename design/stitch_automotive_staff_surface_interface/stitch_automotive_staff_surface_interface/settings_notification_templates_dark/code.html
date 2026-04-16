@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Notification Templates - Precision Concierge</title>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Theme Configuration -->
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-container-high": "#1f2020",
+                      "on-primary-fixed-variant": "#0057bd",
+                      "on-primary-fixed": "#003c86",
+                      "outline": "#767575",
+                      "tertiary-dim": "#c5c0e0",
+                      "primary-fixed": "#d8e2ff",
+                      "tertiary-fixed": "#d3ceef",
+                      "tertiary-fixed-dim": "#c5c0e0",
+                      "primary-dim": "#98b8ff",
+                      "outline-variant": "#484848",
+                      "on-secondary-container": "#c1bfbe",
+                      "inverse-primary": "#005bc4",
+                      "surface-bright": "#2c2c2c",
+                      "primary": "#adc6ff",
+                      "error-dim": "#bb5551",
+                      "surface-container-low": "#131313",
+                      "secondary-dim": "#9f9d9d",
+                      "surface": "#0e0e0e",
+                      "secondary": "#9f9d9d",
+                      "on-secondary-fixed-variant": "#5c5b5b",
+                      "surface-container": "#191a1a",
+                      "on-error-container": "#ff9993",
+                      "on-tertiary-fixed-variant": "#504e69",
+                      "error-container": "#7f2927",
+                      "on-tertiary": "#504d68",
+                      "primary-container": "#004395",
+                      "background": "#0e0e0e",
+                      "primary-fixed-dim": "#c3d4ff",
+                      "surface-dim": "#0e0e0e",
+                      "on-tertiary-container": "#47445f",
+                      "inverse-surface": "#fcf8f8",
+                      "inverse-on-surface": "#565554",
+                      "tertiary": "#e1dcfd",
+                      "secondary-container": "#3c3b3b",
+                      "secondary-fixed-dim": "#d6d4d3",
+                      "on-error": "#490106",
+                      "on-tertiary-fixed": "#34314b",
+                      "on-primary": "#003d88",
+                      "surface-tint": "#adc6ff",
+                      "tertiary-container": "#d3ceef",
+                      "surface-variant": "#252626",
+                      "on-secondary": "#202020",
+                      "on-primary-container": "#bdd0ff",
+                      "on-surface-variant": "#acabaa",
+                      "error": "#ee7d77",
+                      "on-secondary-fixed": "#403f3f",
+                      "secondary-fixed": "#e5e2e1",
+                      "surface-container-highest": "#252626",
+                      "surface-container-lowest": "#000000",
+                      "on-surface": "#e7e5e4",
+                      "on-background": "#e7e5e4"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {},
+              "fontFamily": {
+                      "headline": [
+                              "Inter"
+                      ],
+                      "body": [
+                              "Inter"
+                      ],
+                      "label": [
+                              "Inter"
+                      ]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .font-data {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        /* Hide scrollbar for cleaner high-density look */
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #252626; /* surface-variant */
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface font-body antialiased min-h-screen overflow-hidden">
+<!-- TopNavBar -->
+<header class="bg-neutral-900 fixed top-0 right-0 w-[calc(100%-220px)] h-[48px] flex items-center justify-between px-6 z-40 ml-[220px]">
+<div class="flex items-center gap-6 h-full">
+<span class="text-lg font-semibold tracking-tighter text-white">Precision Concierge</span>
+<nav class="hidden md:flex h-full items-center gap-6 ml-8">
+<!-- Navigation Links (None active as we are in deep settings) -->
+<a class="font-sans text-sm tracking-tight font-medium text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors h-full flex items-center px-2 scale-95 duration-100" href="#">Inventory</a>
+<a class="font-sans text-sm tracking-tight font-medium text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors h-full flex items-center px-2 scale-95 duration-100" href="#">Valuation</a>
+<a class="font-sans text-sm tracking-tight font-medium text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors h-full flex items-center px-2 scale-95 duration-100" href="#">Logistics</a>
+<a class="font-sans text-sm tracking-tight font-medium text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors h-full flex items-center px-2 scale-95 duration-100" href="#">Analytics</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<!-- Command Palette trigger -->
+<button class="flex items-center gap-2 px-3 py-1.5 rounded bg-surface-variant text-on-surface-variant hover:text-on-surface transition-colors text-sm font-medium tracking-tight border border-outline-variant/15">
+<span class="material-symbols-outlined text-sm">search</span>
+                Command Palette
+                <span class="font-data text-xs opacity-50 ml-2">⌘K</span>
+</button>
+<div class="flex items-center gap-2 ml-4">
+<button class="w-8 h-8 flex items-center justify-center rounded hover:bg-neutral-800 text-neutral-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">notifications</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded text-white bg-neutral-800 transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+</button>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<aside class="bg-neutral-950 fixed left-0 top-0 h-screen w-[220px] flex flex-col py-8 z-50 border-r border-neutral-800/50">
+<!-- Header Info (Brand logo hidden per style_brand_logo) -->
+<div class="px-6 mb-10">
+<h2 class="text-on-surface font-headline font-semibold tracking-tight text-sm">Operations Hub</h2>
+<p class="text-on-surface-variant text-xs mt-1">Precision Logistics</p>
+</div>
+<!-- Main Navigation -->
+<nav class="flex-1 flex flex-col gap-1 pr-4">
+<a class="flex items-center gap-3 px-6 py-2.5 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">dashboard</span>
+<span class="font-sans text-xs uppercase tracking-widest font-bold">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-2.5 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">directions_car</span>
+<span class="font-sans text-xs uppercase tracking-widest font-bold">Active Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-2.5 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">payments</span>
+<span class="font-sans text-xs uppercase tracking-widest font-bold">Procurement</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-2.5 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">local_shipping</span>
+<span class="font-sans text-xs uppercase tracking-widest font-bold">Shipments</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-2.5 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">account_balance</span>
+<span class="font-sans text-xs uppercase tracking-widest font-bold">Financials</span>
+</a>
+<!-- Active Tab (Admin Context) -->
+<a class="flex items-center gap-3 px-6 py-2.5 bg-neutral-800 text-white rounded-r-md group border-l-2 border-transparent" href="#">
+<span class="material-symbols-outlined text-[20px] translate-x-1 transition-transform" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-sans text-xs uppercase tracking-widest font-bold">User Access</span>
+</a>
+</nav>
+<!-- CTA -->
+<div class="px-4 mb-6">
+<button class="w-full flex items-center justify-center gap-2 bg-surface-container-highest text-on-surface py-2 rounded-lg text-sm font-medium hover:bg-surface-bright transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+                New Entry
+            </button>
+</div>
+<!-- Footer Navigation -->
+<div class="flex flex-col gap-1 pr-4">
+<a class="flex items-center gap-3 px-6 py-2.5 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">analytics</span>
+<span class="font-sans text-xs uppercase tracking-widest font-bold">System Health</span>
+</a>
+<a class="flex items-center gap-3 px-6 py-2.5 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:translate-x-1 transition-transform">help_center</span>
+<span class="font-sans text-xs uppercase tracking-widest font-bold">Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Workspace (Settings Shell) -->
+<main class="ml-[220px] mt-[48px] h-[calc(100vh-48px)] bg-background flex">
+<!-- Vertical Sub-Nav (Settings) -->
+<aside class="w-[240px] h-full bg-surface-container-low border-r border-outline-variant/10 p-6 flex flex-col gap-8">
+<div>
+<h1 class="text-xl font-semibold tracking-tight text-on-surface mb-1">Configuration</h1>
+<p class="text-xs text-on-surface-variant font-data">SYS-ENV: PRODUCTION</p>
+</div>
+<nav class="flex flex-col gap-1.5">
+<h3 class="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant mb-2 ml-2">General</h3>
+<a class="px-3 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors flex items-center gap-3" href="#">
+<span class="material-symbols-outlined text-[18px]">manage_accounts</span>
+                    Organization Profile
+                </a>
+<a class="px-3 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors flex items-center gap-3" href="#">
+<span class="material-symbols-outlined text-[18px]">key</span>
+                    Security &amp; API Keys
+                </a>
+<h3 class="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant mt-6 mb-2 ml-2">Communications</h3>
+<!-- Active Sub-Nav Item -->
+<a class="px-3 py-2 rounded-lg text-sm font-medium bg-surface-container-highest text-primary flex items-center gap-3" href="#">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">mark_email_unread</span>
+                    Notification Templates
+                </a>
+<a class="px-3 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors flex items-center gap-3" href="#">
+<span class="material-symbols-outlined text-[18px]">hub</span>
+                    Routing Rules
+                </a>
+<h3 class="text-[10px] uppercase tracking-widest font-bold text-on-surface-variant mt-6 mb-2 ml-2">System</h3>
+<a class="px-3 py-2 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors flex items-center gap-3" href="#">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+                    Audit Logs
+                </a>
+</nav>
+</aside>
+<!-- Data Canvas -->
+<section class="flex-1 p-8 flex flex-col gap-6 overflow-hidden">
+<!-- Page Header -->
+<div class="flex items-center justify-between">
+<div>
+<h2 class="text-2xl font-semibold tracking-tight text-on-surface">Notification Templates</h2>
+<p class="text-sm text-on-surface-variant mt-1">Manage outbound messaging formats and DLT registry status.</p>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 rounded-[6px] bg-surface-container-highest text-on-surface text-sm font-medium hover:bg-surface-bright transition-colors border border-outline-variant/15 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">sync</span>
+                        Sync Registry
+                    </button>
+<!-- Gradient stylized primary button -->
+<button class="px-4 py-2 rounded-[6px] bg-gradient-to-b from-primary-container to-primary-fixed-dim text-on-primary-container text-sm font-medium hover:brightness-110 transition-all shadow-[0_4px_14px_rgba(0,67,149,0.2)] flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">add</span>
+                        Create Template
+                    </button>
+</div>
+</div>
+<!-- High-Density Data Table -->
+<div class="flex-1 bg-surface-container rounded-xl flex flex-col overflow-hidden border border-outline-variant/5">
+<!-- Table Header -->
+<div class="grid grid-cols-[2fr_1.5fr_2fr_1fr_1.5fr] items-center px-6 h-10 border-b border-outline-variant/15 bg-surface-container text-[11px] font-bold uppercase tracking-widest text-on-surface-variant">
+<div>Template Name</div>
+<div>Channel</div>
+<div>DLT / BSP ID</div>
+<div>Status</div>
+<div class="text-right">Last Used</div>
+</div>
+<!-- Table Body -->
+<div class="flex-1 overflow-y-auto pb-4">
+<!-- Row 1 -->
+<div class="grid grid-cols-[2fr_1.5fr_2fr_1fr_1.5fr] items-center px-6 h-[44px] hover:bg-surface-container-low transition-colors group border-b border-outline-variant/5 cursor-pointer">
+<div class="font-medium text-on-surface text-sm flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px] opacity-0 group-hover:opacity-100 transition-opacity">drag_indicator</span>
+                            Valuation_Completed_V2
+                        </div>
+<div>
+<!-- WhatsApp Blue Chip -->
+<span class="inline-flex items-center justify-center px-2 py-0.5 rounded-[4px] bg-primary-container text-on-primary-container text-[10px] font-bold uppercase tracking-wider font-data">
+                                WhatsApp
+                            </span>
+</div>
+<div class="font-data text-sm text-on-surface-variant">
+                            WA-DLT-88241A
+                        </div>
+<div class="flex items-center gap-2">
+<div class="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(173,198,255,0.4)]"></div>
+<span class="text-sm text-on-surface">Active</span>
+</div>
+<div class="font-data text-sm text-on-surface-variant text-right">
+                            14 Nov, 08:42
+                        </div>
+</div>
+<!-- Row 2 -->
+<div class="grid grid-cols-[2fr_1.5fr_2fr_1fr_1.5fr] items-center px-6 h-[44px] hover:bg-surface-container-low transition-colors group border-b border-outline-variant/5 cursor-pointer">
+<div class="font-medium text-on-surface text-sm flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px] opacity-0 group-hover:opacity-100 transition-opacity">drag_indicator</span>
+                            OTP_Login_Verification
+                        </div>
+<div>
+<!-- SMS Green proxy (using tertiary in this strict theme) -->
+<span class="inline-flex items-center justify-center px-2 py-0.5 rounded-[4px] bg-tertiary-container text-on-tertiary-container text-[10px] font-bold uppercase tracking-wider font-data">
+                                SMS Auth
+                            </span>
+</div>
+<div class="font-data text-sm text-on-surface-variant">
+                            BSP-991-X8
+                        </div>
+<div class="flex items-center gap-2">
+<div class="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(173,198,255,0.4)]"></div>
+<span class="text-sm text-on-surface">Active</span>
+</div>
+<div class="font-data text-sm text-on-surface-variant text-right">
+                            Just now
+                        </div>
+</div>
+<!-- Row 3 -->
+<div class="grid grid-cols-[2fr_1.5fr_2fr_1fr_1.5fr] items-center px-6 h-[44px] hover:bg-surface-container-low transition-colors group border-b border-outline-variant/5 cursor-pointer">
+<div class="font-medium text-on-surface text-sm flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px] opacity-0 group-hover:opacity-100 transition-opacity">drag_indicator</span>
+                            Logistics_Driver_Dispatch
+                        </div>
+<div>
+<!-- WhatsApp Blue Chip -->
+<span class="inline-flex items-center justify-center px-2 py-0.5 rounded-[4px] bg-primary-container text-on-primary-container text-[10px] font-bold uppercase tracking-wider font-data">
+                                WhatsApp
+                            </span>
+</div>
+<div class="font-data text-sm text-on-surface-variant">
+                            WA-DLT-88245C
+                        </div>
+<div class="flex items-center gap-2">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary-dim"></div>
+<span class="text-sm text-on-surface-variant">Pending</span>
+</div>
+<div class="font-data text-sm text-on-surface-variant text-right opacity-50">
+                            Never
+                        </div>
+</div>
+<!-- Row 4 -->
+<div class="grid grid-cols-[2fr_1.5fr_2fr_1fr_1.5fr] items-center px-6 h-[44px] hover:bg-surface-container-low transition-colors group border-b border-outline-variant/5 cursor-pointer">
+<div class="font-medium text-on-surface text-sm flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px] opacity-0 group-hover:opacity-100 transition-opacity">drag_indicator</span>
+                            Monthly_Financial_Digest
+                        </div>
+<div>
+<!-- Email Purple proxy (using secondary container) -->
+<span class="inline-flex items-center justify-center px-2 py-0.5 rounded-[4px] bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase tracking-wider font-data">
+                                Email
+                            </span>
+</div>
+<div class="font-data text-sm text-on-surface-variant opacity-50">
+                            N/A
+                        </div>
+<div class="flex items-center gap-2">
+<div class="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(173,198,255,0.4)]"></div>
+<span class="text-sm text-on-surface">Active</span>
+</div>
+<div class="font-data text-sm text-on-surface-variant text-right">
+                            01 Nov, 00:05
+                        </div>
+</div>
+<!-- Row 5 -->
+<div class="grid grid-cols-[2fr_1.5fr_2fr_1fr_1.5fr] items-center px-6 h-[44px] hover:bg-surface-container-low transition-colors group border-b border-outline-variant/5 cursor-pointer">
+<div class="font-medium text-on-surface text-sm flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-[16px] opacity-0 group-hover:opacity-100 transition-opacity">drag_indicator</span>
+                            Inventory_Alert_Critical
+                        </div>
+<div>
+<!-- SMS Green proxy -->
+<span class="inline-flex items-center justify-center px-2 py-0.5 rounded-[4px] bg-tertiary-container text-on-tertiary-container text-[10px] font-bold uppercase tracking-wider font-data">
+                                SMS Auth
+                            </span>
+</div>
+<div class="font-data text-sm text-error">
+                            REJECTED-7A
+                        </div>
+<div class="flex items-center gap-2">
+<div class="w-1.5 h-1.5 rounded-full bg-error"></div>
+<span class="text-sm text-error">Failed DLT</span>
+</div>
+<div class="font-data text-sm text-on-surface-variant text-right">
+                            12 Oct, 11:20
+                        </div>
+</div>
+</div>
+</div>
+</section>
+</main>
+</body></html>

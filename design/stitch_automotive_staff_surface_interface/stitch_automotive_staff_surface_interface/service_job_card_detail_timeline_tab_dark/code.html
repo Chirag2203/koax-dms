@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Job Card Detail - Timeline</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary": "#9f9d9d",
+                      "on-secondary-fixed-variant": "#5c5b5b",
+                      "on-tertiary-fixed": "#34314b",
+                      "on-tertiary-container": "#47445f",
+                      "surface-dim": "#0e0e0e",
+                      "error-dim": "#bb5551",
+                      "background": "#0A0A0A",
+                      "on-secondary-container": "#c1bfbe",
+                      "surface-container": "#141414",
+                      "on-primary-fixed": "#003c86",
+                      "secondary-fixed": "#e5e2e1",
+                      "error": "#ee7d77",
+                      "surface-container-high": "#1f2020",
+                      "on-surface-variant": "#acabaa",
+                      "on-surface": "#e7e5e4",
+                      "on-secondary": "#202020",
+                      "surface": "#0e0e0e",
+                      "primary-dim": "#98b8ff",
+                      "on-secondary-fixed": "#403f3f",
+                      "on-primary-fixed-variant": "#0057bd",
+                      "secondary-dim": "#9f9d9d",
+                      "outline": "#767575",
+                      "inverse-surface": "#fcf8f8",
+                      "surface-container-low": "#0A0A0A",
+                      "surface-variant": "#252626",
+                      "tertiary-fixed": "#d3ceef",
+                      "on-tertiary-fixed-variant": "#504e69",
+                      "on-error-container": "#ff9993",
+                      "primary-fixed-dim": "#c3d4ff",
+                      "error-container": "#7f2927",
+                      "surface-container-lowest": "#000000",
+                      "on-primary": "#003d88",
+                      "inverse-on-surface": "#565554",
+                      "on-background": "#e7e5e4",
+                      "surface-container-highest": "#252626",
+                      "primary-fixed": "#d8e2ff",
+                      "on-tertiary": "#504d68",
+                      "surface-bright": "#2c2c2c",
+                      "primary-container": "#004395",
+                      "on-primary-container": "#bdd0ff",
+                      "tertiary-container": "#d3ceef",
+                      "secondary-container": "#3c3b3b",
+                      "secondary-fixed-dim": "#d6d4d3",
+                      "inverse-primary": "#005bc4",
+                      "tertiary-fixed-dim": "#c5c0e0",
+                      "primary": "#adc6ff",
+                      "on-error": "#490106",
+                      "tertiary-dim": "#c5c0e0",
+                      "tertiary": "#e1dcfd",
+                      "surface-tint": "#adc6ff",
+                      "outline-variant": "#484848"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {},
+              "fontFamily": {
+                      "headline": [
+                              "Inter"
+                      ],
+                      "body": [
+                              "Inter"
+                      ],
+                      "label": [
+                              "Inter"
+                      ],
+                      "mono": [
+                              "IBM Plex Mono"
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+</head>
+<body class="bg-background text-on-background font-body antialiased min-h-screen flex flex-col md:flex-row">
+<!-- SideNavBar (from JSON) -->
+<nav class="hidden md:flex flex-col border-r border-outline-variant/30 p-4 fixed left-0 top-0 h-full w-[220px] bg-surface-container-lowest text-on-surface z-40">
+<div class="mb-8 px-2">
+<h1 class="text-on-surface font-headline font-bold text-lg tracking-tighter">Precision Hub</h1>
+<p class="text-on-surface-variant text-xs">Mumbai North</p>
+</div>
+<button class="w-full bg-primary text-on-primary py-2 px-4 rounded font-medium text-sm mb-6 flex items-center justify-center gap-2 hover:bg-primary-dim transition-colors">
+<span class="material-symbols-outlined text-[18px]">add</span>
+            New Job Card
+        </button>
+<div class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container hover:text-on-surface rounded transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">directions_car</span>
+<span class="font-sans text-sm font-medium">Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 bg-surface-container text-on-surface rounded transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">build</span>
+<span class="font-sans text-sm font-medium">Workshops</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container hover:text-on-surface rounded transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">local_shipping</span>
+<span class="font-sans text-sm font-medium">Logistics</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container hover:text-on-surface rounded transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">payments</span>
+<span class="font-sans text-sm font-medium">Valuations</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container hover:text-on-surface rounded transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">leaderboard</span>
+<span class="font-sans text-sm font-medium">Analytics</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container hover:text-on-surface rounded transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 0;">badge</span>
+<span class="font-sans text-sm font-medium">Staff</span>
+</a>
+</div>
+<div class="mt-auto space-y-1 pt-4 border-t border-outline-variant/30">
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container hover:text-on-surface rounded transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">cloud_done</span>
+<span class="font-sans text-sm font-medium">System Status</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-surface-variant hover:bg-surface-container hover:text-on-surface rounded transition-colors duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+<span class="font-sans text-sm font-medium">Log Out</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="flex-1 md:ml-[220px] min-h-screen bg-surface-container-low flex flex-col">
+<!-- TopNavBar (from JSON) -->
+<header class="flex justify-between items-center h-12 px-6 w-full bg-surface-container-lowest/80 backdrop-blur-xl border-b border-outline-variant/30 sticky top-0 z-30">
+<div class="flex items-center gap-4">
+<span class="text-on-surface font-headline text-lg font-semibold tracking-tighter">LuxuryAuto Ops</span>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-3 text-on-surface-variant">
+<button class="hover:text-on-surface transition-colors cursor-pointer active:scale-95"><span class="material-symbols-outlined text-[20px]">notifications</span></button>
+<button class="hover:text-on-surface transition-colors cursor-pointer active:scale-95"><span class="material-symbols-outlined text-[20px]">settings</span></button>
+<button class="hover:text-on-surface transition-colors cursor-pointer active:scale-95"><span class="material-symbols-outlined text-[20px]">help</span></button>
+</div>
+<div class="h-6 w-6 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant/30">
+<img alt="Lead Technician Profile" class="w-full h-full object-cover" data-alt="Close up portrait of a professional male mechanic in a modern dark uniform, shallow depth of field" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzZO-fhmJscc46sTFT-3XEqnPFM0yGN2jAa6I9ZcFvPvcZZ1ih-Mz8E9bTBIovrBXg8TiA7MuG_Slghnvc9bW7rWWsCwqZPR5A_EFWsDHDwpqtDvZguJQLd_LampOcQV49wuMboeNTvh6MbkYWjZpjw8-L_keAaBhSeokF5oaeafUQnMQ_J-LVLMHNoyifUmqtMvvRvSyRe7g1OLT2qq367HFC-4dF9T37RDXYo1hdMYoBYuQ2NvofvtkIVfFwu1WFDRsNxcUx6Fk"/>
+</div>
+</div>
+</header>
+<!-- Page Header & Sub Nav -->
+<div class="bg-surface-container px-6 pt-6 pb-0 border-b border-outline-variant/20">
+<div class="flex flex-col gap-4">
+<!-- Title Row -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-4">
+<h2 class="font-mono text-xl font-medium text-on-surface">JC-2026-0341</h2>
+<span class="px-2 py-1 bg-primary-container/20 text-primary rounded text-xs font-medium tracking-wide">IN PROGRESS</span>
+<span class="px-2 py-1 bg-surface-variant text-on-surface rounded text-xs font-medium tracking-wide border border-outline-variant/30">BAY 3</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-4 py-2 bg-surface-variant text-on-surface rounded text-sm font-medium hover:bg-surface-container-highest transition-colors">Edit Details</button>
+</div>
+</div>
+<!-- Vehicle Summary Card -->
+<div class="bg-surface-container-low rounded-lg p-4 border border-outline-variant/15 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-variant rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-[24px] text-on-surface-variant">directions_car</span>
+</div>
+<div>
+<h3 class="text-on-surface font-medium">2022 Porsche Panamera 4</h3>
+<p class="text-on-surface-variant text-sm font-mono mt-1 text-[13px]">VIN: WP0ZZZ97•••1234</p>
+</div>
+</div>
+<div class="text-right">
+<p class="text-on-surface-variant text-sm">Customer</p>
+<p class="text-on-surface font-medium">Vikram Singh</p>
+</div>
+</div>
+<!-- Progress Stepper -->
+<div class="py-4">
+<div class="flex items-center w-full max-w-3xl">
+<!-- Step 1 -->
+<div class="flex flex-col items-center relative w-full">
+<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-[14px] text-on-primary font-bold">check</span>
+</div>
+<span class="text-xs text-on-surface font-medium mt-2">Received</span>
+<div class="absolute top-3 left-1/2 w-full h-[2px] bg-primary -z-0"></div>
+</div>
+<!-- Step 2 -->
+<div class="flex flex-col items-center relative w-full">
+<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-[14px] text-on-primary font-bold">check</span>
+</div>
+<span class="text-xs text-on-surface font-medium mt-2">Diagnosed</span>
+<div class="absolute top-3 left-1/2 w-full h-[2px] bg-primary -z-0"></div>
+</div>
+<!-- Step 3 (Active) -->
+<div class="flex flex-col items-center relative w-full">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border-2 border-primary flex items-center justify-center z-10">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+</div>
+<span class="text-xs text-primary font-medium mt-2">In Progress</span>
+<div class="absolute top-3 left-1/2 w-full h-[2px] bg-surface-variant -z-0"></div>
+</div>
+<!-- Step 4 -->
+<div class="flex flex-col items-center relative w-full">
+<div class="w-6 h-6 rounded-full bg-surface-variant border border-outline-variant/50 flex items-center justify-center z-10">
+</div>
+<span class="text-xs text-on-surface-variant font-medium mt-2">QC</span>
+<div class="absolute top-3 left-1/2 w-full h-[2px] bg-surface-variant -z-0"></div>
+</div>
+<!-- Step 5 -->
+<div class="flex flex-col items-center relative w-full">
+<div class="w-6 h-6 rounded-full bg-surface-variant border border-outline-variant/50 flex items-center justify-center z-10">
+</div>
+<span class="text-xs text-on-surface-variant font-medium mt-2">Ready</span>
+</div>
+</div>
+</div>
+<!-- Tabs -->
+<div class="flex space-x-6">
+<a class="py-3 text-sm font-medium text-on-surface-variant hover:text-on-surface border-b-2 border-transparent" href="#">Overview</a>
+<a class="py-3 text-sm font-medium text-on-surface-variant hover:text-on-surface border-b-2 border-transparent" href="#">Labour</a>
+<a class="py-3 text-sm font-medium text-on-surface-variant hover:text-on-surface border-b-2 border-transparent" href="#">Parts</a>
+<a class="py-3 text-sm font-medium text-on-surface-variant hover:text-on-surface border-b-2 border-transparent" href="#">Inspection</a>
+<a class="py-3 text-sm font-medium text-on-surface border-b-2 border-primary" href="#">Timeline</a>
+<a class="py-3 text-sm font-medium text-on-surface-variant hover:text-on-surface border-b-2 border-transparent" href="#">Invoice Preview</a>
+</div>
+</div>
+</div>
+<!-- Two Column Layout Area -->
+<div class="flex-1 flex flex-col lg:flex-row p-6 gap-6 h-full overflow-hidden">
+<!-- Timeline Content (Left) -->
+<div class="flex-1 bg-surface-container rounded-xl border border-outline-variant/15 p-6 overflow-y-auto">
+<h3 class="text-lg font-medium text-on-surface mb-6">Activity History</h3>
+<div class="relative pl-6 border-l border-outline-variant/30 space-y-8">
+<!-- Item 1 -->
+<div class="relative">
+<div class="absolute -left-[31px] w-4 h-4 rounded-full bg-primary-container border-4 border-surface-container"></div>
+<div class="flex gap-4">
+<img alt="Advisor Avatar" class="w-8 h-8 rounded-full border border-outline-variant/30 object-cover" data-alt="Headshot of a male service advisor in a white collared shirt, professional dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4b3MQYwdgQXSNKyN8MByn8aOsX8Ucg-i0YXZot14ZZGqX73nJIBv56iFm6uNOB-CCocyuZRPOoXMLUsXEkD2SKxqRxYqxhhzjYNGn4y2eHqs1czlgGtYa--2sy53JNwRYAN3mgXHIKOGUPcKa5br5W45oq_7GrnMc-HkzEv0f4PSW8_MY_2nfOT27lrH0lFldAYJvI3FUpazfNsQS9vEBvGHsf0UBLYB6bstMNmwfFdEil0LDAG_MJRUAgkG1ONdogOHgmuyie-M"/>
+<div>
+<p class="text-on-surface font-medium text-sm">Work Started</p>
+<p class="text-on-surface-variant text-sm mt-1">Technician Amit Patel began scheduled maintenance and brake pad replacement.</p>
+<p class="font-mono text-xs text-on-surface-variant mt-2 opacity-70">15 Mar 2026 09:15 IST</p>
+</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="relative">
+<div class="absolute -left-[31px] w-4 h-4 rounded-full bg-surface-variant border-4 border-surface-container"></div>
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded-full bg-surface-variant border border-outline-variant/30 flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+</div>
+<div>
+<p class="text-on-surface font-medium text-sm">Approval Received</p>
+<p class="text-on-surface-variant text-sm mt-1">Customer approved estimate via SMS link.</p>
+<p class="font-mono text-xs text-on-surface-variant mt-2 opacity-70">14 Mar 2026 16:30 IST</p>
+</div>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="relative">
+<div class="absolute -left-[31px] w-4 h-4 rounded-full bg-surface-variant border-4 border-surface-container"></div>
+<div class="flex gap-4">
+<img alt="Parts Manager Avatar" class="w-8 h-8 rounded-full border border-outline-variant/30 object-cover" data-alt="Headshot of a female parts manager wearing dark framed glasses and a black polo, modern background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAr39CeMVtDl1POq55rAJaZYyqqam1FcXtrgGVFt4woW3FH843HNw5M9LZA-i1wwvqfMlKeLI9mVaHayI-zzY74hyBCIZ9wfhJqSMjoX45s2YKhOoSvyRcIAcvAG89_HrWDVEbCAShTLHfgFC7z2pHK9J2mgJU0vJIrm5xP6pKeeGNzwFvP5ycZ5wy3vdB8VXLZMq8fzFO1fOMAxDHmrcGU35u_E3wdbxlblBxKIrhM2PMM-x5Fq2SEqV5vFAENJ6KYzrxxyqvvPSY"/>
+<div>
+<p class="text-on-surface font-medium text-sm">Parts Ordered</p>
+<p class="text-on-surface-variant text-sm mt-1">OEM front brake pads (PN: 971-698-151-A) requisitioned from central warehouse.</p>
+<p class="font-mono text-xs text-on-surface-variant mt-2 opacity-70">14 Mar 2026 14:05 IST</p>
+</div>
+</div>
+</div>
+<!-- Item 4 -->
+<div class="relative">
+<div class="absolute -left-[31px] w-4 h-4 rounded-full bg-surface-variant border-4 border-surface-container"></div>
+<div class="flex gap-4">
+<img alt="Technician Avatar" class="w-8 h-8 rounded-full border border-outline-variant/30 object-cover" data-alt="Close up portrait of a professional male mechanic in a modern dark uniform, shallow depth of field" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgkwRStkbk_X4XL_3bBUqvfsqvvXg_bpWFuHrzNaWK-xcW1AF-B6zac9O3XnmYxuXPBzGr8b1tFCNdD8FY_MQrE1B1gL-1a4V3hnfCOW1oF-qazJaJEW5Nrio2h_Uk9raWiFYTWwrfrd7z1zPu7z-ZfULOavDS6gko2ttDAcR62mi24alqbLwMzlnzeIS_QERVBRuvGUcjV7wwH5F4Zo92p1LBMWGPlMxz9OkC0it_XeVLDWQ7nAjbEqjVipTg_aqlm4wFvqJcwzQ"/>
+<div>
+<p class="text-on-surface font-medium text-sm">Initial Diagnosis Completed</p>
+<p class="text-on-surface-variant text-sm mt-1">Multipoint inspection finished. Recommended front brake pad replacement due to 3mm remaining thickness.</p>
+<p class="font-mono text-xs text-on-surface-variant mt-2 opacity-70">14 Mar 2026 11:20 IST</p>
+</div>
+</div>
+</div>
+<!-- Item 5 -->
+<div class="relative">
+<div class="absolute -left-[31px] w-4 h-4 rounded-full bg-surface-variant border-4 border-surface-container"></div>
+<div class="flex gap-4">
+<div class="w-8 h-8 rounded-full bg-surface-variant border border-outline-variant/30 flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px]">add_box</span>
+</div>
+<div>
+<p class="text-on-surface font-medium text-sm">Job Card Created</p>
+<p class="text-on-surface-variant text-sm mt-1">Vehicle checked in by Advisor Rohan Mehta. Customer reported squeaking noise from front wheels.</p>
+<p class="font-mono text-xs text-on-surface-variant mt-2 opacity-70">14 Mar 2026 10:45 IST</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Notes Sidebar (Right) -->
+<div class="w-full lg:w-[320px] flex flex-col gap-4">
+<div class="bg-surface-container rounded-xl border border-outline-variant/15 flex-1 flex flex-col overflow-hidden">
+<div class="p-4 border-b border-outline-variant/15 bg-surface-container-highest/30">
+<h3 class="text-sm font-medium text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">speaker_notes</span>
+                            Advisor Notes
+                        </h3>
+</div>
+<div class="flex-1 p-4 overflow-y-auto space-y-4">
+<!-- Note 1 -->
+<div class="bg-surface-container-low p-3 rounded border border-outline-variant/10">
+<div class="flex justify-between items-start mb-2">
+<span class="text-xs font-medium text-on-surface">Rohan Mehta</span>
+<span class="font-mono text-[10px] text-on-surface-variant opacity-70">14 Mar 16:35</span>
+</div>
+<p class="text-sm text-on-surface-variant">Customer requested vehicle to be washed before delivery. Needs to be ready by 5 PM tomorrow.</p>
+</div>
+</div>
+<div class="p-4 border-t border-outline-variant/15 bg-surface-container-highest/30">
+<div class="flex flex-col gap-2">
+<textarea class="w-full bg-surface-variant border border-outline-variant/30 rounded text-sm p-2 text-on-surface placeholder:text-on-surface-variant/50 focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all resize-none" placeholder="Add an internal note..." rows="3"></textarea>
+<button class="self-end px-3 py-1.5 bg-surface-container-highest hover:bg-surface-bright text-on-surface text-xs font-medium rounded transition-colors border border-outline-variant/30">Post Note</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

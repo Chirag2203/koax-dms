@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Precision Concierge - Command Palette</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-highest": "#252626",
+                        "primary-dim": "#98b8ff",
+                        "on-error": "#490106",
+                        "on-secondary": "#202020",
+                        "tertiary": "#e1dcfd",
+                        "inverse-surface": "#fcf8f8",
+                        "surface-tint": "#adc6ff",
+                        "on-surface": "#e7e5e4",
+                        "surface-dim": "#0e0e0e",
+                        "on-error-container": "#ff9993",
+                        "surface-variant": "#252626",
+                        "error-container": "#7f2927",
+                        "surface-bright": "#2c2c2c",
+                        "surface-container-high": "#1f2020",
+                        "on-background": "#e7e5e4",
+                        "error-dim": "#bb5551",
+                        "surface-container-lowest": "#000000",
+                        "surface": "#0e0e0e",
+                        "outline-variant": "#484848",
+                        "outline": "#767575",
+                        "secondary": "#9f9d9d",
+                        "secondary-fixed": "#e5e2e1",
+                        "on-tertiary-container": "#47445f",
+                        "surface-container-low": "#131313",
+                        "background": "#0e0e0e",
+                        "on-tertiary-fixed": "#34314b",
+                        "tertiary-fixed": "#d3ceef",
+                        "secondary-dim": "#9f9d9d",
+                        "on-surface-variant": "#acabaa",
+                        "primary": "#adc6ff",
+                        "surface-container": "#191a1a",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "inverse-on-surface": "#565554",
+                        "secondary-container": "#3c3b3b",
+                        "on-primary": "#003d88",
+                        "on-primary-container": "#bdd0ff",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "tertiary-dim": "#c5c0e0",
+                        "on-secondary-container": "#c1bfbe",
+                        "primary-fixed": "#d8e2ff",
+                        "tertiary-container": "#d3ceef",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "on-secondary-fixed": "#403f3f",
+                        "on-tertiary": "#504d68",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "inverse-primary": "#005bc4",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "primary-container": "#004395",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "on-primary-fixed": "#003c86",
+                        "error": "#ee7d77"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-body min-h-screen relative overflow-hidden">
+<!-- Ambient Background Data (To ground the overlay context) -->
+<div class="absolute inset-0 z-0 opacity-40 blur-sm pointer-events-none p-6">
+<div class="grid grid-cols-4 gap-6">
+<div class="h-32 bg-surface-container rounded-lg"></div>
+<div class="h-32 bg-surface-container rounded-lg"></div>
+<div class="h-32 bg-surface-container rounded-lg"></div>
+<div class="h-32 bg-surface-container rounded-lg"></div>
+<div class="col-span-3 h-64 bg-surface-container rounded-lg mt-6"></div>
+<div class="h-64 bg-surface-container rounded-lg mt-6"></div>
+</div>
+</div>
+<!-- Background Dimmer (Frosted Glass context) -->
+<div class="absolute inset-0 bg-surface/70 backdrop-blur-[24px] z-40 flex justify-center pt-[122px]">
+<!-- Command Palette Container -->
+<div class="w-[560px] bg-surface-bright rounded-xl overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.5)] flex flex-col border border-outline-variant/15 ring-1 ring-surface-container-highest max-h-[716px]">
+<!-- Search Input Header -->
+<div class="flex items-center px-4 h-14 border-b border-outline-variant/15 bg-surface-bright relative z-10 shrink-0">
+<span class="material-symbols-outlined text-on-surface-variant mr-3 text-xl">search</span>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-on-background font-body text-base placeholder:text-on-surface-variant/50 p-0" placeholder="Type a command or search..." type="text" value="Porsche"/>
+<div class="flex items-center gap-2">
+<span class="text-xs text-on-surface-variant font-mono bg-surface-container px-2 py-1 rounded">ESC</span>
+</div>
+</div>
+<!-- Scrollable Results Area -->
+<div class="flex-1 overflow-y-auto py-2 custom-scrollbar">
+<!-- Section: Vehicles -->
+<div class="mb-4">
+<h3 class="px-4 py-2 text-[10px] font-headline uppercase tracking-widest text-on-surface-variant/70 font-semibold mb-1">Vehicles</h3>
+<ul class="flex flex-col">
+<!-- Active Result -->
+<li class="px-2">
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg bg-surface-container-highest cursor-pointer group" href="#">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-low flex items-center justify-center border border-outline-variant/10 text-primary">
+<span class="material-symbols-outlined text-[18px]">directions_car</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-primary-dim tracking-tight">Porsche 911 GT3 RS</span>
+<span class="text-xs text-on-surface-variant">2023 • Chalk • 1,200 km</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-xs font-mono text-on-surface-variant">VIN: WP0AA299</span>
+<div class="hidden group-hover:flex items-center gap-1">
+<span class="text-[10px] text-on-surface-variant font-mono bg-surface px-1.5 py-0.5 rounded border border-outline-variant/20">↵</span>
+</div>
+</div>
+</a>
+</li>
+<!-- Inactive Result -->
+<li class="px-2 mt-1">
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer group" href="#">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-surface-container-low flex items-center justify-center border border-outline-variant/10 text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">directions_car</span>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-on-background tracking-tight">Porsche Panamera Turbo S</span>
+<span class="text-xs text-on-surface-variant">2021 • Jet Black • 15,400 km</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-xs font-mono text-on-surface-variant">VIN: WP0AB297</span>
+<div class="hidden group-hover:flex items-center gap-1">
+<span class="text-[10px] text-on-surface-variant font-mono bg-surface px-1.5 py-0.5 rounded border border-outline-variant/20">↵</span>
+</div>
+</div>
+</a>
+</li>
+</ul>
+</div>
+<!-- Section: Customers -->
+<div class="mb-4">
+<h3 class="px-4 py-2 text-[10px] font-headline uppercase tracking-widest text-on-surface-variant/70 font-semibold mb-1">Customers</h3>
+<ul class="flex flex-col">
+<li class="px-2">
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer group" href="#">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center border border-outline-variant/10 overflow-hidden">
+<img alt="Customer Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgEBaDOJ10TKAuv-15z4LPYk5eZnyAO63ZRNJBzQ5Tezd4rwCsyvktWSJ-x2JLjtk5aDdzNQleyOY2seizPYaDTVxLS10QuYfNNwTwGQ6G3DwK6aaUczrOzdBOY2nYLcjZJYEutFYpg_S_rDHcFnR9jznCqbOKlH0Gaa8-wpbRHfoOHru_PVInYwL-L9dGVR54rMWaZozc-2qJ_VDROx_d6s1btLnz_Eed7t03WPHjQu3YewSGYX41C-mMeYKirjGbllGbSsV3jj8"/>
+</div>
+<div class="flex flex-col">
+<span class="text-sm font-medium text-on-background tracking-tight">Arjun Mehta</span>
+<span class="text-xs text-on-surface-variant">Lead • Interested in Porsche</span>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="text-[10px] font-mono text-on-surface-variant bg-surface-container-lowest px-2 py-0.5 rounded">ID: CUS-892</span>
+<div class="hidden group-hover:flex items-center gap-1">
+<span class="text-[10px] text-on-surface-variant font-mono bg-surface px-1.5 py-0.5 rounded border border-outline-variant/20">↵</span>
+</div>
+</div>
+</a>
+</li>
+</ul>
+</div>
+<!-- Section: Actions -->
+<div class="mb-2">
+<h3 class="px-4 py-2 text-[10px] font-headline uppercase tracking-widest text-on-surface-variant/70 font-semibold mb-1">Actions</h3>
+<ul class="flex flex-col">
+<li class="px-2">
+<a class="flex items-center justify-between px-3 py-2.5 rounded-lg hover:bg-surface-container-high transition-colors cursor-pointer group" href="#">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-surface-container flex items-center justify-center text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px]">add_circle</span>
+</div>
+<span class="text-sm font-medium text-on-background tracking-tight">Create new vehicle record for "Porsche"</span>
+</div>
+<div class="hidden group-hover:flex items-center gap-1">
+<span class="text-[10px] text-on-surface-variant font-mono bg-surface px-1.5 py-0.5 rounded border border-outline-variant/20">⌘</span>
+<span class="text-[10px] text-on-surface-variant font-mono bg-surface px-1.5 py-0.5 rounded border border-outline-variant/20">N</span>
+</div>
+</a>
+</li>
+</ul>
+</div>
+</div>
+<!-- Footer Hints -->
+<div class="px-4 py-3 bg-surface-container border-t border-outline-variant/10 flex items-center justify-between shrink-0">
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-1.5">
+<span class="text-[10px] text-on-surface-variant font-mono bg-surface-bright px-1 py-0.5 rounded border border-outline-variant/20 flex items-center justify-center h-4 w-4">↑</span>
+<span class="text-[10px] text-on-surface-variant font-mono bg-surface-bright px-1 py-0.5 rounded border border-outline-variant/20 flex items-center justify-center h-4 w-4">↓</span>
+<span class="text-[10px] text-on-surface-variant font-medium ml-1">to navigate</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="text-[10px] text-on-surface-variant font-mono bg-surface-bright px-1 py-0.5 rounded border border-outline-variant/20 flex items-center justify-center h-4 w-4">↵</span>
+<span class="text-[10px] text-on-surface-variant font-medium ml-1">to select</span>
+</div>
+</div>
+<div class="text-[10px] font-medium text-on-surface-variant/60 tracking-wide">PRECISION CONCIERGE</div>
+</div>
+</div>
+</div>
+<!-- Minimal Custom Scrollbar Styles for the Command Palette -->
+<style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: rgba(72, 72, 72, 0.4);
+            border-radius: 20px;
+        }
+    </style>
+</body></html>

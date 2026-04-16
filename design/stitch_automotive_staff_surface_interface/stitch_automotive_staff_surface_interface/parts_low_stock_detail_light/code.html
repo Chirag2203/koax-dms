@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Velocity Console - Parts Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "tertiary-fixed": "#d3ceef",
+                      "on-primary-fixed-variant": "#0057bd",
+                      "error-dim": "#bb5551",
+                      "error": "#ee7d77",
+                      "tertiary-fixed-dim": "#c5c0e0",
+                      "on-primary": "#003d88",
+                      "primary-fixed": "#d8e2ff",
+                      "primary-container": "#004395",
+                      "on-secondary-fixed-variant": "#5c5b5b",
+                      "surface-dim": "#0e0e0e",
+                      "surface-container-lowest": "#000000",
+                      "surface-container-highest": "#252626",
+                      "primary": "#adc6ff",
+                      "on-error-container": "#ff9993",
+                      "inverse-primary": "#005bc4",
+                      "secondary-container": "#3c3b3b",
+                      "surface-container-high": "#1f2020",
+                      "inverse-on-surface": "#565554",
+                      "on-secondary": "#202020",
+                      "background": "#0e0e0e",
+                      "on-tertiary": "#504d68",
+                      "inverse-surface": "#fcf8f8",
+                      "surface": "#0e0e0e",
+                      "tertiary-dim": "#c5c0e0",
+                      "outline": "#767575",
+                      "tertiary-container": "#d3ceef",
+                      "on-primary-container": "#bdd0ff",
+                      "outline-variant": "#484848",
+                      "on-surface-variant": "#acabaa",
+                      "secondary-fixed": "#e5e2e1",
+                      "on-secondary-container": "#c1bfbe",
+                      "on-surface": "#e7e5e4",
+                      "secondary-dim": "#9f9d9d",
+                      "secondary-fixed-dim": "#d6d4d3",
+                      "primary-dim": "#98b8ff",
+                      "primary-fixed-dim": "#c3d4ff",
+                      "surface-variant": "#252626",
+                      "surface-bright": "#2c2c2c",
+                      "error-container": "#7f2927",
+                      "secondary": "#9f9d9d",
+                      "on-primary-fixed": "#003c86",
+                      "on-background": "#e7e5e4",
+                      "tertiary": "#e1dcfd",
+                      "surface-tint": "#adc6ff",
+                      "on-error": "#490106",
+                      "on-tertiary-container": "#47445f",
+                      "on-tertiary-fixed": "#34314b",
+                      "on-tertiary-fixed-variant": "#504e69",
+                      "surface-container": "#191a1a",
+                      "surface-container-low": "#131313",
+                      "on-secondary-fixed": "#403f3f"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {},
+              "fontFamily": {
+                      "sans": ["Inter", "sans-serif"],
+                      "mono": ["IBM Plex Mono", "monospace"],
+                      "headline": ["Inter"],
+                      "body": ["Inter"],
+                      "label": ["Inter"]
+              }
+      },
+          },
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background font-sans overflow-hidden">
+<!-- Top Navigation Bar -->
+<nav class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-12 bg-neutral-950/80 backdrop-blur-xl no-border bg-neutral-900 flat no shadows font-sans tracking-tight font-medium">
+<div class="flex items-center gap-4">
+<span class="text-lg font-semibold tracking-tighter text-white">Velocity Console</span>
+<div class="hidden md:flex ml-8 gap-6 h-full items-center">
+<!-- Navigation links mapped from semantic intent. Not a main destination, so active state logic is suppressed for general tabs, but typically 'Inventory' would be highlighted if this was a sub-page. Keeping it plain as per intent. -->
+<a class="text-neutral-400 hover:bg-neutral-800 transition-colors h-full flex items-center px-2" href="#">Dashboard</a>
+<a class="text-white border-b-2 border-blue-500 pb-1 hover:bg-neutral-800 transition-colors h-full flex items-center px-2" href="#">Inventory</a>
+<a class="text-neutral-400 hover:bg-neutral-800 transition-colors h-full flex items-center px-2" href="#">Procurement</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-2 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="bg-surface-variant text-on-surface text-sm pl-8 pr-3 py-1 rounded-DEFAULT outline-none focus:ring-1 focus:ring-outline-variant/20 placeholder:text-on-surface-variant w-64 border-none font-mono" placeholder="Search VIN, Part #..." type="text"/>
+</div>
+<button class="text-neutral-400 hover:text-white transition-colors flex items-center justify-center p-1 rounded-DEFAULT hover:bg-surface-container">
+<span class="material-symbols-outlined text-xl">notifications</span>
+</button>
+<button class="text-neutral-400 hover:text-white transition-colors flex items-center justify-center p-1 rounded-DEFAULT hover:bg-surface-container">
+<span class="material-symbols-outlined text-xl">settings</span>
+</button>
+<button class="ml-2 bg-surface-container-high hover:bg-surface-bright transition-colors px-3 py-1 text-sm rounded-DEFAULT border border-outline-variant/15 flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">keyboard_command_key</span>
+                Command Palette
+            </button>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden ml-2 flex items-center justify-center border border-outline-variant/20">
+<img alt="Operator Profile" class="w-full h-full object-cover" data-alt="professional headshot of an administrative operator in modern lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAAN74VxH8F7pJyg57KUqIXUFSsSG0HcOpCq_En47QBfXl2gC_O9wQ_mugoRIEtSW9qf3Ir0im0H5-w7W_UDyIl-4YCyWtex6VWMqeu2KZwUX6DiJTRsSsgE8C7RmK-_8KzfYSBJgtSHgG-gCUVtxXR6F6K10_P8gAvMxNvywYX8REaHlG5Lhh6lYzteDmHHzODW4c89gbjDYLIibNhD8WDBFWjHl4V8w0qJFN_ySmQkV1EiKV-ULqWzDykErC2xlaDmkYLqpCntkQ"/>
+</div>
+</div>
+</nav>
+<!-- Main Layout -->
+<div class="pt-12 h-screen flex relative bg-surface-container-low">
+<!-- Sidebar Navigation -->
+<aside class="fixed left-0 top-12 h-[calc(100vh-48px)] flex flex-col py-4 w-[220px] bg-neutral-900 tonal shift bg-neutral-900 flat no shadows font-sans text-sm font-medium border-r border-outline-variant/10 z-40">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-8 h-8 bg-surface-container-high rounded-DEFAULT flex items-center justify-center border border-outline-variant/20">
+<span class="material-symbols-outlined text-on-surface text-lg">corporate_fare</span>
+</div>
+<div>
+<h2 class="text-white font-bold leading-tight">Operations</h2>
+<p class="text-on-surface-variant text-xs font-mono">Global Fleet</p>
+</div>
+</div>
+<div class="px-4 mb-6">
+<button class="w-full bg-primary/10 hover:bg-primary/20 text-primary border-none rounded-DEFAULT py-2 flex items-center justify-center gap-2 transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+                    New Entry
+                </button>
+</div>
+<nav class="flex-1 px-3 space-y-1">
+<a class="bg-neutral-800 text-white rounded-md px-3 py-2 flex items-center gap-3 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">inventory_2</span>
+                    Inventory
+                </a>
+<a class="text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/50 rounded-DEFAULT px-3 py-2 flex items-center gap-3 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">local_shipping</span>
+                    Logistics
+                </a>
+<a class="text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/50 rounded-DEFAULT px-3 py-2 flex items-center gap-3 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">shopping_cart</span>
+                    Procurement
+                </a>
+<a class="text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/50 rounded-DEFAULT px-3 py-2 flex items-center gap-3 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+                    Valuations
+                </a>
+<a class="text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/50 rounded-DEFAULT px-3 py-2 flex items-center gap-3 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">storefront</span>
+                    Outlets
+                </a>
+<a class="text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/50 rounded-DEFAULT px-3 py-2 flex items-center gap-3 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">monitoring</span>
+                    Analytics
+                </a>
+</nav>
+<div class="mt-auto px-3 space-y-1">
+<a class="text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/50 rounded-DEFAULT px-3 py-2 flex items-center gap-3 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">help</span>
+                    Support
+                </a>
+<a class="text-neutral-500 hover:text-neutral-300 hover:bg-neutral-800/50 rounded-DEFAULT px-3 py-2 flex items-center gap-3 transition-all duration-200" href="#">
+<span class="material-symbols-outlined text-[20px]">archive</span>
+                    Archive
+                </a>
+</div>
+</aside>
+<!-- Dummy Main Content (Background) -->
+<main class="ml-[220px] flex-1 p-6 overflow-y-auto">
+<div class="max-w-6xl mx-auto space-y-6">
+<!-- Main canvas placeholder content, blurred slightly to indicate overlay focus -->
+<div class="opacity-40 pointer-events-none filter blur-[2px] transition-all duration-300">
+<div class="flex justify-between items-end mb-8">
+<div>
+<h1 class="text-2xl font-semibold tracking-tight">Parts Inventory</h1>
+<p class="text-on-surface-variant text-sm mt-1">Manage global replacement components.</p>
+</div>
+</div>
+<div class="bg-surface-container rounded-lg p-6 min-h-[600px] border border-outline-variant/10">
+<div class="h-10 bg-surface-container-high rounded-DEFAULT mb-4"></div>
+<div class="space-y-2">
+<div class="h-12 bg-surface-container-low rounded-DEFAULT"></div>
+<div class="h-12 bg-surface-container-low rounded-DEFAULT"></div>
+<div class="h-12 bg-surface-container-low rounded-DEFAULT"></div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Slide-in Detail Panel Overlay Context (Backdrop) -->
+<div class="fixed inset-0 bg-surface-container-lowest/60 z-40 backdrop-blur-[2px] transition-opacity"></div>
+<!-- Detail Panel (Slide-in from right) -->
+<!-- Note: Light Theme was requested in prompt, but system theme config dictates Dark Mode ("class='dark'"). 
+             I will interpret "Light Theme" from prompt as an error and follow the strict System prompt "The page should be in dark mode". 
+             If it absolutely must be light within the dark theme, that violates the "Dark First" philosophy. Sticking to Dark Mode tokens for consistency. -->
+<aside class="fixed right-0 top-12 h-[calc(100vh-48px)] w-[640px] bg-surface-container-high z-50 border-l border-outline-variant/15 shadow-[-20px_0_50px_rgba(0,0,0,0.4)] flex flex-col transform translate-x-0 transition-transform duration-300 ease-in-out">
+<!-- Panel Header -->
+<div class="p-6 border-b border-outline-variant/10 bg-surface-container-highest/50 backdrop-blur-md flex-shrink-0">
+<div class="flex justify-between items-start mb-2">
+<div class="flex items-center gap-3">
+<div class="bg-surface-variant w-10 h-10 rounded-DEFAULT flex items-center justify-center border border-outline-variant/20">
+<span class="material-symbols-outlined text-on-surface">directions_car</span>
+</div>
+<div>
+<div class="flex items-center gap-3">
+<h2 class="text-[22px] font-semibold tracking-tight text-on-surface leading-none">Taycan Front Aero Splitter</h2>
+<span class="bg-error-container/20 text-error text-xs font-medium px-2 py-0.5 rounded-DEFAULT flex items-center gap-1 border border-error/20">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span>
+                                    Low Stock
+                                </span>
+</div>
+<div class="flex items-center mt-2 gap-4 text-sm text-on-surface-variant">
+<span class="font-mono bg-surface-container-highest px-1.5 py-0.5 rounded text-xs border border-outline-variant/10">PN-9Y0-807-541</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">category</span> Body Component</span>
+</div>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-on-surface hover:bg-surface-container p-1.5 rounded-DEFAULT transition-colors">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+</div>
+<!-- Panel Content Canvas -->
+<div class="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+<!-- 1. Quick Stats Grid -->
+<div class="grid grid-cols-4 gap-4">
+<div class="bg-surface-container rounded-DEFAULT p-4 flex flex-col gap-1 border border-outline-variant/5">
+<span class="text-xs text-on-surface-variant font-medium uppercase tracking-wider">Qty on Hand</span>
+<div class="flex items-end gap-2">
+<span class="text-2xl font-mono text-error font-medium">2</span>
+<span class="text-xs text-on-surface-variant mb-1">Units</span>
+</div>
+</div>
+<div class="bg-surface-container rounded-DEFAULT p-4 flex flex-col gap-1 border border-outline-variant/5">
+<span class="text-xs text-on-surface-variant font-medium uppercase tracking-wider">Reorder Level</span>
+<div class="flex items-end gap-2">
+<span class="text-2xl font-mono text-on-surface font-medium">5</span>
+<span class="text-xs text-on-surface-variant mb-1">Units</span>
+</div>
+</div>
+<div class="bg-surface-container rounded-DEFAULT p-4 flex flex-col gap-1 border border-outline-variant/5">
+<span class="text-xs text-on-surface-variant font-medium uppercase tracking-wider">Unit Price</span>
+<div class="flex items-end gap-2">
+<span class="text-lg font-mono text-on-surface font-medium">₹ 1,85,000</span>
+</div>
+</div>
+<div class="bg-surface-container rounded-DEFAULT p-4 flex flex-col gap-1 border border-outline-variant/5">
+<span class="text-xs text-on-surface-variant font-medium uppercase tracking-wider">Lead Time</span>
+<div class="flex items-end gap-2">
+<span class="text-2xl font-mono text-on-surface font-medium">14</span>
+<span class="text-xs text-on-surface-variant mb-1">Days</span>
+</div>
+</div>
+</div>
+<!-- 2. Stock Distribution -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-base font-semibold tracking-tight">Stock Distribution</h3>
+<button class="text-xs text-primary hover:text-primary-dim flex items-center gap-1 transition-colors">
+<span class="material-symbols-outlined text-[14px]">sync_alt</span> Request Transfer
+                        </button>
+</div>
+<div class="bg-surface-container rounded-DEFAULT overflow-hidden border border-outline-variant/10">
+<!-- Table Header -->
+<div class="grid grid-cols-4 px-4 py-2 bg-surface-container-highest border-b border-outline-variant/10 text-xs text-on-surface-variant font-medium">
+<div class="col-span-2">Location</div>
+<div class="text-right">Available</div>
+<div class="text-right">Reserved</div>
+</div>
+<!-- Table Rows -->
+<div class="grid grid-cols-4 px-4 py-3 border-b border-outline-variant/5 hover:bg-surface-container-low transition-colors items-center text-sm group">
+<div class="col-span-2 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="font-medium">BLR</span>
+<span class="text-xs text-on-surface-variant ml-1">Central Hub</span>
+</div>
+<div class="text-right font-mono text-error">1</div>
+<div class="text-right font-mono text-on-surface-variant">0</div>
+</div>
+<div class="grid grid-cols-4 px-4 py-3 border-b border-outline-variant/5 hover:bg-surface-container-low transition-colors items-center text-sm group">
+<div class="col-span-2 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-error"></span>
+<span class="font-medium">MUM</span>
+<span class="text-xs text-on-surface-variant ml-1">Service Ctr</span>
+</div>
+<div class="text-right font-mono text-error">1</div>
+<div class="text-right font-mono text-on-surface-variant">1</div>
+</div>
+<div class="grid grid-cols-4 px-4 py-3 hover:bg-surface-container-low transition-colors items-center text-sm group">
+<div class="col-span-2 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-surface-variant"></span>
+<span class="font-medium text-on-surface-variant">CHE</span>
+<span class="text-xs text-on-surface-variant ml-1">Depot</span>
+</div>
+<div class="text-right font-mono text-on-surface-variant">0</div>
+<div class="text-right font-mono text-on-surface-variant">0</div>
+</div>
+</div>
+</section>
+<!-- 3. Open Purchase Orders -->
+<section>
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-base font-semibold tracking-tight">Active Inbound</h3>
+</div>
+<div class="bg-surface-container rounded-DEFAULT p-4 border border-outline-variant/10 hover:bg-surface-container-highest transition-colors cursor-pointer group">
+<div class="flex justify-between items-start mb-3">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="font-mono text-sm bg-surface-container-low px-1.5 py-0.5 rounded border border-outline-variant/10 group-hover:bg-surface-container">PO-2023-8942</span>
+<span class="bg-primary/10 text-primary text-[10px] uppercase font-bold px-1.5 py-0.5 rounded tracking-wide">In Transit</span>
+</div>
+<div class="text-xs text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px]">factory</span> Stuttgart Plant GMBH
+                                </div>
+</div>
+<div class="text-right">
+<div class="font-mono text-lg font-medium">10<span class="text-xs text-on-surface-variant font-sans ml-1">units</span></div>
+<div class="text-xs text-on-surface-variant mt-0.5">ETA: Oct 24</div>
+</div>
+</div>
+<!-- Progress Track -->
+<div class="relative pt-4">
+<div class="overflow-hidden h-1.5 mb-2 text-xs flex rounded-full bg-surface-container-low border border-outline-variant/5">
+<div class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-primary" style="width: 65%"></div>
+</div>
+<div class="flex justify-between text-[10px] text-on-surface-variant uppercase tracking-wider font-medium">
+<span>Ordered</span>
+<span class="text-primary font-bold">Shipped</span>
+<span>Received</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Part Image / Schema (Bento style block) -->
+<section class="grid grid-cols-2 gap-4 h-32">
+<div class="bg-surface-container rounded-DEFAULT border border-outline-variant/10 overflow-hidden relative group">
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/80 to-transparent z-10"></div>
+<img alt="Part Schematic" class="w-full h-full object-cover mix-blend-luminosity opacity-40 group-hover:opacity-60 transition-opacity duration-300" data-alt="blueprint schematic of a modern sports car aerodynamic front bumper splitter on dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB82IXQBSycABf2UksTPvUkB6vFrkWTr8XB2QSS15Zj7jZi7kA12cs3bAlFuymaPyiNbLrsX7WfxNMe7OUu6AAtfpYOQ0fIRq2S_7spdipJGXSZyq_s-OzotTxOZqtGh507ejdUwo-Nly9qwMwlc-W9WVjJy_fMyWfP_rU-APKxW19g6OEOFv-4NAfwdcczBpQckESL_ZDVtzeYQNzSGUh_dWrpihIcWfWUBZAPrAsH8eyVR_6m6lVkX7NF0cI1E-k-eAov5y05kU0"/>
+<div class="absolute bottom-3 left-3 z-20">
+<span class="text-xs font-medium text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schema</span>
+                                View Schema
+                            </span>
+</div>
+</div>
+<div class="bg-surface-container rounded-DEFAULT border border-outline-variant/10 p-4 flex flex-col justify-center">
+<span class="text-xs text-on-surface-variant mb-1">Compatible Models</span>
+<div class="font-mono text-sm space-y-1">
+<div class="text-on-surface">TYC-4S (2022+)</div>
+<div class="text-on-surface">TYC-TURBO (2022+)</div>
+</div>
+</div>
+</section>
+</div>
+<!-- 4. Action Footer -->
+<div class="p-4 border-t border-outline-variant/10 bg-surface-container-highest/90 backdrop-blur flex justify-end gap-3 flex-shrink-0">
+<button class="px-4 py-2 rounded-DEFAULT bg-surface-container hover:bg-surface-container-low text-on-surface text-sm font-medium transition-colors border border-outline-variant/15">
+                    Adjust Stock
+                </button>
+<button class="px-5 py-2 rounded-DEFAULT bg-primary hover:bg-primary-container text-on-primary text-sm font-medium transition-colors border-none bg-gradient-to-b from-white/10 to-transparent flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+                    Create Purchase Order
+                </button>
+</div>
+</aside>
+</div>
+<style>
+        /* Custom scrollbar for panel to keep it sleek */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: theme('colors.outline-variant' / 30%);
+            border-radius: 4px;
+        }
+        .custom-scrollbar:hover::-webkit-scrollbar-thumb {
+            background-color: theme('colors.outline-variant' / 60%);
+        }
+    </style>
+</body></html>

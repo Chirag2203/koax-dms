@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Audit Log - Precision Concierge</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-highest": "#252626",
+                        "primary-dim": "#98b8ff",
+                        "on-error": "#490106",
+                        "on-secondary": "#202020",
+                        "tertiary": "#e1dcfd",
+                        "inverse-surface": "#fcf8f8",
+                        "surface-tint": "#adc6ff",
+                        "on-surface": "#e7e5e4",
+                        "surface-dim": "#0e0e0e",
+                        "on-error-container": "#ff9993",
+                        "surface-variant": "#252626",
+                        "error-container": "#7f2927",
+                        "surface-bright": "#2c2c2c",
+                        "surface-container-high": "#1f2020",
+                        "on-background": "#e7e5e4",
+                        "error-dim": "#bb5551",
+                        "surface-container-lowest": "#000000",
+                        "surface": "#0e0e0e",
+                        "outline-variant": "#484848",
+                        "outline": "#767575",
+                        "secondary": "#9f9d9d",
+                        "secondary-fixed": "#e5e2e1",
+                        "on-tertiary-container": "#47445f",
+                        "surface-container-low": "#131313",
+                        "background": "#0e0e0e",
+                        "on-tertiary-fixed": "#34314b",
+                        "tertiary-fixed": "#d3ceef",
+                        "secondary-dim": "#9f9d9d",
+                        "on-surface-variant": "#acabaa",
+                        "primary": "#adc6ff",
+                        "surface-container": "#191a1a",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "inverse-on-surface": "#565554",
+                        "secondary-container": "#3c3b3b",
+                        "on-primary": "#003d88",
+                        "on-primary-container": "#bdd0ff",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "tertiary-dim": "#c5c0e0",
+                        "on-secondary-container": "#c1bfbe",
+                        "primary-fixed": "#d8e2ff",
+                        "tertiary-container": "#d3ceef",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "on-secondary-fixed": "#403f3f",
+                        "on-tertiary": "#504d68",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "inverse-primary": "#005bc4",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "primary-container": "#004395",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "on-primary-fixed": "#003c86",
+                        "error": "#ee7d77"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+        }
+        /* Custom scrollbar for data density */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #252626; 
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #484848; 
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body antialiased min-h-screen overflow-x-hidden selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar (from JSON) -->
+<aside class="w-[220px] h-screen fixed left-0 top-0 border-r-0 bg-neutral-900 dark:bg-[#0A0A0A] flex flex-col h-full py-6 z-40">
+<!-- Header/Brand -->
+<div class="px-6 mb-8 flex flex-col gap-1">
+<h1 class="text-lg font-semibold tracking-tighter text-neutral-100">Precision Operations</h1>
+<span class="text-xs text-neutral-500 font-medium tracking-wide">Luxury Asset Mgmt</span>
+</div>
+<!-- Navigation Links -->
+<nav class="flex-1 px-3 flex flex-col gap-1">
+<!-- Inventory -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-md font-sans tracking-tight text-sm text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/40 transition-colors duration-150 scale-98 active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[18px]">directions_car</span>
+<span>Inventory</span>
+</a>
+<!-- Sales -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-md font-sans tracking-tight text-sm text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/40 transition-colors duration-150 scale-98 active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[18px]">sell</span>
+<span>Sales</span>
+</a>
+<!-- Service -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-md font-sans tracking-tight text-sm text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/40 transition-colors duration-150 scale-98 active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[18px]">build</span>
+<span>Service</span>
+</a>
+<!-- Parts -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-md font-sans tracking-tight text-sm text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/40 transition-colors duration-150 scale-98 active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[18px]">settings_input_component</span>
+<span>Parts</span>
+</a>
+<!-- Finance -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-md font-sans tracking-tight text-sm text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/40 transition-colors duration-150 scale-98 active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[18px]">account_balance</span>
+<span>Finance</span>
+</a>
+<!-- Reports -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-md font-sans tracking-tight text-sm text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/40 transition-colors duration-150 scale-98 active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[18px]">assessment</span>
+<span>Reports</span>
+</a>
+<div class="mt-auto pt-4 mb-2">
+<!-- Settings (ACTIVE) -->
+<a class="flex items-center gap-3 px-3 py-2 rounded-md font-sans tracking-tight text-sm text-blue-400 bg-neutral-800/50 font-semibold scale-98 active:opacity-80" href="#">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span>Settings</span>
+</a>
+</div>
+</nav>
+</aside>
+<!-- TopNavBar (from JSON) -->
+<header class="h-12 w-[calc(100%-220px)] fixed top-0 right-0 z-50 flex items-center justify-between px-6 ml-[220px] bg-neutral-900/80 backdrop-blur-xl">
+<div class="flex items-center gap-4">
+<span class="text-sm font-mono text-neutral-400">Concierge v1.0</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center justify-center w-8 h-8 rounded text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50 transition-colors duration-150 focus-within:ring-1 ring-blue-500/20">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="flex items-center justify-center w-8 h-8 rounded text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50 transition-colors duration-150 focus-within:ring-1 ring-blue-500/20">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</button>
+<button class="flex items-center justify-center w-8 h-8 rounded text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/50 transition-colors duration-150 focus-within:ring-1 ring-blue-500/20">
+<span class="material-symbols-outlined text-[20px]">keyboard_command_key</span>
+</button>
+<button class="ml-2 px-3 py-1.5 rounded bg-surface-container-highest text-on-surface text-xs font-semibold tracking-wide hover:bg-surface-bright transition-colors">
+                Quick Action
+            </button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-[220px] mt-12 p-8 min-h-[calc(100vh-48px)] flex flex-col gap-6">
+<!-- Page Header -->
+<div class="flex items-end justify-between">
+<div class="flex flex-col gap-1">
+<div class="flex items-center gap-2 text-xs font-mono text-on-surface-variant uppercase tracking-wider">
+<span>Settings</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-primary-dim">Audit Log</span>
+</div>
+<h2 class="text-2xl font-semibold tracking-tight text-on-surface">System Activity</h2>
+</div>
+<!-- Controls / Filters -->
+<div class="flex items-center gap-3">
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-on-surface-variant">calendar_today</span>
+<input class="bg-surface-variant text-sm text-on-surface pl-9 pr-3 py-1.5 rounded-md border-0 focus:ring-1 focus:ring-outline-variant outline-none w-40 cursor-pointer" readonly="" type="text" value="Last 24 Hours"/>
+</div>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[16px] text-on-surface-variant">filter_list</span>
+<button class="bg-surface-variant text-sm text-on-surface pl-9 pr-4 py-1.5 rounded-md border-0 hover:bg-surface-bright transition-colors flex items-center gap-2">
+                        Filter Events
+                    </button>
+</div>
+<button class="bg-surface-variant text-on-surface p-1.5 rounded-md hover:bg-surface-bright transition-colors">
+<span class="material-symbols-outlined text-[18px]">download</span>
+</button>
+</div>
+</div>
+<!-- High-Density Data Table Container -->
+<!-- Design System: "No horizontal lines... Use surface_container_low on hover for the entire row." -->
+<div class="bg-surface-container rounded-xl flex-1 flex flex-col overflow-hidden ring-1 ring-outline-variant/10">
+<!-- Table Header -->
+<div class="grid grid-cols-[1.5fr_1fr_1.2fr_2fr_1fr] px-4 py-3 bg-surface-container-high border-b border-surface-variant/50 text-xs font-medium text-on-surface-variant uppercase tracking-wider">
+<div>Timestamp</div>
+<div>User</div>
+<div>Action</div>
+<div>Entity</div>
+<div class="text-right">IP Address</div>
+</div>
+<!-- Table Body -->
+<div class="flex-1 overflow-y-auto">
+<!-- Row 1 -->
+<div class="grid grid-cols-[1.5fr_1fr_1.2fr_2fr_1fr] px-4 items-center min-h-[40px] hover:bg-surface-container-high transition-colors group cursor-default">
+<div class="font-mono text-[13px] text-on-surface">2023-11-04 14:32:01.442</div>
+<div class="text-sm text-on-surface truncate pr-4">A. Mercer</div>
+<div class="text-sm text-primary-dim font-medium truncate pr-4">UPDATE_VALUATION</div>
+<div class="flex items-center gap-2 pr-4 truncate">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">directions_car</span>
+<span class="font-mono text-[13px] text-on-surface-variant bg-surface-container-highest px-1.5 py-0.5 rounded">VIN:WBA092834</span>
+</div>
+<div class="font-mono text-[13px] text-on-surface-variant text-right">192.168.1.45</div>
+</div>
+<!-- Row 2 -->
+<div class="grid grid-cols-[1.5fr_1fr_1.2fr_2fr_1fr] px-4 items-center min-h-[40px] hover:bg-surface-container-high transition-colors group cursor-default">
+<div class="font-mono text-[13px] text-on-surface">2023-11-04 14:15:22.019</div>
+<div class="text-sm text-on-surface truncate pr-4">System</div>
+<div class="text-sm text-on-surface-variant truncate pr-4">SYNC_INVENTORY</div>
+<div class="flex items-center gap-2 pr-4 truncate">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">sync</span>
+<span class="text-sm text-on-surface-variant">DMS Integration Batch #892</span>
+</div>
+<div class="font-mono text-[13px] text-on-surface-variant text-right">10.0.0.1</div>
+</div>
+<!-- Row 3 -->
+<div class="grid grid-cols-[1.5fr_1fr_1.2fr_2fr_1fr] px-4 items-center min-h-[40px] hover:bg-surface-container-high transition-colors group cursor-default">
+<div class="font-mono text-[13px] text-on-surface">2023-11-04 13:45:10.881</div>
+<div class="text-sm text-on-surface truncate pr-4">J. Sterling</div>
+<div class="text-sm text-tertiary-dim font-medium truncate pr-4">LOGIN_SUCCESS</div>
+<div class="flex items-center gap-2 pr-4 truncate">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">person</span>
+<span class="text-sm text-on-surface-variant">Session ID: 88a9f2</span>
+</div>
+<div class="font-mono text-[13px] text-on-surface-variant text-right">203.0.113.42</div>
+</div>
+<!-- Row 4 -->
+<div class="grid grid-cols-[1.5fr_1fr_1.2fr_2fr_1fr] px-4 items-center min-h-[40px] hover:bg-surface-container-high transition-colors group cursor-default">
+<div class="font-mono text-[13px] text-on-surface">2023-11-04 11:20:05.114</div>
+<div class="text-sm text-on-surface truncate pr-4">M. Chen</div>
+<div class="text-sm text-error-dim font-medium truncate pr-4">DELETE_RECORD</div>
+<div class="flex items-center gap-2 pr-4 truncate">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">description</span>
+<span class="text-sm text-on-surface-variant">Service Record #4492</span>
+</div>
+<div class="font-mono text-[13px] text-on-surface-variant text-right">192.168.1.102</div>
+</div>
+<!-- Row 5 -->
+<div class="grid grid-cols-[1.5fr_1fr_1.2fr_2fr_1fr] px-4 items-center min-h-[40px] hover:bg-surface-container-high transition-colors group cursor-default">
+<div class="font-mono text-[13px] text-on-surface">2023-11-04 09:05:33.200</div>
+<div class="text-sm text-on-surface truncate pr-4">A. Mercer</div>
+<div class="text-sm text-on-surface-variant truncate pr-4">EXPORT_DATA</div>
+<div class="flex items-center gap-2 pr-4 truncate">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">download</span>
+<span class="text-sm text-on-surface-variant">Q3_Sales_Report.csv</span>
+</div>
+<div class="font-mono text-[13px] text-on-surface-variant text-right">192.168.1.45</div>
+</div>
+<!-- Row 6 -->
+<div class="grid grid-cols-[1.5fr_1fr_1.2fr_2fr_1fr] px-4 items-center min-h-[40px] hover:bg-surface-container-high transition-colors group cursor-default">
+<div class="font-mono text-[13px] text-on-surface">2023-11-03 18:45:12.991</div>
+<div class="text-sm text-on-surface truncate pr-4">System</div>
+<div class="text-sm text-on-surface-variant truncate pr-4">BACKUP_COMPLETE</div>
+<div class="flex items-center gap-2 pr-4 truncate">
+<span class="material-symbols-outlined text-[14px] text-on-surface-variant">cloud_done</span>
+<span class="text-sm text-on-surface-variant">Daily Snapshot Vol-1</span>
+</div>
+<div class="font-mono text-[13px] text-on-surface-variant text-right">10.0.0.1</div>
+</div>
+</div>
+<!-- Pagination / Footer -->
+<div class="px-4 py-3 bg-surface-container border-t border-surface-variant/30 flex items-center justify-between text-sm text-on-surface-variant">
+<div>Showing 1 to 6 of 1,248 entries</div>
+<div class="flex items-center gap-1">
+<button class="p-1 rounded hover:bg-surface-container-highest transition-colors disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<span class="px-2 font-mono text-xs">1 / 208</span>
+<button class="p-1 rounded hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</body></html>

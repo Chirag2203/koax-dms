@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Job Card - Parts</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-bright": "#2c2c2c",
+                        "surface": "#0e0e0e",
+                        "on-error-container": "#ff9993",
+                        "on-primary-container": "#bdd0ff",
+                        "on-secondary-fixed": "#403f3f",
+                        "on-primary-fixed": "#003c86",
+                        "tertiary-container": "#d3ceef",
+                        "on-surface-variant": "#acabaa",
+                        "on-secondary": "#202020",
+                        "on-surface": "#e7e5e4",
+                        "surface-dim": "#0e0e0e",
+                        "on-secondary-container": "#c1bfbe",
+                        "inverse-surface": "#fcf8f8",
+                        "error-container": "#7f2927",
+                        "background": "#0e0e0e",
+                        "surface-variant": "#252626",
+                        "on-tertiary-fixed": "#34314b",
+                        "primary-container": "#004395",
+                        "surface-container-high": "#1f2020",
+                        "surface-container-lowest": "#000000",
+                        "primary-fixed": "#d8e2ff",
+                        "secondary-fixed": "#e5e2e1",
+                        "on-error": "#490106",
+                        "surface-container-low": "#131313",
+                        "surface-tint": "#adc6ff",
+                        "outline-variant": "#484848",
+                        "surface-container": "#191a1a",
+                        "error": "#ee7d77",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "tertiary-fixed": "#d3ceef",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "surface-container-highest": "#252626",
+                        "inverse-primary": "#005bc4",
+                        "inverse-on-surface": "#565554",
+                        "tertiary-dim": "#c5c0e0",
+                        "outline": "#767575",
+                        "on-primary": "#003d88",
+                        "secondary": "#9f9d9d",
+                        "secondary-container": "#3c3b3b",
+                        "on-tertiary": "#504d68",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "tertiary": "#e1dcfd",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "on-tertiary-container": "#47445f",
+                        "primary": "#adc6ff",
+                        "secondary-dim": "#9f9d9d",
+                        "on-background": "#e7e5e4",
+                        "primary-dim": "#98b8ff",
+                        "error-dim": "#bb5551",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "primary-fixed-dim": "#c3d4ff"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    fontFamily: {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body antialiased min-h-screen flex overflow-hidden">
+<!-- TopNavBar (Contextual - Header for Main Content area) -->
+<header class="bg-neutral-900/80 backdrop-blur-xl text-blue-500 font-sans tracking-tight font-medium docked full-width top-0 z-50 no-border tonal-shift bg-neutral-900 flat no-shadows flex justify-between items-center h-12 px-6 w-full fixed top-0">
+<div class="flex items-center gap-6">
+<span class="text-lg font-bold tracking-tighter text-white">Precision Ops</span>
+<nav class="hidden md:flex items-center gap-4">
+<a class="text-neutral-400 hover:text-white transition-colors duration-200 text-sm" href="#">Inventory</a>
+<a class="text-neutral-400 hover:text-white transition-colors duration-200 text-sm" href="#">Service</a>
+<a class="text-neutral-400 hover:text-white transition-colors duration-200 text-sm" href="#">Logistics</a>
+<a class="text-neutral-400 hover:text-white transition-colors duration-200 text-sm" href="#">Valuations</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-neutral-400 hover:text-white transition-colors duration-200">
+<span class="material-symbols-outlined text-lg">notifications</span>
+</button>
+<button class="text-neutral-400 hover:text-white transition-colors duration-200">
+<span class="material-symbols-outlined text-lg">settings</span>
+</button>
+<div class="w-7 h-7 rounded-full bg-surface-container-highest overflow-hidden border border-outline-variant">
+<img alt="Service Advisor Avatar" class="w-full h-full object-cover" data-alt="professional portrait of service advisor in well lit environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB6_8TOGYB9d9wV7y5Csn7j2xd84BNdG0Z-lvsITH6HmSaPiCK7kH_0GlEUIdiDyju1fxIH3P4f_yPsaqqJ9PUUs4KA2LPTWDo3VVCPBORyaAiHtAWCDyP-odW4UDn7SD-RRTezgqBRKX3-abSEX2jbRRO6D8h1T7y4p4LtOC3UZ1Bfn3kGSqH4n-VaR7wVBYNdPIatwCgXJ8gkGddb2vGThiE5eBgddzacN22Z6uPYQnzxa2GZGSk4vego-bTgO_06w-QOVqJUIic"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar -->
+<nav class="bg-neutral-950 text-blue-500 font-sans text-sm tracking-tight docked left-0 h-full w-[220px] no-border bg-neutral-900 flat no-shadows fixed left-0 top-12 bottom-0 flex flex-col py-4 z-40 hidden md:flex border-r border-outline-variant/10">
+<div class="px-4 mb-6">
+<div class="flex items-center gap-3 mb-2">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center border border-outline-variant/20">
+<span class="material-symbols-outlined text-on-surface text-sm">directions_car</span>
+</div>
+<div>
+<h2 class="text-white font-semibold text-sm leading-tight">Service Job Card</h2>
+<p class="text-neutral-500 text-xs font-mono">VIN: WBX123004J9</p>
+</div>
+</div>
+<button class="w-full mt-3 bg-primary text-on-primary py-1.5 rounded-lg font-medium text-xs hover:bg-primary-dim transition-colors flex items-center justify-center gap-2">
+                Release Vehicle
+            </button>
+</div>
+<div class="flex-1 overflow-y-auto px-2 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-lg">assignment</span>
+<span>Overview</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-lg">visibility</span>
+<span>Inspection</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg bg-neutral-800 text-blue-400 font-semibold transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined filled text-lg">build</span>
+<span>Parts</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-lg">engineering</span>
+<span>Labor</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-lg">verified</span>
+<span>Quality Check</span>
+</a>
+</div>
+<div class="mt-auto px-2 space-y-1 pt-4 border-t border-outline-variant/10">
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-lg">sticky_note_2</span>
+<span>Advisor Notes</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded-lg text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-lg">history</span>
+<span>History</span>
+</a>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 ml-0 md:ml-[220px] mt-12 bg-surface-container-low flex flex-col h-[calc(100vh-48px)]">
+<!-- Job Card Context Header -->
+<div class="px-6 py-4 bg-surface-container border-b border-outline-variant/10 shrink-0">
+<div class="flex justify-between items-start mb-4">
+<div>
+<div class="flex items-center gap-3 mb-1">
+<h1 class="text-xl font-headline font-semibold text-on-surface tracking-tight">JC-2026-0341</h1>
+<span class="px-2 py-0.5 rounded-DEFAULT bg-primary/10 text-primary text-xs font-medium border border-primary/20">In Progress</span>
+<span class="px-2 py-0.5 rounded-DEFAULT bg-surface-container-highest text-on-surface-variant text-xs font-medium font-mono border border-outline-variant/20">BAY 3</span>
+</div>
+<div class="flex items-center gap-2 text-sm text-on-surface-variant">
+<span class="font-medium text-on-surface">2022 Porsche Panamera 4</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="font-mono text-xs">WP0ZZZ97•••1234</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span>Outlet: BLR</span>
+</div>
+</div>
+</div>
+<!-- Progress Stepper -->
+<div class="flex items-center w-full max-w-3xl mt-2">
+<div class="flex flex-col items-center flex-1 relative">
+<div class="w-4 h-4 rounded-full bg-primary flex items-center justify-center z-10 ring-4 ring-surface-container">
+<span class="material-symbols-outlined text-[10px] text-on-primary font-bold">check</span>
+</div>
+<span class="text-[10px] text-primary mt-1 font-medium">Received</span>
+<div class="absolute top-2 left-1/2 w-full h-[1px] bg-primary"></div>
+</div>
+<div class="flex flex-col items-center flex-1 relative">
+<div class="w-4 h-4 rounded-full bg-primary flex items-center justify-center z-10 ring-4 ring-surface-container">
+<span class="material-symbols-outlined text-[10px] text-on-primary font-bold">check</span>
+</div>
+<span class="text-[10px] text-primary mt-1 font-medium">Diagnosed</span>
+<div class="absolute top-2 left-1/2 w-full h-[1px] bg-primary"></div>
+<div class="absolute top-2 right-1/2 w-full h-[1px] bg-primary"></div>
+</div>
+<div class="flex flex-col items-center flex-1 relative">
+<div class="w-4 h-4 rounded-full bg-surface-container-highest border-2 border-primary z-10 ring-4 ring-surface-container"></div>
+<span class="text-[10px] text-on-surface mt-1 font-medium">In Progress</span>
+<div class="absolute top-2 left-1/2 w-full h-[1px] bg-outline-variant/30"></div>
+<div class="absolute top-2 right-1/2 w-full h-[1px] bg-primary"></div>
+</div>
+<div class="flex flex-col items-center flex-1 relative">
+<div class="w-4 h-4 rounded-full bg-surface-container-highest border border-outline-variant z-10 ring-4 ring-surface-container"></div>
+<span class="text-[10px] text-on-surface-variant mt-1">QC</span>
+<div class="absolute top-2 left-1/2 w-full h-[1px] bg-outline-variant/30"></div>
+<div class="absolute top-2 right-1/2 w-full h-[1px] bg-outline-variant/30"></div>
+</div>
+<div class="flex flex-col items-center flex-1 relative">
+<div class="w-4 h-4 rounded-full bg-surface-container-highest border border-outline-variant z-10 ring-4 ring-surface-container"></div>
+<span class="text-[10px] text-on-surface-variant mt-1">Ready</span>
+<div class="absolute top-2 right-1/2 w-full h-[1px] bg-outline-variant/30"></div>
+</div>
+</div>
+</div>
+<!-- Scrollable Workspace -->
+<div class="flex-1 overflow-hidden flex">
+<!-- Parts Table Area -->
+<div class="flex-1 flex flex-col relative">
+<div class="px-6 py-4 flex justify-between items-center shrink-0">
+<h2 class="text-sm font-semibold text-on-surface">Parts Required</h2>
+<button class="bg-surface-container-highest text-on-surface text-xs px-3 py-1.5 rounded-lg flex items-center gap-2 hover:bg-surface-variant transition-colors border border-outline-variant/20">
+<span class="material-symbols-outlined text-[14px]">add</span> Add Part
+                    </button>
+</div>
+<div class="flex-1 overflow-auto px-6 pb-24">
+<table class="w-full text-left text-sm whitespace-nowrap">
+<thead>
+<tr class="text-on-surface-variant text-xs border-b border-outline-variant/10">
+<th class="pb-2 font-medium w-40">Part #</th>
+<th class="pb-2 font-medium">Description</th>
+<th class="pb-2 font-medium w-16 text-right">Qty</th>
+<th class="pb-2 font-medium w-32 text-right">Price</th>
+<th class="pb-2 font-medium w-32 pl-6">Status</th>
+<th class="pb-2 font-medium w-32 text-right">Amount</th>
+</tr>
+</thead>
+<tbody class="text-on-surface divide-y divide-outline-variant/5">
+<tr class="hover:bg-surface-container transition-colors group h-11">
+<td class="py-2 font-mono text-xs text-on-surface-variant group-hover:text-on-surface">971-698-151-A</td>
+<td class="py-2 text-on-surface">Brake Pad Set (Front)</td>
+<td class="py-2 text-right font-mono">1</td>
+<td class="py-2 text-right font-mono text-xs text-on-surface-variant">₹ 42,500</td>
+<td class="py-2 pl-6">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-DEFAULT bg-primary/10 text-primary text-[10px] font-medium border border-primary/20">
+<div class="w-1.5 h-1.5 rounded-full bg-primary"></div> In Stock
+                                    </span>
+</td>
+<td class="py-2 text-right font-mono text-xs">₹ 42,500</td>
+</tr>
+<tr class="hover:bg-surface-container transition-colors group h-11">
+<td class="py-2 font-mono text-xs text-on-surface-variant group-hover:text-on-surface">971-698-152-B</td>
+<td class="py-2 text-on-surface">Brake Pad Set (Rear)</td>
+<td class="py-2 text-right font-mono">1</td>
+<td class="py-2 text-right font-mono text-xs text-on-surface-variant">₹ 38,000</td>
+<td class="py-2 pl-6">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-DEFAULT bg-error/10 text-error text-[10px] font-medium border border-error/20">
+<div class="w-1.5 h-1.5 rounded-full bg-error"></div> On Order
+                                    </span>
+</td>
+<td class="py-2 text-right font-mono text-xs">₹ 38,000</td>
+</tr>
+<tr class="hover:bg-surface-container transition-colors group h-11">
+<td class="py-2 font-mono text-xs text-on-surface-variant group-hover:text-on-surface">000-043-305-15</td>
+<td class="py-2 text-on-surface">Brake Fluid (1L)</td>
+<td class="py-2 text-right font-mono">2</td>
+<td class="py-2 text-right font-mono text-xs text-on-surface-variant">₹ 1,200</td>
+<td class="py-2 pl-6">
+<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-DEFAULT bg-primary/10 text-primary text-[10px] font-medium border border-primary/20">
+<div class="w-1.5 h-1.5 rounded-full bg-primary"></div> In Stock
+                                    </span>
+</td>
+<td class="py-2 text-right font-mono text-xs">₹ 2,400</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Sticky Financial Footer -->
+<div class="absolute bottom-0 left-0 right-0 bg-surface-container-high/90 backdrop-blur-md border-t border-outline-variant/20 px-6 py-4 flex justify-end">
+<div class="w-72 space-y-2">
+<div class="flex justify-between text-xs text-on-surface-variant">
+<span>Labour Total:</span>
+<span class="font-mono">₹ 29,250</span>
+</div>
+<div class="flex justify-between text-xs text-on-surface-variant">
+<span>Parts Total:</span>
+<span class="font-mono">₹ 82,900</span>
+</div>
+<div class="flex justify-between text-xs text-on-surface-variant pb-2 border-b border-outline-variant/20">
+<span>GST (18%):</span>
+<span class="font-mono">₹ 20,187</span>
+</div>
+<div class="flex justify-between items-center pt-1">
+<span class="text-sm font-semibold text-on-surface">Grand Total:</span>
+<span class="font-mono text-lg font-bold text-on-surface">₹ 1,32,337</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Sidebar: Advisor Notes -->
+<div class="w-80 bg-surface-container border-l border-outline-variant/10 flex flex-col shrink-0">
+<div class="px-4 py-3 border-b border-outline-variant/10 flex items-center justify-between bg-surface-container-low shrink-0">
+<h3 class="text-sm font-semibold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">chat</span>
+                        Advisor Notes
+                    </h3>
+</div>
+<div class="flex-1 overflow-y-auto p-4 space-y-4">
+<div class="relative pl-6 before:content-[''] before:absolute before:left-[11px] before:top-6 before:bottom-[-20px] before:w-[1px] before:bg-outline-variant/20">
+<div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-[12px] text-primary">person</span>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg border border-outline-variant/10">
+<div class="flex justify-between items-start mb-1">
+<span class="text-xs font-medium text-on-surface">Rahul S.</span>
+<span class="text-[10px] text-on-surface-variant font-mono">10:42 AM</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">Customer requested specific check on rear brake squeal during slow speeds.</p>
+</div>
+</div>
+<div class="relative pl-6 before:content-[''] before:absolute before:left-[11px] before:top-6 before:bottom-[-20px] before:w-[1px] before:bg-outline-variant/20">
+<div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-[12px] text-on-surface-variant">build</span>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg border border-outline-variant/10">
+<div class="flex justify-between items-start mb-1">
+<span class="text-xs font-medium text-on-surface">Technician (Bay 3)</span>
+<span class="text-[10px] text-on-surface-variant font-mono">11:15 AM</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">Rear pads worn down to 2mm. Rotors are fine. Front pads at 4mm, recommended replacement.</p>
+</div>
+</div>
+<div class="relative pl-6">
+<div class="absolute left-0 top-1 w-6 h-6 rounded-full bg-surface-container-highest border border-outline-variant/30 flex items-center justify-center z-10">
+<span class="material-symbols-outlined text-[12px] text-error">warning</span>
+</div>
+<div class="bg-surface-container-low p-3 rounded-lg border border-outline-variant/10">
+<div class="flex justify-between items-start mb-1">
+<span class="text-xs font-medium text-on-surface">Parts Dept</span>
+<span class="text-[10px] text-on-surface-variant font-mono">11:30 AM</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">Rear pads (971-698-152-B) currently out of stock. ETA tomorrow morning.</p>
+</div>
+</div>
+</div>
+<div class="p-4 border-t border-outline-variant/10 bg-surface-container-low shrink-0">
+<div class="relative">
+<input class="w-full bg-surface-variant border border-outline-variant/20 rounded-lg py-2 pl-3 pr-10 text-xs text-on-surface placeholder-on-surface-variant focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all" placeholder="Add a note..." type="text"/>
+<button class="absolute right-2 top-1/2 -translate-y-1/2 text-primary hover:text-primary-dim">
+<span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

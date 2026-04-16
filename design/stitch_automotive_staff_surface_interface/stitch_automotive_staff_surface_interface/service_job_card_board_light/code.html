@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Service Bay Board</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#adc6ff",
+                        "inverse-primary": "#005bc4",
+                        "surface-dim": "#0e0e0e",
+                        "on-primary-fixed": "#003c86",
+                        "on-error": "#490106",
+                        "on-secondary": "#202020",
+                        "secondary": "#9f9d9d",
+                        "on-background": "#e7e5e4",
+                        "primary-fixed": "#d8e2ff",
+                        "tertiary-fixed": "#d3ceef",
+                        "surface-container-low": "#131313",
+                        "on-secondary-container": "#c1bfbe",
+                        "surface-container": "#191a1a",
+                        "on-primary-container": "#bdd0ff",
+                        "secondary-container": "#3c3b3b",
+                        "surface-variant": "#252626",
+                        "error-dim": "#bb5551",
+                        "surface-bright": "#2c2c2c",
+                        "background": "#0e0e0e",
+                        "on-tertiary-fixed": "#34314b",
+                        "error": "#ee7d77",
+                        "on-tertiary-container": "#47445f",
+                        "primary-dim": "#98b8ff",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "on-secondary-fixed": "#403f3f",
+                        "surface-container-lowest": "#000000",
+                        "primary": "#adc6ff",
+                        "tertiary-dim": "#c5c0e0",
+                        "surface-container-highest": "#252626",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "error-container": "#7f2927",
+                        "tertiary-container": "#d3ceef",
+                        "surface": "#0e0e0e",
+                        "on-surface-variant": "#acabaa",
+                        "inverse-on-surface": "#565554",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "outline": "#767575",
+                        "outline-variant": "#484848",
+                        "on-primary": "#003d88",
+                        "secondary-fixed": "#e5e2e1",
+                        "tertiary": "#e1dcfd",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "primary-container": "#004395",
+                        "on-surface": "#e7e5e4",
+                        "surface-container-high": "#1f2020",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "secondary-dim": "#9f9d9d",
+                        "on-error-container": "#ff9993",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "on-tertiary": "#504d68",
+                        "inverse-surface": "#fcf8f8"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        .ghost-border { box-shadow: inset 0 0 0 1px rgba(72, 72, 72, 0.15); }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface min-h-screen flex flex-col md:flex-row antialiased">
+<!-- SideNavBar -->
+<nav class="hidden md:flex flex-col py-4 h-full bg-surface-container-low fixed left-0 top-12 h-[calc(100vh-48px)] w-[220px] z-40 border-r border-outline-variant/20">
+<div class="px-6 mb-8 mt-4">
+<h2 class="text-xs uppercase tracking-widest font-semibold text-secondary mb-1">Main Workshop</h2>
+<p class="text-xs text-secondary-dim">Unit 04 - Bangalore</p>
+</div>
+<div class="flex-1 flex flex-col gap-1 px-3">
+<a class="flex items-center gap-3 px-3 py-2 rounded text-secondary hover:bg-surface-container hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span aria-hidden="true" class="material-symbols-outlined text-lg">dashboard</span>
+<span class="font-sans text-xs uppercase tracking-widest font-semibold">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded bg-surface-container-highest text-on-surface border-r-2 border-primary transition-colors duration-150 ease-in-out" href="#">
+<span aria-hidden="true" class="material-symbols-outlined text-lg">garage</span>
+<span class="font-sans text-xs uppercase tracking-widest font-semibold">Service Bays</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-secondary hover:bg-surface-container hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span aria-hidden="true" class="material-symbols-outlined text-lg">build</span>
+<span class="font-sans text-xs uppercase tracking-widest font-semibold">Parts Queue</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-secondary hover:bg-surface-container hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span aria-hidden="true" class="material-symbols-outlined text-lg">group</span>
+<span class="font-sans text-xs uppercase tracking-widest font-semibold">Technicians</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-secondary hover:bg-surface-container hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span aria-hidden="true" class="material-symbols-outlined text-lg">analytics</span>
+<span class="font-sans text-xs uppercase tracking-widest font-semibold">Reports</span>
+</a>
+</div>
+<div class="px-3 mt-auto flex flex-col gap-1">
+<button class="w-full flex items-center justify-center gap-2 py-2 mb-4 bg-primary text-on-primary rounded font-sans text-xs uppercase tracking-widest font-semibold hover:bg-primary-dim transition-colors">
+<span class="material-symbols-outlined text-sm">add</span>
+                New Service Order
+            </button>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-secondary hover:bg-surface-container hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span aria-hidden="true" class="material-symbols-outlined text-lg">help</span>
+<span class="font-sans text-xs uppercase tracking-widest font-semibold">Support</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-secondary hover:bg-surface-container hover:text-on-surface transition-colors duration-150 ease-in-out" href="#">
+<span aria-hidden="true" class="material-symbols-outlined text-lg">check_circle</span>
+<span class="font-sans text-xs uppercase tracking-widest font-semibold">System Status</span>
+</a>
+</div>
+</nav>
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full h-12 z-50 bg-surface-container-lowest/90 backdrop-blur-xl flex justify-between items-center px-6 w-full shadow-2xl shadow-black/50 border-b border-outline-variant/10">
+<div class="flex items-center gap-8">
+<span class="text-lg font-bold tracking-tighter text-on-surface">AutoOps Precision</span>
+<nav class="hidden md:flex items-center gap-6 h-full pt-1">
+<a class="font-sans text-sm font-medium tracking-tight text-on-surface border-b-2 border-primary pb-2 h-full flex items-center mt-2" href="#">Bay Board</a>
+<a class="font-sans text-sm font-medium tracking-tight text-secondary hover:text-on-surface transition-colors h-full flex items-center" href="#">Appointments</a>
+<a class="font-sans text-sm font-medium tracking-tight text-secondary hover:text-on-surface transition-colors h-full flex items-center" href="#">Inventory</a>
+<a class="font-sans text-sm font-medium tracking-tight text-secondary hover:text-on-surface transition-colors h-full flex items-center" href="#">Logistics</a>
+<a class="font-sans text-sm font-medium tracking-tight text-secondary hover:text-on-surface transition-colors h-full flex items-center" href="#">Analytics</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-secondary hover:bg-surface-container hover:text-on-surface p-1.5 rounded transition-colors active:scale-95">
+<span aria-hidden="true" class="material-symbols-outlined text-xl">notifications</span>
+</button>
+<button class="text-secondary hover:bg-surface-container hover:text-on-surface p-1.5 rounded transition-colors active:scale-95">
+<span aria-hidden="true" class="material-symbols-outlined text-xl">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest overflow-hidden ml-2 ghost-border">
+<img alt="Advisor Profile" class="w-full h-full object-cover" data-alt="close up headshot of professional man in suit looking confident against dark background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBI3mB6VhBlH8hTA1SO9p9WGv86OXnqHCiCp_q53gWIYm_kDMnYUyNdGLhrkMb9EyySGX_PhsKotRp4F6HP6FaRorhHgbOUBL-RXi-IKUfmZwr4YaH4cg-HIqx8KB18Hdv9uQ1d9IhgCc3Q3YpNWq3wtJbrck0RlFN2hr-gtzurXkXDp9jXvCwX0MbWHsp-kRj0pjiunxt0fskfVBU8_VoYVw2rVKubpJiKtN4_Yb643EddymFTJt5T1EP7VPA_pDPxgaFR3g0nCg0"/>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="flex-1 md:ml-[220px] pt-12 min-h-screen">
+<div class="p-6 md:p-8 max-w-7xl mx-auto space-y-8">
+<!-- Page Header -->
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div>
+<h1 class="font-headline text-[28px] leading-[32px] font-semibold tracking-tight text-on-surface">Service</h1>
+</div>
+<button class="bg-primary hover:bg-primary-dim text-on-primary font-medium text-sm px-4 py-2 rounded transition-colors flex items-center gap-2 w-fit">
+<span class="material-symbols-outlined text-sm">add</span>
+                    New Appointment
+                </button>
+</div>
+<!-- In-Page Tabs -->
+<div class="flex gap-6 border-b border-surface-container-high">
+<button class="pb-3 text-sm font-medium text-on-surface border-b-2 border-primary">Bay Board</button>
+<button class="pb-3 text-sm font-medium text-secondary hover:text-on-surface transition-colors">Appointments</button>
+<button class="pb-3 text-sm font-medium text-secondary hover:text-on-surface transition-colors">Job Cards</button>
+<button class="pb-3 text-sm font-medium text-secondary hover:text-on-surface transition-colors">Warranty Claims</button>
+</div>
+<!-- Bay Grid -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- Occupied Bay 1 -->
+<div class="bg-surface-container rounded-lg p-4 flex flex-col gap-3 relative overflow-hidden ghost-border h-[200px]">
+<div class="absolute top-0 left-0 w-full h-1 bg-primary"></div>
+<div class="flex justify-between items-start">
+<span class="font-mono text-xs font-medium text-secondary">BAY 1</span>
+<span class="bg-primary/10 text-primary text-[10px] px-2 py-0.5 rounded font-medium uppercase tracking-wider">In Progress</span>
+</div>
+<div>
+<h3 class="font-headline text-sm font-medium text-on-surface truncate">2022 Porsche Panamera 4</h3>
+<p class="font-mono text-xs text-secondary mt-1">VIN: ...8A4921</p>
+</div>
+<div class="mt-auto space-y-3">
+<div class="text-sm text-on-surface-variant truncate">60k Mile Service &amp; Alignment</div>
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="Tech" class="w-full h-full object-cover" data-alt="small headshot of male mechanic in dark uniform" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlxJAEAC2r8Yu0jPVT4BJBayUZipyUEGZX6Neekw2Ti9qlbGF37zntxqcZ-h9dC2w1E7pwJoqTEvQLYWUV5UrEl-85P_3FGkCqQLGp6gXJk7gQxC0q1RBf1stVi5bDIdXKJfNq5CaTpJU95N3th2Q6QjH6A00xoiUQa1NMeQm_T6RZza0gWUBCGG0XxU_UpRgumBnFB5P17w7jobavSd_6Wdl19pQmklDRp7o893S57FMoGOwJC2CE5ZnPwZEnbc2pBMNSMWqRAxs"/>
+</div>
+<span class="text-xs text-secondary">Tech: J. Miller</span>
+</div>
+<div class="space-y-1.5">
+<div class="flex justify-between text-[10px] text-secondary">
+<span>2h 15m remaining</span>
+<span>65%</span>
+</div>
+<div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 65%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Occupied Bay 2 -->
+<div class="bg-surface-container rounded-lg p-4 flex flex-col gap-3 relative overflow-hidden ghost-border h-[200px]">
+<div class="absolute top-0 left-0 w-full h-1 bg-error"></div>
+<div class="flex justify-between items-start">
+<span class="font-mono text-xs font-medium text-secondary">BAY 2</span>
+<span class="bg-error/10 text-error text-[10px] px-2 py-0.5 rounded font-medium uppercase tracking-wider">Delayed</span>
+</div>
+<div>
+<h3 class="font-headline text-sm font-medium text-on-surface truncate">2019 Audi RS7</h3>
+<p class="font-mono text-xs text-secondary mt-1">VIN: ...2B8844</p>
+</div>
+<div class="mt-auto space-y-3">
+<div class="text-sm text-on-surface-variant truncate">Transmission Diagnostics</div>
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 rounded-full bg-surface-container-highest overflow-hidden text-xs flex items-center justify-center font-medium bg-tertiary text-on-tertiary">
+                                SW
+                            </div>
+<span class="text-xs text-secondary">Tech: S. Wright</span>
+</div>
+<div class="space-y-1.5">
+<div class="flex justify-between text-[10px] text-error">
+<span>Awaiting Parts</span>
+<span>--</span>
+</div>
+<div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-error rounded-full" style="width: 100%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Occupied Bay 3 -->
+<div class="bg-surface-container rounded-lg p-4 flex flex-col gap-3 relative overflow-hidden ghost-border h-[200px]">
+<div class="absolute top-0 left-0 w-full h-1 bg-tertiary"></div>
+<div class="flex justify-between items-start">
+<span class="font-mono text-xs font-medium text-secondary">BAY 3</span>
+<span class="bg-tertiary/10 text-tertiary text-[10px] px-2 py-0.5 rounded font-medium uppercase tracking-wider">Quality Check</span>
+</div>
+<div>
+<h3 class="font-headline text-sm font-medium text-on-surface truncate">2023 BMW M5 Competition</h3>
+<p class="font-mono text-xs text-secondary mt-1">VIN: ...9C1102</p>
+</div>
+<div class="mt-auto space-y-3">
+<div class="text-sm text-on-surface-variant truncate">Brake Pad Replacement</div>
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="Tech" class="w-full h-full object-cover" data-alt="small headshot of female mechanic in dark uniform" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC0oyOscyz_xcXvxeTqn9kaaNOdS69rXZ20ZO3a3P8uGN2T-pXspBfvgbv0iVOzfMfITBO9OafQy2T82U2qs0PuBLhM0xaQuUJV549nsqng0LfddBTTz3v-cDnSQn8t1Y6XepGJi3kXBhKg3za4jlehhBnvt7VOWrFErwDKSvr1eI3t1HyRyVrjik5L3phcAYOQiv0lohjijmQyFTuEedPQxCDQEAMjAJZKRfyT98ASpmsNkDJKVyJ-PR8Tui_jZv5YzLQ61xENrZQ"/>
+</div>
+<span class="text-xs text-secondary">Tech: E. Chen</span>
+</div>
+<div class="space-y-1.5">
+<div class="flex justify-between text-[10px] text-secondary">
+<span>Final Inspection</span>
+<span>95%</span>
+</div>
+<div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-tertiary rounded-full" style="width: 95%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Empty Bay 4 -->
+<div class="bg-surface-container-lowest border border-dashed border-outline-variant rounded-lg p-4 flex flex-col items-center justify-center gap-2 h-[200px] hover:bg-surface-container-low transition-colors cursor-pointer">
+<span class="font-mono text-xs font-medium text-secondary absolute top-4 left-4">BAY 4</span>
+<span class="material-symbols-outlined text-outline-variant text-3xl">add_circle</span>
+<span class="text-sm font-medium text-secondary">Available</span>
+</div>
+<!-- Occupied Bay 5 -->
+<div class="bg-surface-container rounded-lg p-4 flex flex-col gap-3 relative overflow-hidden ghost-border h-[200px]">
+<div class="absolute top-0 left-0 w-full h-1 bg-primary"></div>
+<div class="flex justify-between items-start">
+<span class="font-mono text-xs font-medium text-secondary">BAY 5</span>
+<span class="bg-primary/10 text-primary text-[10px] px-2 py-0.5 rounded font-medium uppercase tracking-wider">In Progress</span>
+</div>
+<div>
+<h3 class="font-headline text-sm font-medium text-on-surface truncate">2020 Mercedes-Benz G63</h3>
+<p class="font-mono text-xs text-secondary mt-1">VIN: ...4D5521</p>
+</div>
+<div class="mt-auto space-y-3">
+<div class="text-sm text-on-surface-variant truncate">Annual Scheduled Maintenance</div>
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 rounded-full bg-surface-container-highest overflow-hidden text-xs flex items-center justify-center font-medium bg-primary-dim text-on-primary">
+                                DR
+                            </div>
+<span class="text-xs text-secondary">Tech: D. Reyes</span>
+</div>
+<div class="space-y-1.5">
+<div class="flex justify-between text-[10px] text-secondary">
+<span>4h 30m remaining</span>
+<span>20%</span>
+</div>
+<div class="h-1 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full" style="width: 20%"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Empty Bay 6 -->
+<div class="bg-surface-container-lowest border border-dashed border-outline-variant rounded-lg p-4 flex flex-col items-center justify-center gap-2 h-[200px] hover:bg-surface-container-low transition-colors cursor-pointer">
+<span class="font-mono text-xs font-medium text-secondary absolute top-4 left-4">BAY 6</span>
+<span class="material-symbols-outlined text-outline-variant text-3xl">add_circle</span>
+<span class="text-sm font-medium text-secondary">Available</span>
+</div>
+<!-- Empty Bay 7 -->
+<div class="bg-surface-container-lowest border border-dashed border-outline-variant rounded-lg p-4 flex flex-col items-center justify-center gap-2 h-[200px] hover:bg-surface-container-low transition-colors cursor-pointer">
+<span class="font-mono text-xs font-medium text-secondary absolute top-4 left-4">BAY 7</span>
+<span class="material-symbols-outlined text-outline-variant text-3xl">add_circle</span>
+<span class="text-sm font-medium text-secondary">Available</span>
+</div>
+<!-- Empty Bay 8 -->
+<div class="bg-surface-container-lowest border border-dashed border-outline-variant rounded-lg p-4 flex flex-col items-center justify-center gap-2 h-[200px] hover:bg-surface-container-low transition-colors cursor-pointer">
+<span class="font-mono text-xs font-medium text-secondary absolute top-4 left-4">BAY 8</span>
+<span class="material-symbols-outlined text-outline-variant text-3xl">add_circle</span>
+<span class="text-sm font-medium text-secondary">Available</span>
+</div>
+</div>
+<!-- Upcoming Appointments Table -->
+<div class="pt-8">
+<h2 class="font-headline text-lg font-medium text-on-surface mb-4">Upcoming Appointments</h2>
+<div class="bg-surface-container rounded-lg overflow-x-auto ghost-border">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-surface-container-high text-xs font-medium text-secondary uppercase tracking-wider">
+<th class="py-3 px-4 w-24">Time</th>
+<th class="py-3 px-4">Customer</th>
+<th class="py-3 px-4">Vehicle</th>
+<th class="py-3 px-4">Service Type</th>
+<th class="py-3 px-4">Advisor</th>
+<th class="py-3 px-4 text-right">Status</th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<tr class="border-b border-surface-container-high/50 hover:bg-surface-container-low transition-colors">
+<td class="py-3 px-4 font-mono text-secondary">14:00</td>
+<td class="py-3 px-4 font-medium text-on-surface">Alok Sharma</td>
+<td class="py-3 px-4 text-secondary">2021 Land Rover Defender</td>
+<td class="py-3 px-4 text-secondary">Suspension Noise Check</td>
+<td class="py-3 px-4 text-secondary">M. Patel</td>
+<td class="py-3 px-4 text-right">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium bg-surface-container-highest text-secondary">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                                        Checked In
+                                    </span>
+</td>
+</tr>
+<tr class="border-b border-surface-container-high/50 hover:bg-surface-container-low transition-colors">
+<td class="py-3 px-4 font-mono text-secondary">14:30</td>
+<td class="py-3 px-4 font-medium text-on-surface">Priya Reddy</td>
+<td class="py-3 px-4 text-secondary">2022 Lexus RX 450h</td>
+<td class="py-3 px-4 text-secondary">10k Mile Service</td>
+<td class="py-3 px-4 text-secondary">A. Singh</td>
+<td class="py-3 px-4 text-right">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium bg-surface-container-highest text-secondary">
+<span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+                                        Expected
+                                    </span>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-3 px-4 font-mono text-secondary">15:15</td>
+<td class="py-3 px-4 font-medium text-on-surface">Rohan Desai</td>
+<td class="py-3 px-4 text-secondary">2018 Jaguar F-Type</td>
+<td class="py-3 px-4 text-secondary">Coolant Leak</td>
+<td class="py-3 px-4 text-secondary">M. Patel</td>
+<td class="py-3 px-4 text-right">
+<span class="inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium bg-surface-container-highest text-secondary">
+<span class="w-1.5 h-1.5 rounded-full bg-outline-variant"></span>
+                                        Expected
+                                    </span>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+</body></html>

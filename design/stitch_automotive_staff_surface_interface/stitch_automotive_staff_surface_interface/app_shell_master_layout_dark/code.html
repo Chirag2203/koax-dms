@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>DMS - App Shell</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+            font-size: 1.25rem;
+        }
+        .material-symbols-outlined.filled {
+            font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        .ghost-border { outline: 1px solid theme('colors.outline-variant'); outline-offset: -1px; }
+        .glass-panel { background: rgba(44, 44, 44, 0.7); backdrop-filter: blur(24px); }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-secondary-fixed": "#403f3f",
+                        "surface-container": "#191a1a",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "on-error-container": "#ff9993",
+                        "primary": "#adc6ff",
+                        "error": "#ee7d77",
+                        "secondary-container": "#3c3b3b",
+                        "surface-container-highest": "#252626",
+                        "primary-fixed": "#d8e2ff",
+                        "on-primary": "#003d88",
+                        "tertiary-dim": "#c5c0e0",
+                        "secondary-fixed": "#e5e2e1",
+                        "error-container": "#7f2927",
+                        "secondary": "#9f9d9d",
+                        "on-primary-container": "#bdd0ff",
+                        "background": "#0e0e0e",
+                        "surface-tint": "#adc6ff",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "surface-bright": "#2c2c2c",
+                        "surface-variant": "#252626",
+                        "surface-container-lowest": "#000000",
+                        "tertiary": "#e1dcfd",
+                        "primary-dim": "#98b8ff",
+                        "primary-container": "#004395",
+                        "surface-dim": "#0e0e0e",
+                        "on-tertiary": "#504d68",
+                        "secondary-dim": "#9f9d9d",
+                        "inverse-surface": "#fcf8f8",
+                        "on-surface": "#e7e5e4",
+                        "on-primary-fixed": "#003c86",
+                        "on-secondary": "#202020",
+                        "error-dim": "#bb5551",
+                        "on-tertiary-container": "#47445f",
+                        "on-secondary-container": "#c1bfbe",
+                        "surface": "#0e0e0e",
+                        "tertiary-fixed": "#d3ceef",
+                        "inverse-primary": "#005bc4",
+                        "on-surface-variant": "#acabaa",
+                        "on-error": "#490106",
+                        "surface-container-high": "#1f2020",
+                        "inverse-on-surface": "#565554",
+                        "tertiary-container": "#d3ceef",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "surface-container-low": "#131313",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "on-tertiary-fixed": "#34314b",
+                        "outline": "#767575",
+                        "on-background": "#e7e5e4",
+                        "outline-variant": "#484848"
+                    },
+                    boxShadow: {
+                        'glow': '0 20px 50px rgba(0,0,0, 0.3)'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-surface h-screen flex overflow-hidden">
+<!-- Sidebar -->
+<aside class="w-[220px] h-screen sticky left-0 top-0 bg-[#141414] flex flex-col py-4 px-3 flex-shrink-0 z-40 transition-colors duration-150">
+<!-- Logo -->
+<div class="flex items-center gap-3 px-3 mb-8">
+<div class="w-7 h-7 rounded bg-primary-container text-on-primary-container flex items-center justify-center font-bold text-sm tracking-tighter">PM</div>
+<div class="flex flex-col">
+<span class="text-lg font-semibold text-white tracking-tighter leading-tight">Precision Motors</span>
+<span class="text-[10px] text-gray-400 font-mono uppercase tracking-wider">Regional Outlet</span>
+</div>
+</div>
+<!-- Navigation Groups -->
+<nav class="flex-1 overflow-y-auto space-y-6 scrollbar-hide">
+<!-- Core -->
+<div>
+<ul class="space-y-0.5 text-sm font-sans tracking-tight Inter">
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-400 hover:bg-white/5 hover:text-white transition-colors duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+</li>
+<li>
+<a class="flex items-center justify-between px-3 py-2 rounded-md bg-blue-600/10 text-blue-400 font-medium transition-colors duration-150" href="#">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[18px] filled" data-icon="directions_car">directions_car</span>
+<span>Inventory</span>
+</div>
+<span class="bg-surface-container-highest text-on-surface text-[10px] font-mono px-1.5 py-0.5 rounded ghost-border">42</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-400 hover:bg-white/5 hover:text-white transition-colors duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="sell">sell</span>
+<span>Sales</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-400 hover:bg-white/5 hover:text-white transition-colors duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="build">build</span>
+<span>Service</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-400 hover:bg-white/5 hover:text-white transition-colors duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="settings_input_component">settings_input_component</span>
+<span>Parts</span>
+</a>
+</li>
+</ul>
+</div>
+<!-- Operations -->
+<div>
+<ul class="space-y-0.5 text-sm font-sans tracking-tight Inter">
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-400 hover:bg-white/5 hover:text-white transition-colors duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="groups">groups</span>
+<span>Customers</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-400 hover:bg-white/5 hover:text-white transition-colors duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="payments">payments</span>
+<span>Finance</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-400 hover:bg-white/5 hover:text-white transition-colors duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="bar_chart">bar_chart</span>
+<span>Reports</span>
+</a>
+</li>
+</ul>
+</div>
+<!-- System -->
+<div>
+<ul class="space-y-0.5 text-sm font-sans tracking-tight Inter">
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-400 hover:bg-white/5 hover:text-white transition-colors duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 rounded-md text-gray-400 hover:bg-white/5 hover:text-white transition-colors duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]" data-icon="security">security</span>
+<span>Audit</span>
+</a>
+</li>
+</ul>
+</div>
+</nav>
+<!-- Bottom Actions -->
+<div class="mt-auto pt-4 space-y-2 border-t border-surface-container-highest">
+<button class="w-full flex items-center justify-between px-3 py-2 rounded-md text-sm text-gray-400 hover:bg-white/5 hover:text-white transition-colors">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="professional headshot of a man in a dark suit against a neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCRz7nch2TlMGSLE_zf-quPYCMQomOOnE6kLWLsdYoPeOCpnsyW_PXxyjqZjS3lrR-OCj3qTSgJh6-Ekm1ZGa4o7jBr1Zk7wpjwCnJfGSq5xrg80R2Sg8yotJIbigOJV03QxwUXGRVpxyrCqj_rzYG9XxW55rqZl_QEhbHoKFOrfGj96dWcjuT8cBuJQWBDFPpC20kPgnL0ZyaspJzWBKxpatQiiAD7XYzDBJGMXMlE-Vi-Da0H6b3GWbFA9_jZwcxd3npfWkleyIY"/>
+</div>
+<div class="flex flex-col items-start">
+<span class="text-xs text-white leading-tight">User Profile</span>
+<span class="text-[10px] font-mono text-gray-500">Sales Manager</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-[16px]" data-icon="expand_more">expand_more</span>
+</button>
+<button class="w-full flex items-center justify-between px-3 py-1.5 rounded-md text-xs text-gray-400 hover:bg-white/5 hover:text-white transition-colors border border-surface-container-highest">
+<span>Switch Outlet</span>
+<span class="text-[10px] font-mono bg-surface-container-highest px-1.5 py-0.5 rounded text-on-surface">BLR</span>
+</button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col min-w-0 bg-background">
+<!-- Top NavBar -->
+<header class="h-[48px] w-full sticky top-0 z-30 bg-[#0A0A0A]/80 backdrop-blur-md flex justify-between items-center px-6 border-b border-white/5 flex-shrink-0">
+<!-- Breadcrumbs -->
+<div class="flex items-center text-xs font-sans Inter text-gray-500">
+<a class="hover:text-blue-400 cursor-pointer transition-colors" href="#">Inventory</a>
+<span class="mx-2 text-surface-container-highest">/</span>
+<a class="hover:text-blue-400 cursor-pointer transition-colors" href="#">Vehicles</a>
+<span class="mx-2 text-surface-container-highest">/</span>
+<span class="text-white font-semibold font-mono">WP0ZZZ97•••1234</span>
+</div>
+<!-- Command Trigger -->
+<button class="hidden md:flex items-center justify-between w-[320px] h-[32px] px-3 rounded-md bg-surface-container-low ghost-border text-sm text-gray-500 hover:bg-surface-container transition-colors group">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px] text-gray-400" data-icon="search">search</span>
+<span>Search or jump to...</span>
+</div>
+<span class="text-[10px] font-mono border border-surface-container-highest rounded px-1.5 py-0.5 group-hover:border-gray-500 transition-colors">⌘K</span>
+</button>
+<!-- Right Actions -->
+<div class="flex items-center gap-4">
+<button class="relative text-gray-500 hover:text-blue-400 cursor-pointer active:scale-95 transition-all">
+<span class="material-symbols-outlined text-[20px]" data-icon="notifications">notifications</span>
+<span class="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-primary rounded-full"></span>
+</button>
+<div class="hidden md:flex items-center gap-2 bg-surface-container-low rounded-full px-2 py-1 ghost-border">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span class="text-xs text-on-surface font-medium pr-1">Bangalore</span>
+</div>
+</div>
+</header>
+<!-- Canvas -->
+<div class="flex-1 overflow-y-auto p-6 scrollbar-hide">
+<div class="max-w-7xl mx-auto space-y-6">
+<!-- Header -->
+<div class="flex items-end justify-between">
+<div>
+<h1 class="text-2xl font-semibold tracking-tight text-white mb-1">Vehicle Details</h1>
+<p class="text-sm text-gray-400">Manage inventory specifics, valuations, and logistics.</p>
+</div>
+<div class="flex gap-2">
+<button class="px-3 py-1.5 rounded-md bg-surface-container-highest text-on-surface text-sm font-medium hover:bg-surface-variant transition-colors">Edit Entry</button>
+<button class="px-3 py-1.5 rounded-md bg-primary text-on-primary text-sm font-medium hover:brightness-110 transition-all bg-gradient-to-b from-white/10 to-transparent">List for Sale</button>
+</div>
+</div>
+<!-- Bento Grid Content -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Main Card (Spans 2) -->
+<div class="lg:col-span-2 bg-surface-container rounded-xl p-6 flex flex-col gap-6 relative overflow-hidden">
+<div class="flex justify-between items-start">
+<div>
+<div class="flex items-center gap-2 mb-2">
+<span class="px-1.5 py-0.5 rounded bg-surface-container-highest text-gray-300 text-xs font-mono ghost-border">WP0ZZZ97•••1234</span>
+<span class="px-1.5 py-0.5 rounded bg-primary-container/20 text-primary text-[10px] font-medium tracking-wide uppercase">In Stock</span>
+</div>
+<h2 class="text-3xl font-semibold text-white tracking-tight">2023 Porsche 911 GT3</h2>
+<p class="text-gray-400 mt-1">Chalk Grey • PDK • 4,200 km</p>
+</div>
+<div class="text-right">
+<span class="text-sm text-gray-500 block mb-1">Asking Price</span>
+<span class="text-2xl font-mono text-white">₹ 2,85,00,000</span>
+</div>
+</div>
+<!-- Data Row -->
+<div class="grid grid-cols-3 gap-4 py-4 border-y border-surface-container-highest border-dashed">
+<div>
+<span class="text-xs text-gray-500 block mb-1">Purchase Price</span>
+<span class="text-sm font-mono text-gray-300">₹ 2,60,00,000</span>
+</div>
+<div>
+<span class="text-xs text-gray-500 block mb-1">Acquisition Date</span>
+<span class="text-sm text-gray-300">12 Oct 2023</span>
+</div>
+<div>
+<span class="text-xs text-gray-500 block mb-1">Days in Stock</span>
+<span class="text-sm font-mono text-gray-300">24</span>
+</div>
+</div>
+</div>
+<!-- Side Card -->
+<div class="bg-surface-container rounded-xl p-6 flex flex-col gap-4">
+<h3 class="text-sm font-semibold text-white">Logistics &amp; Location</h3>
+<div class="w-full h-32 rounded-lg bg-surface-container-lowest relative overflow-hidden mb-2">
+<img alt="Map Location" class="w-full h-full object-cover opacity-60 mix-blend-luminosity" data-alt="dark mode satellite map view focusing on a specific urban location with subtle glowing markers" data-location="Bangalore" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCHeGMSHhADJNRZ1a23IyqY7ZIiGV4z-KhUYv6YDc9NQmTJDZz-UeC-uNf6ObJP5o4BEHrd1sts8jleQGzdKbA3S-GM6SMfGg_ehIFcK311Qlbi25g_U_MOhm9NycjrxHOxYY2z28cCtqSfQ9L0itpmKjxR03DVPgdIvWcGBMjO7x2zZVJXYoRT7MJvvbuncIm5R2jVrb-E9bYLdcgOTH3Iu_HklmJDI_wtLOV5LRUIzSQ-2o8hP1PXLU85u85b2Q49ntzLGoou8E"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container to-transparent"></div>
+<div class="absolute bottom-3 left-3 flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+<span class="text-xs font-medium text-white shadow-sm">BLR-Main Showroom</span>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between items-center text-sm">
+<span class="text-gray-500">Bay No.</span>
+<span class="font-mono text-gray-300">A-14</span>
+</div>
+<div class="flex justify-between items-center text-sm">
+<span class="text-gray-500">Keys</span>
+<span class="text-gray-300">2 Sets (Lockbox 4)</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Command Palette Overlay (Hidden by default, shown for spec) -->
+<!-- Note: In a real app this would be toggled via JS, showing it visible here based on instructions -->
+<div class="fixed inset-0 z-50 flex items-start justify-center pt-[122px] bg-black/40 backdrop-blur-sm">
+<div class="w-[560px] glass-panel rounded-xl shadow-glow overflow-hidden flex flex-col ghost-border relative z-50">
+<!-- Search Input -->
+<div class="flex items-center px-4 py-3 border-b border-white/10">
+<span class="material-symbols-outlined text-[20px] text-gray-400 mr-3" data-icon="search">search</span>
+<input class="flex-1 bg-transparent border-none text-white text-base placeholder-gray-500 focus:ring-0 p-0 font-sans Inter" placeholder="Search or jump to..." type="text"/>
+</div>
+<!-- Results List -->
+<div class="max-h-[340px] overflow-y-auto p-2 scrollbar-hide">
+<!-- Category: Recent -->
+<div class="mb-2">
+<div class="px-3 py-1.5 text-xs font-medium text-gray-500 mb-1">Recent</div>
+<button class="w-full flex items-center justify-between px-3 py-2 rounded-lg bg-surface-container-highest text-left group">
+<div class="flex items-center gap-3">
+<div class="w-6 h-6 rounded bg-surface-container flex items-center justify-center text-gray-400">
+<span class="material-symbols-outlined text-[16px]" data-icon="directions_car">directions_car</span>
+</div>
+<span class="text-sm font-medium text-white group-hover:text-primary transition-colors">Porsche 911 GT3</span>
+</div>
+<span class="text-xs font-mono text-gray-500">WP0ZZZ97•••1234</span>
+</button>
+</div>
+<!-- Category: Vehicles -->
+<div class="mb-2">
+<div class="px-3 py-1.5 text-xs font-medium text-gray-500 mb-1">Vehicles</div>
+<button class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-surface-container text-left group transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-6 h-6 rounded bg-surface-container-lowest flex items-center justify-center text-gray-400">
+<span class="material-symbols-outlined text-[16px]" data-icon="add">add</span>
+</div>
+<span class="text-sm text-gray-300 group-hover:text-white">Add New Vehicle</span>
+</div>
+<span class="text-[10px] font-mono text-gray-500 bg-surface-container-lowest px-1.5 py-0.5 rounded">V</span>
+</button>
+<button class="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-surface-container text-left group transition-colors">
+<div class="flex items-center gap-3">
+<div class="w-6 h-6 rounded bg-surface-container-lowest flex items-center justify-center text-gray-400">
+<span class="material-symbols-outlined text-[16px]" data-icon="list">list</span>
+</div>
+<span class="text-sm text-gray-300 group-hover:text-white">View All Inventory</span>
+</div>
+<span class="text-[10px] font-mono text-gray-500 bg-surface-container-lowest px-1.5 py-0.5 rounded">I</span>
+</button>
+</div>
+</div>
+<!-- Footer -->
+<div class="px-4 py-2 border-t border-white/5 bg-surface-container/50 flex items-center gap-4 text-[11px] text-gray-500 font-sans">
+<div class="flex items-center gap-1.5"><span class="font-mono bg-surface-container-lowest px-1 rounded">↑↓</span> Navigate</div>
+<div class="flex items-center gap-1.5"><span class="font-mono bg-surface-container-lowest px-1 rounded">↵</span> Open</div>
+<div class="flex items-center gap-1.5"><span class="font-mono bg-surface-container-lowest px-1 rounded">⎋</span> Close</div>
+</div>
+</div>
+</div>
+</body></html>

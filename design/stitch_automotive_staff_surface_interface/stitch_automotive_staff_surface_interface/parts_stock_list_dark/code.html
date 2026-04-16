@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Parts Stock List - Luxe Ops</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#c3d4ff",
+                        "on-tertiary-fixed": "#34314b",
+                        "primary-dim": "#98b8ff",
+                        "error": "#ee7d77",
+                        "secondary": "#9f9d9d",
+                        "on-error-container": "#ff9993",
+                        "background": "#0e0e0e",
+                        "error-container": "#7f2927",
+                        "surface-container-highest": "#252626",
+                        "secondary-container": "#3c3b3b",
+                        "surface-bright": "#2c2c2c",
+                        "primary-container": "#004395",
+                        "surface-variant": "#252626",
+                        "secondary-dim": "#9f9d9d",
+                        "on-secondary-fixed": "#403f3f",
+                        "on-primary": "#003d88",
+                        "surface-container-lowest": "#000000",
+                        "outline": "#767575",
+                        "tertiary-container": "#d3ceef",
+                        "on-primary-fixed": "#003c86",
+                        "secondary-fixed": "#e5e2e1",
+                        "primary-fixed": "#d8e2ff",
+                        "surface": "#0e0e0e",
+                        "on-tertiary": "#504d68",
+                        "inverse-on-surface": "#565554",
+                        "on-error": "#490106",
+                        "outline-variant": "#484848",
+                        "on-surface-variant": "#acabaa",
+                        "surface-container": "#191a1a",
+                        "surface-dim": "#0e0e0e",
+                        "on-background": "#e7e5e4",
+                        "inverse-surface": "#fcf8f8",
+                        "tertiary": "#e1dcfd",
+                        "surface-tint": "#adc6ff",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "on-primary-container": "#bdd0ff",
+                        "error-dim": "#bb5551",
+                        "surface-container-low": "#131313",
+                        "primary": "#adc6ff",
+                        "on-surface": "#e7e5e4",
+                        "surface-container-high": "#1f2020",
+                        "inverse-primary": "#005bc4",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "on-tertiary-container": "#47445f",
+                        "on-secondary": "#202020",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "tertiary-dim": "#c5c0e0",
+                        "tertiary-fixed": "#d3ceef",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "on-secondary-container": "#c1bfbe"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #0A0A0A; color: #e7e5e4; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        /* Tonal Layering Utilities */
+        .surface-0 { background-color: #0e0e0e; }
+        .surface-1 { background-color: #131313; }
+        .surface-2 { background-color: #191a1a; }
+        .surface-3 { background-color: #1f2020; }
+        .surface-highest { background-color: #252626; }
+        /* High-Density Tables */
+        .table-row-compact { height: 36px; }
+        .table-row-standard { height: 44px; }
+        /* Hide scrollbar for clean look */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3c3b3b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #5c5b5b; }
+    </style>
+</head>
+<body class="bg-surface-0 min-h-screen text-on-surface flex flex-col md:flex-row antialiased">
+<!-- SideNavBar (Desktop) -->
+<nav class="hidden md:flex flex-col py-4 gap-2 bg-surface-1 fixed left-0 top-12 h-[calc(100vh-3rem)] w-56 bg-neutral-800/50 z-40">
+<div class="px-6 mb-6">
+<h2 class="text-xs font-semibold tracking-tighter text-on-surface uppercase opacity-70">Main Hub</h2>
+<p class="text-[10px] text-on-surface-variant">Zone 4-B</p>
+</div>
+<a class="flex items-center px-6 py-2 bg-blue-500/10 text-blue-500 border-r-2 border-blue-500 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mr-3 text-[18px]">inventory_2</span>
+<span class="font-sans text-xs font-medium">Stock Overview</span>
+</a>
+<a class="flex items-center px-6 py-2 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mr-3 text-[18px]">search_check</span>
+<span class="font-sans text-xs font-medium">VIN Lookup</span>
+</a>
+<a class="flex items-center px-6 py-2 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mr-3 text-[18px]">shopping_cart</span>
+<span class="font-sans text-xs font-medium">Procurement</span>
+</a>
+<a class="flex items-center px-6 py-2 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mr-3 text-[18px]">local_shipping</span>
+<span class="font-sans text-xs font-medium">Suppliers</span>
+</a>
+<a class="flex items-center px-6 py-2 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mr-3 text-[18px]">analytics</span>
+<span class="font-sans text-xs font-medium">Reports</span>
+</a>
+<div class="mt-auto flex flex-col gap-2">
+<a class="flex items-center px-6 py-2 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mr-3 text-[18px]">help</span>
+<span class="font-sans text-xs font-medium">Help</span>
+</a>
+<a class="flex items-center px-6 py-2 text-neutral-400 hover:bg-neutral-800 hover:text-neutral-200 transition-all duration-200" href="#">
+<span class="material-symbols-outlined mr-3 text-[18px]">history</span>
+<span class="font-sans text-xs font-medium">Logs</span>
+</a>
+</div>
+</nav>
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 bg-neutral-950/80 backdrop-blur-xl border-b border-white/5 shadow-2xl shadow-black/50 flex items-center justify-between px-6 h-12">
+<div class="flex items-center gap-6">
+<span class="text-lg font-semibold tracking-tighter text-white">LUXE OPS: PARTS</span>
+<nav class="hidden md:flex gap-4">
+<a class="text-blue-500 border-b-2 border-blue-500 pb-2 text-sm font-sans tracking-tight" href="#">Inventory</a>
+<a class="text-neutral-400 hover:text-white transition-colors text-sm font-sans tracking-tight" href="#">Orders</a>
+<a class="text-neutral-400 hover:text-white transition-colors text-sm font-sans tracking-tight" href="#">Inbound</a>
+<a class="text-neutral-400 hover:text-white transition-colors text-sm font-sans tracking-tight" href="#">Analytics</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-neutral-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-neutral-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<img alt="Manager Profile" class="w-6 h-6 rounded-full" data-alt="Close up portrait of a professional manager with a slight smile, dark background, studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwGZhXr-VTKYOtL3fBRr4luyX-YgD5qWNDDu6GSV5CDW6aNN_11QA4xVxkd4-MzLEKkiFrZb1DrzODfKelkoC9a-tMlnf30M4BAdLhWSqOYq5MnXTmQOe6tzUmrJ66vFWT1dCDMbnaej1Z1TcX8OgORtpOsWDcbEeMBlpl3C30NiIFnP3VA6_CHVoabLK9JSKsAWqhXprJbRugx7Pcs2SDj8nUlgi9Nn7BoQlNmG7p9fn3nL01jwq-wSZcprFQuEg0gHVSd-cLbKg"/>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 md:ml-56 mt-12 p-6 flex flex-col gap-6">
+<!-- Page Header & Actions -->
+<div class="flex items-center justify-between">
+<h1 class="text-2xl font-headline font-semibold tracking-tight text-on-surface">Parts Stock List</h1>
+<div class="flex items-center gap-3">
+<button class="bg-surface-highest text-on-surface px-4 py-1.5 rounded-[6px] text-sm font-medium hover:bg-secondary-container transition-colors">GRN</button>
+<button class="bg-primary text-on-primary px-4 py-1.5 rounded-[6px] text-sm font-medium bg-gradient-to-b from-primary/10 to-transparent hover:brightness-110 transition-all shadow-[0_20px_50px_rgba(173,198,255,0.1)]">New PO</button>
+</div>
+</div>
+<!-- In-Page Tabs -->
+<div class="flex gap-6 border-b border-outline-variant/15 pb-[1px]">
+<button class="text-primary border-b-2 border-primary pb-2 text-sm font-medium">Stock</button>
+<button class="text-on-surface-variant hover:text-on-surface pb-2 text-sm font-medium transition-colors">Purchase Orders</button>
+<button class="text-on-surface-variant hover:text-on-surface pb-2 text-sm font-medium transition-colors">GRN</button>
+<button class="text-on-surface-variant hover:text-on-surface pb-2 text-sm font-medium transition-colors">Suppliers</button>
+<button class="text-on-surface-variant hover:text-on-surface pb-2 text-sm font-medium transition-colors">Transfers</button>
+</div>
+<!-- Controls (Search/Filter/Command Palette stand-in) -->
+<div class="flex items-center justify-between bg-surface-2 p-3 rounded-lg border border-outline-variant/15">
+<div class="flex items-center gap-3 w-1/3">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm text-on-surface placeholder:text-on-surface-variant w-full font-sans outline-none" placeholder="Search by Part # or Description (⌘K)" type="text"/>
+</div>
+<div class="flex items-center gap-2">
+<button class="flex items-center gap-1 text-xs text-on-surface-variant bg-surface-3 px-2 py-1 rounded-[4px] hover:text-on-surface">
+<span class="material-symbols-outlined text-[14px]">filter_list</span> Filter
+                 </button>
+</div>
+</div>
+<!-- Data Table Area -->
+<div class="bg-surface-2 rounded-lg flex-1 overflow-hidden border border-outline-variant/15 flex flex-col shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+<!-- Table Header -->
+<div class="grid grid-cols-12 gap-4 px-4 py-2 bg-surface-1 text-[11px] font-medium text-on-surface-variant uppercase tracking-wider sticky top-0 z-10">
+<div class="col-span-2">Part #</div>
+<div class="col-span-3">Description</div>
+<div class="col-span-1">Category</div>
+<div class="col-span-1">Outlet</div>
+<div class="col-span-1 text-right">Qty</div>
+<div class="col-span-1 text-right">Min</div>
+<div class="col-span-1 text-right">Unit Price</div>
+<div class="col-span-1">Last GRN</div>
+<div class="col-span-1">Status</div>
+</div>
+<!-- Table Body -->
+<div class="flex-1 overflow-y-auto">
+<!-- Row 1 (Normal) -->
+<div class="grid grid-cols-12 gap-4 px-4 table-row-standard items-center text-sm hover:bg-surface-1 transition-colors border-l-2 border-transparent">
+<div class="col-span-2 font-mono text-[13px] text-tertiary-fixed">ENG-001-V8</div>
+<div class="col-span-3 truncate text-on-surface">V8 Turbocharger Assembly Kit</div>
+<div class="col-span-1 text-xs text-on-surface-variant">Engine</div>
+<div class="col-span-1"><span class="px-1.5 py-0.5 bg-surface-3 rounded-[4px] text-[10px] text-on-surface-variant border border-outline-variant/20">BLR</span></div>
+<div class="col-span-1 text-right font-mono text-[13px] text-on-surface">14</div>
+<div class="col-span-1 text-right font-mono text-[13px] text-on-surface-variant">5</div>
+<div class="col-span-1 text-right font-mono text-[13px] text-on-surface">₹ 1,45,000</div>
+<div class="col-span-1 text-[12px] text-on-surface-variant">12 Oct 23</div>
+<div class="col-span-1 flex items-center gap-1.5 text-[11px]"><div class="w-1.5 h-1.5 rounded-full bg-primary"></div> Optimal</div>
+</div>
+<!-- Row 2 (Low Stock - Highlighted) -->
+<div class="grid grid-cols-12 gap-4 px-4 table-row-standard items-center text-sm bg-error-container/5 hover:bg-surface-1 transition-colors border-l-2 border-error">
+<div class="col-span-2 font-mono text-[13px] text-tertiary-fixed">BDY-442-FL</div>
+<div class="col-span-3 truncate text-on-surface">Carbon Fiber Front Lip Spoiler</div>
+<div class="col-span-1 text-xs text-on-surface-variant">Body</div>
+<div class="col-span-1"><span class="px-1.5 py-0.5 bg-surface-3 rounded-[4px] text-[10px] text-on-surface-variant border border-outline-variant/20">MUM</span></div>
+<div class="col-span-1 text-right font-mono text-[13px] text-error font-medium">2</div>
+<div class="col-span-1 text-right font-mono text-[13px] text-on-surface-variant">4</div>
+<div class="col-span-1 text-right font-mono text-[13px] text-on-surface">₹ 85,500</div>
+<div class="col-span-1 text-[12px] text-on-surface-variant">01 Sep 23</div>
+<div class="col-span-1 flex items-center gap-1.5 text-[11px]"><div class="w-1.5 h-1.5 rounded-full bg-error"></div> <span class="text-error">Low Stock</span></div>
+</div>
+<!-- Row 3 (Normal) -->
+<div class="grid grid-cols-12 gap-4 px-4 table-row-standard items-center text-sm hover:bg-surface-1 transition-colors border-l-2 border-transparent">
+<div class="col-span-2 font-mono text-[13px] text-tertiary-fixed">ELC-099-H</div>
+<div class="col-span-3 truncate text-on-surface">Matrix LED Headlight Module L</div>
+<div class="col-span-1 text-xs text-on-surface-variant">Electrical</div>
+<div class="col-span-1"><span class="px-1.5 py-0.5 bg-surface-3 rounded-[4px] text-[10px] text-on-surface-variant border border-outline-variant/20">CHE</span></div>
+<div class="col-span-1 text-right font-mono text-[13px] text-on-surface">8</div>
+<div class="col-span-1 text-right font-mono text-[13px] text-on-surface-variant">2</div>
+<div class="col-span-1 text-right font-mono text-[13px] text-on-surface">₹ 1,12,000</div>
+<div class="col-span-1 text-[12px] text-on-surface-variant">28 Oct 23</div>
+<div class="col-span-1 flex items-center gap-1.5 text-[11px]"><div class="w-1.5 h-1.5 rounded-full bg-primary"></div> Optimal</div>
+</div>
+<!-- Row 4 (Low Stock - Highlighted) -->
+<div class="grid grid-cols-12 gap-4 px-4 table-row-standard items-center text-sm bg-error-container/5 hover:bg-surface-1 transition-colors border-l-2 border-error">
+<div class="col-span-2 font-mono text-[13px] text-tertiary-fixed">CNS-101-O</div>
+<div class="col-span-3 truncate text-on-surface">Synthetic Engine Oil 5W-40 (200L)</div>
+<div class="col-span-1 text-xs text-on-surface-variant">Consumable</div>
+<div class="col-span-1"><span class="px-1.5 py-0.5 bg-surface-3 rounded-[4px] text-[10px] text-on-surface-variant border border-outline-variant/20">BLR</span></div>
+<div class="col-span-1 text-right font-mono text-[13px] text-error font-medium">1</div>
+<div class="col-span-1 text-right font-mono text-[13px] text-on-surface-variant">3</div>
+<div class="col-span-1 text-right font-mono text-[13px] text-on-surface">₹ 55,000</div>
+<div class="col-span-1 text-[12px] text-on-surface-variant">15 Aug 23</div>
+<div class="col-span-1 flex items-center gap-1.5 text-[11px]"><div class="w-1.5 h-1.5 rounded-full bg-error"></div> <span class="text-error">Low Stock</span></div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

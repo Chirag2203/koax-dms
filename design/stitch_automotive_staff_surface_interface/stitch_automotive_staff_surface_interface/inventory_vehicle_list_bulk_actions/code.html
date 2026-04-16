@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Velocity Console - Inventory</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-container": "#004395",
+                        "inverse-on-surface": "#565554",
+                        "inverse-primary": "#005bc4",
+                        "on-secondary-fixed": "#403f3f",
+                        "secondary-dim": "#9f9d9d",
+                        "tertiary-container": "#d3ceef",
+                        "error": "#ee7d77",
+                        "on-tertiary": "#504d68",
+                        "surface-tint": "#adc6ff",
+                        "on-error": "#490106",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "error-dim": "#bb5551",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "on-surface-variant": "#acabaa",
+                        "surface-variant": "#252626",
+                        "surface-container-highest": "#252626",
+                        "on-surface": "#e7e5e4",
+                        "surface-container": "#191a1a",
+                        "tertiary-dim": "#c5c0e0",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "on-primary-fixed": "#003c86",
+                        "outline-variant": "#484848",
+                        "on-primary": "#003d88",
+                        "primary": "#adc6ff",
+                        "on-background": "#e7e5e4",
+                        "on-error-container": "#ff9993",
+                        "on-secondary-container": "#c1bfbe",
+                        "error-container": "#7f2927",
+                        "surface-dim": "#0e0e0e",
+                        "inverse-surface": "#fcf8f8",
+                        "on-tertiary-container": "#47445f",
+                        "secondary-fixed": "#e5e2e1",
+                        "surface-container-high": "#1f2020",
+                        "primary-fixed": "#d8e2ff",
+                        "tertiary-fixed": "#d3ceef",
+                        "secondary-container": "#3c3b3b",
+                        "on-secondary": "#202020",
+                        "surface-container-lowest": "#000000",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "surface": "#0e0e0e",
+                        "secondary": "#9f9d9d",
+                        "on-tertiary-fixed": "#34314b",
+                        "background": "#0e0e0e",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "on-primary-container": "#bdd0ff",
+                        "outline": "#767575",
+                        "surface-container-low": "#131313",
+                        "surface-bright": "#2c2c2c",
+                        "primary-dim": "#98b8ff",
+                        "tertiary": "#e1dcfd",
+                        "tertiary-fixed-dim": "#c5c0e0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                        "headline": ["Inter", "sans-serif"],
+                        "body": ["Inter", "sans-serif"],
+                        "label": ["Inter", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1, 'wght' 300, 'GRAD' 0, 'opsz' 20;
+        }
+        
+        /* Custom scrollbar for data table area if needed */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #3c3b3b;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface antialiased h-screen overflow-hidden flex flex-col font-body">
+<!-- TopNavBar -->
+<header class="fixed top-0 w-full z-50 h-12 bg-neutral-950/80 backdrop-blur-xl shadow-2xl shadow-black/50 bg-neutral-900 flex justify-between items-center px-4">
+<div class="flex items-center gap-4">
+<!-- Mobile Menu Toggle (Hidden on lg) -->
+<button class="lg:hidden text-neutral-500 hover:text-white transition-colors">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<span class="text-lg font-semibold tracking-tighter text-white">Velocity Console</span>
+</div>
+<!-- Center Search (if on_left was specified but generally search is center/right in top bars) -->
+<div class="hidden md:flex flex-1 max-w-md mx-8">
+<div class="relative w-full group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-sm">search</span>
+<input class="w-full bg-surface-variant border border-outline-variant/15 rounded text-sm py-1.5 pl-9 pr-3 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-outline-variant/30 transition-colors h-8" placeholder="Search VIN, Model, or Plate..." type="text"/>
+<div class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 opacity-50 group-hover:opacity-100 transition-opacity">
+<span class="text-[10px] font-mono border border-outline-variant rounded px-1 text-on-surface-variant">⌘</span>
+<span class="text-[10px] font-mono border border-outline-variant rounded px-1 text-on-surface-variant">K</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="h-8 w-8 flex items-center justify-center rounded text-neutral-500 hover:bg-neutral-800 transition-colors active:scale-95 duration-100">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="h-8 w-8 flex items-center justify-center rounded text-neutral-500 hover:bg-neutral-800 transition-colors active:scale-95 duration-100">
+<span class="material-symbols-outlined text-[20px]">keyboard_command_key</span>
+</button>
+<button class="h-8 w-8 flex items-center justify-center rounded text-neutral-500 hover:bg-neutral-800 transition-colors active:scale-95 duration-100">
+<span class="material-symbols-outlined text-[20px]">account_circle</span>
+</button>
+</div>
+</header>
+<div class="flex flex-1 pt-12 h-full overflow-hidden">
+<!-- SideNavBar -->
+<aside class="hidden lg:flex flex-col fixed left-0 top-12 h-[calc(100vh-48px)] w-[220px] z-40 bg-neutral-900 no-border tonal-layering flat py-6 gap-2">
+<!-- Header Area -->
+<div class="px-4 mb-6 flex items-center gap-3">
+<div class="h-8 w-8 rounded-full bg-surface-container-high flex items-center justify-center overflow-hidden border border-outline-variant/20">
+<span class="material-symbols-outlined text-on-surface-variant text-[20px]">storefront</span>
+</div>
+<div class="flex flex-col">
+<span class="text-white font-bold text-sm leading-tight">Inventory Ops</span>
+<span class="text-xs text-neutral-500 leading-tight">Mumbai Hub</span>
+</div>
+</div>
+<!-- CTA -->
+<div class="px-4 mb-4">
+<button class="w-full bg-primary text-on-primary hover:bg-primary-dim transition-colors rounded h-8 flex items-center justify-center gap-2 text-sm font-medium">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    Add Vehicle
+                </button>
+</div>
+<!-- Navigation Links -->
+<nav class="flex-1 flex flex-col gap-0.5 px-2">
+<a class="flex items-center gap-3 px-3 py-2 rounded text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/30 transition-all duration-200 ease-in-out group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-neutral-300">dashboard</span>
+<span class="font-sans text-xs uppercase tracking-widest font-semibold">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-blue-400 bg-neutral-800/50 border-r-2 border-blue-500 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[18px]">directions_car</span>
+<span class="font-sans text-xs uppercase tracking-widest font-semibold">Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/30 transition-all duration-200 ease-in-out group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-neutral-300">local_shipping</span>
+<span class="font-sans text-xs uppercase tracking-widest font-semibold">Logistics</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/30 transition-all duration-200 ease-in-out group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-neutral-300">payments</span>
+<span class="font-sans text-xs uppercase tracking-widest font-semibold">Valuations</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/30 transition-all duration-200 ease-in-out group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-neutral-300">bar_chart</span>
+<span class="font-sans text-xs uppercase tracking-widest font-semibold">Analytics</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/30 transition-all duration-200 ease-in-out group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-neutral-300">settings</span>
+<span class="font-sans text-xs uppercase tracking-widest font-semibold">Settings</span>
+</a>
+</nav>
+<!-- Footer Links -->
+<div class="mt-auto px-2 flex flex-col gap-0.5">
+<a class="flex items-center gap-3 px-3 py-2 rounded text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/30 transition-all duration-200 ease-in-out group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-neutral-300">help</span>
+<span class="font-sans text-xs uppercase tracking-widest font-semibold">Support</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2 rounded text-neutral-500 hover:text-neutral-200 hover:bg-neutral-800/30 transition-all duration-200 ease-in-out group" href="#">
+<span class="material-symbols-outlined text-[18px] group-hover:text-neutral-300">logout</span>
+<span class="font-sans text-xs uppercase tracking-widest font-semibold">Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="flex-1 lg:ml-[220px] bg-surface-container-low flex flex-col h-full relative z-0">
+<!-- Page Header -->
+<div class="px-6 py-6 flex items-center justify-between shrink-0">
+<h1 class="text-2xl font-semibold tracking-tight text-on-surface">Vehicles</h1>
+<div class="flex items-center gap-3">
+<button class="bg-surface-container-highest text-on-surface hover:bg-surface-variant transition-colors rounded px-4 h-8 text-sm font-medium flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">upload</span>
+                        Import
+                    </button>
+<button class="bg-primary text-on-primary hover:bg-primary-dim transition-colors rounded px-4 h-8 text-sm font-medium flex items-center gap-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] bg-gradient-to-b from-white/10 to-transparent">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                        Add Vehicle
+                    </button>
+</div>
+</div>
+<!-- Filter Bar -->
+<div class="px-6 pb-4 flex items-center justify-between border-b border-transparent bg-surface-container-low shrink-0 relative z-10">
+<!-- Tabs -->
+<div class="flex items-center gap-1">
+<button class="px-3 h-8 rounded bg-surface-container-highest text-on-surface text-sm font-medium transition-colors">All</button>
+<button class="px-3 h-8 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors text-sm font-medium">Listed</button>
+<button class="px-3 h-8 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors text-sm font-medium">In Refurb</button>
+<button class="px-3 h-8 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors text-sm font-medium">Stale (&gt;60d)</button>
+<button class="px-3 h-8 rounded text-on-surface-variant hover:text-on-surface hover:bg-surface-container transition-colors text-sm font-medium">My Listings</button>
+</div>
+<!-- Right Actions -->
+<div class="flex items-center gap-3">
+<div class="relative w-[240px]">
+<span class="material-symbols-outlined absolute left-2.5 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="w-full bg-surface-variant border border-outline-variant/15 rounded text-sm py-1.5 pl-8 pr-3 text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:border-outline-variant/30 transition-colors h-8" placeholder="Search inventory..." type="text"/>
+</div>
+<button class="h-8 px-3 rounded bg-surface-container border border-outline-variant/15 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                        Filter
+                    </button>
+<button class="h-8 px-3 rounded bg-surface-container border border-outline-variant/15 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors flex items-center gap-2 text-sm">
+<span class="material-symbols-outlined text-[18px]">view_column</span>
+                        Columns
+                    </button>
+</div>
+</div>
+<!-- Data Table Container (Scrollable) -->
+<div class="flex-1 overflow-auto custom-scrollbar px-6 pb-6">
+<div class="bg-surface-container rounded-lg border border-outline-variant/10 overflow-hidden min-w-[1200px] relative">
+<!-- Bulk Action Bar -->
+<div class="sticky top-0 z-30 bg-[#2A2A2A] border-b border-outline-variant/20 px-4 h-12 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="text-sm font-medium text-on-surface">3 selected</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="h-8 px-3 rounded bg-surface-container border border-outline-variant/15 text-on-surface hover:bg-surface-container-highest transition-colors text-sm font-medium flex items-center gap-2">
+Export
+</button>
+<button class="h-8 px-3 rounded bg-surface-container border border-outline-variant/15 text-on-surface hover:bg-surface-container-highest transition-colors text-sm font-medium flex items-center gap-2">
+Update Status
+</button>
+<button class="h-8 px-3 rounded bg-surface-container border border-outline-variant/15 text-on-surface hover:bg-surface-container-highest transition-colors text-sm font-medium flex items-center gap-2">
+Assign Outlet
+</button>
+</div>
+</div>
+<table class="w-full text-left border-collapse">
+<thead class="bg-surface-container-highest/50 sticky top-12 z-20 backdrop-blur-md">
+<tr>
+<th class="w-10 px-3 py-2 text-center align-middle">
+<input class="rounded-[4px] border-outline-variant/30 bg-surface-container-lowest text-primary focus:ring-primary focus:ring-offset-surface-container h-3.5 w-3.5" type="checkbox"/>
+</th>
+<th class="w-16 px-2 py-2 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Photo</th>
+<th class="px-3 py-2 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">VIN</th>
+<th class="px-3 py-2 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Vehicle Details</th>
+<th class="px-3 py-2 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Outlet</th>
+<th class="px-3 py-2 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Status</th>
+<th class="px-3 py-2 text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Days</th>
+<th class="px-3 py-2 text-xs font-semibold text-on-surface-variant uppercase tracking-wider text-right">Ask Price</th>
+<th class="px-3 py-2 text-xs font-semibold text-on-surface-variant uppercase tracking-wider text-right">Landed Cost</th>
+<th class="px-3 py-2 text-xs font-semibold text-on-surface-variant uppercase tracking-wider text-right">Margin</th>
+<th class="w-16 px-3 py-2 text-xs font-semibold text-on-surface-variant uppercase tracking-wider text-center">CPO</th>
+<th class="w-24 px-3 py-2"></th>
+</tr>
+</thead>
+<tbody class="text-sm">
+<!-- Row 1 -->
+<tr class="group hover:bg-[#333333] transition-colors border-b border-transparent hover:border-outline-variant/5 bg-[#2A2A2A]">
+<td class="px-3 py-2 text-center align-middle">
+<input checked="" class="rounded-[4px] border-outline-variant/30 bg-surface-container-lowest text-primary focus:ring-primary focus:ring-offset-surface-container h-3.5 w-3.5 transition-opacity" type="checkbox"/>
+</td>
+<td class="px-2 py-1.5">
+<div class="h-9 w-12 rounded bg-surface-container-lowest overflow-hidden border border-outline-variant/10">
+<img alt="dark grey luxury sports car side profile low angle studio lighting" class="h-full w-full object-cover" data-alt="dark grey luxury sports car side profile low angle studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDsuHsiN_-d2v3GXUMPGZuipYOl_pPWDIc29DZt0dEF6GZLRlzsq4BRPXYtOKo1kK7w_uywwB9c254_BRqlUIPDfNJdLHqLbw4q41vlUMVxVFMtkjeRdwfKj9gK7fY1u-SrY0QITTKUGSYAcjo6jmre-1MzsfthhcRTjjj0Hl5ePvsgf29kqrly4HNPYhl4v3xPuoR5otqpsFZCmZkgLiU1yDxwi8q1SS-S4BBOAVL68wFLR9NYqse6x4Ghsew5dwxyrdrvT8pQeJw"/>
+</div>
+</td>
+<td class="px-3 py-2 align-middle">
+<div class="inline-flex items-center px-1.5 py-0.5 rounded-[4px] bg-surface-container-highest font-mono text-[11px] text-on-surface-variant border border-outline-variant/10">
+                                        WP0AA297...
+                                    </div>
+</td>
+<td class="px-3 py-2 align-middle">
+<div class="flex flex-col">
+<span class="font-medium text-on-surface leading-tight">2022 Porsche Panamera 4</span>
+<span class="text-xs text-on-surface-variant mt-0.5">3.0L V6 / Premium Pkg</span>
+</div>
+</td>
+<td class="px-3 py-2 align-middle">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-surface-container-lowest text-secondary-dim border border-outline-variant/20">BLR</span>
+</td>
+<td class="px-3 py-2 align-middle">
+<div class="flex items-center gap-1.5">
+<span class="h-1.5 w-1.5 rounded-full bg-primary"></span>
+<span class="text-xs text-on-surface">Published</span>
+</div>
+</td>
+<td class="px-3 py-2 align-middle">
+<span class="font-mono text-xs text-on-surface">14d</span>
+</td>
+<td class="px-3 py-2 align-middle text-right">
+<span class="font-mono text-sm text-on-surface">₹ 1,28,50,000</span>
+</td>
+<td class="px-3 py-2 align-middle text-right">
+<span class="font-mono text-[13px] text-on-surface-variant">₹ 98,40,000</span>
+</td>
+<td class="px-3 py-2 align-middle text-right">
+<span class="font-mono text-xs text-[#4ade80]">24.3%</span>
+</td>
+<td class="px-3 py-2 align-middle text-center">
+<span class="material-symbols-outlined text-[16px] text-primary" title="Certified Pre-Owned">verified</span>
+</td>
+<td class="px-3 py-2 align-middle text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
+<button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">more_horiz</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="group hover:bg-[#333333] transition-colors border-b border-transparent hover:border-outline-variant/5 bg-[#2A2A2A]">
+<td class="px-3 py-2 text-center align-middle">
+<input checked="" class="rounded-[4px] border-outline-variant/30 bg-surface-container-lowest text-primary focus:ring-primary focus:ring-offset-surface-container h-3.5 w-3.5 transition-opacity" type="checkbox"/>
+</td>
+<td class="px-2 py-1.5">
+<div class="h-9 w-12 rounded bg-surface-container-lowest overflow-hidden border border-outline-variant/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-outline-variant text-[20px]">directions_car</span>
+</div>
+</td>
+<td class="px-3 py-2 align-middle">
+<div class="inline-flex items-center px-1.5 py-0.5 rounded-[4px] bg-surface-container-highest font-mono text-[11px] text-on-surface-variant border border-outline-variant/10">
+                                        SALLA2R...
+                                    </div>
+</td>
+<td class="px-3 py-2 align-middle">
+<div class="flex flex-col">
+<span class="font-medium text-on-surface leading-tight">2021 Range Rover Velar</span>
+<span class="text-xs text-on-surface-variant mt-0.5">R-Dynamic S D200</span>
+</div>
+</td>
+<td class="px-3 py-2 align-middle">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-surface-container-lowest text-secondary-dim border border-outline-variant/20">MUM</span>
+</td>
+<td class="px-3 py-2 align-middle">
+<div class="flex items-center gap-1.5">
+<span class="h-1.5 w-1.5 rounded-full bg-[#fbbf24]"></span>
+<span class="text-xs text-on-surface">In Refurb</span>
+</div>
+</td>
+<td class="px-3 py-2 align-middle">
+<span class="font-mono text-xs text-[#fbbf24]">32d</span>
+</td>
+<td class="px-3 py-2 align-middle text-right">
+<span class="font-mono text-sm text-on-surface">₹ 88,00,000</span>
+</td>
+<td class="px-3 py-2 align-middle text-right">
+<span class="font-mono text-[13px] text-on-surface-variant">₹ 74,20,000</span>
+</td>
+<td class="px-3 py-2 align-middle text-right">
+<span class="font-mono text-xs text-[#4ade80]">15.6%</span>
+</td>
+<td class="px-3 py-2 align-middle text-center">
+</td>
+<td class="px-3 py-2 align-middle text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
+<button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">more_horiz</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="group hover:bg-[#333333] transition-colors border-b border-transparent hover:border-outline-variant/5 bg-[#2A2A2A]">
+<td class="px-3 py-2 text-center align-middle">
+<input checked="" class="rounded-[4px] border-outline-variant/30 bg-surface-container-lowest text-primary focus:ring-primary focus:ring-offset-surface-container h-3.5 w-3.5 transition-opacity" type="checkbox"/>
+</td>
+<td class="px-2 py-1.5">
+<div class="h-9 w-12 rounded bg-surface-container-lowest overflow-hidden border border-outline-variant/10">
+<img alt="white luxury suv front quarter view bright lighting modern minimal setting" class="h-full w-full object-cover" data-alt="white luxury suv front quarter view bright lighting modern minimal setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA-iXer0DfguRdeoglqJYygCXZJezKiK0Ww4Zspw7WmwfF5GxJ9sJ1eh21kXIhrlxKDTcIfuKf0gVTQ0DdNFuxRJ5exom--YFeLTsLSGvoGpczbPnHvxEyq6yJzqd_bzX_mqYOVjmJJ53wAObPvDhVu3n1s3uf4v9IfrM5aNU7TMKQ1eYKXeR3vehH932q6Bwd7fncvjrJdqmXR7dxwyBET_Wxyq4Cbhd4A9spCD6zSWGGHQhPwY22AAeKpoNpGrcyjPHZQ8NkH9_s"/>
+</div>
+</td>
+<td class="px-3 py-2 align-middle">
+<div class="inline-flex items-center px-1.5 py-0.5 rounded-[4px] bg-surface-container-highest font-mono text-[11px] text-on-surface-variant border border-outline-variant/10">
+                                        WBA11CW...
+                                    </div>
+</td>
+<td class="px-3 py-2 align-middle">
+<div class="flex flex-col">
+<span class="font-medium text-on-surface leading-tight">2023 BMW X7</span>
+<span class="text-xs text-on-surface-variant mt-0.5">xDrive40i M Sport</span>
+</div>
+</td>
+<td class="px-3 py-2 align-middle">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-surface-container-lowest text-secondary-dim border border-outline-variant/20">CHE</span>
+</td>
+<td class="px-3 py-2 align-middle">
+<div class="flex items-center gap-1.5">
+<span class="h-1.5 w-1.5 rounded-full bg-surface-tint"></span>
+<span class="text-xs text-on-surface">Reserved</span>
+</div>
+</td>
+<td class="px-3 py-2 align-middle">
+<span class="font-mono text-xs text-on-surface">8d</span>
+</td>
+<td class="px-3 py-2 align-middle text-right">
+<span class="font-mono text-sm text-on-surface">₹ 1,42,00,000</span>
+</td>
+<td class="px-3 py-2 align-middle text-right">
+<span class="font-mono text-[13px] text-on-surface-variant">₹ 1,18,50,000</span>
+</td>
+<td class="px-3 py-2 align-middle text-right">
+<span class="font-mono text-xs text-[#4ade80]">16.5%</span>
+</td>
+<td class="px-3 py-2 align-middle text-center">
+<span class="material-symbols-outlined text-[16px] text-primary" title="Certified Pre-Owned">verified</span>
+</td>
+<td class="px-3 py-2 align-middle text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
+<button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">more_horiz</span></button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="group hover:bg-surface-container-highest transition-colors bg-surface-container-lowest/30 border-b border-transparent hover:border-outline-variant/5">
+<td class="px-3 py-2 text-center align-middle">
+<input class="rounded-[4px] border-outline-variant/30 bg-surface-container-lowest text-primary focus:ring-primary focus:ring-offset-surface-container h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-opacity" type="checkbox"/>
+</td>
+<td class="px-2 py-1.5">
+<div class="h-9 w-12 rounded bg-surface-container-lowest overflow-hidden border border-outline-variant/10">
+<img alt="black luxury sedan side view parked in modern urban environment at night" class="h-full w-full object-cover" data-alt="black luxury sedan side view parked in modern urban environment at night" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZ7c88_M_Ik3tci3ir6R4RAAYn0YbB692Jdz8Q2qoyDyAaGYBhzDT1sae2t55x7UZqrqc97byBCW2LMm8G0KqQvlNh4FE6PWsFApalzzSpIPZFcl129CsBY6i1gJu9RMrJdiwA6aJNQ8ziqCeMpMffCKZyrZP3JzyEWo1jhctiJNvcOZl9aQJtRJDRgO-3mA1VbeVkokg1hblTA2EjrimPX02sPp5qL21Sg3y47VKsOkVz25iekWXCcP4Rjq3kRaAHRYbcDSAdNL8"/>
+</div>
+</td>
+<td class="px-3 py-2 align-middle">
+<div class="inline-flex items-center px-1.5 py-0.5 rounded-[4px] bg-surface-container-highest font-mono text-[11px] text-on-surface-variant border border-outline-variant/10">
+                                        WDD2221...
+                                    </div>
+</td>
+<td class="px-3 py-2 align-middle">
+<div class="flex flex-col">
+<span class="font-medium text-on-surface leading-tight">2019 Mercedes S-Class</span>
+<span class="text-xs text-on-surface-variant mt-0.5">S 350d Maestro Edition</span>
+</div>
+</td>
+<td class="px-3 py-2 align-middle">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium bg-surface-container-lowest text-secondary-dim border border-outline-variant/20">BLR</span>
+</td>
+<td class="px-3 py-2 align-middle">
+<div class="flex items-center gap-1.5">
+<span class="h-1.5 w-1.5 rounded-full bg-error"></span>
+<span class="text-xs text-on-surface">Stale</span>
+</div>
+</td>
+<td class="px-3 py-2 align-middle">
+<span class="font-mono text-xs text-error">72d</span>
+</td>
+<td class="px-3 py-2 align-middle text-right">
+<span class="font-mono text-sm text-on-surface">₹ 92,50,000</span>
+</td>
+<td class="px-3 py-2 align-middle text-right">
+<span class="font-mono text-[13px] text-on-surface-variant">₹ 86,10,000</span>
+</td>
+<td class="px-3 py-2 align-middle text-right">
+<span class="font-mono text-xs text-error">6.9%</span>
+</td>
+<td class="px-3 py-2 align-middle text-center">
+</td>
+<td class="px-3 py-2 align-middle text-right">
+<div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">visibility</span></button>
+<button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">edit</span></button>
+<button class="text-on-surface-variant hover:text-on-surface"><span class="material-symbols-outlined text-[18px]">more_horiz</span></button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="mt-4 flex flex-col sm:flex-row items-center justify-between text-xs text-on-surface-variant gap-4">
+<span>Showing 1–50 of 342 vehicles</span>
+<div class="flex items-center gap-2">
+<button class="h-8 w-8 rounded flex items-center justify-center bg-surface-container border border-outline-variant/10 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors opacity-50 cursor-not-allowed">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<div class="flex items-center gap-1">
+<button class="h-8 w-8 rounded flex items-center justify-center bg-surface-container-highest border border-outline-variant/20 text-on-surface font-medium">1</button>
+<button class="h-8 w-8 rounded flex items-center justify-center hover:bg-surface-container-highest transition-colors">2</button>
+<button class="h-8 w-8 rounded flex items-center justify-center hover:bg-surface-container-highest transition-colors">3</button>
+<span class="px-1">...</span>
+<button class="h-8 w-8 rounded flex items-center justify-center hover:bg-surface-container-highest transition-colors">7</button>
+</div>
+<button class="h-8 w-8 rounded flex items-center justify-center bg-surface-container border border-outline-variant/10 text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

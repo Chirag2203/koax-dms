@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dashboard - Fleet Control</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-container": "#3c3b3b",
+                    "tertiary-dim": "#c5c0e0",
+                    "primary-fixed": "#d8e2ff",
+                    "tertiary-fixed-dim": "#c5c0e0",
+                    "on-secondary-fixed-variant": "#5c5b5b",
+                    "error": "#ee7d77",
+                    "on-primary-container": "#bdd0ff",
+                    "tertiary-fixed": "#d3ceef",
+                    "secondary-fixed": "#e5e2e1",
+                    "secondary": "#9f9d9d",
+                    "error-dim": "#bb5551",
+                    "on-background": "#e7e5e4",
+                    "on-tertiary-container": "#47445f",
+                    "surface-container": "#191a1a",
+                    "inverse-surface": "#fcf8f8",
+                    "surface-dim": "#0e0e0e",
+                    "surface-bright": "#2c2c2c",
+                    "on-surface-variant": "#acabaa",
+                    "on-tertiary-fixed-variant": "#504e69",
+                    "surface-container-low": "#131313",
+                    "surface-container-lowest": "#000000",
+                    "surface-container-highest": "#252626",
+                    "on-primary-fixed": "#003c86",
+                    "on-error-container": "#ff9993",
+                    "on-surface": "#e7e5e4",
+                    "tertiary": "#e1dcfd",
+                    "background": "#0e0e0e",
+                    "on-tertiary-fixed": "#34314b",
+                    "surface": "#0e0e0e",
+                    "on-tertiary": "#504d68",
+                    "outline-variant": "#484848",
+                    "on-secondary-fixed": "#403f3f",
+                    "on-primary": "#003d88",
+                    "error-container": "#7f2927",
+                    "surface-container-high": "#1f2020",
+                    "secondary-fixed-dim": "#d6d4d3",
+                    "primary-dim": "#98b8ff",
+                    "on-secondary-container": "#c1bfbe",
+                    "inverse-on-surface": "#565554",
+                    "primary-fixed-dim": "#c3d4ff",
+                    "outline": "#767575",
+                    "primary-container": "#004395",
+                    "inverse-primary": "#005bc4",
+                    "secondary-dim": "#9f9d9d",
+                    "primary": "#adc6ff",
+                    "surface-variant": "#252626",
+                    "on-error": "#490106",
+                    "tertiary-container": "#d3ceef",
+                    "on-primary-fixed-variant": "#0057bd",
+                    "surface-tint": "#adc6ff",
+                    "on-secondary": "#202020"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {},
+            "fontFamily": {
+                    "headline": ["Inter", "sans-serif"],
+                    "body": ["Inter", "sans-serif"],
+                    "label": ["Inter", "sans-serif"],
+                    "mono": ["IBM Plex Mono", "monospace"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .data-mono { font-family: 'IBM Plex Mono', monospace; }
+        /* Tonal Layering - No Line Rule implementations handled via tailwind bg colors */
+        .ghost-border { border: 1px solid rgba(72, 72, 72, 0.15); } /* outline-variant at 15% */
+        .ambient-shadow { box-shadow: 0 20px 50px rgba(0,0,0, 0.3); }
+    </style>
+</head>
+<body class="bg-background text-on-background antialiased h-screen overflow-hidden flex">
+<!-- SideNavBar (Shared Component JSON) -->
+<nav class="fixed left-0 top-0 h-full w-[220px] z-40 bg-neutral-950 flex flex-col py-4 px-3 space-y-2 border-r border-neutral-900 hidden md:flex">
+<!-- Header -->
+<div class="flex items-center space-x-3 mb-8 px-2">
+<div class="w-8 h-8 rounded bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">directions_car</span>
+</div>
+<div>
+<h1 class="text-blue-500 font-black tracking-tight text-sm">Fleet Control</h1>
+<p class="text-xs text-neutral-500 font-mono tracking-tighter">VPC - Mumbai</p>
+</div>
+</div>
+<!-- CTA -->
+<button class="w-full bg-blue-600 hover:bg-blue-500 text-white font-sans text-xs uppercase tracking-widest font-semibold py-2 rounded-md mb-6 transition-colors shadow-sm shadow-blue-900/50 flex items-center justify-center space-x-2">
+<span class="material-symbols-outlined text-[16px]">add</span>
+<span>New Entry</span>
+</button>
+<!-- Navigation Tabs -->
+<div class="flex-1 space-y-1">
+<a class="flex items-center space-x-3 px-3 py-2 bg-neutral-900 text-white rounded-md font-sans text-xs uppercase tracking-widest font-semibold cursor-pointer active:opacity-80 scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center space-x-3 px-3 py-2 text-neutral-500 hover:text-neutral-300 hover:bg-neutral-900/50 transition-all rounded-md font-sans text-xs uppercase tracking-widest font-semibold cursor-pointer active:opacity-80 scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]">directions_car</span>
+<span>Inventory</span>
+</a>
+<a class="flex items-center space-x-3 px-3 py-2 text-neutral-500 hover:text-neutral-300 hover:bg-neutral-900/50 transition-all rounded-md font-sans text-xs uppercase tracking-widest font-semibold cursor-pointer active:opacity-80 scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+<span>Sales</span>
+</a>
+<a class="flex items-center space-x-3 px-3 py-2 text-neutral-500 hover:text-neutral-300 hover:bg-neutral-900/50 transition-all rounded-md font-sans text-xs uppercase tracking-widest font-semibold cursor-pointer active:opacity-80 scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]">build</span>
+<span>Service</span>
+</a>
+<a class="flex items-center space-x-3 px-3 py-2 text-neutral-500 hover:text-neutral-300 hover:bg-neutral-900/50 transition-all rounded-md font-sans text-xs uppercase tracking-widest font-semibold cursor-pointer active:opacity-80 scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]">assignment</span>
+<span>Tasks</span>
+</a>
+<a class="flex items-center space-x-3 px-3 py-2 text-neutral-500 hover:text-neutral-300 hover:bg-neutral-900/50 transition-all rounded-md font-sans text-xs uppercase tracking-widest font-semibold cursor-pointer active:opacity-80 scale-95 duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]">analytics</span>
+<span>Reports</span>
+</a>
+</div>
+<!-- Footer Tabs -->
+<div class="mt-auto space-y-1 pt-4 border-t border-neutral-900">
+<a class="flex items-center space-x-3 px-3 py-2 text-neutral-500 hover:text-neutral-300 hover:bg-neutral-900/50 transition-all rounded-md font-sans text-xs uppercase tracking-widest font-semibold" href="#">
+<span class="material-symbols-outlined text-[18px]">contact_support</span>
+<span>Support</span>
+</a>
+<a class="flex items-center space-x-3 px-3 py-2 text-neutral-500 hover:text-neutral-300 hover:bg-neutral-900/50 transition-all rounded-md font-sans text-xs uppercase tracking-widest font-semibold" href="#">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+<span>Sign Out</span>
+</a>
+</div>
+</nav>
+<!-- TopNavBar (Mobile Fallback / Web Extension) - Hiding for pure web layout focus based on instructions, but keeping structure available -->
+<nav class="fixed top-0 w-full h-12 z-50 bg-neutral-900/80 backdrop-blur-xl flex items-center justify-between px-6 mx-auto border-b border-white/5 shadow-2xl shadow-black/50 md:hidden">
+<div class="text-lg font-bold tracking-tighter text-white">LUXE OPS</div>
+<!-- Simplified mobile actions -->
+<div class="flex items-center space-x-4 text-blue-500">
+<span class="material-symbols-outlined cursor-pointer">menu</span>
+</div>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-1 md:ml-[220px] h-full overflow-y-auto bg-surface-container-low p-6 md:p-8 pt-16 md:pt-8">
+<!-- Header Section -->
+<div class="flex justify-between items-end mb-8">
+<div>
+<h2 class="font-headline font-semibold text-2xl tracking-tight text-on-surface">Dashboard</h2>
+<p class="text-sm text-on-surface-variant mt-1">System Overview &amp; Active Metrics</p>
+</div>
+<!-- Global Search/Command Hint -->
+<div class="hidden lg:flex items-center bg-surface-variant rounded-md px-3 py-1.5 ghost-border">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px] mr-2">search</span>
+<span class="text-sm text-on-surface-variant mr-4">Search VIN, Client, or Order</span>
+<span class="text-xs data-mono bg-surface-container-highest px-1.5 py-0.5 rounded text-on-surface">⌘K</span>
+</div>
+</div>
+<!-- 4 Stat Cards Row -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+<!-- Stat Card 1 -->
+<div class="bg-surface-container p-5 rounded-lg flex flex-col justify-between h-28 hover:bg-surface-container-highest transition-colors cursor-pointer group">
+<div class="flex justify-between items-start">
+<span class="text-xs text-on-surface-variant uppercase tracking-widest font-semibold">Active Inventory</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px] group-hover:text-primary transition-colors">directions_car</span>
+</div>
+<div class="flex items-baseline space-x-2">
+<span class="font-headline font-semibold text-2xl text-on-surface">142</span>
+<span class="text-xs text-primary data-mono">+4 this week</span>
+</div>
+</div>
+<!-- Stat Card 2 -->
+<div class="bg-surface-container p-5 rounded-lg flex flex-col justify-between h-28 hover:bg-surface-container-highest transition-colors cursor-pointer group">
+<div class="flex justify-between items-start">
+<span class="text-xs text-on-surface-variant uppercase tracking-widest font-semibold">Pipeline Value</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px] group-hover:text-primary transition-colors">account_balance_wallet</span>
+</div>
+<div class="flex items-baseline space-x-2">
+<span class="font-headline font-semibold text-2xl text-on-surface data-mono tracking-tighter">₹ 14,20,50,000</span>
+</div>
+</div>
+<!-- Stat Card 3 -->
+<div class="bg-surface-container p-5 rounded-lg flex flex-col justify-between h-28 hover:bg-surface-container-highest transition-colors cursor-pointer group">
+<div class="flex justify-between items-start">
+<span class="text-xs text-on-surface-variant uppercase tracking-widest font-semibold">Pending Service</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px] group-hover:text-error transition-colors">build</span>
+</div>
+<div class="flex items-baseline space-x-2">
+<span class="font-headline font-semibold text-2xl text-on-surface">18</span>
+<span class="text-xs text-error data-mono">3 critical</span>
+</div>
+</div>
+<!-- Stat Card 4 -->
+<div class="bg-surface-container p-5 rounded-lg flex flex-col justify-between h-28 hover:bg-surface-container-highest transition-colors cursor-pointer group">
+<div class="flex justify-between items-start">
+<span class="text-xs text-on-surface-variant uppercase tracking-widest font-semibold">Deliveries Today</span>
+<span class="material-symbols-outlined text-on-surface-variant text-[18px] group-hover:text-primary transition-colors">local_shipping</span>
+</div>
+<div class="flex items-baseline space-x-2">
+<span class="font-headline font-semibold text-2xl text-on-surface">5</span>
+<span class="text-xs text-on-surface-variant data-mono">2 completed</span>
+</div>
+</div>
+</div>
+<!-- Main Bento Grid Area -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<!-- Left Column: Primary Operational Panels (Inventory & Sales) -->
+<div class="lg:col-span-2 flex flex-col space-y-6">
+<!-- Inventory Focus Panel -->
+<div class="bg-surface-container rounded-lg p-5 flex flex-col h-[320px]">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-headline font-medium text-on-surface tracking-tight">High Priority Inventory</h3>
+<button class="text-xs text-primary hover:text-primary-dim transition-colors font-medium">View All</button>
+</div>
+<!-- Dense Data Table Structure (No internal lines) -->
+<div class="flex-1 overflow-auto">
+<div class="grid grid-cols-12 gap-4 text-xs text-on-surface-variant uppercase tracking-widest font-semibold mb-2 px-2">
+<div class="col-span-3">Model</div>
+<div class="col-span-3">VIN</div>
+<div class="col-span-2">Status</div>
+<div class="col-span-4 text-right">Valuation</div>
+</div>
+<div class="space-y-1">
+<!-- Row 1 -->
+<div class="grid grid-cols-12 gap-4 items-center text-sm px-2 py-2 rounded hover:bg-surface-container-highest transition-colors cursor-default">
+<div class="col-span-3 font-medium text-on-surface truncate">911 Carrera S</div>
+<div class="col-span-3 data-mono text-on-surface-variant text-xs bg-surface-container-highest px-1.5 py-0.5 rounded inline-block w-max">WP0AB299...</div>
+<div class="col-span-2 flex items-center">
+<div class="w-1.5 h-1.5 rounded-full bg-primary mr-2"></div>
+<span class="text-on-surface-variant text-xs">Ready</span>
+</div>
+<div class="col-span-4 text-right data-mono text-on-surface">₹ 1,85,00,000</div>
+</div>
+<!-- Row 2 -->
+<div class="grid grid-cols-12 gap-4 items-center text-sm px-2 py-2 rounded hover:bg-surface-container-highest transition-colors cursor-default">
+<div class="col-span-3 font-medium text-on-surface truncate">Range Rover Vogue</div>
+<div class="col-span-3 data-mono text-on-surface-variant text-xs bg-surface-container-highest px-1.5 py-0.5 rounded inline-block w-max">SALGA2EF...</div>
+<div class="col-span-2 flex items-center">
+<div class="w-1.5 h-1.5 rounded-full bg-error mr-2"></div>
+<span class="text-on-surface-variant text-xs">Service</span>
+</div>
+<div class="col-span-4 text-right data-mono text-on-surface">₹ 2,10,50,000</div>
+</div>
+<!-- Row 3 -->
+<div class="grid grid-cols-12 gap-4 items-center text-sm px-2 py-2 rounded hover:bg-surface-container-highest transition-colors cursor-default">
+<div class="col-span-3 font-medium text-on-surface truncate">AMG GT 63 S</div>
+<div class="col-span-3 data-mono text-on-surface-variant text-xs bg-surface-container-highest px-1.5 py-0.5 rounded inline-block w-max">W1K29068...</div>
+<div class="col-span-2 flex items-center">
+<div class="w-1.5 h-1.5 rounded-full bg-primary mr-2"></div>
+<span class="text-on-surface-variant text-xs">Ready</span>
+</div>
+<div class="col-span-4 text-right data-mono text-on-surface">₹ 2,45,00,000</div>
+</div>
+<!-- Row 4 -->
+<div class="grid grid-cols-12 gap-4 items-center text-sm px-2 py-2 rounded hover:bg-surface-container-highest transition-colors cursor-default">
+<div class="col-span-3 font-medium text-on-surface truncate">Bentayga V8</div>
+<div class="col-span-3 data-mono text-on-surface-variant text-xs bg-surface-container-highest px-1.5 py-0.5 rounded inline-block w-max">SJAAM24V...</div>
+<div class="col-span-2 flex items-center">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary-dim mr-2"></div>
+<span class="text-on-surface-variant text-xs">Inbound</span>
+</div>
+<div class="col-span-4 text-right data-mono text-on-surface">₹ 3,80,00,000</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Sales Pipeline Panel -->
+<div class="bg-surface-container rounded-lg p-5 flex flex-col h-[280px]">
+<div class="flex justify-between items-center mb-4">
+<h3 class="font-headline font-medium text-on-surface tracking-tight">Active Sales Pipeline</h3>
+<div class="flex space-x-2">
+<button class="bg-surface-container-highest hover:bg-surface-bright text-on-surface text-xs px-3 py-1 rounded transition-colors">Export</button>
+</div>
+</div>
+<div class="flex-1 overflow-auto">
+<div class="grid grid-cols-12 gap-4 text-xs text-on-surface-variant uppercase tracking-widest font-semibold mb-2 px-2">
+<div class="col-span-4">Client / Lead</div>
+<div class="col-span-3">Asset Interest</div>
+<div class="col-span-3">Stage</div>
+<div class="col-span-2 text-right">Probability</div>
+</div>
+<div class="space-y-1">
+<!-- Row 1 -->
+<div class="grid grid-cols-12 gap-4 items-center text-sm px-2 py-2 rounded hover:bg-surface-container-highest transition-colors cursor-default">
+<div class="col-span-4 font-medium text-on-surface truncate">A. Singhania</div>
+<div class="col-span-3 text-on-surface-variant text-xs truncate">911 Carrera S</div>
+<div class="col-span-3">
+<span class="text-xs bg-primary-container/20 text-primary px-2 py-0.5 rounded">Negotiation</span>
+</div>
+<div class="col-span-2 text-right data-mono text-on-surface">85%</div>
+</div>
+<!-- Row 2 -->
+<div class="grid grid-cols-12 gap-4 items-center text-sm px-2 py-2 rounded hover:bg-surface-container-highest transition-colors cursor-default">
+<div class="col-span-4 font-medium text-on-surface truncate">R. Desai Group</div>
+<div class="col-span-3 text-on-surface-variant text-xs truncate">Multiple (3)</div>
+<div class="col-span-3">
+<span class="text-xs bg-surface-container-highest text-on-surface-variant px-2 py-0.5 rounded">Initial Inquiry</span>
+</div>
+<div class="col-span-2 text-right data-mono text-on-surface">30%</div>
+</div>
+<!-- Row 3 -->
+<div class="grid grid-cols-12 gap-4 items-center text-sm px-2 py-2 rounded hover:bg-surface-container-highest transition-colors cursor-default">
+<div class="col-span-4 font-medium text-on-surface truncate">K. Mehta</div>
+<div class="col-span-3 text-on-surface-variant text-xs truncate">Bentayga V8</div>
+<div class="col-span-3">
+<span class="text-xs bg-primary-container/20 text-primary px-2 py-0.5 rounded">Test Drive</span>
+</div>
+<div class="col-span-2 text-right data-mono text-on-surface">60%</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Contextual / Secondary Panels -->
+<div class="flex flex-col space-y-6">
+<!-- Alerts / Service Bay -->
+<div class="bg-surface-container rounded-lg p-5 flex flex-col flex-1">
+<h3 class="font-headline font-medium text-on-surface tracking-tight mb-4 flex items-center">
+<span class="material-symbols-outlined text-error mr-2 text-[18px]" style="font-variation-settings: 'FILL' 1;">warning</span>
+                        Operational Alerts
+                    </h3>
+<div class="space-y-3">
+<!-- Alert 1 -->
+<div class="bg-surface-container-highest p-3 rounded border-l-2 border-error">
+<p class="text-sm font-medium text-on-surface mb-1">Service Delay: RR Vogue</p>
+<p class="text-xs text-on-surface-variant">Parts delayed from UK. Est delivery pushed by 4 days.</p>
+<div class="mt-2 flex justify-between items-center">
+<span class="data-mono text-[10px] text-on-surface-variant">ID: SVC-882</span>
+<button class="text-[10px] uppercase tracking-wider text-primary hover:text-primary-dim">Review</button>
+</div>
+</div>
+<!-- Alert 2 -->
+<div class="bg-surface-container-highest p-3 rounded border-l-2 border-secondary-dim">
+<p class="text-sm font-medium text-on-surface mb-1">Inbound Logistics: G63 AMG</p>
+<p class="text-xs text-on-surface-variant">Carrier arrived at Mumbai Port. Customs clearance pending.</p>
+<div class="mt-2 flex justify-between items-center">
+<span class="data-mono text-[10px] text-on-surface-variant">BOL: IN-MUM-991</span>
+<button class="text-[10px] uppercase tracking-wider text-primary hover:text-primary-dim">Track</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Recent Activity Feed -->
+<div class="bg-surface-container rounded-lg p-5 flex flex-col h-[280px]">
+<h3 class="font-headline font-medium text-on-surface tracking-tight mb-4">Recent Activity</h3>
+<div class="flex-1 overflow-auto pr-2 relative">
+<!-- Timeline line -->
+<div class="absolute left-[11px] top-2 bottom-2 w-px bg-surface-container-highest"></div>
+<div class="space-y-4">
+<!-- Activity Item 1 -->
+<div class="flex relative z-10">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border-2 border-surface-container flex items-center justify-center mt-0.5 z-10">
+<div class="w-1.5 h-1.5 bg-primary rounded-full"></div>
+</div>
+<div class="ml-3 flex-1">
+<p class="text-sm text-on-surface"><span class="font-medium">N. Sharma</span> logged new inventory</p>
+<p class="text-xs text-on-surface-variant mt-0.5">Macan GTS • <span class="data-mono">WP1AA295...</span></p>
+<p class="text-[10px] text-on-surface-variant mt-1 data-mono">10:42 AM</p>
+</div>
+</div>
+<!-- Activity Item 2 -->
+<div class="flex relative z-10">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border-2 border-surface-container flex items-center justify-center mt-0.5 z-10">
+<div class="w-1.5 h-1.5 bg-secondary-dim rounded-full"></div>
+</div>
+<div class="ml-3 flex-1">
+<p class="text-sm text-on-surface"><span class="font-medium">System</span> generated valuation report</p>
+<p class="text-[10px] text-on-surface-variant mt-1 data-mono">09:15 AM</p>
+</div>
+</div>
+<!-- Activity Item 3 -->
+<div class="flex relative z-10">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border-2 border-surface-container flex items-center justify-center mt-0.5 z-10">
+<div class="w-1.5 h-1.5 bg-error rounded-full"></div>
+</div>
+<div class="ml-3 flex-1">
+<p class="text-sm text-on-surface"><span class="font-medium">Service Bay</span> flagged issue</p>
+<p class="text-xs text-on-surface-variant mt-0.5">Brake pads require replacement before delivery.</p>
+<p class="text-[10px] text-on-surface-variant mt-1 data-mono">Yesterday, 16:30</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

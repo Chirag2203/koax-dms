@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Vehicle Detail - Draft</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #000000;
+            color: #e7e5e4;
+        }
+        .mono {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-primary-container": "#bdd0ff",
+                        "on-tertiary": "#504d68",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "on-secondary": "#202020",
+                        "inverse-primary": "#005bc4",
+                        "surface": "#0e0e0e",
+                        "secondary-container": "#3c3b3b",
+                        "primary-dim": "#98b8ff",
+                        "secondary-fixed": "#e5e2e1",
+                        "primary": "#adc6ff",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "outline-variant": "#484848",
+                        "surface-container-high": "#1f2020",
+                        "inverse-on-surface": "#565554",
+                        "surface-container": "#191a1a",
+                        "error": "#ee7d77",
+                        "tertiary-dim": "#c5c0e0",
+                        "on-tertiary-fixed": "#34314b",
+                        "surface-container-lowest": "#000000",
+                        "surface-tint": "#adc6ff",
+                        "secondary-dim": "#9f9d9d",
+                        "on-primary": "#003d88",
+                        "primary-container": "#004395",
+                        "on-surface-variant": "#acabaa",
+                        "inverse-surface": "#fcf8f8",
+                        "on-background": "#e7e5e4",
+                        "surface-variant": "#252626",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "tertiary-fixed": "#d3ceef",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "primary-fixed": "#d8e2ff",
+                        "on-secondary-container": "#c1bfbe",
+                        "on-error-container": "#ff9993",
+                        "surface-container-highest": "#252626",
+                        "surface-container-low": "#131313",
+                        "on-secondary-fixed": "#403f3f",
+                        "error-container": "#7f2927",
+                        "on-surface": "#e7e5e4",
+                        "secondary": "#9f9d9d",
+                        "on-tertiary-container": "#47445f",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "error-dim": "#bb5551",
+                        "tertiary-container": "#d3ceef",
+                        "surface-bright": "#2c2c2c",
+                        "on-primary-fixed": "#003c86",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "tertiary": "#e1dcfd",
+                        "background": "#0e0e0e",
+                        "surface-dim": "#0e0e0e",
+                        "outline": "#767575",
+                        "on-error": "#490106"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-screen w-full flex bg-surface-container-lowest overflow-hidden">
+<!-- Shell Layout -->
+<div class="flex-1 relative flex">
+<!-- Main Canvas Area (Simulated Background) -->
+<main class="flex-1 bg-surface-container-lowest p-8 flex flex-col items-center justify-center relative">
+<div class="text-on-surface-variant flex flex-col items-center opacity-50">
+<span class="material-symbols-outlined text-4xl mb-4" data-icon="inventory_2">inventory_2</span>
+<p>Background Content Area</p>
+</div>
+<!-- Dimming Overlay -->
+<div class="absolute inset-0 bg-black/40 backdrop-blur-sm z-40"></div>
+</main>
+<!-- Slide-in Panel (50% Width Right) -->
+<aside class="w-1/2 h-full bg-surface-container-low border-l border-outline-variant/15 flex flex-col z-50 shadow-2xl relative">
+<!-- Header Section -->
+<header class="p-6 pb-4 border-b border-outline-variant/15 shrink-0 bg-surface-container">
+<div class="flex justify-between items-start mb-4">
+<div>
+<div class="flex items-center gap-3 mb-2">
+<span class="px-2 py-0.5 rounded bg-surface-variant text-on-surface-variant text-xs font-medium border border-outline-variant/20 flex items-center gap-1">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary-dim"></div>
+                                Draft
+                            </span>
+<span class="mono text-xs text-on-surface-variant bg-surface-container-highest px-2 py-0.5 rounded">ID: PRV-8821</span>
+</div>
+<h1 class="text-2xl font-semibold tracking-tight text-on-surface">2023 BMW X7 xDrive40i M Sport</h1>
+<div class="flex items-center gap-2 mt-2 text-sm text-on-surface-variant">
+<span class="mono">WBA21CW00P0L99X11</span>
+<span class="text-outline">•</span>
+<span>Mumbai Central</span>
+</div>
+</div>
+<button class="p-2 rounded hover:bg-surface-variant transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+</div>
+<!-- Tabs -->
+<div class="flex gap-6 mt-6 border-b border-outline-variant/15">
+<button class="pb-3 text-sm font-medium text-on-surface-variant hover:text-on-surface border-b-2 border-transparent transition-colors">Overview</button>
+<button class="pb-3 text-sm font-medium text-on-surface-variant hover:text-on-surface border-b-2 border-transparent transition-colors">Valuation</button>
+<button class="pb-3 text-sm font-medium text-primary border-b-2 border-primary transition-colors">Timeline</button>
+<button class="pb-3 text-sm font-medium text-on-surface-variant hover:text-on-surface border-b-2 border-transparent transition-colors">Documents</button>
+</div>
+</header>
+<!-- Scrollable Content -->
+<div class="flex-1 overflow-y-auto p-6 flex flex-col gap-8 custom-scrollbar">
+<!-- Quick Stats Grid -->
+<section>
+<h2 class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-4">Current Assessment</h2>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container p-4 rounded border border-outline-variant/15 flex flex-col gap-1">
+<span class="text-xs text-on-surface-variant">Target Asking Price</span>
+<span class="mono text-lg text-on-surface">₹ --,--,---</span>
+</div>
+<div class="bg-surface-container p-4 rounded border border-outline-variant/15 flex flex-col gap-1">
+<span class="text-xs text-on-surface-variant">Est. Acquisition Cost</span>
+<span class="mono text-lg text-on-surface">₹ --,--,---</span>
+</div>
+<div class="bg-surface-container p-4 rounded border border-outline-variant/15 flex flex-col gap-1">
+<span class="text-xs text-on-surface-variant">Odometer</span>
+<span class="mono text-lg text-on-surface">12,450 km</span>
+</div>
+<div class="bg-surface-container p-4 rounded border border-outline-variant/15 flex flex-col gap-1">
+<span class="text-xs text-on-surface-variant">Ownership</span>
+<span class="text-lg text-on-surface font-medium">1st Owner</span>
+</div>
+<div class="bg-surface-container p-4 rounded border border-outline-variant/15 flex flex-col gap-1">
+<span class="text-xs text-on-surface-variant">Days in System</span>
+<span class="mono text-lg text-on-surface">2</span>
+</div>
+<div class="bg-surface-container p-4 rounded border border-outline-variant/15 flex flex-col gap-1">
+<span class="text-xs text-on-surface-variant">Condition Score</span>
+<span class="mono text-lg text-on-surface flex items-center gap-2">
+                                --/100
+                                <span class="w-2 h-2 rounded-full bg-secondary-dim"></span>
+</span>
+</div>
+</div>
+</section>
+<!-- Timeline Section -->
+<section>
+<h2 class="text-xs font-semibold uppercase tracking-wider text-on-surface-variant mb-6">Activity Timeline</h2>
+<div class="relative pl-4 border-l border-outline-variant/20 flex flex-col gap-8 ml-2">
+<!-- Timeline Entry 1 -->
+<div class="relative">
+<div class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-surface-container-low border border-primary"></div>
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-start">
+<span class="text-sm font-medium text-on-surface">Draft Updated</span>
+<span class="text-xs text-on-surface-variant">Today, 10:45 AM</span>
+</div>
+<p class="text-sm text-on-surface-variant">Odometer reading and initial condition notes added by <span class="font-medium text-on-surface">Rahul K.</span></p>
+</div>
+</div>
+<!-- Timeline Entry 2 -->
+<div class="relative">
+<div class="absolute -left-[21px] top-1 w-2.5 h-2.5 rounded-full bg-surface-container-low border border-outline-variant"></div>
+<div class="flex flex-col gap-1">
+<div class="flex justify-between items-start">
+<span class="text-sm font-medium text-on-surface">Created</span>
+<span class="text-xs text-on-surface-variant">Yesterday, 4:20 PM</span>
+</div>
+<p class="text-sm text-on-surface-variant">VIN scanned and initial record created by <span class="font-medium text-on-surface">Rahul K.</span></p>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Sticky Action Footer -->
+<footer class="p-4 border-t border-outline-variant/15 bg-surface-container shrink-0 flex justify-end gap-3 items-center relative">
+<button class="px-4 py-2 text-sm font-medium text-on-surface hover:bg-surface-variant rounded transition-colors">
+                    Save Draft
+                </button>
+<div class="relative group">
+<button class="px-4 py-2 text-sm font-medium bg-primary/30 text-on-primary-container/50 rounded cursor-not-allowed flex items-center gap-2" disabled="">
+                        Publish Listing
+                        <span class="material-symbols-outlined text-sm" data-icon="lock">lock</span>
+</button>
+<!-- Tooltip -->
+<div class="absolute bottom-full right-0 mb-2 w-48 p-2 bg-surface-container-high border border-outline-variant/20 rounded shadow-lg text-xs text-on-surface-variant opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                        Valuation and Inspection must be completed before publishing.
+                    </div>
+</div>
+</footer>
+</aside>
+</div>
+</body></html>

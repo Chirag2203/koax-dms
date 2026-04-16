@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Notification Inbox</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#1f2020",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "on-primary-fixed": "#003c86",
+                        "outline": "#767575",
+                        "tertiary-dim": "#c5c0e0",
+                        "primary-fixed": "#d8e2ff",
+                        "tertiary-fixed": "#d3ceef",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "primary-dim": "#98b8ff",
+                        "outline-variant": "#484848",
+                        "on-secondary-container": "#c1bfbe",
+                        "inverse-primary": "#005bc4",
+                        "surface-bright": "#2c2c2c",
+                        "primary": "#adc6ff",
+                        "error-dim": "#bb5551",
+                        "surface-container-low": "#131313",
+                        "secondary-dim": "#9f9d9d",
+                        "surface": "#0e0e0e",
+                        "secondary": "#9f9d9d",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "surface-container": "#191a1a",
+                        "on-error-container": "#ff9993",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "error-container": "#7f2927",
+                        "on-tertiary": "#504d68",
+                        "primary-container": "#004395",
+                        "background": "#0e0e0e",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "surface-dim": "#0e0e0e",
+                        "on-tertiary-container": "#47445f",
+                        "inverse-surface": "#fcf8f8",
+                        "inverse-on-surface": "#565554",
+                        "tertiary": "#e1dcfd",
+                        "secondary-container": "#3c3b3b",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "on-error": "#490106",
+                        "on-tertiary-fixed": "#34314b",
+                        "on-primary": "#003d88",
+                        "surface-tint": "#adc6ff",
+                        "tertiary-container": "#d3ceef",
+                        "surface-variant": "#252626",
+                        "on-secondary": "#202020",
+                        "on-primary-container": "#bdd0ff",
+                        "on-surface-variant": "#acabaa",
+                        "error": "#ee7d77",
+                        "on-secondary-fixed": "#403f3f",
+                        "secondary-fixed": "#e5e2e1",
+                        "surface-container-highest": "#252626",
+                        "surface-container-lowest": "#000000",
+                        "on-surface": "#e7e5e4",
+                        "on-background": "#e7e5e4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"],
+                        "mono": ["IBM Plex Mono"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+        .material-symbols-outlined.fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface min-h-screen flex items-start justify-center pt-20">
+<!-- TopNavBar (Shell) -->
+<nav class="fixed top-0 right-0 w-[calc(100%-220px)] h-[48px] bg-neutral-900 flex items-center justify-between px-6 z-40 ml-[220px]">
+<div class="flex items-center space-x-6">
+<span class="text-lg font-semibold tracking-tighter text-white">Precision Concierge</span>
+<div class="hidden md:flex space-x-6">
+<a class="font-sans text-sm tracking-tight font-medium text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors py-2 px-1" href="#">Inventory</a>
+<a class="font-sans text-sm tracking-tight font-medium text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors py-2 px-1" href="#">Valuation</a>
+<a class="font-sans text-sm tracking-tight font-medium text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors py-2 px-1" href="#">Logistics</a>
+<a class="font-sans text-sm tracking-tight font-medium text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors py-2 px-1" href="#">Analytics</a>
+</div>
+</div>
+<div class="flex items-center space-x-4">
+<span class="text-xs text-neutral-500 font-mono">⌘K</span>
+<button class="text-neutral-400 hover:text-white transition-colors relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-primary rounded-full"></span>
+</button>
+<button class="text-neutral-400 hover:text-white transition-colors">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+</nav>
+<!-- SideNavBar (Shell) -->
+<aside class="fixed left-0 top-0 h-screen w-[220px] bg-neutral-950 flex flex-col py-8 z-50 border-r border-neutral-800/50 hidden">
+<!-- Kept hidden as requested by semantic shell mandate for isolated component focus, but included for completeness if needed in full layout -->
+</aside>
+<!-- Notification Panel Container -->
+<div class="relative w-full max-w-7xl px-6 lg:px-8 mt-12 flex justify-end">
+<!-- Notification Panel (380px wide) -->
+<div class="w-[380px] bg-surface-container-high rounded-xl overflow-hidden backdrop-blur-2xl bg-opacity-95 shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col border border-outline-variant/20 relative z-50">
+<!-- Header -->
+<div class="px-5 py-4 border-b border-surface-container/50 flex justify-between items-center bg-surface-container-low">
+<h3 class="text-sm font-semibold tracking-tight text-on-surface">Notifications</h3>
+<button class="text-xs font-medium text-primary hover:text-primary-dim transition-colors">Mark all read</button>
+</div>
+<!-- List of Items -->
+<div class="flex flex-col max-h-[480px] overflow-y-auto">
+<!-- Unread Item 1 (Blue accent border) -->
+<div class="group px-5 py-4 flex gap-4 hover:bg-surface-container transition-colors relative cursor-pointer border-l-2 border-primary bg-surface-container/30">
+<div class="flex-shrink-0 w-8 h-8 rounded-full bg-primary-container/20 flex items-center justify-center text-primary mt-1">
+<span class="material-symbols-outlined text-[18px]" data-icon="directions_car">directions_car</span>
+</div>
+<div class="flex flex-col gap-1 flex-1">
+<div class="flex justify-between items-start gap-2">
+<span class="text-sm font-medium text-on-surface leading-tight">New Inventory Matched</span>
+<span class="text-[10px] text-secondary-dim font-mono whitespace-nowrap">10:42 AM</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">2021 Porsche 911 Carrera S added. Matches active procurement request PR-8821.</p>
+<span class="text-[11px] font-mono text-primary mt-1">VIN-9X87A2</span>
+</div>
+</div>
+<!-- Unread Item 2 (Blue accent border) -->
+<div class="group px-5 py-4 flex gap-4 hover:bg-surface-container transition-colors relative cursor-pointer border-l-2 border-primary bg-surface-container/30">
+<div class="flex-shrink-0 w-8 h-8 rounded-full bg-error-container/20 flex items-center justify-center text-error mt-1">
+<span class="material-symbols-outlined text-[18px]" data-icon="build">build</span>
+</div>
+<div class="flex flex-col gap-1 flex-1">
+<div class="flex justify-between items-start gap-2">
+<span class="text-sm font-medium text-on-surface leading-tight">Service Alert: Critical</span>
+<span class="text-[10px] text-secondary-dim font-mono whitespace-nowrap">09:15 AM</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">Inspection failed for Land Rover Defender. Requires immediate suspension check.</p>
+<span class="text-[11px] font-mono text-error mt-1">SRV-4410</span>
+</div>
+</div>
+<!-- Read Item 3 -->
+<div class="group px-5 py-4 flex gap-4 hover:bg-surface-container transition-colors relative cursor-pointer border-l-2 border-transparent">
+<div class="flex-shrink-0 w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-secondary mt-1">
+<span class="material-symbols-outlined text-[18px]" data-icon="currency_rupee">currency_rupee</span>
+</div>
+<div class="flex flex-col gap-1 flex-1">
+<div class="flex justify-between items-start gap-2">
+<span class="text-sm font-medium text-on-surface leading-tight">Valuation Updated</span>
+<span class="text-[10px] text-secondary-dim font-mono whitespace-nowrap">Yesterday</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">Market adjustment applied to active G-Wagon inventory.</p>
+<span class="text-[11px] font-mono text-secondary mt-1">₹ 2,45,00,000</span>
+</div>
+</div>
+<!-- Read Item 4 -->
+<div class="group px-5 py-4 flex gap-4 hover:bg-surface-container transition-colors relative cursor-pointer border-l-2 border-transparent">
+<div class="flex-shrink-0 w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-secondary mt-1">
+<span class="material-symbols-outlined text-[18px]" data-icon="local_shipping">local_shipping</span>
+</div>
+<div class="flex flex-col gap-1 flex-1">
+<div class="flex justify-between items-start gap-2">
+<span class="text-sm font-medium text-on-surface leading-tight">Shipment Arrived</span>
+<span class="text-[10px] text-secondary-dim font-mono whitespace-nowrap">Yesterday</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">Logistics unit L-092 has arrived at Mumbai facility.</p>
+</div>
+</div>
+<!-- Read Item 5 -->
+<div class="group px-5 py-4 flex gap-4 hover:bg-surface-container transition-colors relative cursor-pointer border-l-2 border-transparent">
+<div class="flex-shrink-0 w-8 h-8 rounded-full bg-surface-variant flex items-center justify-center text-secondary mt-1">
+<span class="material-symbols-outlined text-[18px]" data-icon="payments">payments</span>
+</div>
+<div class="flex flex-col gap-1 flex-1">
+<div class="flex justify-between items-start gap-2">
+<span class="text-sm font-medium text-on-surface leading-tight">Transaction Cleared</span>
+<span class="text-[10px] text-secondary-dim font-mono whitespace-nowrap">Oct 24</span>
+</div>
+<p class="text-xs text-on-surface-variant leading-relaxed">Procurement funds released for Audi RS Q8.</p>
+<span class="text-[11px] font-mono text-secondary mt-1">TXN-88291</span>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<div class="px-5 py-3 border-t border-surface-container/50 bg-surface-container-low text-center">
+<button class="text-xs font-medium text-secondary hover:text-on-surface transition-colors w-full">View all notifications</button>
+</div>
+</div>
+</div>
+</body></html>

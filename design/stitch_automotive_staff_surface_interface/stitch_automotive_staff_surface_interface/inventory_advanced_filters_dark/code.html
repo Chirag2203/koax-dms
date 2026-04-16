@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Precision Concierge - Inventory</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .material-symbols-outlined.fill {
+            font-variation-settings: 'FILL' 1;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0A0A0A;
+            color: #e7e5e4;
+        }
+        .data-mono {
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        /* Custom Scrollbar for dark theme */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0A0A0A; 
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #252626; 
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3c3b3b; 
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "surface-container-low": "#131313",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "inverse-primary": "#005bc4",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "on-tertiary-container": "#47445f",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "secondary": "#9f9d9d",
+                        "on-surface": "#e7e5e4",
+                        "secondary-fixed": "#e5e2e1",
+                        "tertiary-container": "#d3ceef",
+                        "on-error-container": "#ff9993",
+                        "on-primary-container": "#bdd0ff",
+                        "secondary-dim": "#9f9d9d",
+                        "secondary-container": "#3c3b3b",
+                        "error": "#ee7d77",
+                        "on-background": "#e7e5e4",
+                        "error-container": "#7f2927",
+                        "primary-container": "#004395",
+                        "tertiary-dim": "#c5c0e0",
+                        "error-dim": "#bb5551",
+                        "surface-container": "#191a1a",
+                        "surface-dim": "#0e0e0e",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "surface-container-high": "#1f2020",
+                        "surface": "#0e0e0e",
+                        "on-tertiary": "#504d68",
+                        "on-primary": "#003d88",
+                        "on-error": "#490106",
+                        "surface-variant": "#252626",
+                        "surface-container-lowest": "#000000",
+                        "on-secondary-container": "#c1bfbe",
+                        "on-surface-variant": "#acabaa",
+                        "outline-variant": "#484848",
+                        "background": "#0e0e0e",
+                        "inverse-on-surface": "#565554",
+                        "surface-container-highest": "#252626",
+                        "primary-dim": "#98b8ff",
+                        "outline": "#767575",
+                        "surface-bright": "#2c2c2c",
+                        "primary": "#adc6ff",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "inverse-surface": "#fcf8f8",
+                        "on-secondary-fixed": "#403f3f",
+                        "surface-tint": "#adc6ff",
+                        "primary-fixed": "#d8e2ff",
+                        "on-secondary": "#202020",
+                        "tertiary": "#e1dcfd",
+                        "on-tertiary-fixed": "#34314b",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "tertiary-fixed": "#d3ceef",
+                        "on-primary-fixed": "#003c86"
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    fontFamily: {
+                        "sans": ["Inter", "sans-serif"],
+                        "mono": ["IBM Plex Mono", "monospace"]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-[#0A0A0A] text-on-surface antialiased flex h-screen overflow-hidden">
+<!-- SideNavBar -->
+<nav class="h-screen w-[220px] fixed left-0 top-0 z-40 bg-neutral-950 border-r border-neutral-800/30 flex flex-col py-4 px-3 gap-y-2">
+<div class="px-3 mb-6">
+<h1 class="text-lg font-black text-white tracking-tighter">Precision Concierge</h1>
+<p class="text-xs text-neutral-500 font-medium">Operational Hub</p>
+</div>
+<div class="flex-1 flex flex-col gap-y-1">
+<a class="flex items-center gap-x-3 px-3 py-2 text-sm font-medium text-neutral-500 hover:text-neutral-200 hover:bg-neutral-900 rounded-md transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="dashboard">dashboard</span>
+<span>Dashboard</span>
+</a>
+<!-- Active State Applied Here -->
+<a class="flex items-center gap-x-3 px-3 py-2 text-sm font-medium bg-neutral-800 text-white rounded-md transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px] fill" data-icon="directions_car">directions_car</span>
+<span>Inventory</span>
+</a>
+<a class="flex items-center gap-x-3 px-3 py-2 text-sm font-medium text-neutral-500 hover:text-neutral-200 hover:bg-neutral-900 rounded-md transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="local_shipping">local_shipping</span>
+<span>Logistics</span>
+</a>
+<a class="flex items-center gap-x-3 px-3 py-2 text-sm font-medium text-neutral-500 hover:text-neutral-200 hover:bg-neutral-900 rounded-md transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="payments">payments</span>
+<span>Valuations</span>
+</a>
+<a class="flex items-center gap-x-3 px-3 py-2 text-sm font-medium text-neutral-500 hover:text-neutral-200 hover:bg-neutral-900 rounded-md transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="analytics">analytics</span>
+<span>Analytics</span>
+</a>
+<a class="flex items-center gap-x-3 px-3 py-2 text-sm font-medium text-neutral-500 hover:text-neutral-200 hover:bg-neutral-900 rounded-md transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+<span>Settings</span>
+</a>
+</div>
+<div class="mt-auto flex flex-col gap-y-1 pt-4 border-t border-neutral-800/30">
+<a class="flex items-center gap-x-3 px-3 py-2 text-sm font-medium text-neutral-500 hover:text-neutral-200 hover:bg-neutral-900 rounded-md transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="help">help</span>
+<span>Help</span>
+</a>
+<a class="flex items-center gap-x-3 px-3 py-2 text-sm font-medium text-neutral-500 hover:text-neutral-200 hover:bg-neutral-900 rounded-md transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="headset_mic">headset_mic</span>
+<span>Support</span>
+</a>
+<div class="mt-4 px-3 flex items-center gap-x-3">
+<img alt="Brand Logo" class="w-8 h-8 rounded-full object-cover border border-neutral-800" data-alt="Close-up portrait of professional male operator in dark minimalist setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDTojxSHbhlKFrpa7zOYIPS5sO5WV4-l4dF3G-vfcBwx_Z7_UMmmFnIlhXnEPb05rvgIt9l7TvQHwK4tiKcVnE1Ow-EJ1syNREOCUnVamo-LkErRfkokx0uFPHvuKM_L997HFUR8nSYbTe1CjoE1oYZoRCmQxddIdH1RdROWC4fwFy4UgFqBFYb2ebbMGLkbrmS9kKK0Lr6J1GeFJrLSAcBGNXMlrU-WdS6WtF1NvAXhTABk1TDsaei45n8m6rW7lB3Q0n7N125pws"/>
+<div class="flex-col flex">
+<span class="text-xs text-white font-medium">J. Doe</span>
+<span class="text-[10px] text-neutral-500">Operator L2</span>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<main class="ml-[220px] flex-1 flex flex-col h-screen relative">
+<!-- TopNavBar -->
+<header class="docked full-width top-0 sticky z-30 bg-neutral-900/80 backdrop-blur-xl shadow-2xl shadow-black/50 border-b-0">
+<div class="flex justify-between items-center h-12 px-6 w-full max-w-[1600px] mx-auto">
+<div class="flex items-center gap-4">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-2.5 top-1.5 text-neutral-400 text-[18px]">search</span>
+<input class="w-full bg-surface-variant text-on-surface text-sm rounded-[6px] pl-9 pr-3 py-1.5 border border-outline-variant/15 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 placeholder-neutral-500 transition-colors font-sans tracking-tight" placeholder="Search VIN, Make, or Ref..." type="text"/>
+<div class="absolute right-2 top-1.5 flex items-center gap-1">
+<span class="bg-surface-container-low text-neutral-400 text-[10px] px-1.5 py-0.5 rounded-[4px] data-mono border border-neutral-800">⌘</span>
+<span class="bg-surface-container-low text-neutral-400 text-[10px] px-1.5 py-0.5 rounded-[4px] data-mono border border-neutral-800">K</span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="text-neutral-400 hover:text-white hover:bg-neutral-800 w-8 h-8 rounded flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined text-[20px]" data-icon="notifications">notifications</span>
+</button>
+<div class="w-px h-4 bg-neutral-800/50 mx-1"></div>
+<button class="bg-primary text-on-primary font-medium text-sm px-4 py-1.5 rounded-[6px] hover:bg-primary-dim transition-colors flex items-center gap-1.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]">
+<span class="material-symbols-outlined text-[16px]">add</span>
+                        Add Vehicle
+                    </button>
+</div>
+</div>
+</header>
+<!-- Page Header & Actions -->
+<div class="px-8 py-6 max-w-[1600px] w-full mx-auto flex-shrink-0">
+<div class="flex justify-between items-end">
+<div>
+<h2 class="text-2xl font-semibold tracking-tight text-white mb-1">Active Inventory</h2>
+<p class="text-sm text-neutral-400">Manage and valuate current stock across all operational zones.</p>
+</div>
+<div class="flex gap-3 relative">
+<!-- Filter Button (Active State) -->
+<button class="bg-surface-container-highest text-white font-medium text-sm px-4 py-2 rounded-[6px] transition-colors flex items-center gap-2 border border-primary/30 shadow-[0_0_15px_rgba(173,198,255,0.1)] relative z-50">
+<span class="material-symbols-outlined text-[18px]">filter_list</span>
+                        Filters (3)
+                        <span class="material-symbols-outlined text-[18px] ml-1">expand_less</span>
+</button>
+<button class="bg-surface-container-high text-on-surface font-medium text-sm px-3 py-2 rounded-[6px] hover:bg-surface-variant transition-colors flex items-center border border-transparent">
+<span class="material-symbols-outlined text-[18px]">download</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Filter Dropdown Popover (Complex Component) -->
+<div class="absolute right-8 top-[140px] z-50 w-[420px] bg-surface-container-high backdrop-blur-xl rounded-[12px] shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/5 flex flex-col" style="max-height: calc(100vh - 160px);">
+<!-- Popover Header -->
+<div class="px-5 py-4 border-b border-white/5 flex justify-between items-center bg-surface-bright/50 rounded-t-[12px]">
+<h3 class="text-sm font-semibold text-white tracking-tight">Filter Inventory</h3>
+<button class="text-xs text-primary hover:text-primary-dim transition-colors font-medium">Clear All</button>
+</div>
+<!-- Popover Body -->
+<div class="p-5 flex flex-col gap-6 overflow-y-auto">
+<!-- Make & Model (Multi-select) -->
+<div>
+<label class="text-xs font-medium text-neutral-400 mb-2 block uppercase tracking-wider">Make &amp; Model</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-3 top-2.5 text-neutral-500 text-[16px]">search</span>
+<input class="w-full bg-surface-variant text-sm rounded-[6px] pl-9 pr-3 py-2 border border-outline-variant/15 focus:outline-none focus:border-primary/50 text-white placeholder-neutral-500 mb-3" placeholder="Search makes..." type="text"/>
+</div>
+<div class="flex flex-wrap gap-2">
+<button class="px-3 py-1.5 rounded-[6px] bg-primary/10 border border-primary/30 text-primary text-xs font-medium flex items-center gap-1 transition-colors">
+                            Porsche <span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+<button class="px-3 py-1.5 rounded-[6px] bg-primary/10 border border-primary/30 text-primary text-xs font-medium flex items-center gap-1 transition-colors">
+                            BMW <span class="material-symbols-outlined text-[14px]">close</span>
+</button>
+<button class="px-3 py-1.5 rounded-[6px] bg-surface-variant border border-outline-variant/15 text-neutral-300 hover:text-white text-xs font-medium transition-colors">
+                            Mercedes-Benz
+                        </button>
+<button class="px-3 py-1.5 rounded-[6px] bg-surface-variant border border-outline-variant/15 text-neutral-300 hover:text-white text-xs font-medium transition-colors">
+                            Audi
+                        </button>
+</div>
+</div>
+<!-- Status Chips -->
+<div>
+<label class="text-xs font-medium text-neutral-400 mb-2 block uppercase tracking-wider">Operational Status</label>
+<div class="grid grid-cols-2 gap-2">
+<label class="flex items-center gap-2 p-2 rounded-[6px] bg-surface-variant border border-primary/30 cursor-pointer">
+<input checked="" class="rounded-[4px] bg-surface-container border-outline-variant text-primary focus:ring-primary/50 w-4 h-4" type="checkbox"/>
+<span class="flex items-center gap-1.5 text-sm text-white">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Ready
+                            </span>
+</label>
+<label class="flex items-center gap-2 p-2 rounded-[6px] bg-surface-variant border border-transparent hover:border-outline-variant/30 cursor-pointer">
+<input class="rounded-[4px] bg-surface-container border-outline-variant text-primary focus:ring-primary/50 w-4 h-4" type="checkbox"/>
+<span class="flex items-center gap-1.5 text-sm text-neutral-300">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Prep
+                            </span>
+</label>
+<label class="flex items-center gap-2 p-2 rounded-[6px] bg-surface-variant border border-transparent hover:border-outline-variant/30 cursor-pointer">
+<input class="rounded-[4px] bg-surface-container border-outline-variant text-primary focus:ring-primary/50 w-4 h-4" type="checkbox"/>
+<span class="flex items-center gap-1.5 text-sm text-neutral-300">
+<span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Transit
+                            </span>
+</label>
+<label class="flex items-center gap-2 p-2 rounded-[6px] bg-surface-variant border border-transparent hover:border-outline-variant/30 cursor-pointer">
+<input class="rounded-[4px] bg-surface-container border-outline-variant text-primary focus:ring-primary/50 w-4 h-4" type="checkbox"/>
+<span class="flex items-center gap-1.5 text-sm text-neutral-300">
+<span class="w-1.5 h-1.5 rounded-full bg-error"></span> Hold
+                            </span>
+</label>
+</div>
+</div>
+<!-- Price Range (Slider UI mockup) -->
+<div>
+<div class="flex justify-between items-center mb-2">
+<label class="text-xs font-medium text-neutral-400 uppercase tracking-wider">Valuation Range</label>
+<span class="text-xs text-primary font-medium data-mono">₹ 40L - ₹ 1.5Cr</span>
+</div>
+<div class="px-2 py-4">
+<div class="h-1 bg-surface-container-lowest rounded-full relative">
+<div class="absolute left-[20%] right-[30%] h-full bg-primary rounded-full"></div>
+<div class="absolute left-[20%] top-1/2 -translate-y-1/2 -translate-x-1/2 w-4 h-4 bg-white rounded-full shadow cursor-grab border-2 border-primary"></div>
+<div class="absolute right-[30%] top-1/2 -translate-y-1/2 translate-x-1/2 w-4 h-4 bg-white rounded-full shadow cursor-grab border-2 border-primary"></div>
+</div>
+</div>
+<div class="flex gap-3 mt-2">
+<div class="flex-1 bg-surface-variant rounded-[6px] border border-outline-variant/15 p-2 flex items-center">
+<span class="text-neutral-500 mr-1 data-mono text-xs">₹</span>
+<input class="bg-transparent border-none text-white text-sm data-mono w-full p-0 focus:ring-0 text-right" type="text" value="40,00,000"/>
+</div>
+<div class="text-neutral-500 flex items-center">-</div>
+<div class="flex-1 bg-surface-variant rounded-[6px] border border-outline-variant/15 p-2 flex items-center">
+<span class="text-neutral-500 mr-1 data-mono text-xs">₹</span>
+<input class="bg-transparent border-none text-white text-sm data-mono w-full p-0 focus:ring-0 text-right" type="text" value="1,50,00,000"/>
+</div>
+</div>
+</div>
+<!-- Outlet / Zone -->
+<div>
+<label class="text-xs font-medium text-neutral-400 mb-2 block uppercase tracking-wider">Outlet Zone</label>
+<select class="w-full bg-surface-variant text-sm rounded-[6px] px-3 py-2.5 border border-outline-variant/15 text-white focus:outline-none focus:border-primary/50 appearance-none">
+<option value="all">All Zones</option>
+<option value="z1">Zone 1 - North (Delhi NCR)</option>
+<option value="z2">Zone 2 - West (Mumbai)</option>
+<option value="z3">Zone 3 - South (Bengaluru)</option>
+</select>
+</div>
+</div>
+<!-- Popover Footer -->
+<div class="p-4 border-t border-white/5 bg-surface-bright/30 rounded-b-[12px] flex justify-end gap-3">
+<button class="px-4 py-2 text-sm font-medium text-neutral-300 hover:text-white transition-colors">Cancel</button>
+<button class="bg-primary text-on-primary font-medium text-sm px-6 py-2 rounded-[6px] hover:bg-primary-dim transition-colors shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]">Apply Filters</button>
+</div>
+</div>
+<!-- Data Table Area (Overlay underneath filter) -->
+<div class="flex-1 overflow-auto px-8 pb-8 max-w-[1600px] w-full mx-auto opacity-40 pointer-events-none transition-opacity duration-300">
+<div class="bg-surface-container rounded-lg border border-white/5 overflow-hidden">
+<table class="w-full text-left text-sm whitespace-nowrap">
+<thead class="bg-surface-container-low border-b border-white/5 text-neutral-400 font-medium">
+<tr>
+<th class="px-4 py-3 font-medium">Vehicle</th>
+<th class="px-4 py-3 font-medium">VIN / Ref</th>
+<th class="px-4 py-3 font-medium">Status</th>
+<th class="px-4 py-3 font-medium text-right">Acquisition</th>
+<th class="px-4 py-3 font-medium text-right">Valuation</th>
+<th class="px-4 py-3 font-medium">Zone</th>
+<th class="px-4 py-3 w-8"></th>
+</tr>
+</thead>
+<tbody class="divide-y divide-transparent">
+<!-- Row 1 -->
+<tr class="hover:bg-surface-container-high transition-colors group cursor-pointer h-11">
+<td class="px-4 py-2">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-surface-variant overflow-hidden flex-shrink-0">
+<img alt="Car" class="w-full h-full object-cover opacity-80" data-alt="Dark moody shot of a silver Porsche 911 front grille" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCwrl4Ik4v3DESe4i1-JYWbVRtEn0-86M110KUsQEf2ctfM4Q9puAo4Xe2L1RGhUNXwAGvsrqd7HUTYl4402jrjB517Dk9XPApB0EbjK14R2dbybEFT46aacDIgSeqm_rIJamBSZBaNWW7jgRvzU0hikppHtoMASq3qPkyT-6sCIGXScr00c1sTyN-XcJxHS8-gjOInj8RZMPOxfYDXCEsdVAM0lRiWg46PAkkYk0Ddyj-uuaEN20LOVMO0f2Qh4SvgD2jNx1sa3Ls"/>
+</div>
+<div>
+<div class="font-medium text-white">Porsche 911 Carrera S</div>
+<div class="text-xs text-neutral-500">2021 • 12,450 km</div>
+</div>
+</div>
+</td>
+<td class="px-4 py-2">
+<span class="bg-surface-container-highest px-2 py-1 rounded-[4px] data-mono text-xs text-neutral-300 border border-white/5">WP0ZZZ99ZNS...</span>
+</td>
+<td class="px-4 py-2">
+<span class="flex items-center gap-1.5 text-xs text-neutral-300">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Ready
+                                </span>
+</td>
+<td class="px-4 py-2 text-right data-mono text-neutral-400">₹ 1,42,00,000</td>
+<td class="px-4 py-2 text-right data-mono text-white font-medium">₹ 1,55,50,000</td>
+<td class="px-4 py-2 text-neutral-400">Zone 1</td>
+<td class="px-4 py-2 text-right">
+<button class="text-neutral-500 opacity-0 group-hover:opacity-100 hover:text-white transition-all">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container-high transition-colors group cursor-pointer h-11 bg-surface-container-low/30">
+<td class="px-4 py-2">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-surface-variant overflow-hidden flex-shrink-0">
+<img alt="Car" class="w-full h-full object-cover opacity-80" data-alt="Sleek black BMW sedan parked in low light warehouse" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7ehRXZofk9Qtt1cR5HKpWNWMzEmrb7ovD3OQrM7RVJdrkCPM_lzGakwSElvBtWSPEu2Zuf4qE0OHDlusyzTRjoUxP-aHrxHk-45zP6P87IuTaSU_bySFXFT4qIntPe7tDozz04GAi8bH2Tgb2xmOUFwp_rHYqhKNtv-Nu-QnKPDVNn5i8HmHl7hKF5CfXKUQJk3UeOw0VjVDPHS2T2eLb9P4URi8Rq5IFSOBUxPMLF7W9Kulqrgat1ZrPuucCkRTa5AckRCw6Ho4"/>
+</div>
+<div>
+<div class="font-medium text-white">BMW M3 Competition</div>
+<div class="text-xs text-neutral-500">2022 • 8,200 km</div>
+</div>
+</div>
+</td>
+<td class="px-4 py-2">
+<span class="bg-surface-container-highest px-2 py-1 rounded-[4px] data-mono text-xs text-neutral-300 border border-white/5">WBA33AY050M...</span>
+</td>
+<td class="px-4 py-2">
+<span class="flex items-center gap-1.5 text-xs text-neutral-300">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Prep
+                                </span>
+</td>
+<td class="px-4 py-2 text-right data-mono text-neutral-400">₹ 1,15,00,000</td>
+<td class="px-4 py-2 text-right data-mono text-white font-medium">₹ 1,28,00,000</td>
+<td class="px-4 py-2 text-neutral-400">Zone 2</td>
+<td class="px-4 py-2 text-right">
+<button class="text-neutral-500 opacity-0 group-hover:opacity-100 hover:text-white transition-all">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</main>
+</body></html>

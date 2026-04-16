@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Precision Concierge - Users &amp; Roles</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#1f2020",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "on-primary-fixed": "#003c86",
+                        "outline": "#767575",
+                        "tertiary-dim": "#c5c0e0",
+                        "primary-fixed": "#d8e2ff",
+                        "tertiary-fixed": "#d3ceef",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "primary-dim": "#98b8ff",
+                        "outline-variant": "#484848",
+                        "on-secondary-container": "#c1bfbe",
+                        "inverse-primary": "#005bc4",
+                        "surface-bright": "#2c2c2c",
+                        "primary": "#adc6ff",
+                        "error-dim": "#bb5551",
+                        "surface-container-low": "#131313",
+                        "secondary-dim": "#9f9d9d",
+                        "surface": "#0e0e0e",
+                        "secondary": "#9f9d9d",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "surface-container": "#191a1a",
+                        "on-error-container": "#ff9993",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "error-container": "#7f2927",
+                        "on-tertiary": "#504d68",
+                        "primary-container": "#004395",
+                        "background": "#0e0e0e",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "surface-dim": "#0e0e0e",
+                        "on-tertiary-container": "#47445f",
+                        "inverse-surface": "#fcf8f8",
+                        "inverse-on-surface": "#565554",
+                        "tertiary": "#e1dcfd",
+                        "secondary-container": "#3c3b3b",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "on-error": "#490106",
+                        "on-tertiary-fixed": "#34314b",
+                        "on-primary": "#003d88",
+                        "surface-tint": "#adc6ff",
+                        "tertiary-container": "#d3ceef",
+                        "surface-variant": "#252626",
+                        "on-secondary": "#202020",
+                        "on-primary-container": "#bdd0ff",
+                        "on-surface-variant": "#acabaa",
+                        "error": "#ee7d77",
+                        "on-secondary-fixed": "#403f3f",
+                        "secondary-fixed": "#e5e2e1",
+                        "surface-container-highest": "#252626",
+                        "surface-container-lowest": "#000000",
+                        "on-surface": "#e7e5e4",
+                        "on-background": "#e7e5e4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"],
+                        "mono": ["IBM Plex Mono"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        .ghost-border { border: 1px solid rgba(72, 72, 72, 0.15); }
+    </style>
+</head>
+<body class="bg-surface-container-low text-on-surface antialiased min-h-screen flex selection:bg-primary-container selection:text-on-primary-container">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-screen w-[220px] bg-neutral-950 flex flex-col py-8 z-50 border-r border-neutral-800/50">
+<div class="px-6 mb-8 hidden">
+<h1 class="text-white font-bold tracking-tight text-sm">Operations Hub</h1>
+<p class="text-neutral-500 text-xs">Precision Logistics</p>
+</div>
+<div class="px-6 mb-8">
+<button class="w-full bg-primary text-on-primary font-medium text-sm py-2 px-4 rounded-[6px] hover:bg-primary-dim transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 18px;">add</span>
+                New Entry
+            </button>
+</div>
+<div class="flex-1 overflow-y-auto px-4 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all font-sans text-xs uppercase tracking-widest font-bold translate-x-1 transition-transform group rounded-r-md" href="#">
+<span class="material-symbols-outlined text-[18px]">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all font-sans text-xs uppercase tracking-widest font-bold translate-x-1 transition-transform group rounded-r-md" href="#">
+<span class="material-symbols-outlined text-[18px]">directions_car</span>
+                Active Inventory
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all font-sans text-xs uppercase tracking-widest font-bold translate-x-1 transition-transform group rounded-r-md" href="#">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+                Procurement
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all font-sans text-xs uppercase tracking-widest font-bold translate-x-1 transition-transform group rounded-r-md" href="#">
+<span class="material-symbols-outlined text-[18px]">local_shipping</span>
+                Shipments
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all font-sans text-xs uppercase tracking-widest font-bold translate-x-1 transition-transform group rounded-r-md" href="#">
+<span class="material-symbols-outlined text-[18px]">account_balance</span>
+                Financials
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 bg-neutral-800 text-white hover:bg-neutral-900 hover:text-neutral-200 transition-all font-sans text-xs uppercase tracking-widest font-bold translate-x-1 transition-transform group rounded-r-md" href="#">
+<span class="material-symbols-outlined text-[18px]">group</span>
+                User Access
+            </a>
+</div>
+<div class="px-4 mt-auto pt-8 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all font-sans text-xs uppercase tracking-widest font-bold translate-x-1 transition-transform group rounded-r-md" href="#">
+<span class="material-symbols-outlined text-[18px]">analytics</span>
+                System Health
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all font-sans text-xs uppercase tracking-widest font-bold translate-x-1 transition-transform group rounded-r-md" href="#">
+<span class="material-symbols-outlined text-[18px]">help_center</span>
+                Support
+            </a>
+</div>
+</nav>
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-220px)] h-[48px] bg-neutral-900 flex items-center justify-between px-6 z-40 ml-[220px]">
+<div class="flex items-center gap-6">
+<span class="text-lg font-semibold tracking-tighter text-white">Precision Concierge</span>
+<nav class="hidden md:flex items-center gap-4 text-sm font-medium tracking-tight font-sans">
+<a class="text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors scale-95 duration-100 px-2 py-1 rounded" href="#">Inventory</a>
+<a class="text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors scale-95 duration-100 px-2 py-1 rounded" href="#">Valuation</a>
+<a class="text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors scale-95 duration-100 px-2 py-1 rounded" href="#">Logistics</a>
+<a class="text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors scale-95 duration-100 px-2 py-1 rounded" href="#">Analytics</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex items-center gap-2 px-3 py-1.5 rounded-[6px] bg-surface-container-highest text-on-surface text-xs font-medium hover:bg-surface-variant transition-colors group">
+<span class="material-symbols-outlined text-[16px] text-neutral-400 group-hover:text-white">search</span>
+<span class="text-neutral-400 group-hover:text-white">Command Palette</span>
+<span class="font-mono text-[10px] text-neutral-500 ml-2">⌘K</span>
+</button>
+<div class="flex items-center gap-2">
+<button class="text-neutral-400 hover:text-white transition-colors p-1 rounded-full hover:bg-neutral-800">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+</button>
+<button class="text-neutral-400 hover:text-white transition-colors p-1 rounded-full hover:bg-neutral-800">
+<span class="material-symbols-outlined text-[20px]">settings</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="ml-[220px] mt-[48px] p-8 w-full max-w-[1440px] mx-auto">
+<!-- Header Section -->
+<div class="flex items-center justify-between mb-8">
+<div>
+<h2 class="text-2xl font-semibold tracking-tight text-white mb-1">User Access &amp; Roles</h2>
+<p class="text-sm text-neutral-400">Manage operational staff, permissions, and regional assignments.</p>
+</div>
+<button class="bg-primary text-on-primary font-medium text-sm py-2 px-4 rounded-[6px] hover:bg-primary-dim transition-colors flex items-center gap-2 shadow-[0_4px_14px_rgba(173,198,255,0.2)]">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1; font-size: 18px;">person_add</span>
+                Add User
+            </button>
+</div>
+<!-- Controls / Filters Area -->
+<div class="bg-surface-container p-4 rounded-xl mb-6 flex items-center justify-between ghost-border">
+<div class="flex items-center gap-4">
+<div class="relative w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-neutral-500 text-[18px]">search</span>
+<input class="w-full bg-surface-variant text-sm text-white placeholder-neutral-500 rounded-[6px] pl-10 pr-4 py-2 border-0 focus:ring-1 focus:ring-primary/50 transition-all ghost-border" placeholder="Search by name, email, or role..." type="text"/>
+</div>
+<div class="h-6 w-px bg-neutral-800 mx-2"></div>
+<button class="flex items-center gap-2 text-sm text-neutral-400 hover:text-white transition-colors px-2 py-1 rounded hover:bg-surface-variant">
+<span class="material-symbols-outlined text-[16px]">filter_list</span>
+                    All Roles
+                </button>
+<button class="flex items-center gap-2 text-sm text-neutral-400 hover:text-white transition-colors px-2 py-1 rounded hover:bg-surface-variant">
+<span class="material-symbols-outlined text-[16px]">location_on</span>
+                    All Regions
+                </button>
+</div>
+<div class="flex items-center gap-2">
+<button class="p-1.5 text-neutral-400 hover:text-white hover:bg-surface-variant rounded transition-colors" title="Grid View">
+<span class="material-symbols-outlined text-[18px]">grid_view</span>
+</button>
+<button class="p-1.5 text-white bg-surface-container-highest rounded transition-colors shadow-sm" title="List View">
+<span class="material-symbols-outlined text-[18px]">view_list</span>
+</button>
+</div>
+</div>
+<!-- High-Density Data Table -->
+<div class="bg-surface-container rounded-xl overflow-hidden ghost-border">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-xs font-medium text-neutral-500 uppercase tracking-widest bg-surface-container-low/50">
+<th class="px-6 py-4 font-sans w-1/4">User</th>
+<th class="px-6 py-4 font-sans w-1/4">Role &amp; Access</th>
+<th class="px-6 py-4 font-sans w-[15%]">Region</th>
+<th class="px-6 py-4 font-sans w-[15%]">Status</th>
+<th class="px-6 py-4 font-sans w-[10%] text-right font-mono">Last Active</th>
+<th class="px-6 py-4 font-sans w-[10%] text-right">Actions</th>
+</tr>
+</thead>
+<tbody class="text-sm font-sans divide-y divide-transparent">
+<!-- Row 1 -->
+<tr class="group hover:bg-surface-container-high transition-colors h-[52px]">
+<td class="px-6 py-2">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary/10 text-primary flex items-center justify-center font-semibold text-xs shrink-0">
+                                    AK
+                                </div>
+<div class="flex flex-col">
+<span class="text-white font-medium">Aryan Kapoor</span>
+<span class="text-neutral-500 text-xs">aryan.k@precision.com</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-2">
+<div class="flex flex-col gap-1">
+<span class="text-white">Senior Valuator</span>
+<div class="flex gap-1">
+<span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-variant text-neutral-400">VAL_L3</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-variant text-neutral-400">PROC_L2</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-2 text-neutral-300">Mumbai South</td>
+<td class="px-6 py-2">
+<div class="flex items-center gap-1.5">
+<div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+<span class="text-neutral-300 text-xs">Active</span>
+</div>
+</td>
+<td class="px-6 py-2 text-right font-mono text-neutral-400 text-xs">10m ago</td>
+<td class="px-6 py-2 text-right">
+<div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-neutral-400 hover:text-white hover:bg-surface-variant rounded transition-colors" title="Edit User">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="p-1.5 text-error-dim hover:text-error hover:bg-error/10 rounded transition-colors" title="Disable User">
+<span class="material-symbols-outlined text-[18px]">block</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="group hover:bg-surface-container-high transition-colors h-[52px]">
+<td class="px-6 py-2">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-tertiary/10 text-tertiary flex items-center justify-center font-semibold text-xs shrink-0">
+                                    ND
+                                </div>
+<div class="flex flex-col">
+<span class="text-white font-medium">Nisha Desai</span>
+<span class="text-neutral-500 text-xs">nisha.d@precision.com</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-2">
+<div class="flex flex-col gap-1">
+<span class="text-white">Logistics Coordinator</span>
+<div class="flex gap-1">
+<span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-variant text-neutral-400">LOG_L2</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-2 text-neutral-300">Delhi NCR</td>
+<td class="px-6 py-2">
+<div class="flex items-center gap-1.5">
+<div class="w-1.5 h-1.5 rounded-full bg-primary"></div>
+<span class="text-neutral-300 text-xs">Active</span>
+</div>
+</td>
+<td class="px-6 py-2 text-right font-mono text-neutral-400 text-xs">1h ago</td>
+<td class="px-6 py-2 text-right">
+<div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-neutral-400 hover:text-white hover:bg-surface-variant rounded transition-colors" title="Edit User">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="p-1.5 text-error-dim hover:text-error hover:bg-error/10 rounded transition-colors" title="Disable User">
+<span class="material-symbols-outlined text-[18px]">block</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 (Offline) -->
+<tr class="group hover:bg-surface-container-high transition-colors h-[52px]">
+<td class="px-6 py-2">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-variant text-neutral-400 flex items-center justify-center font-semibold text-xs shrink-0">
+                                    RM
+                                </div>
+<div class="flex flex-col">
+<span class="text-white font-medium">Rohan Mehta</span>
+<span class="text-neutral-500 text-xs">rohan.m@precision.com</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-2">
+<div class="flex flex-col gap-1">
+<span class="text-white">Procurement Specialist</span>
+<div class="flex gap-1">
+<span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-variant text-neutral-400">PROC_L1</span>
+<span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-variant text-neutral-400">VIEW_ALL</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-2 text-neutral-300">Bangalore</td>
+<td class="px-6 py-2">
+<div class="flex items-center gap-1.5">
+<div class="w-1.5 h-1.5 rounded-full bg-neutral-600"></div>
+<span class="text-neutral-500 text-xs">Offline</span>
+</div>
+</td>
+<td class="px-6 py-2 text-right font-mono text-neutral-500 text-xs">2d ago</td>
+<td class="px-6 py-2 text-right">
+<div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-neutral-400 hover:text-white hover:bg-surface-variant rounded transition-colors" title="Edit User">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+<button class="p-1.5 text-error-dim hover:text-error hover:bg-error/10 rounded transition-colors" title="Disable User">
+<span class="material-symbols-outlined text-[18px]">block</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4 (Disabled) -->
+<tr class="group hover:bg-surface-container-high transition-colors h-[52px] opacity-60">
+<td class="px-6 py-2">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-surface-variant text-neutral-500 flex items-center justify-center font-semibold text-xs shrink-0">
+                                    SP
+                                </div>
+<div class="flex flex-col">
+<span class="text-neutral-400 font-medium line-through">Sanjay Patel</span>
+<span class="text-neutral-600 text-xs">sanjay.p@precision.com</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-2">
+<div class="flex flex-col gap-1">
+<span class="text-neutral-400">Contract Inspector</span>
+<div class="flex gap-1">
+<span class="px-1.5 py-0.5 rounded text-[10px] font-mono bg-surface-variant/50 text-neutral-600">INSP_EXT</span>
+</div>
+</div>
+</td>
+<td class="px-6 py-2 text-neutral-500">Pune</td>
+<td class="px-6 py-2">
+<div class="flex items-center gap-1.5">
+<div class="w-1.5 h-1.5 rounded-full bg-error-dim"></div>
+<span class="text-error-dim text-xs">Revoked</span>
+</div>
+</td>
+<td class="px-6 py-2 text-right font-mono text-neutral-600 text-xs">14d ago</td>
+<td class="px-6 py-2 text-right">
+<div class="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="p-1.5 text-neutral-500 hover:text-white hover:bg-surface-variant rounded transition-colors" title="Restore User">
+<span class="material-symbols-outlined text-[18px]">restore</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</main>
+</body></html>

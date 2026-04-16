@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Job Card Detail - Precision Concierge</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-highest": "#252626",
+                    "surface-variant": "#252626",
+                    "surface-container": "#191a1a",
+                    "tertiary-fixed-dim": "#c5c0e0",
+                    "surface-bright": "#2c2c2c",
+                    "surface-container-low": "#131313",
+                    "error-dim": "#bb5551",
+                    "inverse-surface": "#fcf8f8",
+                    "outline-variant": "#484848",
+                    "tertiary-fixed": "#d3ceef",
+                    "on-error-container": "#ff9993",
+                    "surface-tint": "#adc6ff",
+                    "tertiary-container": "#d3ceef",
+                    "primary-dim": "#98b8ff",
+                    "error": "#ee7d77",
+                    "surface-container-lowest": "#000000",
+                    "inverse-on-surface": "#565554",
+                    "inverse-primary": "#005bc4",
+                    "secondary-container": "#3c3b3b",
+                    "on-tertiary-fixed": "#34314b",
+                    "error-container": "#7f2927",
+                    "on-primary": "#003d88",
+                    "on-primary-container": "#bdd0ff",
+                    "on-surface-variant": "#acabaa",
+                    "on-tertiary-fixed-variant": "#504e69",
+                    "surface-dim": "#0e0e0e",
+                    "on-secondary-container": "#c1bfbe",
+                    "secondary-fixed-dim": "#d6d4d3",
+                    "primary-fixed-dim": "#c3d4ff",
+                    "background": "#0e0e0e",
+                    "primary-fixed": "#d8e2ff",
+                    "tertiary-dim": "#c5c0e0",
+                    "primary-container": "#004395",
+                    "on-tertiary-container": "#47445f",
+                    "secondary-fixed": "#e5e2e1",
+                    "secondary": "#9f9d9d",
+                    "tertiary": "#e1dcfd",
+                    "primary": "#adc6ff",
+                    "on-surface": "#e7e5e4",
+                    "on-primary-fixed": "#003c86",
+                    "secondary-dim": "#9f9d9d",
+                    "on-error": "#490106",
+                    "surface-container-high": "#1f2020",
+                    "surface": "#0e0e0e",
+                    "on-tertiary": "#504d68",
+                    "on-secondary": "#202020",
+                    "on-secondary-fixed-variant": "#5c5b5b",
+                    "on-primary-fixed-variant": "#0057bd",
+                    "outline": "#767575",
+                    "on-background": "#e7e5e4",
+                    "on-secondary-fixed": "#403f3f"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "spacing": {},
+            "fontFamily": {
+                    "sans": ["Inter", "sans-serif"],
+                    "mono": ["IBM Plex Mono", "monospace"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        .ghost-border { border: 1px solid rgba(72, 72, 72, 0.15); }
+    </style>
+</head>
+<body class="bg-surface-container-low text-on-surface h-screen flex overflow-hidden">
+<!-- SideNavBar (from JSON) -->
+<nav class="bg-neutral-900 dark:bg-zinc-900 font-sans text-sm font-medium text-zinc-100 font-bold fixed left-0 top-0 h-full w-[220px] flex flex-col h-full py-4 border-r border-zinc-800/50 hidden md:flex z-20">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined text-sm">build_circle</span>
+</div>
+<div>
+<h1 class="text-zinc-100 font-bold tracking-tight">Workshop Alpha</h1>
+<p class="text-xs text-zinc-400 font-mono mt-0.5">Terminal ID: 8829</p>
+</div>
+</div>
+<button class="mx-4 mb-6 bg-primary text-on-primary hover:bg-primary-dim transition-colors py-2 px-4 rounded-lg flex items-center justify-center gap-2 font-medium">
+<span class="material-symbols-outlined text-[18px]">add</span>
+            New Job Card
+        </button>
+<div class="flex-1 overflow-y-auto px-3 space-y-1">
+<a class="bg-zinc-800 text-blue-400 font-semibold flex items-center gap-3 px-3 py-2.5 rounded-lg active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">assignment</span>
+                Job Cards
+            </a>
+<a class="text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200 flex items-center gap-3 px-3 py-2.5 rounded-lg active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined text-[20px]">fact_check</span>
+                Inspections
+            </a>
+<a class="text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200 flex items-center gap-3 px-3 py-2.5 rounded-lg active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined text-[20px]">build</span>
+                Workshop
+            </a>
+<a class="text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200 flex items-center gap-3 px-3 py-2.5 rounded-lg active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined text-[20px]">engineering</span>
+                Technicians
+            </a>
+<a class="text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200 flex items-center gap-3 px-3 py-2.5 rounded-lg active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined text-[20px]">minor_crash</span>
+                Inventory
+            </a>
+<a class="text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200 flex items-center gap-3 px-3 py-2.5 rounded-lg active:scale-95 transition-transform duration-150" href="#">
+<span class="material-symbols-outlined text-[20px]">analytics</span>
+                Reports
+            </a>
+</div>
+<div class="mt-auto px-3 pt-4 border-t border-zinc-800/50 space-y-1">
+<a class="text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200 flex items-center gap-3 px-3 py-2 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">settings</span>
+                Settings
+            </a>
+<a class="text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200 flex items-center gap-3 px-3 py-2 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">help</span>
+                Support
+            </a>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 md:ml-[220px] flex flex-col h-full overflow-hidden">
+<!-- TopNavBar (from JSON) -->
+<header class="bg-neutral-950 dark:bg-zinc-950 font-sans tracking-tight antialiased text-zinc-100 flex justify-between items-center px-6 h-12 w-full z-10 shrink-0 border-b border-zinc-900 shadow-sm">
+<div class="flex items-center gap-6">
+<!-- Mobile Menu Trigger -->
+<button class="md:hidden text-zinc-400 hover:text-zinc-100">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<div class="text-lg font-semibold tracking-tighter text-zinc-100 hidden md:block">Precision Ops</div>
+<nav class="hidden md:flex items-center gap-6 ml-4 h-full pt-1">
+<a class="text-zinc-400 pb-2 hover:text-zinc-100 transition-colors text-sm h-full flex items-center border-b-2 border-transparent" href="#">Inventory</a>
+<a class="text-blue-500 border-b-2 border-blue-500 pb-2 hover:text-zinc-100 transition-colors text-sm h-full flex items-center" href="#">Service</a>
+<a class="text-zinc-400 pb-2 hover:text-zinc-100 transition-colors text-sm h-full flex items-center border-b-2 border-transparent" href="#">Logistics</a>
+<a class="text-zinc-400 pb-2 hover:text-zinc-100 transition-colors text-sm h-full flex items-center border-b-2 border-transparent" href="#">Valuation</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-zinc-400 hover:text-zinc-100 transition-colors active:opacity-80 transition-opacity">
+<span class="material-symbols-outlined text-[20px]">search</span>
+</button>
+<button class="text-zinc-400 hover:text-zinc-100 transition-colors active:opacity-80 transition-opacity relative">
+<span class="material-symbols-outlined text-[20px]">notifications</span>
+<span class="absolute top-0 right-0 w-1.5 h-1.5 bg-primary rounded-full"></span>
+</button>
+<div class="w-7 h-7 rounded-full bg-zinc-800 ml-2 overflow-hidden border border-zinc-700">
+<img alt="Service Advisor Profile" class="w-full h-full object-cover" data-alt="Close up professional headshot of a service advisor in a sleek modern automotive garage setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSW2Nio2idYzwQjPKtmH-dJdrmzwDWsF25OKl7Rd6kt4spOpcg5Y_wmrXeIpqzUNNzZi1p-Cl66mIVQnCHQD4zrzMQ4HwxNjRrFYtNMr0fHS3iDC2O9Eufi8GWinPvyXwAp177FsR4No7PCeAd3kIa21foUGS-I9fMZsLpWO01ban51l0r57d_I9od1ondeXZ9s6c42-3nKYsFve-5za3Zygyl5xvDV70XlKxTRIBwpjkAkgf_zjZxDAuu5lMV5U8Kjcja5YxUthc"/>
+</div>
+</div>
+</header>
+<!-- Main Canvas Scrollable Area -->
+<main class="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
+<!-- Job Card Header & Summary -->
+<div class="flex flex-col xl:flex-row gap-6 shrink-0">
+<!-- Vehicle Info -->
+<div class="bg-surface-container rounded-lg p-5 flex-1 flex items-center gap-5 ghost-border">
+<div class="w-16 h-16 rounded bg-surface-container-highest overflow-hidden shrink-0 flex items-center justify-center">
+<img alt="Porsche Panamera" class="w-full h-full object-cover opacity-80" data-alt="Side profile view of a dark grey Porsche Panamera parked indoors with studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAD6eHDHLpu0lSzN7Ys2pVB21yF30OE-Fw9rmX2xo4h3LBdws7TuBHepa7rsKYW-pH1zPETevFI-4QuQxzq0Js71Rc4rhu_KksGoWMyUJhqHzE0lcFuVqR_8wbun9LM3uH_FUWB6BMCjBhUy0S7qn8Wi0AdqHE-VJkbftuiCaIrDLDzAhisUXwTKTkChY7ypIgHr82CET1d6ZeRiVrQ-rCnja7p2jrlBdlZN2QH1M5HOrIcX_mTeMDzKH0P8tJQmu6z1ZGfkhK9fSo"/>
+</div>
+<div class="flex-1">
+<div class="flex items-center gap-3 mb-1">
+<h2 class="text-xl font-semibold tracking-tight text-on-surface">Porsche Panamera GTS</h2>
+<span class="px-2 py-0.5 rounded text-[10px] font-mono bg-primary-container text-on-primary-container uppercase tracking-wider font-medium">In Progress</span>
+</div>
+<div class="flex items-center gap-4 text-sm text-on-surface-variant font-mono">
+<span>JC-2026-0341</span>
+<span class="w-1 h-1 rounded-full bg-surface-variant"></span>
+<span>VIN: WP0AA2A73GL04829</span>
+<span class="w-1 h-1 rounded-full bg-surface-variant"></span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">location_on</span> Bay 3</span>
+</div>
+</div>
+</div>
+<!-- Progress Stepper -->
+<div class="bg-surface-container rounded-lg p-5 xl:w-[500px] shrink-0 ghost-border flex flex-col justify-center">
+<div class="flex items-center justify-between relative">
+<!-- Connecting Line -->
+<div class="absolute top-1/2 left-4 right-4 h-0.5 bg-surface-container-highest -translate-y-1/2 z-0"></div>
+<div class="absolute top-1/2 left-4 w-1/2 h-0.5 bg-primary -translate-y-1/2 z-0"></div>
+<!-- Steps -->
+<div class="relative z-10 flex flex-col items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="text-[10px] uppercase tracking-wider text-on-surface-variant font-medium">Received</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-on-primary">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+<span class="text-[10px] uppercase tracking-wider text-on-surface-variant font-medium">Diagnosed</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-container border-2 border-primary flex items-center justify-center">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+</div>
+<span class="text-[10px] uppercase tracking-wider text-primary font-medium">In Progress</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center"></div>
+<span class="text-[10px] uppercase tracking-wider text-on-surface-variant font-medium">QC</span>
+</div>
+<div class="relative z-10 flex flex-col items-center gap-2">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center"></div>
+<span class="text-[10px] uppercase tracking-wider text-on-surface-variant font-medium">Ready</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Page Tabs -->
+<div class="border-b border-surface-variant flex gap-6 px-2 shrink-0">
+<a class="pb-3 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors border-b-2 border-transparent" href="#">Overview</a>
+<a class="pb-3 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors border-b-2 border-transparent" href="#">Labour</a>
+<a class="pb-3 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors border-b-2 border-transparent" href="#">Parts</a>
+<a class="pb-3 text-sm font-medium text-primary border-b-2 border-primary" href="#">Inspection</a>
+<a class="pb-3 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors border-b-2 border-transparent" href="#">Timeline</a>
+<a class="pb-3 text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors border-b-2 border-transparent" href="#">Invoice Preview</a>
+</div>
+<!-- Content Area (Asymmetric Layout) -->
+<div class="flex gap-6 flex-1 min-h-0">
+<!-- Main Data Panel (Left) -->
+<div class="flex-1 flex flex-col gap-4 overflow-y-auto pr-2 pb-6">
+<!-- Inspection Header -->
+<div class="flex items-center justify-between bg-surface-container p-4 rounded-lg ghost-border">
+<div>
+<h3 class="text-lg font-semibold tracking-tight text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-[20px]">fact_check</span>
+                                210-Point Technical Inspection
+                            </h3>
+<div class="flex items-center gap-3 mt-1 text-xs text-on-surface-variant">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">person</span> Technician: Sarah J.</span>
+<span class="w-1 h-1 rounded-full bg-surface-variant"></span>
+<span class="font-mono">14 Mar 2026 10:45 IST</span>
+</div>
+</div>
+<div class="w-12 h-12 rounded bg-surface-container-highest border border-outline-variant flex items-center justify-center flex-col shadow-sm">
+<span class="text-xs text-on-surface-variant font-mono uppercase tracking-wider mb-0.5 leading-none">Grade</span>
+<span class="text-xl font-bold text-on-surface leading-none text-emerald-400">A</span>
+</div>
+</div>
+<!-- Checklist Categories -->
+<div class="space-y-3">
+<!-- Category 1 (Collapsed) -->
+<div class="bg-surface-container rounded-lg p-3 ghost-border flex items-center justify-between cursor-pointer hover:bg-surface-container-high transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">keyboard_arrow_right</span>
+<span class="font-medium text-on-surface text-sm">Engine &amp; Powertrain</span>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-mono bg-surface-container-highest text-emerald-400 uppercase tracking-wider border border-surface-variant">Pass</span>
+</div>
+<!-- Category 2 (Expanded - Braking System) -->
+<div class="bg-surface-container rounded-lg ghost-border overflow-hidden">
+<div class="p-3 bg-surface-container-highest flex items-center justify-between border-b border-surface-variant">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface text-[18px]">keyboard_arrow_down</span>
+<span class="font-medium text-on-surface text-sm">Braking System</span>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-mono bg-error-container text-on-error-container uppercase tracking-wider border border-error-dim">Needs Attention</span>
+</div>
+<div class="p-0">
+<!-- Table Header -->
+<div class="grid grid-cols-[1fr_120px_120px] gap-4 px-4 py-2 border-b border-surface-variant text-xs font-medium text-on-surface-variant uppercase tracking-wider bg-surface-container-low/50">
+<div>Item</div>
+<div class="text-right">Status</div>
+<div class="text-right">Action</div>
+</div>
+<!-- Row 1 (Failed) -->
+<div class="grid grid-cols-[1fr_120px_120px] gap-4 px-4 py-3 border-b border-surface-variant items-center hover:bg-surface-container-low transition-colors bg-error-container/10">
+<div class="text-sm text-on-surface flex items-center gap-2">
+<div class="w-1.5 h-1.5 rounded-full bg-error"></div>
+                                        Front brake pads
+                                    </div>
+<div class="text-right">
+<span class="text-xs font-mono text-error">1.2mm left</span>
+</div>
+<div class="text-right">
+<span class="px-2 py-0.5 rounded text-[10px] font-mono bg-error text-on-error uppercase tracking-wider">Replace</span>
+</div>
+</div>
+<!-- Row 2 (Pass) -->
+<div class="grid grid-cols-[1fr_120px_120px] gap-4 px-4 py-3 border-b border-surface-variant items-center hover:bg-surface-container-low transition-colors">
+<div class="text-sm text-on-surface flex items-center gap-2">
+<div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                                        Rear pads
+                                    </div>
+<div class="text-right">
+<span class="text-xs font-mono text-emerald-400">6.5mm left</span>
+</div>
+<div class="text-right">
+<span class="px-2 py-0.5 rounded text-[10px] font-mono bg-surface-container-highest text-on-surface-variant uppercase tracking-wider border border-surface-variant">Pass</span>
+</div>
+</div>
+<!-- Row 3 (Pass) -->
+<div class="grid grid-cols-[1fr_120px_120px] gap-4 px-4 py-3 items-center hover:bg-surface-container-low transition-colors">
+<div class="text-sm text-on-surface flex items-center gap-2">
+<div class="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
+                                        Brake fluid level
+                                    </div>
+<div class="text-right">
+<span class="text-xs font-mono text-emerald-400">Optimal</span>
+</div>
+<div class="text-right">
+<span class="px-2 py-0.5 rounded text-[10px] font-mono bg-surface-container-highest text-on-surface-variant uppercase tracking-wider border border-surface-variant">Pass</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Category 3 (Collapsed) -->
+<div class="bg-surface-container rounded-lg p-3 ghost-border flex items-center justify-between cursor-pointer hover:bg-surface-container-high transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">keyboard_arrow_right</span>
+<span class="font-medium text-on-surface text-sm">Electricals</span>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-mono bg-surface-container-highest text-emerald-400 uppercase tracking-wider border border-surface-variant">Pass</span>
+</div>
+<!-- Category 4 (Collapsed) -->
+<div class="bg-surface-container rounded-lg p-3 ghost-border flex items-center justify-between cursor-pointer hover:bg-surface-container-high transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant text-[18px]">keyboard_arrow_right</span>
+<span class="font-medium text-on-surface text-sm">Interior/Exterior</span>
+</div>
+<span class="px-2 py-0.5 rounded text-[10px] font-mono bg-surface-container-highest text-emerald-400 uppercase tracking-wider border border-surface-variant">Pass</span>
+</div>
+</div>
+</div>
+<!-- Right Sidebar (Advisor Notes) -->
+<div class="w-[300px] shrink-0 bg-surface-container rounded-lg ghost-border flex flex-col overflow-hidden hidden lg:flex">
+<div class="p-4 border-b border-surface-variant bg-surface-container-low/50">
+<h4 class="text-sm font-semibold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]">forum</span>
+                            Advisor Notes Feed
+                        </h4>
+</div>
+<div class="flex-1 overflow-y-auto p-4 space-y-4">
+<!-- Note 1 -->
+<div class="flex gap-3">
+<div class="w-6 h-6 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center shrink-0 mt-0.5">
+<span class="text-[10px] font-bold">SJ</span>
+</div>
+<div>
+<div class="flex items-baseline gap-2 mb-1">
+<span class="text-xs font-medium text-on-surface">Sarah J.</span>
+<span class="text-[10px] font-mono text-on-surface-variant">10:50 AM</span>
+</div>
+<div class="text-sm text-on-surface-variant bg-surface-container-highest p-2 rounded-lg rounded-tl-none border border-surface-variant">
+                                    Front pads are at 1.2mm. Recommend immediate replacement. Rotors look okay, no scoring visible.
+                                </div>
+</div>
+</div>
+<!-- System Note -->
+<div class="flex gap-3">
+<div class="w-6 h-6 rounded-full bg-surface-container-highest border border-outline-variant flex items-center justify-center shrink-0 mt-0.5 text-on-surface-variant">
+<span class="material-symbols-outlined text-[12px]">smart_toy</span>
+</div>
+<div>
+<div class="flex items-baseline gap-2 mb-1">
+<span class="text-xs font-medium text-on-surface">System</span>
+<span class="text-[10px] font-mono text-on-surface-variant">10:51 AM</span>
+</div>
+<div class="text-sm text-on-surface-variant bg-surface-container-highest p-2 rounded-lg rounded-tl-none border border-surface-variant italic">
+                                    Parts lookup initiated for: OEM Front Brake Pads (Panamera GTS '22).
+                                </div>
+</div>
+</div>
+</div>
+<!-- Input Area -->
+<div class="p-3 border-t border-surface-variant bg-surface-container-low/30">
+<div class="relative">
+<input class="w-full bg-surface-variant border border-outline-variant/30 rounded-md py-2 pl-3 pr-10 text-sm text-on-surface placeholder-on-surface-variant/50 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all" placeholder="Add a note..." type="text"/>
+<button class="absolute right-2 top-1/2 -translate-y-1/2 text-primary hover:text-primary-dim p-1">
+<span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

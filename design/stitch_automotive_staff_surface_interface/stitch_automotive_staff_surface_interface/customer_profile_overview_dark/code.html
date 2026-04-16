@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Customer Profile | Precision Concierge</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "secondary-dim": "#9f9d9d",
+                    "inverse-primary": "#005bc4",
+                    "primary-fixed-dim": "#c3d4ff",
+                    "on-secondary-container": "#c1bfbe",
+                    "surface-container": "#191a1a",
+                    "on-secondary-fixed-variant": "#5c5b5b",
+                    "background": "#0e0e0e",
+                    "surface-variant": "#252626",
+                    "outline-variant": "#484848",
+                    "tertiary-dim": "#c5c0e0",
+                    "secondary-fixed-dim": "#d6d4d3",
+                    "surface-dim": "#0e0e0e",
+                    "primary-container": "#004395",
+                    "outline": "#767575",
+                    "on-surface": "#e7e5e4",
+                    "error-container": "#7f2927",
+                    "secondary-container": "#3c3b3b",
+                    "secondary": "#9f9d9d",
+                    "primary-dim": "#98b8ff",
+                    "surface-container-high": "#1f2020",
+                    "on-secondary-fixed": "#403f3f",
+                    "on-tertiary-fixed": "#34314b",
+                    "on-primary-fixed-variant": "#0057bd",
+                    "surface-bright": "#2c2c2c",
+                    "on-primary-container": "#bdd0ff",
+                    "tertiary-container": "#d3ceef",
+                    "on-background": "#e7e5e4",
+                    "on-secondary": "#202020",
+                    "surface-container-lowest": "#000000",
+                    "surface": "#0e0e0e",
+                    "inverse-on-surface": "#565554",
+                    "on-error-container": "#ff9993",
+                    "surface-container-highest": "#252626",
+                    "tertiary-fixed": "#d3ceef",
+                    "surface-container-low": "#131313",
+                    "on-primary-fixed": "#003c86",
+                    "surface-tint": "#adc6ff",
+                    "on-tertiary-container": "#47445f",
+                    "tertiary-fixed-dim": "#c5c0e0",
+                    "on-error": "#490106",
+                    "inverse-surface": "#fcf8f8",
+                    "on-primary": "#003d88",
+                    "error": "#ee7d77",
+                    "error-dim": "#bb5551",
+                    "primary": "#adc6ff",
+                    "on-tertiary-fixed-variant": "#504e69",
+                    "on-tertiary": "#504d68",
+                    "secondary-fixed": "#e5e2e1",
+                    "on-surface-variant": "#acabaa",
+                    "primary-fixed": "#d8e2ff",
+                    "tertiary": "#e1dcfd"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Inter"],
+                    "body": ["Inter"],
+                    "label": ["Inter"],
+                    "mono": ["IBM Plex Mono"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+        .mono-data { font-family: 'IBM Plex Mono', monospace; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #262626; border-radius: 2px; }
+    </style>
+</head>
+<body class="bg-[#0A0A0A] text-on-surface">
+<!-- TopNavBar Implementation -->
+<nav class="flex justify-between items-center h-[48px] px-6 w-full fixed top-0 z-50 bg-[#141414] font-['Inter'] font-medium tracking-tight">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-tighter text-white">Precision Concierge</span>
+<div class="hidden md:flex gap-6 items-center">
+<a class="text-zinc-400 hover:text-white transition-colors duration-200 cursor-pointer active:scale-95" href="#">Inventory</a>
+<a class="text-zinc-400 hover:text-white transition-colors duration-200 cursor-pointer active:scale-95" href="#">Auctions</a>
+<a class="text-zinc-400 hover:text-white transition-colors duration-200 cursor-pointer active:scale-95" href="#">Logistics</a>
+<a class="text-zinc-400 hover:text-white transition-colors duration-200 cursor-pointer active:scale-95" href="#">Valuations</a>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-zinc-400 hover:text-white cursor-pointer" data-icon="search">search</span>
+<span class="material-symbols-outlined text-zinc-400 hover:text-white cursor-pointer" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined text-zinc-400 hover:text-white cursor-pointer" data-icon="settings">settings</span>
+<div class="h-6 w-6 rounded-full overflow-hidden ml-2 bg-surface-container-highest">
+<img alt="User profile" data-alt="Close-up professional portrait of a male automotive consultant in a dark studio setting with soft key lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDtfbbEenMuAVcQ9-nn2EfXFJqGW7-4BDwA023ORlEpJe9Stx4bhDbucZsp5BnqWqLsVyQiMt5e_SzBXXmD1vbgSY1_xj2ZAeA3FY4GE2xjYrUG0Z0Af21_0tbtx64KTGniXeQRqbikf8855L8b15wxTlvsFE_ynq8cMbPadODfGP--Q4FW_GY2MfuBghsf6cNo2h6_45U3fz5BJnBqMhv_o1mzUS96mmztic1QqI9hZFxlsMjWbpzIjDBn6oTcS03wvoPjwaMizrY"/>
+</div>
+</div>
+</nav>
+<!-- SideNavBar Implementation -->
+<aside class="fixed left-0 top-[48px] h-[calc(100vh-48px)] w-[220px] bg-[#141414] flex flex-col gap-2 py-4 px-3 font-['Inter'] font-medium text-sm">
+<div class="mb-4 px-3">
+<div class="flex items-center gap-3">
+<div class="h-8 w-8 rounded-lg bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined text-[20px]" data-icon="person" style="font-variation-settings: 'FILL' 1;">person</span>
+</div>
+<div>
+<div class="text-white text-xs font-bold leading-none">Customer Profile</div>
+<div class="text-primary text-[10px] uppercase tracking-widest mt-1">Verified Lead</div>
+</div>
+</div>
+</div>
+<nav class="flex flex-col gap-1">
+<!-- Overview Active State -->
+<a class="flex items-center gap-3 py-2 px-3 bg-[#262626] text-white rounded-r-md border-l-4 border-blue-500 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span>Overview</span>
+</a>
+<a class="flex items-center gap-3 py-2 px-3 text-zinc-500 hover:bg-[#1A1A1A] hover:text-zinc-200 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="directions_car">directions_car</span>
+<span>Vehicles</span>
+</a>
+<a class="flex items-center gap-3 py-2 px-3 text-zinc-500 hover:bg-[#1A1A1A] hover:text-zinc-200 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="build">build</span>
+<span>Service History</span>
+</a>
+<a class="flex items-center gap-3 py-2 px-3 text-zinc-500 hover:bg-[#1A1A1A] hover:text-zinc-200 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span>Transactions</span>
+</a>
+<a class="flex items-center gap-3 py-2 px-3 text-zinc-500 hover:bg-[#1A1A1A] hover:text-zinc-200 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+<span>Communications</span>
+</a>
+<a class="flex items-center gap-3 py-2 px-3 text-zinc-500 hover:bg-[#1A1A1A] hover:text-zinc-200 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="description">description</span>
+<span>Documents</span>
+</a>
+</nav>
+<div class="mt-auto flex flex-col gap-1">
+<a class="flex items-center gap-3 py-2 px-3 text-zinc-500 hover:bg-[#1A1A1A] hover:text-zinc-200 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+<span>Help Center</span>
+</a>
+<a class="flex items-center gap-3 py-2 px-3 text-zinc-500 hover:bg-[#1A1A1A] hover:text-zinc-200 transition-all duration-200" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span>Log Out</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-[220px] mt-[48px] p-8 min-h-[calc(100vh-48px)] bg-[#0A0A0A]">
+<!-- Header Section -->
+<header class="flex justify-between items-end mb-8">
+<div class="space-y-2">
+<h1 class="text-[28px] font-semibold tracking-tight text-white leading-none">Arjun Vardhan</h1>
+<div class="flex gap-2">
+<span class="px-2 py-0.5 bg-surface-container-highest text-primary text-[10px] font-bold uppercase tracking-wider rounded">Buyer</span>
+<span class="px-2 py-0.5 bg-surface-container-highest text-tertiary text-[10px] font-bold uppercase tracking-wider rounded">Consignor</span>
+</div>
+</div>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="add">add</span>
+                Add New Asset
+            </button>
+</header>
+<!-- Profile Card (Horizontal) -->
+<section class="bg-surface-container rounded-xl p-6 mb-8 flex items-center gap-8 shadow-sm">
+<div class="h-16 w-16 rounded-full ring-2 ring-primary-container ring-offset-2 ring-offset-surface-container overflow-hidden shrink-0">
+<img alt="Arjun Vardhan" data-alt="Portrait of a sophisticated South Asian businessman in his late 30s with a neat beard, wearing a charcoal grey tailored suit" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3YZ-YtKLxDzMvODn2HsorR4GdH1spIQqHb3R--0IIlZrxDEw8AGMd1uDiGHzr7gU0JP0bH3bQHDKlPFDbL2B-DZwhx4d2TE_CY2iCBKRPgC0uEdV9nd7UBx8u_ywZc2RVh_NsSQ7JNitmqxVQMQfz08dXAVMwuZo4K1SwxRY13_-kKR06a0jUyEVE-PpoFdwnPajDn1Z2nPnXa7qlBt7D3DSJx5jLKVIOr2dInKTXa9czFgyj-bqmTM-nJ9-sazuMALaz5M8eZk8"/>
+</div>
+<div class="flex-grow grid grid-cols-4 gap-6">
+<div>
+<p class="text-zinc-500 text-[10px] uppercase font-bold tracking-widest mb-1">Contact Details</p>
+<p class="text-on-surface text-sm font-medium">+91 •• •••• 1234</p>
+<p class="text-zinc-400 text-xs">arjun.v@bespoke.com</p>
+</div>
+<div>
+<p class="text-zinc-500 text-[10px] uppercase font-bold tracking-widest mb-1">Identity &amp; Compliance</p>
+<p class="mono-data text-xs text-on-surface mb-1">PAN: ••••••421G</p>
+<div class="flex gap-1.5 items-center">
+<span class="text-[10px] flex items-center gap-0.5 text-green-500 font-medium">
+<span class="material-symbols-outlined text-[12px]" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                            Aadhaar
+                        </span>
+<span class="text-[10px] flex items-center gap-0.5 text-green-500 font-medium">
+<span class="material-symbols-outlined text-[12px]" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                            PAN
+                        </span>
+<span class="text-[10px] flex items-center gap-0.5 text-green-500 font-medium">
+<span class="material-symbols-outlined text-[12px]" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                            DigiLocker
+                        </span>
+</div>
+</div>
+<div>
+<p class="text-zinc-500 text-[10px] uppercase font-bold tracking-widest mb-1">Outlet &amp; Tenure</p>
+<span class="inline-block px-2 py-0.5 bg-surface-container-highest text-zinc-300 text-[10px] font-bold rounded mb-1">Bangalore</span>
+<p class="text-zinc-400 text-xs">Member since 12 Mar 2024</p>
+</div>
+<div class="flex flex-col justify-center">
+<p class="text-zinc-500 text-[10px] uppercase font-bold tracking-widest mb-2">Comms Preferences</p>
+<div class="flex gap-3">
+<div class="flex items-center gap-1 text-green-500">
+<span class="material-symbols-outlined text-base" data-icon="chat" style="font-variation-settings: 'FILL' 1;">chat</span>
+<span class="text-[10px] font-bold">WhatsApp</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-base" data-icon="sms" style="font-variation-settings: 'FILL' 1;">sms</span>
+<span class="text-[10px] font-bold">SMS</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="material-symbols-outlined text-base" data-icon="mail" style="font-variation-settings: 'FILL' 1;">mail</span>
+<span class="text-[10px] font-bold">Email</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Dashboard Layout -->
+<div class="grid grid-cols-12 gap-8">
+<!-- Left Column: Primary Stats & Assets -->
+<div class="col-span-8 space-y-8">
+<!-- Lifetime Value Bento Card -->
+<div class="bg-surface-container rounded-xl overflow-hidden relative">
+<div class="absolute top-0 right-0 p-8 opacity-10">
+<span class="material-symbols-outlined text-8xl" data-icon="account_balance_wallet">account_balance_wallet</span>
+</div>
+<div class="p-8">
+<p class="text-zinc-500 text-xs uppercase font-bold tracking-[0.2em] mb-2">Lifetime Transaction Value</p>
+<h2 class="mono-data text-4xl font-medium text-white mb-2">₹ 2,56,50,000</h2>
+<p class="text-zinc-400 text-sm">Across 2 purchases and 7 services in 2024</p>
+</div>
+<div class="bg-surface-container-highest/50 px-8 py-3 flex gap-8">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="text-xs text-zinc-300 font-medium">Premium Tier Member</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-tertiary"></span>
+<span class="text-xs text-zinc-300 font-medium">98% Satisfaction Score</span>
+</div>
+</div>
+</div>
+<!-- Owned Vehicles Section -->
+<div>
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-lg font-semibold text-white">Owned Vehicles</h3>
+<a class="text-primary text-xs font-bold hover:underline" href="#">View Inventory</a>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<!-- Vehicle Card 1 -->
+<div class="bg-surface-container rounded-xl p-4 flex gap-4 hover:bg-surface-container-high transition-colors">
+<div class="w-24 h-24 rounded-lg overflow-hidden shrink-0 bg-surface-container-lowest">
+<img alt="Porsche 911" data-alt="Rear 3/4 view of a charcoal grey 2022 Porsche 911 Carrera S parked on a clean concrete floor in a professional photography studio" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwNqiWLmLJv5RcZJdg-htf-yN0EhAeeD3mqupLqfmgCYn6RiSOaBQnK-ZDA8Lu0wXLGjCuSk8xzuSe30xo4jY6iAYZEb6_MGh2v-yv-TSn2GIGDb04GM6RSUng-xgcyQ9Rew8tG7DzInsDORsn9n0hs_ltO9e0rm19yI32anGwd8AZRkzjZcqcZMD73nTztOqXv1HbDu-AniVbLQjzRA74xtTdimXn0_SFSSRHdMlojXLiR6hja_w6k-UJ0jZMdUuVYlK1KKr0OPA"/>
+</div>
+<div class="flex flex-col justify-between py-1">
+<div>
+<h4 class="text-sm font-semibold text-white leading-tight">2022 Porsche 911 Carrera S</h4>
+<p class="mono-data text-[10px] text-zinc-500 mt-1 uppercase">VIN: WP0AA2••••••••621</p>
+</div>
+<div class="flex items-center justify-between mt-auto">
+<span class="px-1.5 py-0.5 bg-green-900/30 text-green-500 text-[10px] font-bold rounded uppercase">Owned</span>
+<span class="material-symbols-outlined text-zinc-500 text-base" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- Vehicle Card 2 -->
+<div class="bg-surface-container rounded-xl p-4 flex gap-4 hover:bg-surface-container-high transition-colors">
+<div class="w-24 h-24 rounded-lg overflow-hidden shrink-0 bg-surface-container-lowest">
+<img alt="BMW M5" data-alt="Close up of the front headlight and grill of a black BMW M5 Performance luxury sedan under cool blue professional studio lights" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrfLABkQ5muNIOJkcc9AGRaTLwudwPUIdApoKmJwU6ifIk7pC06vyidrpk7TJ6xiNORV9BINUe5xyovD7TyA0yELoL8q9AchSD4qS-O8m3iUJaa40L4Y-EN87PN48LLqsTHvSrWoA2hmP6kjqGMQpZKcDB88q3eyF-ANcgcQineQ-81lVr-aEICnWXZvHhHh6Vm1mvdQyTjXQNNGvEQuJp7rOTt_L_hN9InvmEtW9IeNs1xKqsUvtrCmdgOnkRTrQQmlWh6gcR5l4"/>
+</div>
+<div class="flex flex-col justify-between py-1">
+<div>
+<h4 class="text-sm font-semibold text-white leading-tight">2023 BMW M5 Competition</h4>
+<p class="mono-data text-[10px] text-zinc-500 mt-1 uppercase">VIN: WBS53CH••••••••882</p>
+</div>
+<div class="flex items-center justify-between mt-auto">
+<span class="px-1.5 py-0.5 bg-green-900/30 text-green-500 text-[10px] font-bold rounded uppercase">Owned</span>
+<span class="material-symbols-outlined text-zinc-500 text-base" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Recent Activity Timeline -->
+<div class="col-span-4">
+<div class="bg-surface-container rounded-xl p-6 h-full">
+<h3 class="text-lg font-semibold text-white mb-6">Recent Activity</h3>
+<div class="relative space-y-8">
+<div class="absolute left-3 top-2 bottom-2 w-px bg-outline-variant"></div>
+<!-- Timeline Item 1 -->
+<div class="relative pl-10">
+<div class="absolute left-[3px] top-1.5 w-6 h-6 rounded-full bg-surface-container-highest border-4 border-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[12px] text-primary" data-icon="edit_note">edit_note</span>
+</div>
+<p class="text-xs text-on-surface font-medium">Rahul posted appraisal for Porsche 911</p>
+<p class="mono-data text-[10px] text-zinc-500 mt-1">14 MAY 2024 · 14:20</p>
+</div>
+<!-- Timeline Item 2 -->
+<div class="relative pl-10">
+<div class="absolute left-[3px] top-1.5 w-6 h-6 rounded-full bg-surface-container-highest border-4 border-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[12px] text-green-500" data-icon="check_circle">check_circle</span>
+</div>
+<p class="text-xs text-on-surface font-medium">Service completed: Annual Maintenance</p>
+<p class="mono-data text-[10px] text-zinc-500 mt-1">11 MAY 2024 · 10:45</p>
+</div>
+<!-- Timeline Item 3 -->
+<div class="relative pl-10">
+<div class="absolute left-[3px] top-1.5 w-6 h-6 rounded-full bg-surface-container-highest border-4 border-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[12px] text-tertiary" data-icon="payments">payments</span>
+</div>
+<p class="text-xs text-on-surface font-medium">Payment received: ₹ 1,25,000 (Service Bill)</p>
+<p class="mono-data text-[10px] text-zinc-500 mt-1">10 MAY 2024 · 18:30</p>
+</div>
+<!-- Timeline Item 4 -->
+<div class="relative pl-10">
+<div class="absolute left-[3px] top-1.5 w-6 h-6 rounded-full bg-surface-container-highest border-4 border-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[12px] text-primary" data-icon="chat">chat</span>
+</div>
+<p class="text-xs text-on-surface font-medium">WhatsApp message sent: Test Drive inquiry</p>
+<p class="mono-data text-[10px] text-zinc-500 mt-1">08 MAY 2024 · 11:15</p>
+</div>
+<!-- Timeline Item 5 -->
+<div class="relative pl-10">
+<div class="absolute left-[3px] top-1.5 w-6 h-6 rounded-full bg-surface-container-highest border-4 border-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[12px] text-zinc-400" data-icon="visibility">visibility</span>
+</div>
+<p class="text-xs text-on-surface font-medium">Customer viewed valuation report (BMW M5)</p>
+<p class="mono-data text-[10px] text-zinc-500 mt-1">05 MAY 2024 · 09:00</p>
+</div>
+</div>
+<button class="w-full mt-8 py-2 bg-surface-container-highest text-zinc-400 text-xs font-bold rounded hover:text-white transition-colors">
+                        View Full History
+                    </button>
+</div>
+</div>
+</div>
+</main>
+<!-- BottomNavBar Suppression for high-density transactional screens as per policy -->
+</body></html>

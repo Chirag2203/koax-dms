@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Job Card Timeline - LuxuryAuto Ops</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary": "#9f9d9d",
+                      "on-secondary-fixed-variant": "#5c5b5b",
+                      "on-tertiary-fixed": "#34314b",
+                      "on-tertiary-container": "#47445f",
+                      "surface-dim": "#0e0e0e",
+                      "error-dim": "#bb5551",
+                      "background": "#0e0e0e",
+                      "on-secondary-container": "#c1bfbe",
+                      "surface-container": "#191a1a",
+                      "on-primary-fixed": "#003c86",
+                      "secondary-fixed": "#e5e2e1",
+                      "error": "#ee7d77",
+                      "surface-container-high": "#1f2020",
+                      "on-surface-variant": "#acabaa",
+                      "on-surface": "#e7e5e4",
+                      "on-secondary": "#202020",
+                      "surface": "#0e0e0e",
+                      "primary-dim": "#98b8ff",
+                      "on-secondary-fixed": "#403f3f",
+                      "on-primary-fixed-variant": "#0057bd",
+                      "secondary-dim": "#9f9d9d",
+                      "outline": "#767575",
+                      "inverse-surface": "#fcf8f8",
+                      "surface-container-low": "#131313",
+                      "surface-variant": "#252626",
+                      "tertiary-fixed": "#d3ceef",
+                      "on-tertiary-fixed-variant": "#504e69",
+                      "on-error-container": "#ff9993",
+                      "primary-fixed-dim": "#c3d4ff",
+                      "error-container": "#7f2927",
+                      "surface-container-lowest": "#000000",
+                      "on-primary": "#003d88",
+                      "inverse-on-surface": "#565554",
+                      "on-background": "#e7e5e4",
+                      "surface-container-highest": "#252626",
+                      "primary-fixed": "#d8e2ff",
+                      "on-tertiary": "#504d68",
+                      "surface-bright": "#2c2c2c",
+                      "primary-container": "#004395",
+                      "on-primary-container": "#bdd0ff",
+                      "tertiary-container": "#d3ceef",
+                      "secondary-container": "#3c3b3b",
+                      "secondary-fixed-dim": "#d6d4d3",
+                      "inverse-primary": "#005bc4",
+                      "tertiary-fixed-dim": "#c5c0e0",
+                      "primary": "#adc6ff",
+                      "on-error": "#490106",
+                      "tertiary-dim": "#c5c0e0",
+                      "tertiary": "#e1dcfd",
+                      "surface-tint": "#adc6ff",
+                      "outline-variant": "#484848"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {},
+              "fontFamily": {
+                      "headline": [
+                              "Inter"
+                      ],
+                      "body": [
+                              "Inter"
+                      ],
+                      "label": [
+                              "Inter"
+                      ],
+                      "mono": [
+                              "IBM Plex Mono"
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        /* Tonal Layering Ghost Borders */
+        .ghost-border {
+            box-shadow: inset 0 0 0 1px rgba(118, 117, 117, 0.15); /* outline-variant at 15% */
+        }
+        /* Focus styles for accessibility */
+        *:focus-visible {
+            outline: 2px solid #adc6ff; /* primary */
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col overflow-x-hidden antialiased">
+<!-- TopNavBar (Semantic Shell) -->
+<header class="fixed top-0 w-full z-50 bg-neutral-900/80 backdrop-blur-xl flex justify-between items-center h-12 px-6 w-full border-b border-neutral-800">
+<div class="flex items-center gap-6">
+<span class="text-lg font-semibold tracking-tighter text-white font-headline">LuxuryAuto Ops</span>
+<div class="relative hidden md:block">
+<span class="material-symbols-outlined absolute left-2 top-1.5 text-neutral-400 text-sm">search</span>
+<input class="bg-surface-variant text-on-surface-variant text-sm rounded-md pl-8 pr-4 py-1 w-64 focus:outline-none focus:ring-1 focus:ring-primary ghost-border font-body placeholder:text-neutral-500" placeholder="Search VIN, Job Card, Customer..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button aria-label="Notifications" class="text-neutral-400 hover:text-white transition-colors cursor-pointer active:scale-95">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button aria-label="Settings" class="text-neutral-400 hover:text-white transition-colors cursor-pointer active:scale-95">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<button aria-label="Help" class="text-neutral-400 hover:text-white transition-colors cursor-pointer active:scale-95">
+<span class="material-symbols-outlined">help</span>
+</button>
+<div class="h-6 w-6 rounded-full bg-surface-container overflow-hidden border border-neutral-700">
+<img alt="Lead Technician Profile" class="w-full h-full object-cover" data-alt="Close up portrait of a male professional in a dark grey workshop uniform, soft lighting, sharp focus on face" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCN3uFXExpx94DPOHPoqp6l1JyTuSRbJsAO4lojGBeKeLiTr4eVlhiN6pnEmSm2FI1qeXQku5ZUkC9JIJeZ_Qu2WJOspjAx2J2vbmKkKNqh04bDCEcKPmw9Jv5YlNeinrGYM0j4ZUfC1TUAu0T-RsoyL_0YIPSKElq8wWW1Bm59HrsJJBcwbC4K4dIvQyODyC0I5tsbExFa2lhW4TAWfwXGV-d0729te6KQI93F5Dt1opYfIK1TZDn-eNQyfXg_pSFAk43vXwqnXFY"/>
+</div>
+</div>
+</header>
+<!-- SideNavBar & Main Content Wrapper -->
+<div class="flex flex-1 pt-12">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-12 h-[calc(100vh-3rem)] w-56 bg-neutral-950 flex flex-col border-r border-neutral-800 p-4 font-sans text-sm font-medium z-40 hidden md:flex">
+<!-- Header section (omitted specific styles as JSON dictates structure, but adding content) -->
+<div class="mb-8 flex items-center gap-3">
+<div class="h-10 w-10 rounded-md bg-surface-container flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-primary">domain</span>
+</div>
+<div>
+<h2 class="text-neutral-100 font-bold tracking-tight">Precision Hub</h2>
+<p class="text-neutral-500 text-xs">Mumbai North</p>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary py-2 px-4 rounded-md mb-6 hover:bg-primary-dim transition-colors flex justify-center items-center gap-2 font-semibold">
+<span class="material-symbols-outlined text-sm">add</span>
+                New Job Card
+            </button>
+<ul class="flex-1 flex flex-col gap-1">
+<li>
+<a class="flex items-center gap-3 px-3 py-2 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 duration-150 ease-in-out rounded-md" href="#">
+<span class="material-symbols-outlined text-[20px]">directions_car</span>
+                        Inventory
+                    </a>
+</li>
+<li>
+<!-- Active State Logic: 'Workshops' fits 'Job Card' intent -->
+<a class="flex items-center gap-3 px-3 py-2 bg-neutral-800 text-white rounded-md duration-150 ease-in-out" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">build</span>
+                        Workshops
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 duration-150 ease-in-out rounded-md" href="#">
+<span class="material-symbols-outlined text-[20px]">local_shipping</span>
+                        Logistics
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 duration-150 ease-in-out rounded-md" href="#">
+<span class="material-symbols-outlined text-[20px]">payments</span>
+                        Valuations
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 duration-150 ease-in-out rounded-md" href="#">
+<span class="material-symbols-outlined text-[20px]">leaderboard</span>
+                        Analytics
+                    </a>
+</li>
+<li>
+<a class="flex items-center gap-3 px-3 py-2 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 duration-150 ease-in-out rounded-md" href="#">
+<span class="material-symbols-outlined text-[20px]">badge</span>
+                        Staff
+                    </a>
+</li>
+</ul>
+<div class="mt-auto pt-4 border-t border-neutral-800 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 duration-150 ease-in-out rounded-md" href="#">
+<span class="material-symbols-outlined text-[20px]">cloud_done</span>
+                    System Status
+                </a>
+<a class="flex items-center gap-3 px-3 py-2 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 duration-150 ease-in-out rounded-md" href="#">
+<span class="material-symbols-outlined text-[20px]">logout</span>
+                    Log Out
+                </a>
+</div>
+</nav>
+<!-- Main Canvas -->
+<main class="flex-1 ml-0 md:ml-56 p-6 lg:p-8 bg-surface-container-low min-h-full">
+<!-- Job Card Header & Stepper -->
+<div class="mb-8">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+<div>
+<div class="flex items-center gap-3 mb-2">
+<h1 class="text-2xl font-bold font-headline tracking-tight text-on-background font-mono">JC-2026-0341</h1>
+<span class="bg-primary/20 text-primary px-2 py-0.5 rounded text-xs font-semibold uppercase tracking-wider">In Progress</span>
+<span class="bg-surface-variant text-on-surface-variant px-2 py-0.5 rounded text-xs font-semibold border border-outline-variant/30 flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">garage</span>
+                                BAY 3
+                            </span>
+</div>
+<p class="text-sm text-on-surface-variant">Created on 14 Mar 2026 by R. Sharma (Advisor)</p>
+</div>
+<div class="flex gap-2">
+<button class="bg-surface-container-highest hover:bg-surface-variant text-on-surface px-4 py-2 rounded-md text-sm font-medium transition-colors border border-outline-variant/20 flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">print</span>
+                            Print
+                        </button>
+<button class="bg-primary hover:bg-primary-dim text-on-primary px-4 py-2 rounded-md text-sm font-medium transition-colors flex items-center gap-2 shadow-[0_2px_10px_rgba(173,198,255,0.2)]">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+                            Edit Job
+                        </button>
+</div>
+</div>
+<!-- Progress Stepper -->
+<div class="bg-surface-container rounded-lg p-4 mb-6 ghost-border">
+<div class="flex items-center justify-between relative">
+<!-- Connecting Line -->
+<div class="absolute left-6 right-6 top-1/2 -translate-y-1/2 h-0.5 bg-surface-variant z-0"></div>
+<!-- Active Connecting Line -->
+<div class="absolute left-6 top-1/2 -translate-y-1/2 h-0.5 bg-primary z-0" style="width: 50%;"></div>
+<!-- Steps -->
+<div class="flex flex-col items-center gap-2 z-10 w-24">
+<div class="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center border-[3px] border-surface-container">
+<span class="material-symbols-outlined text-[14px] font-bold">check</span>
+</div>
+<span class="text-xs font-medium text-primary text-center">Received</span>
+</div>
+<div class="flex flex-col items-center gap-2 z-10 w-24">
+<div class="w-6 h-6 rounded-full bg-primary text-on-primary flex items-center justify-center border-[3px] border-surface-container">
+<span class="material-symbols-outlined text-[14px] font-bold">check</span>
+</div>
+<span class="text-xs font-medium text-primary text-center">Diagnosed</span>
+</div>
+<div class="flex flex-col items-center gap-2 z-10 w-24">
+<div class="w-6 h-6 rounded-full bg-surface-container-lowest border-2 border-primary text-primary flex items-center justify-center shadow-[0_0_10px_rgba(173,198,255,0.3)]">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+</div>
+<span class="text-xs font-semibold text-on-surface text-center">In Progress</span>
+</div>
+<div class="flex flex-col items-center gap-2 z-10 w-24">
+<div class="w-6 h-6 rounded-full bg-surface-variant border-2 border-outline-variant text-outline flex items-center justify-center">
+</div>
+<span class="text-xs font-medium text-outline text-center">QC</span>
+</div>
+<div class="flex flex-col items-center gap-2 z-10 w-24">
+<div class="w-6 h-6 rounded-full bg-surface-variant border-2 border-outline-variant text-outline flex items-center justify-center">
+</div>
+<span class="text-xs font-medium text-outline text-center">Ready</span>
+</div>
+</div>
+</div>
+<!-- Vehicle/Customer Summary Card -->
+<div class="bg-surface-container rounded-lg p-5 ghost-border flex flex-col lg:flex-row gap-6">
+<div class="flex-1 border-b lg:border-b-0 lg:border-r border-surface-variant pb-4 lg:pb-0 lg:pr-6">
+<div class="flex items-center gap-4">
+<div class="w-16 h-16 rounded bg-surface-container-lowest flex items-center justify-center overflow-hidden flex-shrink-0 border border-outline-variant/30">
+<img alt="Porsche Panamera" class="w-full h-full object-cover" data-alt="Side profile of a black 2022 Porsche Panamera in a sleek, modern garage setting, dramatic lighting highlighting the curves" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIVBOsZCHHM9Fh-nbH_YHVVChtji2ceJLjl4JEqrAzqEoGGyeIiWgciauyKxsI43EWf5tEWe-zmCxdkCFNlFoJ4tVRns3KMmCfoV2ZCuC52KypaNOCK-5c21jHGbasGQZaCSAEkh-C_9qJKb2vfjxHnWBEhjAlnJaoCXdgUj29mw6g8dzsV-j46n1Y6kZeLitpBkc2GhGuiyrKNkD6hBjq3eL-_hx8IbX6tehjjUcgrdTmnP6INaQjFqehcu5hr9deFs_-k8G4BSE"/>
+</div>
+<div>
+<h3 class="text-lg font-semibold text-on-surface mb-1">2022 Porsche Panamera 4</h3>
+<div class="flex items-center gap-3">
+<span class="font-mono text-sm bg-surface-container-highest px-2 py-0.5 rounded text-on-surface-variant border border-outline-variant/20">WP0ZZZ97•••1234</span>
+<span class="text-xs text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">speed</span>
+                                        24,500 km
+                                    </span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex-1 flex flex-col justify-center">
+<div class="flex items-center justify-between mb-2">
+<span class="text-sm text-on-surface-variant">Customer</span>
+<span class="text-sm font-medium text-on-surface">Vikram Singh</span>
+</div>
+<div class="flex items-center justify-between mb-2">
+<span class="text-sm text-on-surface-variant">Contact</span>
+<span class="text-sm font-mono text-on-surface">+91 98*** **345</span>
+</div>
+<div class="flex items-center justify-between">
+<span class="text-sm text-on-surface-variant">Est. Delivery</span>
+<span class="text-sm font-mono text-primary">16 Mar 2026, 17:00</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Tabs -->
+<div class="flex border-b border-surface-variant mb-6 overflow-x-auto no-scrollbar">
+<button class="px-6 py-3 text-sm font-medium text-on-surface-variant hover:text-on-surface border-b-2 border-transparent transition-colors whitespace-nowrap">Overview</button>
+<button class="px-6 py-3 text-sm font-medium text-on-surface-variant hover:text-on-surface border-b-2 border-transparent transition-colors whitespace-nowrap">Labour</button>
+<button class="px-6 py-3 text-sm font-medium text-on-surface-variant hover:text-on-surface border-b-2 border-transparent transition-colors whitespace-nowrap">Parts</button>
+<button class="px-6 py-3 text-sm font-medium text-on-surface-variant hover:text-on-surface border-b-2 border-transparent transition-colors whitespace-nowrap">Inspection</button>
+<button class="px-6 py-3 text-sm font-medium text-primary border-b-2 border-primary transition-colors whitespace-nowrap bg-surface-container-lowest/30">Timeline</button>
+<button class="px-6 py-3 text-sm font-medium text-on-surface-variant hover:text-on-surface border-b-2 border-transparent transition-colors whitespace-nowrap">Invoice Preview</button>
+</div>
+<!-- Two Column Layout: Timeline & Notes -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Left Column: Timeline (Spans 2 columns on large screens) -->
+<div class="lg:col-span-2">
+<h2 class="text-lg font-semibold text-on-surface mb-6 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">history</span>
+                        Activity Timeline
+                    </h2>
+<div class="bg-surface-container rounded-lg p-6 ghost-border relative">
+<!-- Vertical Line -->
+<div class="absolute left-[39px] top-8 bottom-8 w-[2px] bg-surface-variant z-0"></div>
+<div class="space-y-8 relative z-10">
+<!-- Timeline Item 1 (Newest) -->
+<div class="flex gap-4 group">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest border-2 border-surface-container flex items-center justify-center flex-shrink-0 z-10 overflow-hidden shadow-sm">
+<img alt="Tech" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgQvyQtvnbMCeqtr-9KaBAw6vmoQdvTzo9S5Fz5BIZiyuJ1FpuZHHJHvETilTZYOa-xKoahvB24y5vEkx6GROnWQ1Dis4fZlHvYKLJgkIMAEvtuMk3p6uw2SVWIhgxA4ZMoRNXJVhr-_S_mt6cItNt8y1cvUgmc4fADCk3FUkaMCN-j4D5ojhpPUPB_XWOtOoD07POrVxRJlyvFW6dw4bYy-WwE75pX_BZuvqs0tw8ojSJP8H4lzsVckL9UUdqMArI3cA9-fSeFdw"/>
+</div>
+<div class="flex-1 bg-surface-container-low p-4 rounded-md ghost-border group-hover:bg-surface-container-highest transition-colors">
+<div class="flex justify-between items-start mb-2">
+<div>
+<span class="text-sm font-semibold text-on-surface">Work Started</span>
+<span class="text-xs text-on-surface-variant ml-2">by A. Patel (Lead Tech)</span>
+</div>
+<span class="font-mono text-xs text-secondary bg-surface-container px-2 py-1 rounded">15 Mar 2026 09:15 IST</span>
+</div>
+<p class="text-sm text-on-surface-variant">Vehicle moved to Bay 3. Commenced disassembly of front bumper assembly for diagnostics and repair.</p>
+</div>
+</div>
+<!-- Timeline Item 2 -->
+<div class="flex gap-4 group">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest border-2 border-surface-container flex items-center justify-center flex-shrink-0 z-10 shadow-sm text-primary">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+</div>
+<div class="flex-1 bg-surface-container-low p-4 rounded-md ghost-border group-hover:bg-surface-container-highest transition-colors">
+<div class="flex justify-between items-start mb-2">
+<div>
+<span class="text-sm font-semibold text-on-surface">Approval Received</span>
+<span class="text-xs text-on-surface-variant ml-2">via Customer Portal</span>
+</div>
+<span class="font-mono text-xs text-secondary bg-surface-container px-2 py-1 rounded">14 Mar 2026 16:30 IST</span>
+</div>
+<p class="text-sm text-on-surface-variant">Customer approved estimate #EST-9921 for ₹ 1,45,000. Digital signature recorded.</p>
+</div>
+</div>
+<!-- Timeline Item 3 -->
+<div class="flex gap-4 group">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest border-2 border-surface-container flex items-center justify-center flex-shrink-0 z-10 shadow-sm text-secondary-fixed">
+<span class="material-symbols-outlined text-[18px]">inventory_2</span>
+</div>
+<div class="flex-1 bg-surface-container-low p-4 rounded-md ghost-border group-hover:bg-surface-container-highest transition-colors">
+<div class="flex justify-between items-start mb-2">
+<div>
+<span class="text-sm font-semibold text-on-surface">Parts Ordered</span>
+<span class="text-xs text-on-surface-variant ml-2">by Parts Dept.</span>
+</div>
+<span class="font-mono text-xs text-secondary bg-surface-container px-2 py-1 rounded">14 Mar 2026 14:10 IST</span>
+</div>
+<p class="text-sm text-on-surface-variant">Ordered OEM Front Sensor Array (Part #971-919-256-A). Expected delivery: 15 Mar AM.</p>
+</div>
+</div>
+<!-- Timeline Item 4 -->
+<div class="flex gap-4 group">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest border-2 border-surface-container flex items-center justify-center flex-shrink-0 z-10 overflow-hidden shadow-sm">
+<img alt="Tech" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBGey0-WNv8YVC_dEZIf5_Z0UbHaF4yY8bU6BsqQtN0-nnAAmHctvVdnjlKTKZLRGttLW4OCBB98XvbMwN5mNH_OB7W8w9NHxHAheZzPI24U6UqQmS3oStzBhFg8QUZd94uuS-HfmwmtN_Z-94misI0ki1ftaAp86TV-gFCnWZhqIhTc1n0r1gJIarXRZq8--oFSO9TxSsU0DBHBMTb8sq-brd8EgQjT4VZV4ZvHyzNJKVLq51-yGEnJSZEpq5egJwX_k74j0Uq7mg"/>
+</div>
+<div class="flex-1 bg-surface-container-low p-4 rounded-md ghost-border group-hover:bg-surface-container-highest transition-colors">
+<div class="flex justify-between items-start mb-2">
+<div>
+<span class="text-sm font-semibold text-on-surface">Initial Diagnosis Completed</span>
+<span class="text-xs text-on-surface-variant ml-2">by A. Patel (Lead Tech)</span>
+</div>
+<span class="font-mono text-xs text-secondary bg-surface-container px-2 py-1 rounded">14 Mar 2026 13:45 IST</span>
+</div>
+<p class="text-sm text-on-surface-variant">Scanned via PIWIS 3. Fault code P0123 related to front right proximity sensor. Wiring harness intact, sensor unit requires replacement.</p>
+</div>
+</div>
+<!-- Timeline Item 5 (Oldest) -->
+<div class="flex gap-4 group">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest border-2 border-surface-container flex items-center justify-center flex-shrink-0 z-10 shadow-sm text-on-surface">
+<span class="material-symbols-outlined text-[18px]">add_task</span>
+</div>
+<div class="flex-1 bg-surface-container-low p-4 rounded-md ghost-border group-hover:bg-surface-container-highest transition-colors">
+<div class="flex justify-between items-start mb-2">
+<div>
+<span class="text-sm font-semibold text-on-surface">Job Card Created</span>
+<span class="text-xs text-on-surface-variant ml-2">by R. Sharma (Advisor)</span>
+</div>
+<span class="font-mono text-xs text-secondary bg-surface-container px-2 py-1 rounded">14 Mar 2026 10:45 IST</span>
+</div>
+<p class="text-sm text-on-surface-variant">Vehicle received from customer. Customer states intermittent parking sensor failure on front right.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Sidebar: Notes -->
+<div class="lg:col-span-1">
+<div class="bg-surface-container rounded-lg p-5 ghost-border sticky top-24 flex flex-col h-[calc(100vh-8rem)]">
+<h3 class="text-md font-semibold text-on-surface mb-4 flex items-center gap-2 pb-3 border-b border-surface-variant">
+<span class="material-symbols-outlined text-[20px] text-primary">chat</span>
+                            Advisor Notes
+                        </h3>
+<!-- Notes Feed -->
+<div class="flex-1 overflow-y-auto no-scrollbar space-y-4 mb-4 pr-1">
+<div class="bg-surface-container-low p-3 rounded-md ghost-border">
+<div class="flex items-center justify-between mb-1">
+<span class="text-xs font-semibold text-on-surface">R. Sharma</span>
+<span class="font-mono text-[10px] text-secondary">Today 09:30</span>
+</div>
+<p class="text-sm text-on-surface-variant">Customer called to ask if car can be washed before delivery. Added VIP Wash to the complimentary list.</p>
+</div>
+<div class="bg-surface-container-low p-3 rounded-md ghost-border">
+<div class="flex items-center justify-between mb-1">
+<span class="text-xs font-semibold text-on-surface">A. Patel</span>
+<span class="font-mono text-[10px] text-secondary">Yesterday 14:00</span>
+</div>
+<p class="text-sm text-on-surface-variant">Noticed slight wear on front brake pads during inspection. Approx 4mm remaining. Advised customer, they will defer to next service.</p>
+</div>
+</div>
+<!-- Add Note Input -->
+<div class="mt-auto pt-4 border-t border-surface-variant relative">
+<textarea class="w-full bg-surface-variant text-on-surface-variant text-sm rounded-md p-3 pb-10 resize-none h-24 focus:outline-none focus:ring-1 focus:ring-primary ghost-border font-body placeholder:text-neutral-500" placeholder="Add a note (internal only)..."></textarea>
+<div class="absolute bottom-3 right-3 flex gap-2">
+<button class="p-1.5 text-secondary hover:text-on-surface transition-colors rounded hover:bg-surface-container-highest">
+<span class="material-symbols-outlined text-[18px]">attach_file</span>
+</button>
+<button class="p-1.5 bg-primary text-on-primary rounded hover:bg-primary-dim transition-colors flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px]">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

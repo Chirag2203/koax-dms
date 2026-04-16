@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Customer Enquiry Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary-container": "#3c3b3b",
+                      "surface-container-highest": "#252626",
+                      "primary-fixed-dim": "#c3d4ff",
+                      "primary-container": "#004395",
+                      "surface-container-lowest": "#000000",
+                      "on-tertiary-fixed-variant": "#504e69",
+                      "secondary-fixed": "#e5e2e1",
+                      "secondary-dim": "#9f9d9d",
+                      "surface-variant": "#252626",
+                      "secondary": "#9f9d9d",
+                      "inverse-surface": "#fcf8f8",
+                      "on-surface-variant": "#acabaa",
+                      "on-secondary-fixed": "#403f3f",
+                      "tertiary": "#e1dcfd",
+                      "on-tertiary-fixed": "#34314b",
+                      "surface-container-low": "#131313",
+                      "tertiary-dim": "#c5c0e0",
+                      "outline-variant": "#484848",
+                      "on-tertiary-container": "#47445f",
+                      "outline": "#767575",
+                      "on-error-container": "#ff9993",
+                      "on-primary-container": "#bdd0ff",
+                      "on-error": "#490106",
+                      "surface-container": "#191a1a",
+                      "tertiary-fixed": "#d3ceef",
+                      "on-tertiary": "#504d68",
+                      "on-surface": "#e7e5e4",
+                      "on-background": "#e7e5e4",
+                      "primary": "#adc6ff",
+                      "on-secondary-container": "#c1bfbe",
+                      "error-dim": "#bb5551",
+                      "on-primary": "#003d88",
+                      "surface-tint": "#adc6ff",
+                      "surface-container-high": "#1f2020",
+                      "surface-dim": "#0e0e0e",
+                      "tertiary-fixed-dim": "#c5c0e0",
+                      "on-primary-fixed": "#003c86",
+                      "tertiary-container": "#d3ceef",
+                      "inverse-on-surface": "#565554",
+                      "inverse-primary": "#005bc4",
+                      "on-secondary": "#202020",
+                      "primary-fixed": "#d8e2ff",
+                      "error-container": "#7f2927",
+                      "surface-bright": "#2c2c2c",
+                      "primary-dim": "#98b8ff",
+                      "on-primary-fixed-variant": "#0057bd",
+                      "secondary-fixed-dim": "#d6d4d3",
+                      "error": "#ee7d77",
+                      "on-secondary-fixed-variant": "#5c5b5b",
+                      "background": "#0e0e0e",
+                      "surface": "#0e0e0e"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {},
+              "fontFamily": {
+                      "headline": ["Inter", "sans-serif"],
+                      "body": ["Inter", "sans-serif"],
+                      "label": ["Inter", "sans-serif"],
+                      "mono": ["IBM Plex Mono", "monospace"]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        /* Component specific minimal resets */
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        
+        /* Subtle scrollbar for high-density feel */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3c3b3b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #5c5b5b; }
+    </style>
+</head>
+<body class="bg-surface-container-lowest text-on-surface h-screen flex flex-col overflow-hidden antialiased">
+<!-- Top Navigation Bar (Contextual/Task-Focused) -->
+<header class="h-14 flex items-center justify-between px-6 bg-surface-container-low shrink-0 ring-1 ring-outline-variant/10 z-10">
+<div class="flex items-center gap-4">
+<button class="h-8 w-8 rounded flex items-center justify-center bg-surface-container hover:bg-surface-container-high transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined text-[20px]">arrow_back</span>
+</button>
+<div class="h-4 w-px bg-outline-variant/30"></div>
+<span class="text-sm font-medium text-on-surface-variant tracking-tight">Leads &amp; Enquiries</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="h-8 px-3 rounded bg-surface-container-highest hover:bg-surface-bright transition-colors text-sm font-medium text-on-surface">
+                Assign Lead
+            </button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-1 overflow-y-auto">
+<div class="max-w-[1440px] mx-auto p-6 md:p-8 lg:p-10 flex flex-col gap-8">
+<!-- Context Header Section -->
+<section class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-outline-variant/20">
+<div class="flex flex-col gap-2">
+<div class="flex items-center gap-3">
+<span class="font-mono text-sm text-on-surface-variant tracking-wider bg-surface-container px-2 py-1 rounded">ENQ-8942-B</span>
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium bg-primary-container text-on-primary-container">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+                            Active Negotiating
+                        </span>
+</div>
+<h1 class="text-3xl md:text-4xl font-headline font-semibold tracking-tight text-on-surface">Vikram Malhotra</h1>
+<div class="flex items-center gap-4 text-sm text-on-surface-variant mt-1">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">location_on</span> Bandra West, Mumbai</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">schedule</span> Source: Walk-in (2 days ago)</span>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<button class="h-10 px-4 rounded-lg bg-surface-container-highest hover:bg-surface-bright transition-colors text-sm font-medium text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">add_call</span>
+                        Log Call
+                    </button>
+<button class="h-10 px-5 rounded-lg bg-primary text-on-primary hover:bg-primary-dim transition-colors text-sm font-medium flex items-center gap-2 shadow-[0_4px_20px_-4px_rgba(173,198,255,0.2)]">
+<span class="material-symbols-outlined text-[18px]">calendar_clock</span>
+                        Schedule Test Drive
+                    </button>
+</div>
+</section>
+<!-- Asymmetric Grid Layout (60/40) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+<!-- Left Column (60%): Interaction Timeline -->
+<section class="lg:col-span-7 flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<h2 class="text-lg font-medium text-on-surface">Interaction Ledger</h2>
+<button class="text-sm text-primary hover:text-primary-dim transition-colors flex items-center gap-1">
+                            Filter <span class="material-symbols-outlined text-[16px]">filter_list</span>
+</button>
+</div>
+<div class="bg-surface-container-low rounded-xl p-6 ring-1 ring-outline-variant/10">
+<div class="relative pl-6 border-l-2 border-surface-container-highest space-y-8">
+<!-- Timeline Item: WhatsApp -->
+<div class="relative">
+<span class="absolute -left-[35px] top-0 flex h-8 w-8 items-center justify-center rounded-full bg-surface-container-highest ring-4 ring-surface-container-low">
+<span class="material-symbols-outlined text-[16px] text-tertiary-fixed-dim">chat</span>
+</span>
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="text-sm font-medium text-on-surface">WhatsApp Message Sent</span>
+<span class="font-mono text-xs text-on-surface-variant">Today, 10:42 AM</span>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">Sent the updated valuation structure and high-res interior gallery for the Autobiography trim as requested.</p>
+<div class="mt-2 inline-flex items-center gap-2 text-xs font-mono text-on-surface-variant bg-surface-container w-fit px-2 py-1 rounded">
+<span class="material-symbols-outlined text-[14px]">attachment</span> RR_Gallery_Interior.zip
+                                    </div>
+</div>
+</div>
+<!-- Timeline Item: Call -->
+<div class="relative">
+<span class="absolute -left-[35px] top-0 flex h-8 w-8 items-center justify-center rounded-full bg-primary-container ring-4 ring-surface-container-low">
+<span class="material-symbols-outlined text-[16px] text-on-primary-container">phone_in_talk</span>
+</span>
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="text-sm font-medium text-on-surface">Inbound Call</span>
+<span class="font-mono text-xs text-on-surface-variant">Yesterday, 14:15 PM</span>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">Customer enquired about financing options via HDFC. Connecting them with our finance desk tomorrow.</p>
+<div class="mt-2 flex items-center gap-4">
+<span class="text-xs text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">timer</span> 12m 45s</span>
+<span class="text-xs text-on-surface-variant flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">person</span> Handled by: Rahul D.</span>
+</div>
+</div>
+</div>
+<!-- Timeline Item: System Note -->
+<div class="relative">
+<span class="absolute -left-[35px] top-0 flex h-8 w-8 items-center justify-center rounded-full bg-surface-container-highest ring-4 ring-surface-container-low">
+<span class="material-symbols-outlined text-[16px] text-secondary-dim">assignment</span>
+</span>
+<div class="flex flex-col gap-1">
+<div class="flex items-center justify-between">
+<span class="text-sm font-medium text-on-surface">Enquiry Created</span>
+<span class="font-mono text-xs text-on-surface-variant">Oct 24, 09:30 AM</span>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">Walk-in customer looking for premium SUV. High intent, ready to close within 14 days if vehicle condition meets expectations.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Column (40%): Vehicle Details & Status -->
+<section class="lg:col-span-5 flex flex-col gap-6">
+<!-- Vehicle Interest Card -->
+<div class="bg-surface-container rounded-xl overflow-hidden ring-1 ring-outline-variant/10 shadow-[0_20px_50px_-12px_rgba(0,0,0,0.5)]">
+<div class="h-48 w-full relative bg-surface-container-highest">
+<!-- Background pattern as placeholder for image, representing dark/luxury theme -->
+<div class="absolute inset-0 bg-gradient-to-tr from-surface-container-highest to-surface-container-low opacity-80"></div>
+<img alt="Sleek black Range Rover SUV parked in a modern luxury showroom under dramatic spot lighting, high contrast" class="w-full h-full object-cover mix-blend-luminosity opacity-70 hover:opacity-100 transition-opacity duration-500" data-alt="Sleek black Range Rover SUV parked in a modern luxury showroom under dramatic spot lighting, high contrast" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAF3t9cwy06sSWNtIFOBoo5I7_AqqGCX0-HL2VuYjj3prIV6QPYhY83tQZKr9-TKKeocFwR29x86dBEdU61TOD5Tf9QyDuoSzB9nzI3EX0CB3dQjpSu0WMtd3oM0teGwyx-3H8LDNwRBQewGENmeKunMqIsq-519Sc2xIvCVCKUHbxgCCaDMbGFwPkkD-06UHr_Iawacx2OqOuHri5AnCdvAd7St1UJNXC83u3n50xPACVleDcUzupwDNPqlajUpNlt_E3u-ui9APo"/>
+<div class="absolute top-3 right-3 bg-surface-container-lowest/80 backdrop-blur-md px-2 py-1 rounded text-xs font-mono text-primary font-medium">
+                                IN STOCK
+                            </div>
+</div>
+<div class="p-5 flex flex-col gap-4">
+<div class="flex justify-between items-start">
+<div>
+<div class="text-xs text-on-surface-variant mb-1 uppercase tracking-wider font-medium">Interest Category: SUV</div>
+<h3 class="text-lg font-semibold text-on-surface">2023 Land Rover Range Rover</h3>
+<p class="text-sm text-on-surface-variant mt-0.5">3.0 LWB Autobiography</p>
+</div>
+</div>
+<div class="flex items-center justify-between py-3 border-y border-outline-variant/10">
+<span class="text-sm text-on-surface-variant">Asset Identifier</span>
+<span class="font-mono text-sm bg-surface-container-highest px-2 py-1 rounded text-on-surface">VIN: SALYG2U49PA12<span class="text-primary">8944</span></span>
+</div>
+<div class="flex flex-col gap-1 pt-1">
+<span class="text-xs text-on-surface-variant">Quoted Price</span>
+<div class="font-mono text-2xl font-medium text-on-surface tracking-tight">₹ 2,45,00,000</div>
+</div>
+</div>
+</div>
+<!-- KYC Status Card -->
+<div class="bg-surface-container-low rounded-xl p-5 ring-1 ring-outline-variant/10">
+<h3 class="text-sm font-medium text-on-surface mb-4 uppercase tracking-wider">Compliance &amp; KYC</h3>
+<div class="flex flex-col gap-3">
+<div class="flex items-center justify-between p-2 rounded hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[20px] text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-sm text-on-surface">Identity Verification (Aadhar)</span>
+</div>
+<span class="font-mono text-xs text-on-surface-variant">Verified</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[20px] text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-sm text-on-surface">Financial Records (PAN)</span>
+</div>
+<span class="font-mono text-xs text-on-surface-variant">Verified</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[20px] text-surface-container-highest">radio_button_unchecked</span>
+<span class="text-sm text-on-surface-variant">Bank Statement Linkage</span>
+</div>
+<span class="font-mono text-xs text-error-dim">Pending</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+</main>
+</body></html>

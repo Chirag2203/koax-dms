@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Customer Profile Overview - Precision Concierge</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=IBM+Plex+Mono:wght@400;500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#1f2020",
+                        "on-primary-fixed-variant": "#0057bd",
+                        "on-primary-fixed": "#003c86",
+                        "outline": "#767575",
+                        "tertiary-dim": "#c5c0e0",
+                        "primary-fixed": "#d8e2ff",
+                        "tertiary-fixed": "#d3ceef",
+                        "tertiary-fixed-dim": "#c5c0e0",
+                        "primary-dim": "#98b8ff",
+                        "outline-variant": "#484848",
+                        "on-secondary-container": "#c1bfbe",
+                        "inverse-primary": "#005bc4",
+                        "surface-bright": "#2c2c2c",
+                        "primary": "#adc6ff",
+                        "error-dim": "#bb5551",
+                        "surface-container-low": "#131313",
+                        "secondary-dim": "#9f9d9d",
+                        "surface": "#0e0e0e",
+                        "secondary": "#9f9d9d",
+                        "on-secondary-fixed-variant": "#5c5b5b",
+                        "surface-container": "#191a1a",
+                        "on-error-container": "#ff9993",
+                        "on-tertiary-fixed-variant": "#504e69",
+                        "error-container": "#7f2927",
+                        "on-tertiary": "#504d68",
+                        "primary-container": "#004395",
+                        "background": "#0e0e0e",
+                        "primary-fixed-dim": "#c3d4ff",
+                        "surface-dim": "#0e0e0e",
+                        "on-tertiary-container": "#47445f",
+                        "inverse-surface": "#fcf8f8",
+                        "inverse-on-surface": "#565554",
+                        "tertiary": "#e1dcfd",
+                        "secondary-container": "#3c3b3b",
+                        "secondary-fixed-dim": "#d6d4d3",
+                        "on-error": "#490106",
+                        "on-tertiary-fixed": "#34314b",
+                        "on-primary": "#003d88",
+                        "surface-tint": "#adc6ff",
+                        "tertiary-container": "#d3ceef",
+                        "surface-variant": "#252626",
+                        "on-secondary": "#202020",
+                        "on-primary-container": "#bdd0ff",
+                        "on-surface-variant": "#acabaa",
+                        "error": "#ee7d77",
+                        "on-secondary-fixed": "#403f3f",
+                        "secondary-fixed": "#e5e2e1",
+                        "surface-container-highest": "#252626",
+                        "surface-container-lowest": "#000000",
+                        "on-surface": "#e7e5e4",
+                        "on-background": "#e7e5e4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {},
+                    "fontFamily": {
+                        "headline": ["Inter"],
+                        "body": ["Inter"],
+                        "label": ["Inter"],
+                        "mono": ["IBM Plex Mono"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'IBM Plex Mono', monospace; }
+        .material-symbols-outlined { font-variation-settings: 'FILL' 1; }
+    </style>
+</head>
+<body class="bg-surface-container-low text-on-surface h-screen overflow-hidden selection:bg-primary-container selection:text-on-primary-container flex">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-screen w-[220px] flex flex-col py-8 z-50 border-r border-neutral-800/50 bg-neutral-950 no-line tonal shifts flat no shadows hidden md:flex">
+<div class="px-6 mb-8 hidden">
+<h1 class="text-lg font-semibold tracking-tighter text-white">Precision Concierge</h1>
+</div>
+<div class="flex flex-col gap-2 flex-grow px-2">
+<!-- Active Inventory mapped to closest intent for Customer Profile -->
+<a class="flex items-center gap-3 px-4 py-3 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all rounded-r-md translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-sans text-xs uppercase tracking-widest font-bold">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all rounded-r-md translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="directions_car">directions_car</span>
+<span class="font-sans text-xs uppercase tracking-widest font-bold">Active Inventory</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all rounded-r-md translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="font-sans text-xs uppercase tracking-widest font-bold">Procurement</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all rounded-r-md translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="local_shipping">local_shipping</span>
+<span class="font-sans text-xs uppercase tracking-widest font-bold">Shipments</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all rounded-r-md translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance">account_balance</span>
+<span class="font-sans text-xs uppercase tracking-widest font-bold">Financials</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-neutral-800 text-white rounded-r-md hover:bg-neutral-900 hover:text-neutral-200 transition-all translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-sans text-xs uppercase tracking-widest font-bold">User Access</span>
+</a>
+</div>
+<div class="px-6 mt-auto">
+<button class="w-full py-2 bg-primary text-on-primary rounded font-sans text-xs uppercase tracking-widest font-bold shadow-[0_4px_14px_0_rgba(173,198,255,0.39)] hover:shadow-[0_6px_20px_rgba(173,198,255,0.23)] hover:bg-primary-dim transition-all mb-6">
+                New Entry
+            </button>
+</div>
+<div class="flex flex-col gap-2 px-2 border-t border-neutral-800/50 pt-4">
+<a class="flex items-center gap-3 px-4 py-2 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all rounded-r-md" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="analytics">analytics</span>
+<span class="font-sans text-xs uppercase tracking-widest font-bold">System Health</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-2 text-neutral-500 hover:bg-neutral-900 hover:text-neutral-200 transition-all rounded-r-md" href="#">
+<span class="material-symbols-outlined text-sm" data-icon="help_center">help_center</span>
+<span class="font-sans text-xs uppercase tracking-widest font-bold">Support</span>
+</a>
+</div>
+<div class="mt-6 px-6 flex items-center gap-3">
+<img alt="Operator Profile" class="w-8 h-8 rounded-full" data-alt="Small circular avatar image for operator profile" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1CMI2Yu1SJCbni60fFzrDiRr_kEPZEjan7UpC5koDTbLaVm30f4jdd28VYgOsVJ_sm_BH6E2HWrX64FpLfgviBXlylxFZm0Xx4B2nkpGJItrpNf2IkSWx6lKw7zY4AsyKmo8M19S4xdfPOlOap-Rw2ylJlLclGLcWEKFkZV6lck9X-TBys2ppbgyeKRr-KSlQONNjnX9dcHIteLQ2YmXD01PKpKSiOXwGgQvf6X9QxI8kNrO1rIGruYNBjVMhCPALTjYLTNOIjh4"/>
+<div class="flex flex-col">
+<span class="font-headline text-sm font-semibold text-white">Operations Hub</span>
+<span class="font-sans text-xs text-neutral-500">Precision Logistics</span>
+</div>
+</div>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col md:ml-[220px] h-screen overflow-hidden">
+<!-- TopNavBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-220px)] h-[48px] bg-neutral-900 text-blue-500 font-sans text-sm tracking-tight font-medium flex items-center justify-between px-6 z-40 bg-neutral-800 flat no shadows hidden md:flex">
+<div class="flex items-center gap-6">
+<span class="text-lg font-semibold tracking-tighter text-white">Precision Concierge</span>
+<nav class="flex gap-4 items-center h-full">
+<a class="text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors h-full flex items-center px-2" href="#">Inventory</a>
+<a class="text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors h-full flex items-center px-2" href="#">Valuation</a>
+<a class="text-neutral-400 hover:bg-neutral-800 hover:text-white transition-colors h-full flex items-center px-2" href="#">Logistics</a>
+<a class="text-white border-b-2 border-blue-500 pb-1 hover:bg-neutral-800 hover:text-white transition-colors h-full flex items-center px-2" href="#">Analytics</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 text-neutral-400 text-xs">
+<span class="material-symbols-outlined text-sm" data-icon="search">search</span>
+<span>Command Palette</span>
+</div>
+<div class="flex items-center gap-3">
+<button class="text-neutral-400 hover:text-white transition-colors"><span class="material-symbols-outlined" data-icon="notifications">notifications</span></button>
+<button class="text-neutral-400 hover:text-white transition-colors"><span class="material-symbols-outlined" data-icon="settings">settings</span></button>
+</div>
+</div>
+</header>
+<!-- Scrollable Content Canvas -->
+<main class="flex-1 overflow-y-auto pt-[48px] p-6 lg:p-8 bg-surface-container-low text-on-surface">
+<div class="max-w-7xl mx-auto space-y-6">
+<!-- Header / Identity -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 mb-8">
+<div>
+<div class="flex items-center gap-3 mb-2">
+<div class="w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center text-xl font-bold text-primary">
+                                VK
+                             </div>
+<div>
+<h1 class="font-headline text-2xl font-semibold tracking-tight text-white">Vikram Kirloskar</h1>
+<p class="font-mono text-sm text-on-surface-variant mt-0.5">UID: 8992-AK-441</p>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<button class="px-4 py-2 rounded bg-surface-container-highest text-on-surface hover:bg-surface-variant transition-colors text-sm font-medium">
+                            Edit Profile
+                        </button>
+<button class="px-4 py-2 rounded bg-primary text-on-primary hover:bg-primary-dim transition-colors text-sm font-medium shadow-[0_4px_14px_0_rgba(173,198,255,0.2)]">
+                            Generate Report
+                        </button>
+</div>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Left Column: LTV & KYC (Span 4) -->
+<div class="lg:col-span-4 flex flex-col gap-6">
+<!-- LTV Card -->
+<div class="bg-surface-container rounded-lg p-6 flex flex-col">
+<h2 class="font-headline text-sm font-medium text-on-surface-variant mb-4">Lifetime Value (LTV)</h2>
+<div class="flex items-baseline gap-2 mb-2">
+<span class="font-mono text-3xl font-semibold text-primary">₹ 4,12,50,000</span>
+</div>
+<div class="flex items-center gap-2 text-xs">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span class="text-on-surface">Top 5% Tier</span>
+</div>
+</div>
+<!-- KYC Status Card -->
+<div class="bg-surface-container rounded-lg p-6 flex flex-col">
+<h2 class="font-headline text-sm font-medium text-on-surface-variant mb-4">KYC Compliance</h2>
+<div class="space-y-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="check_circle">check_circle</span>
+<span class="font-sans text-sm text-on-surface">Aadhaar Verified</span>
+</div>
+<span class="font-mono text-xs text-on-surface-variant">*** 4122</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="check_circle">check_circle</span>
+<span class="font-sans text-sm text-on-surface">PAN Verified</span>
+</div>
+<span class="font-mono text-xs text-on-surface-variant">BQP***2F</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary text-lg" data-icon="check_circle">check_circle</span>
+<span class="font-sans text-sm text-on-surface">DigiLocker Sync</span>
+</div>
+<span class="font-mono text-xs text-primary bg-primary/10 px-2 py-0.5 rounded">Active</span>
+</div>
+</div>
+</div>
+<!-- Quick Actions -->
+<div class="bg-surface-container rounded-lg p-4 flex flex-col gap-2">
+<button class="flex items-center justify-between w-full p-2 hover:bg-surface-container-highest rounded transition-colors text-sm text-on-surface">
+<span class="flex items-center gap-2"><span class="material-symbols-outlined text-[18px]" data-icon="mail">mail</span> Send Valuation</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+<button class="flex items-center justify-between w-full p-2 hover:bg-surface-container-highest rounded transition-colors text-sm text-on-surface">
+<span class="flex items-center gap-2"><span class="material-symbols-outlined text-[18px]" data-icon="history">history</span> View Audit Log</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Right Column: Vehicles & Timeline (Span 8) -->
+<div class="lg:col-span-8 flex flex-col gap-6">
+<!-- Owned Vehicles -->
+<div class="bg-surface-container rounded-lg p-6">
+<div class="flex justify-between items-center mb-6">
+<h2 class="font-headline text-sm font-medium text-on-surface-variant">Active Portfolio</h2>
+<span class="text-xs text-on-surface-variant">2 Assets</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Vehicle 1 -->
+<div class="bg-surface-container-highest rounded p-4 flex flex-col border border-outline-variant/15">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline text-base font-semibold text-white mb-1">Porsche 911 Carrera S</h3>
+<p class="font-mono text-xs text-on-surface-variant">VIN: WPOZZZ99ZLS123456</p>
+</div>
+<span class="w-2 h-2 rounded-full bg-primary mt-1"></span>
+</div>
+<div class="mt-auto pt-4 border-t border-surface-container flex justify-between items-end">
+<div class="flex flex-col">
+<span class="text-[10px] text-on-surface-variant uppercase tracking-wider">Est. Value</span>
+<span class="font-mono text-sm font-medium text-white">₹ 1,85,00,000</span>
+</div>
+<button class="text-xs text-primary hover:text-primary-dim">Details</button>
+</div>
+</div>
+<!-- Vehicle 2 -->
+<div class="bg-surface-container-highest rounded p-4 flex flex-col border border-outline-variant/15">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h3 class="font-headline text-base font-semibold text-white mb-1">Mercedes-Benz G63 AMG</h3>
+<p class="font-mono text-xs text-on-surface-variant">VIN: WDC4632761X987654</p>
+</div>
+<span class="w-2 h-2 rounded-full bg-primary mt-1"></span>
+</div>
+<div class="mt-auto pt-4 border-t border-surface-container flex justify-between items-end">
+<div class="flex flex-col">
+<span class="text-[10px] text-on-surface-variant uppercase tracking-wider">Est. Value</span>
+<span class="font-mono text-sm font-medium text-white">₹ 2,27,50,000</span>
+</div>
+<button class="text-xs text-primary hover:text-primary-dim">Details</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Activity Timeline -->
+<div class="bg-surface-container rounded-lg p-6 flex-1">
+<div class="flex justify-between items-center mb-6">
+<h2 class="font-headline text-sm font-medium text-on-surface-variant">Operational Timeline</h2>
+<button class="text-xs text-primary hover:text-primary-dim">Filter</button>
+</div>
+<div class="relative pl-4 space-y-6 before:absolute before:inset-0 before:ml-[23px] before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-surface-variant before:to-transparent">
+<!-- Timeline Item 1 -->
+<div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+<div class="flex items-center justify-center w-6 h-6 rounded-full border border-surface bg-surface-container-highest text-primary z-10">
+<span class="material-symbols-outlined text-[14px]" data-icon="description">description</span>
+</div>
+<div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] p-4 rounded bg-surface-container-highest border border-outline-variant/15">
+<div class="flex justify-between items-center mb-1">
+<h4 class="font-headline text-sm font-medium text-white">Valuation Requested</h4>
+<time class="font-mono text-xs text-on-surface-variant">14:30, Oct 24</time>
+</div>
+<p class="text-xs text-on-surface-variant">Requested updated valuation for Porsche 911 (WPO...456).</p>
+</div>
+</div>
+<!-- Timeline Item 2 -->
+<div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+<div class="flex items-center justify-center w-6 h-6 rounded-full border border-surface bg-surface-container-highest text-on-surface-variant z-10">
+<span class="material-symbols-outlined text-[14px]" data-icon="verified_user">verified_user</span>
+</div>
+<div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] p-4 rounded bg-surface-container-low">
+<div class="flex justify-between items-center mb-1">
+<h4 class="font-headline text-sm font-medium text-on-surface">KYC Refresh</h4>
+<time class="font-mono text-xs text-on-surface-variant">09:15, Sep 12</time>
+</div>
+<p class="text-xs text-on-surface-variant">Automated DigiLocker sync completed successfully.</p>
+</div>
+</div>
+<!-- Timeline Item 3 -->
+<div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+<div class="flex items-center justify-center w-6 h-6 rounded-full border border-surface bg-surface-container-highest text-on-surface-variant z-10">
+<span class="material-symbols-outlined text-[14px]" data-icon="directions_car">directions_car</span>
+</div>
+<div class="w-[calc(100%-3rem)] md:w-[calc(50%-2.5rem)] p-4 rounded bg-surface-container-low">
+<div class="flex justify-between items-center mb-1">
+<h4 class="font-headline text-sm font-medium text-on-surface">Asset Acquired</h4>
+<time class="font-mono text-xs text-on-surface-variant">11:00, Mar 05</time>
+</div>
+<p class="text-xs text-on-surface-variant">G63 AMG added to portfolio. Transaction ID: <span class="font-mono">TRX-8821</span></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>
