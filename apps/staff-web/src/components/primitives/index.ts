@@ -27,3 +27,9 @@ export type { GateProps } from './gate';
 
 export { DataTable } from './data-table';
 export type { DataTableProps } from './data-table';
+
+export { Dialog, AlertDialog } from './dialog';
+export type { DialogProps, AlertDialogProps } from './dialog';
+
+export { ToastContainer } from './toast';
+export type { ToastContainerProps } from './toast';

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -8,9 +8,6 @@ import {
   Check,
   ExternalLink,
   Edit,
-  MoreHorizontal,
-  Plus,
-  Upload,
   Download,
   Trash2,
   FileText,
@@ -19,6 +16,8 @@ import {
   Receipt,
   FileCheck,
   ChevronRight,
+  Plus,
+  Upload,
 } from 'lucide-react';
 import { cn } from '@dms/ui';
 import type { Vehicle } from '@dms/types';
@@ -34,8 +33,17 @@ import {
   VinBadge,
   AmountCell,
   Gate,
+  ToastContainer,
 } from '@/src/components/primitives';
 import type { StateChipStatus } from '@/src/components/primitives';
+import { useToast } from '@/src/hooks/use-toast';
+import {
+  CostEntryModal,
+  PhotosUploadModal,
+  AppraisalEditPanel,
+  DocumentUploadModal,
+  MoreActionsMenu,
+} from '@/src/components/inventory/action-flows';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -128,7 +136,7 @@ const CATEGORY_LABEL: Record<string, string> = {
   misc: 'Miscellaneous',
 };
 
-// Category dot colours (using state-chip palette tokens where available, else hardcoded Tailwind)
+// Category dot colours
 const CATEGORY_DOT: Record<string, string> = {
   acquisition: 'bg-accent',
   'refurb-mechanical': 'bg-[rgb(var(--state-in-refurb))]',
@@ -207,7 +215,6 @@ function DocTypeIcon({ type }: { type: VehicleDocumentType }) {
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
-// Spec row for Overview tab
 function SpecRow({ label, value }: { label: string; value: string | number }) {
   return (
     <div className="flex items-start justify-between gap-4 py-2 border-b border-line last:border-0">
@@ -221,7 +228,6 @@ function SpecRow({ label, value }: { label: string; value: string | number }) {
   );
 }
 
-// Spec group card for Overview tab
 function SpecGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div className="rounded-md border border-line bg-bg-surface p-4">
@@ -271,7 +277,15 @@ function OverviewTab({ vehicle }: { vehicle: Vehicle }) {
 
 // ─── Tab: Cost Ledger ─────────────────────────────────────────────────────────
 
-function CostLedgerTab({ costLedger }: { costLedger: CostLedgerEntry[] }) {
+function CostLedgerTab({
+  costLedger,
+  onAddEntry,
+  onEditEntry,
+}: {
+  costLedger: CostLedgerEntry[];
+  onAddEntry: () => void;
+  onEditEntry: (entry: CostLedgerEntry) => void;
+}) {
   const total = costLedger.reduce((sum, e) => sum + e.amount, 0);
 
   return (
@@ -282,6 +296,7 @@ function CostLedgerTab({ costLedger }: { costLedger: CostLedgerEntry[] }) {
         <Gate role={['R10', 'R19', 'R22', 'R24']} fallback="hide">
           <button
             type="button"
+            onClick={onAddEntry}
             className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
           >
             <Plus className="h-3.5 w-3.5" aria-hidden="true" />
@@ -306,12 +321,15 @@ function CostLedgerTab({ costLedger }: { costLedger: CostLedgerEntry[] }) {
         ) : (
           <div>
             {costLedger.map((entry, i) => (
-              <div
+              <button
                 key={entry.id}
+                type="button"
+                onClick={() => onEditEntry(entry)}
                 className={cn(
-                  'grid grid-cols-[1fr_140px_160px] items-center px-4 py-3',
+                  'grid grid-cols-[1fr_140px_160px] w-full items-center px-4 py-3 text-left',
                   i % 2 === 0 ? 'bg-bg-canvas' : 'bg-bg-subtle',
                   'hover:bg-accent/5 transition-colors',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset',
                 )}
               >
                 {/* Category */}
@@ -342,7 +360,7 @@ function CostLedgerTab({ costLedger }: { costLedger: CostLedgerEntry[] }) {
 
                 {/* Amount */}
                 <AmountCell amount={entry.amount} align="right" />
-              </div>
+              </button>
             ))}
           </div>
         )}
@@ -372,7 +390,13 @@ const IMAGE_KIND_LABELS = [
   'ENGINE_BAY',
 ];
 
-function PhotosTab({ vehicle }: { vehicle: Vehicle }) {
+function PhotosTab({
+  vehicle,
+  onUpload,
+}: {
+  vehicle: Vehicle;
+  onUpload: () => void;
+}) {
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const images = vehicle.images;
   const currentImage = lightboxIndex !== null ? images[lightboxIndex] : null;
@@ -387,6 +411,7 @@ function PhotosTab({ vehicle }: { vehicle: Vehicle }) {
         <Gate role={['R05', 'R10', 'R19', 'R22', 'R24']} fallback="hide">
           <button
             type="button"
+            onClick={onUpload}
             className="inline-flex items-center gap-1.5 rounded-md border border-line bg-bg-surface px-3 py-1.5 text-sm font-medium text-ink-primary transition-colors hover:bg-bg-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
           >
             <Upload className="h-3.5 w-3.5" aria-hidden="true" />
@@ -502,11 +527,31 @@ const GRADE_COLOUR: Record<string, string> = {
   C: 'bg-[rgb(var(--state-overdue)/0.15)] text-[rgb(var(--state-overdue))]',
 };
 
-function AppraisalTab({ appraisal }: { appraisal: Appraisal | null }) {
+function AppraisalTab({
+  appraisal,
+  onEdit,
+}: {
+  appraisal: Appraisal | null;
+  onEdit: () => void;
+}) {
   if (!appraisal) {
     return (
-      <div className="flex h-40 items-center justify-center rounded-md border border-dashed border-line text-sm text-ink-muted">
-        No appraisal recorded for this vehicle.
+      <div className="space-y-4">
+        <div className="flex justify-end">
+          <Gate role={['R10', 'R11', 'R19', 'R22', 'R24']} fallback="hide">
+            <button
+              type="button"
+              onClick={onEdit}
+              className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+            >
+              <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+              Create Appraisal
+            </button>
+          </Gate>
+        </div>
+        <div className="flex h-40 items-center justify-center rounded-md border border-dashed border-line text-sm text-ink-muted">
+          No appraisal recorded for this vehicle.
+        </div>
       </div>
     );
   }
@@ -515,6 +560,20 @@ function AppraisalTab({ appraisal }: { appraisal: Appraisal | null }) {
 
   return (
     <div className="space-y-6">
+      {/* Edit button */}
+      <div className="flex justify-end">
+        <Gate role={['R10', 'R11', 'R19', 'R22', 'R24']} fallback="hide">
+          <button
+            type="button"
+            onClick={onEdit}
+            className="inline-flex items-center gap-1.5 rounded-md border border-line bg-bg-surface px-3 py-1.5 text-sm font-medium text-ink-primary transition-colors hover:bg-bg-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+          >
+            <Edit className="h-3.5 w-3.5" aria-hidden="true" />
+            Edit Appraisal
+          </button>
+        </Gate>
+      </div>
+
       {/* Grade + score row */}
       <div className="flex items-start gap-6 rounded-md border border-line bg-bg-surface p-6">
         {/* Grade badge */}
@@ -637,7 +696,13 @@ function TimelineTab({ timeline }: { timeline: VehicleTimelineEvent[] }) {
 
 // ─── Tab: Documents ───────────────────────────────────────────────────────────
 
-function DocumentsTab({ documents }: { documents: VehicleDocument[] }) {
+function DocumentsTab({
+  documents,
+  onUpload,
+}: {
+  documents: VehicleDocument[];
+  onUpload: () => void;
+}) {
   return (
     <div>
       {/* Header */}
@@ -646,6 +711,7 @@ function DocumentsTab({ documents }: { documents: VehicleDocument[] }) {
         <Gate role={['R05', 'R10', 'R19', 'R22', 'R24']} fallback="hide">
           <button
             type="button"
+            onClick={onUpload}
             className="inline-flex items-center gap-1.5 rounded-md border border-line bg-bg-surface px-3 py-1.5 text-sm font-medium text-ink-primary transition-colors hover:bg-bg-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
           >
             <Upload className="h-3.5 w-3.5" aria-hidden="true" />
@@ -737,10 +803,12 @@ function FinancialSnapshot({
   vehicle,
   costLedger,
   status,
+  onMoreActions,
 }: {
   vehicle: Vehicle;
   costLedger: CostLedgerEntry[];
   status: StaffVehicleStatus;
+  onMoreActions: React.ReactNode;
 }) {
   const askPrice = vehicle.price;
   const landedCost = costLedger.reduce((sum, e) => sum + e.amount, 0);
@@ -885,17 +953,17 @@ function FinancialSnapshot({
           </Gate>
         )}
 
-        {/* More actions */}
-        <button
-          type="button"
-          className="flex w-full items-center justify-center gap-2 rounded-md px-4 py-1.5 text-[12px] text-ink-muted transition-colors hover:bg-bg-subtle hover:text-ink-primary focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
-        >
-          <MoreHorizontal className="h-3.5 w-3.5" aria-hidden="true" />
-          More actions
-        </button>
+        {/* More actions — injected from parent so it has access to modal state */}
+        {onMoreActions}
       </div>
     </div>
   );
+}
+
+// ─── Mock timeline event logger ───────────────────────────────────────────────
+
+function addTimelineEvent(vin: string, type: string, note: string) {
+  console.log('[Timeline]', { vin, type, note, timestamp: new Date().toISOString() });
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
@@ -916,14 +984,29 @@ function maskVin(vin: string): string {
 
 export function VehicleDetailView({
   vehicle,
-  costLedger,
-  appraisal,
+  costLedger: initialCostLedger,
+  appraisal: initialAppraisal,
   timeline,
-  documents,
+  documents: initialDocuments,
 }: VehicleDetailViewProps) {
   const [activeTab, setActiveTab] = useState<DetailTab>('cost-ledger');
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [copied, setCopied] = useState(false);
+
+  // ── Local state (optimistic) ───────────────────────────────────────────────
+  const [costLedger, setCostLedger] = useState<CostLedgerEntry[]>(initialCostLedger);
+  const [appraisal, setAppraisal] = useState<Appraisal | null>(initialAppraisal);
+  const [documents, setDocuments] = useState<VehicleDocument[]>(initialDocuments);
+
+  // ── Modal open states ──────────────────────────────────────────────────────
+  const [costEntryModalOpen, setCostEntryModalOpen] = useState(false);
+  const [editingEntry, setEditingEntry] = useState<CostLedgerEntry | undefined>(undefined);
+  const [photosModalOpen, setPhotosModalOpen] = useState(false);
+  const [appraisalPanelOpen, setAppraisalPanelOpen] = useState(false);
+  const [documentModalOpen, setDocumentModalOpen] = useState(false);
+
+  // ── Toast ─────────────────────────────────────────────────────────────────
+  const { toasts, toast, dismiss } = useToast();
 
   const status = toStaffStatus(vehicle);
   const chipStatus = STATUS_TO_CHIP[status];
@@ -943,6 +1026,136 @@ export function VehicleDetailView({
       // silent fail
     }
   }
+
+  // ── Cost ledger handlers ──────────────────────────────────────────────────
+
+  const handleSaveCostEntry = useCallback(async (data: Partial<CostLedgerEntry>) => {
+    // Simulate API
+    await new Promise<void>((resolve) => setTimeout(resolve, 500));
+
+    if (editingEntry) {
+      // Edit
+      setCostLedger((prev) =>
+        prev.map((e) => (e.id === editingEntry.id ? { ...e, ...data } : e)),
+      );
+      addTimelineEvent(vehicle.vin, 'cost-added', `Cost entry updated: ${data.category ?? ''}`);
+      toast('Cost entry updated', 'success');
+    } else {
+      // Add
+      const newEntry: CostLedgerEntry = {
+        id: `CLE-NEW-${Date.now()}`,
+        vin: vehicle.vin,
+        category: data.category ?? 'misc',
+        date: data.date ?? new Date().toISOString().split('T')[0]!,
+        amount: data.amount ?? 0,
+        note: data.note,
+        addedBy: 'current-user',
+        addedAt: new Date().toISOString(),
+      };
+      setCostLedger((prev) => [...prev, newEntry]);
+      addTimelineEvent(vehicle.vin, 'cost-added', `Cost entry added: ${newEntry.category}`);
+      toast('Cost entry added', 'success');
+    }
+  }, [editingEntry, vehicle.vin, toast]);
+
+  const handleDeleteCostEntry = useCallback(async (id: string) => {
+    await new Promise<void>((resolve) => setTimeout(resolve, 400));
+    setCostLedger((prev) => prev.filter((e) => e.id !== id));
+    addTimelineEvent(vehicle.vin, 'cost-added', `Cost entry deleted`);
+    toast('Cost entry deleted', 'info');
+  }, [vehicle.vin, toast]);
+
+  // ── Photos handler ────────────────────────────────────────────────────────
+
+  const handleSavePhotos = useCallback(async (
+    _photos: Array<{ file: File; kind: string; isPrimary: boolean }>,
+  ) => {
+    await new Promise<void>((resolve) => setTimeout(resolve, 600));
+    addTimelineEvent(vehicle.vin, 'published', `Photos uploaded`);
+    toast(`${_photos.length} photo${_photos.length !== 1 ? 's' : ''} uploaded`, 'success');
+  }, [vehicle.vin, toast]);
+
+  // ── Appraisal handler ─────────────────────────────────────────────────────
+
+  const handleSaveAppraisal = useCallback(async (data: Partial<Appraisal>) => {
+    await new Promise<void>((resolve) => setTimeout(resolve, 500));
+    if (appraisal) {
+      setAppraisal((prev) => prev ? { ...prev, ...data } : prev);
+      toast('Appraisal updated', 'success');
+    } else {
+      const newAppraisal: Appraisal = {
+        id: `APR-NEW-${Date.now()}`,
+        vin: vehicle.vin,
+        grade: data.grade ?? 'B+',
+        pointsCompleted: data.pointsCompleted ?? 0,
+        pointsTotal: 210,
+        inspectorName: data.inspectorName ?? '',
+        inspectionDate: data.inspectionDate ?? new Date().toISOString().split('T')[0]!,
+        notes: data.notes,
+      };
+      setAppraisal(newAppraisal);
+      toast('Appraisal created', 'success');
+    }
+    addTimelineEvent(vehicle.vin, 'submitted', `Appraisal ${appraisal ? 'updated' : 'created'}`);
+  }, [appraisal, vehicle.vin, toast]);
+
+  // ── Document handler ──────────────────────────────────────────────────────
+
+  const handleSaveDocument = useCallback(async (data: {
+    file: File;
+    type: string;
+    name: string;
+    issueDate?: string;
+    expiryDate?: string;
+    notes?: string;
+  }) => {
+    await new Promise<void>((resolve) => setTimeout(resolve, 700));
+    const newDoc: VehicleDocument = {
+      id: `DOC-NEW-${Date.now()}`,
+      vin: vehicle.vin,
+      type: data.type as VehicleDocumentType,
+      name: data.name,
+      uploadedBy: 'current-user',
+      uploadedAt: new Date().toISOString(),
+      fileSize: `${(data.file.size / 1024).toFixed(0)} KB`,
+      fileUrl: '#',
+    };
+    setDocuments((prev) => [...prev, newDoc]);
+    addTimelineEvent(vehicle.vin, 'submitted', `Document uploaded: ${data.name}`);
+    toast(`Document "${data.name}" uploaded`, 'success');
+  }, [vehicle.vin, toast]);
+
+  // ── More actions handlers ─────────────────────────────────────────────────
+
+  const handleTransfer = useCallback(async (outlet: string, _reason: string, _notify: boolean) => {
+    await new Promise<void>((resolve) => setTimeout(resolve, 500));
+    addTimelineEvent(vehicle.vin, 'submitted', `Vehicle transferred to ${outlet}`);
+    toast(`Vehicle transferred to ${outlet}`, 'success');
+  }, [vehicle.vin, toast]);
+
+  const handleClone = useCallback(async (newVin: string, _newKm: number, _outlet?: string) => {
+    await new Promise<void>((resolve) => setTimeout(resolve, 600));
+    addTimelineEvent(vehicle.vin, 'created', `Vehicle cloned as ${newVin}`);
+    toast(`Clone created: ${newVin}`, 'success');
+  }, [vehicle.vin, toast]);
+
+  const handleMarkStale = useCallback(async () => {
+    await new Promise<void>((resolve) => setTimeout(resolve, 300));
+    addTimelineEvent(vehicle.vin, 'price-changed', 'Marked as stale');
+    toast('Vehicle marked as stale', 'warning');
+  }, [vehicle.vin, toast]);
+
+  const handleUnpublish = useCallback(async () => {
+    await new Promise<void>((resolve) => setTimeout(resolve, 300));
+    addTimelineEvent(vehicle.vin, 'unpublished', 'Vehicle unpublished');
+    toast('Vehicle unpublished', 'info');
+  }, [vehicle.vin, toast]);
+
+  const handleArchive = useCallback(async () => {
+    await new Promise<void>((resolve) => setTimeout(resolve, 400));
+    addTimelineEvent(vehicle.vin, 'archived', 'Vehicle archived');
+    toast('Vehicle archived', 'info');
+  }, [vehicle.vin, toast]);
 
   return (
     <div className="min-h-full bg-bg-canvas">
@@ -1045,7 +1258,23 @@ export function VehicleDetailView({
 
           {/* Right: Financial snapshot sidebar */}
           <div className="w-80 shrink-0">
-            <FinancialSnapshot vehicle={vehicle} costLedger={costLedger} status={status} />
+            <FinancialSnapshot
+              vehicle={vehicle}
+              costLedger={costLedger}
+              status={status}
+              onMoreActions={
+                <MoreActionsMenu
+                  vin={vehicle.vin}
+                  currentStatus={status}
+                  currentOutlet={vehicle.city}
+                  onTransfer={handleTransfer}
+                  onClone={handleClone}
+                  onMarkStale={handleMarkStale}
+                  onUnpublish={handleUnpublish}
+                  onArchive={handleArchive}
+                />
+              }
+            />
           </div>
         </div>
 
@@ -1062,6 +1291,18 @@ export function VehicleDetailView({
           {/* VIN badge — full for staff */}
           <div className="mt-2 flex items-center gap-3 flex-wrap">
             <VinBadge vin={vehicle.vin} masked={false} />
+            <button
+              type="button"
+              onClick={handleCopyVin}
+              aria-label={copied ? 'VIN copied' : 'Copy VIN'}
+              className="rounded p-1 text-ink-muted hover:text-ink-primary transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent"
+            >
+              {copied ? (
+                <Check className="h-3.5 w-3.5 text-[rgb(var(--state-listed))]" aria-hidden="true" />
+              ) : (
+                <Copy className="h-3.5 w-3.5" aria-hidden="true" />
+              )}
+            </button>
             <span className="font-mono text-[12px] text-ink-muted uppercase tracking-wider">
               {vehicle.city.charAt(0).toUpperCase() + vehicle.city.slice(1)} · {vehicle.bodyType}
             </span>
@@ -1110,8 +1351,8 @@ export function VehicleDetailView({
         <div className="mt-6">
           <div
             role="tabpanel"
-            id={`panel-overview`}
-            aria-labelledby={`tab-overview`}
+            id="panel-overview"
+            aria-labelledby="tab-overview"
             hidden={activeTab !== 'overview'}
           >
             {activeTab === 'overview' && <OverviewTab vehicle={vehicle} />}
@@ -1119,35 +1360,57 @@ export function VehicleDetailView({
 
           <div
             role="tabpanel"
-            id={`panel-cost-ledger`}
-            aria-labelledby={`tab-cost-ledger`}
+            id="panel-cost-ledger"
+            aria-labelledby="tab-cost-ledger"
             hidden={activeTab !== 'cost-ledger'}
           >
-            {activeTab === 'cost-ledger' && <CostLedgerTab costLedger={costLedger} />}
+            {activeTab === 'cost-ledger' && (
+              <CostLedgerTab
+                costLedger={costLedger}
+                onAddEntry={() => {
+                  setEditingEntry(undefined);
+                  setCostEntryModalOpen(true);
+                }}
+                onEditEntry={(entry) => {
+                  setEditingEntry(entry);
+                  setCostEntryModalOpen(true);
+                }}
+              />
+            )}
           </div>
 
           <div
             role="tabpanel"
-            id={`panel-photos`}
-            aria-labelledby={`tab-photos`}
+            id="panel-photos"
+            aria-labelledby="tab-photos"
             hidden={activeTab !== 'photos'}
           >
-            {activeTab === 'photos' && <PhotosTab vehicle={vehicle} />}
+            {activeTab === 'photos' && (
+              <PhotosTab
+                vehicle={vehicle}
+                onUpload={() => setPhotosModalOpen(true)}
+              />
+            )}
           </div>
 
           <div
             role="tabpanel"
-            id={`panel-appraisal`}
-            aria-labelledby={`tab-appraisal`}
+            id="panel-appraisal"
+            aria-labelledby="tab-appraisal"
             hidden={activeTab !== 'appraisal'}
           >
-            {activeTab === 'appraisal' && <AppraisalTab appraisal={appraisal} />}
+            {activeTab === 'appraisal' && (
+              <AppraisalTab
+                appraisal={appraisal}
+                onEdit={() => setAppraisalPanelOpen(true)}
+              />
+            )}
           </div>
 
           <div
             role="tabpanel"
-            id={`panel-timeline`}
-            aria-labelledby={`tab-timeline`}
+            id="panel-timeline"
+            aria-labelledby="tab-timeline"
             hidden={activeTab !== 'timeline'}
           >
             {activeTab === 'timeline' && <TimelineTab timeline={timeline} />}
@@ -1155,15 +1418,59 @@ export function VehicleDetailView({
 
           <div
             role="tabpanel"
-            id={`panel-documents`}
-            aria-labelledby={`tab-documents`}
+            id="panel-documents"
+            aria-labelledby="tab-documents"
             hidden={activeTab !== 'documents'}
           >
-            {activeTab === 'documents' && <DocumentsTab documents={documents} />}
+            {activeTab === 'documents' && (
+              <DocumentsTab
+                documents={documents}
+                onUpload={() => setDocumentModalOpen(true)}
+              />
+            )}
           </div>
         </div>
 
       </div>
+
+      {/* ─── Action modals ──────────────────────────────────────────────────── */}
+
+      <CostEntryModal
+        open={costEntryModalOpen}
+        onClose={() => {
+          setCostEntryModalOpen(false);
+          setEditingEntry(undefined);
+        }}
+        vin={vehicle.vin}
+        entry={editingEntry}
+        onSave={handleSaveCostEntry}
+        onDelete={editingEntry ? handleDeleteCostEntry : undefined}
+      />
+
+      <PhotosUploadModal
+        open={photosModalOpen}
+        onClose={() => setPhotosModalOpen(false)}
+        vin={vehicle.vin}
+        onSave={handleSavePhotos}
+      />
+
+      <AppraisalEditPanel
+        open={appraisalPanelOpen}
+        onClose={() => setAppraisalPanelOpen(false)}
+        vin={vehicle.vin}
+        appraisal={appraisal ?? undefined}
+        onSave={handleSaveAppraisal}
+      />
+
+      <DocumentUploadModal
+        open={documentModalOpen}
+        onClose={() => setDocumentModalOpen(false)}
+        vin={vehicle.vin}
+        onSave={handleSaveDocument}
+      />
+
+      {/* Toast notifications */}
+      <ToastContainer toasts={toasts} onDismiss={dismiss} />
     </div>
   );
 }

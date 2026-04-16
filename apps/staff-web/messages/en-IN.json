@@ -106,6 +106,133 @@
         "banners": {
           "draft": "This vehicle is a draft. Complete required fields and submit for review.",
           "inRefurb": "This vehicle is in refurbishment. Mark refurb complete when ready."
+        },
+        "actionFlows": {
+          "moreDropdown": {
+            "transfer": "Transfer outlet",
+            "clone": "Clone vehicle",
+            "markStale": "Mark as stale",
+            "unpublish": "Unpublish",
+            "archive": "Archive vehicle"
+          },
+          "costEntry": {
+            "title": {
+              "add": "Add cost entry",
+              "edit": "Edit cost entry"
+            },
+            "fields": {
+              "category": "Category",
+              "date": "Date",
+              "amount": "Amount",
+              "vendor": "Vendor / Reference",
+              "note": "Note"
+            },
+            "warnings": {
+              "highValue": "High-value entry. Requires R19+ approval"
+            }
+          },
+          "photos": {
+            "title": "Upload photos",
+            "dropzone": "Drop photos here or click to browse",
+            "kinds": {
+              "EXTERIOR_FRONT": "Exterior Front",
+              "EXTERIOR_REAR": "Exterior Rear",
+              "EXTERIOR_SIDE_L": "Exterior Side L",
+              "EXTERIOR_SIDE_R": "Exterior Side R",
+              "INTERIOR_DASH": "Interior Dash",
+              "INTERIOR_SEAT_FRONT": "Interior Seat Front",
+              "INTERIOR_SEAT_REAR": "Interior Seat Rear",
+              "ENGINE_BAY": "Engine Bay",
+              "ODOMETER": "Odometer",
+              "VIN_PLATE": "VIN Plate",
+              "DAMAGE": "Damage",
+              "OTHER": "Other"
+            }
+          },
+          "appraisal": {
+            "title": {
+              "edit": "Edit appraisal",
+              "create": "Create appraisal"
+            },
+            "grade": "Grade",
+            "pointsCompleted": "Points Completed",
+            "inspectorName": "Inspector Name",
+            "inspectionDate": "Inspection Date",
+            "notes": "Notes"
+          },
+          "documents": {
+            "title": "Upload document",
+            "type": "Document Type",
+            "name": "Document Name",
+            "issueDate": "Issue Date",
+            "expiryDate": "Expiry Date",
+            "notes": "Notes"
+          },
+          "transfer": {
+            "title": "Transfer to another outlet",
+            "reason": "Reason",
+            "notify": "Notify receiving outlet manager"
+          },
+          "clone": {
+            "title": "Clone as new vehicle",
+            "newVin": "New VIN",
+            "newKm": "Odometer (km)"
+          },
+          "stale": {
+            "title": "Mark as stale?",
+            "body": "This vehicle will be flagged as stale. It will still be visible but highlighted for follow-up action."
+          },
+          "archive": {
+            "title": "Archive vehicle?",
+            "body": "This will remove the vehicle from active inventory. All records are preserved.",
+            "confirmHint": "Type the last 6 digits of the VIN to confirm"
+          }
+        },
+        "new": {
+          "title": "Create new vehicle",
+          "breadcrumb": "New Vehicle",
+          "steps": {
+            "acquisition": "Acquisition",
+            "specs": "Vehicle Specs",
+            "condition": "Condition & History",
+            "pricing": "Pricing"
+          },
+          "actions": {
+            "cancel": "Cancel",
+            "back": "Back",
+            "continue": "Continue",
+            "saveDraft": "Save as Draft",
+            "submit": "Submit for Review"
+          },
+          "fields": {
+            "acquisitionSource": "Acquisition source",
+            "sourceReference": "Source reference",
+            "acquisitionDate": "Acquisition date",
+            "acquisitionCost": "Acquisition cost (₹)",
+            "outlet": "Outlet",
+            "vin": "VIN",
+            "make": "Make",
+            "model": "Model",
+            "variant": "Variant",
+            "year": "Year",
+            "color": "Color",
+            "fuel": "Fuel",
+            "transmission": "Transmission",
+            "odometer": "Odometer (km)",
+            "registrationCity": "Registration city",
+            "previousOwners": "Previous owners",
+            "accidentHistory": "Accident history",
+            "serviceHistoryAvailable": "Service history available",
+            "conditionNotes": "Condition notes",
+            "targetPrice": "Target sale price (₹)",
+            "minimumPrice": "Minimum acceptable (₹)",
+            "expectedRefurbBudget": "Expected refurb budget (₹)"
+          },
+          "toast": {
+            "draftSaved": "Draft saved · just now",
+            "submitted": "Vehicle submitted for review",
+            "discardConfirm": "Discard this vehicle? Unsaved changes will be lost."
+          }
         }
       }
     }

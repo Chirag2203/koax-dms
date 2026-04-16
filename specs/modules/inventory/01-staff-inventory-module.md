@@ -297,9 +297,118 @@ POST /api/staff/inventory/vehicles/:vin/transitions — generic state transition
 
 ## 10. Build phases
 
-- **S2a — List page:** vehicle list + filters + bulk actions + saved views + empty state
-- **S2b — Detail page:** 6-tab detail with state-specific variants + state machine transitions
-- **S2c — Add/edit:** placeholder forms for v1 (full form is v1.1)
+- **S2a — List page:** vehicle list + filters + bulk actions + saved views + empty state ✓ SHIPPED
+- **S2b — Types + fixtures + MSW:** data layer for detail ✓ SHIPPED
+- **S2c — Detail page:** 6-tab detail with state-specific variants + state machine transitions ✓ SHIPPED
+- **S2.1 — Action flows (designed 2026-04-17):**
+  - Create new vehicle `/inventory/new` — full-page 4-step wizard
+  - Add/Edit cost ledger entry — md modal from Cost Ledger tab
+  - Upload photos — lg modal with dropzone + kind-label grid
+  - Edit appraisal — right SlideInPanel with 210-point checklist
+  - Upload document — sm modal with type picker
+  - More actions dropdown — Transfer outlet / Clone / Mark stale / Archive (with destructive confirmations)
+
+## 10.1. Action flows detail (v1.1 — S2.1)
+
+### Flow 1: Create New Vehicle (`/inventory/new`)
+
+Full-page 4-step wizard with ProgressStepper.
+**Steps:** 1. Acquisition → 2. Vehicle Specs → 3. Condition & History → 4. Pricing
+**Right rail (desktop ≥1280px):** sticky summary card showing captured fields + VIN decode preview.
+**Required fields per step:** Step 1 (acquisitionSource, date, cost, outlet), Step 2 (VIN, make, model, variant, year, color, fuel, transmission, km, regCity), Step 4 (targetPrice, minPrice). Step 3 is optional at DRAFT, required before IN_REVIEW.
+**CTAs:** `Cancel` (ghost, confirm-discard if dirty), `Save as Draft` (secondary, ⌘S), `Submit for Review` (primary, ⌘↵, disabled until required passed).
+**Auto-save:** localStorage draft on step change + toast "Draft saved · 2s ago".
+**VIN uniqueness:** `/api/inventory/vin-check` on blur; inline error if duplicate with link to existing vehicle.
+**Post-submit:** redirect to `/inventory/[vin]` in DRAFT state; Timeline gets `created` + `submitted` events.
+**RBAC:** R15+ (Inventory Clerk). R19+ can pick non-default outlet.
+**Photos/Documents deferred:** explicit note in Step 4 — "add after creation".
+
+### Flow 2: Add/Edit Cost Ledger Entry (modal md, 560px)
+
+**Trigger:** `Add Entry` button in Cost Ledger tab header, shortcut `A`. Edit via row `⋯` → `Edit`.
+**Fields:** category (11 options), date (≤ today, ≥ acquisitionDate), amount (₹), vendor/reference (optional), note (optional textarea).
+**Validation:** amount > 0 required. Amount > ₹10L for R15-R18 → warning banner "High-value entry. Requires R19+ approval" — blocks save.
+**CTAs:** Cancel, Save Entry (⌘↵). Edit mode adds Delete (red ghost, left-aligned; triggers confirm dialog with amount+date).
+**Success:** modal closes → toast → table refetches → new row highlighted 800ms → Financial Snapshot total updates → Timeline `cost-added`.
+
+### Flow 3: Upload Photos (modal lg, 720px, max-h-[80vh])
+
+**Trigger:** `Upload Photos` button in Photos tab, shortcut `U`.
+**States:** Dropzone → Upload progress list → Post-upload grid.
+**Dropzone:** drag-drop area (h-48, dashed border, hover states), multi-file input, formats JPG/PNG/WebP/HEIC ≤10MB each, up to 40 photos per batch.
+**Per-photo metadata:** kind-label dropdown (12 options: EXTERIOR_FRONT, EXTERIOR_REAR, EXTERIOR_SIDE_L/R, INTERIOR_DASH, INTERIOR_SEAT_FRONT/REAR, ENGINE_BAY, ODOMETER, VIN_PLATE, DAMAGE, OTHER), Set Primary (star), Drag to reorder (GripVertical handle), Delete per tile (with 5s Undo toast).
+**CTAs:** Cancel (abort in-flight, warn if any saved), Save Photos (primary, disabled until all photos have kind labels).
+**Success:** modal closes → toast `{n} photos added` → grid refetches → Timeline `photos-added`.
+**HEIC handling:** client-side convert to JPEG via `heic2any` on desktop browsers.
+**Duplicate detection:** SHA256 match → "Already uploaded".
+
+### Flow 4: Edit Appraisal (SlideInPanel right, 640px)
+
+**Trigger:** `Edit Appraisal` button in Appraisal tab header (R10+ only via Gate).
+**Layout:** Summary section (grade select, points number+`/210`, inspector name, inspection date, notes textarea) + 210-point checklist in 3 collapsible groups:
+- Mechanical (80 points): engine, transmission, suspension, brakes, electrical subgroups
+- Cosmetic (70 points): exterior panels, paint, interior, trim
+- Documentation (60 points): RC, insurance, service records, tax, PUC, loan NOC
+**Per-checklist item:** checkbox + small comment input + severity segmented (OK / Minor / Major).
+**Auto-compute:** points completed auto-derived from checked items; manual override warns.
+**Dirty indicator:** `•` accent dot in panel header.
+**CTAs:** Cancel (confirm if dirty), Save Appraisal (⌘↵).
+**Concurrent edit (409):** "Another user updated this appraisal. Reload?"
+**First-time:** title changes to "Create appraisal".
+**Success:** Timeline `appraisal-updated`. If grade ≤ C, warning banner on Overview tab.
+
+### Flow 5: Upload Document (modal sm, 480px)
+
+**Trigger:** `Upload Document` button in Documents tab.
+**File dropzone:** single file, type-dependent limits (RC: PDF ≤5MB, Insurance: PDF/JPG ≤5MB, others: PDF/JPG/PNG ≤10MB).
+**Fields:** file (required), type (Select: RC/Insurance/Appraisal/Inspection/Invoice/Form 29-30/PUC/Loan NOC/Service Record/Other), name (auto from filename, editable), issue date + expiry date (conditional: only for Insurance + PUC), notes (optional).
+**CTAs:** Cancel, Upload (shows progress % during upload, primary).
+**Success:** modal closes → toast → table prepends row → Timeline `document-uploaded`. If Insurance/PUC expiry <30 days, yellow StateChip on row.
+
+### Flow 6: More Actions Dropdown + Modals
+
+**Trigger:** `⋯ More actions` button in Financial Snapshot sidebar, shortcut `.` (period).
+**Menu structure** (240px, with separators):
+```
+Transfer outlet          ⌘T  (R19+)
+Clone vehicle            ⌘D  (R15+)
+---
+Mark as stale                (R15+, hidden if already stale)
+Unpublish                    (R19+, only if state=PUBLISHED)
+---
+Archive vehicle       (danger R19+)
+```
+
+**6a. Transfer Outlet** (modal md 560px):
+- Current outlet (read-only pill) → arrow → outlet picker Select (excludes current)
+- Reason textarea (required, max 500)
+- Checkbox "Notify receiving outlet manager" (default checked)
+- Blocked states: IN_TRANSIT, SOLD → error banner
+
+**6b. Clone Vehicle** (modal md 560px):
+- Read-only preview of what's copied (specs, pricing target, appraisal template) vs NOT copied (VIN, photos, documents, costs, timeline)
+- Required: new VIN + new odometer km
+- Optional: outlet override
+- Primary: `Create clone` → redirects to new DRAFT vehicle
+
+**6c. Mark as Stale** (AlertDialog sm 400px):
+- Simple confirmation with yellow primary `Mark stale`
+- Sets manual stale flag; StateChip gains `Stale` modifier
+
+**6d. Archive** (AlertDialog sm 420px, destructive):
+- Summary of what remains (cost ledger, timeline, documents preserved for audit)
+- Type-to-confirm: require typing VIN last-6
+- Blocked: state=SOLD (redirect to invoice archival), state=RESERVED (must release first)
+- Primary: `Archive vehicle` (red) → redirect to `/inventory?state=archived`
+- Note: "Cannot be undone from UI — R25+ admin needed to restore"
+
+### Cross-flow consistency
+
+- All forms: `h-10` inputs, `rounded-md`, `bg-bg-subtle`, `border-line`, `focus:border-accent focus:ring-1 focus:ring-accent/30`
+- All modals: close on Esc + backdrop (confirm if dirty), ⌘↵ for primary, Tab focus trap, initial focus on first input
+- All destructive confirms: subject summary + block reason + type-to-confirm (only for irreversible)
+- Every flow emits Timeline event with `actor_role` + `actor_name`
+- Toasts: bottom-right, 4s success, 6s with `Undo` for reversible actions
 
 ## 11. Non-functional requirements
 
@@ -313,3 +422,4 @@ POST /api/staff/inventory/vehicles/:vin/transitions — generic state transition
 | Date | Version | Author | Change |
 |------|---------|--------|--------|
 | 2026-04-17 | 0.1 | Claude (integrator) | Initial spec for staff Inventory Phase S2 |
+| 2026-04-17 | 0.2 | Claude (integrator) | Phase S2a/b/c shipped. Added 6 action flows (create new vehicle wizard, cost ledger modal, photos upload, appraisal edit panel, document upload, more-actions menu + transfer/clone/archive modals) for Phase S2.1 build. |

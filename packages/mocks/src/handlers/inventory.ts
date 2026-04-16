@@ -208,6 +208,168 @@ export const inventoryHandlers = [
   }),
 
   /**
+   * PATCH /api/staff/inventory/vehicles/:vin/cost-ledger/:id
+   * Updates an existing cost ledger entry (mock — echoes merged entry).
+   */
+  http.patch('/api/staff/inventory/vehicles/:vin/cost-ledger/:id', async ({ params, request }) => {
+    const { vin, id } = params as { vin: string; id: string };
+    const body = (await request.json()) as Partial<CostLedgerEntry>;
+
+    const existing = costLedgerEntries.find((e) => e.vin === vin && e.id === id);
+    if (!existing) {
+      return HttpResponse.json({ error: 'Entry not found', id }, { status: 404 });
+    }
+
+    const updated: CostLedgerEntry = { ...existing, ...body };
+    await new Promise<void>((resolve) => setTimeout(resolve, 300));
+
+    return HttpResponse.json({ data: updated });
+  }),
+
+  /**
+   * DELETE /api/staff/inventory/vehicles/:vin/cost-ledger/:id
+   * Deletes a cost ledger entry (mock — echoes success).
+   */
+  http.delete('/api/staff/inventory/vehicles/:vin/cost-ledger/:id', async ({ params }) => {
+    const { id } = params as { vin: string; id: string };
+    await new Promise<void>((resolve) => setTimeout(resolve, 350));
+
+    return HttpResponse.json({ data: { id, deletedAt: new Date().toISOString() } });
+  }),
+
+  /**
+   * POST /api/staff/inventory/vehicles/:vin/photos
+   * Accepts photo upload (mock — echoes success with generated IDs).
+   */
+  http.post('/api/staff/inventory/vehicles/:vin/photos', async ({ params }) => {
+    const { vin } = params as { vin: string };
+    await new Promise<void>((resolve) => setTimeout(resolve, 400));
+
+    return HttpResponse.json(
+      { data: { vin, count: 1, uploadedAt: new Date().toISOString() } },
+      { status: 201 },
+    );
+  }),
+
+  /**
+   * PUT /api/staff/inventory/vehicles/:vin/appraisal
+   * Creates or updates the appraisal for a vehicle (mock — echoes merged record).
+   */
+  http.put('/api/staff/inventory/vehicles/:vin/appraisal', async ({ params, request }) => {
+    const { vin } = params as { vin: string };
+    const body = (await request.json()) as Partial<Omit<typeof appraisals[0], 'id' | 'vin'>>;
+    const existing = appraisals.find((a) => a.vin === vin);
+
+    await new Promise<void>((resolve) => setTimeout(resolve, 350));
+
+    const result = existing
+      ? { ...existing, ...body }
+      : {
+          id: `APR-NEW-${vin.slice(-6)}`,
+          vin,
+          grade: body.grade ?? 'B+',
+          pointsCompleted: body.pointsCompleted ?? 0,
+          pointsTotal: 210,
+          inspectorName: body.inspectorName ?? '',
+          inspectionDate: body.inspectionDate ?? new Date().toISOString().split('T')[0],
+          notes: body.notes,
+        };
+
+    return HttpResponse.json({ data: result });
+  }),
+
+  /**
+   * POST /api/staff/inventory/vehicles/:vin/documents
+   * Accepts document upload (mock — echoes new document record).
+   */
+  http.post('/api/staff/inventory/vehicles/:vin/documents', async ({ params }) => {
+    const { vin } = params as { vin: string };
+    await new Promise<void>((resolve) => setTimeout(resolve, 450));
+
+    return HttpResponse.json(
+      {
+        data: {
+          id: `DOC-NEW-${vin.slice(-6)}-${Date.now()}`,
+          vin,
+          uploadedAt: new Date().toISOString(),
+        },
+      },
+      { status: 201 },
+    );
+  }),
+
+  /**
+   * POST /api/staff/inventory/vehicles/:vin/transfer
+   * Transfers a vehicle to another outlet (mock — echoes success).
+   */
+  http.post('/api/staff/inventory/vehicles/:vin/transfer', async ({ params, request }) => {
+    const { vin } = params as { vin: string };
+    const body = (await request.json()) as { outlet: string; reason: string; notify: boolean };
+
+    await new Promise<void>((resolve) => setTimeout(resolve, 400));
+
+    return HttpResponse.json({
+      data: {
+        vin,
+        toOutlet: body.outlet,
+        reason: body.reason,
+        notified: body.notify,
+        transferredAt: new Date().toISOString(),
+      },
+    });
+  }),
+
+  /**
+   * POST /api/staff/inventory/vehicles/:vin/clone
+   * Clones a vehicle as a new record (mock — returns newVin).
+   */
+  http.post('/api/staff/inventory/vehicles/:vin/clone', async ({ params, request }) => {
+    const { vin } = params as { vin: string };
+    const body = (await request.json()) as { newVin: string; newKm: number; outlet?: string };
+
+    await new Promise<void>((resolve) => setTimeout(resolve, 500));
+
+    return HttpResponse.json(
+      {
+        data: {
+          sourceVin: vin,
+          newVin: body.newVin,
+          newKm: body.newKm,
+          outlet: body.outlet,
+          createdAt: new Date().toISOString(),
+        },
+      },
+      { status: 201 },
+    );
+  }),
+
+  /**
+   * POST /api/staff/inventory/vehicles/:vin/mark-stale
+   * Marks a vehicle as stale (mock — echoes success).
+   */
+  http.post('/api/staff/inventory/vehicles/:vin/mark-stale', async ({ params }) => {
+    const { vin } = params as { vin: string };
+    await new Promise<void>((resolve) => setTimeout(resolve, 300));
+
+    return HttpResponse.json({
+      data: { vin, status: 'stale', markedAt: new Date().toISOString() },
+    });
+  }),
+
+  /**
+   * POST /api/staff/inventory/vehicles/:vin/archive
+   * Archives a vehicle (mock — echoes success).
+   */
+  http.post('/api/staff/inventory/vehicles/:vin/archive', async ({ params }) => {
+    const { vin } = params as { vin: string };
+    await new Promise<void>((resolve) => setTimeout(resolve, 400));
+
+    return HttpResponse.json({
+      data: { vin, status: 'archived', archivedAt: new Date().toISOString() },
+    });
+  }),
+
+  /**
    * POST /api/staff/inventory/vehicles/:vin/publish
    * Publishes a vehicle (mock — echoes success).
    */
@@ -229,6 +391,42 @@ export const inventoryHandlers = [
     return HttpResponse.json({
       data: { vin, status: 'unpublished', unpublishedAt: new Date().toISOString() },
     });
+  }),
+
+  /**
+   * POST /api/staff/inventory/vehicles
+   * Creates a new vehicle record (mock — echoes the submitted VIN with success).
+   * Body: WizardFormValues
+   */
+  http.post('/api/staff/inventory/vehicles', async ({ request }) => {
+    const body = (await request.json()) as { vin?: string; make?: string; model?: string };
+
+    // Simulate processing delay
+    await new Promise<void>((resolve) => setTimeout(resolve, 500));
+
+    const vin = (body.vin ?? 'MOCK00000TEST00001').toUpperCase();
+
+    return HttpResponse.json(
+      { vin, success: true, createdAt: new Date().toISOString() },
+      { status: 201 },
+    );
+  }),
+
+  /**
+   * GET /api/staff/inventory/vin-check
+   * Checks if a VIN already exists in the system.
+   * Query: ?vin=XXXXXXXXXXXXXXXXX
+   * Returns: { exists: boolean }
+   */
+  http.get('/api/staff/inventory/vin-check', ({ request }) => {
+    const url = new URL(request.url);
+    const vin = url.searchParams.get('vin') ?? '';
+
+    // Mock: always return false (VIN available) for testing
+    // In production this would check the real database
+    const exists = false;
+
+    return HttpResponse.json({ exists, vin });
   }),
 
   /**
