@@ -20,6 +20,19 @@ export {
   consignmentAgreements,
 } from './fixtures/consignor';
 
+export {
+  staffUsers,
+  commandPaletteItems,
+  staffNotifications,
+  dashboardStats,
+} from './fixtures/staff';
+export {
+  costLedgerEntries,
+  appraisals,
+  vehicleTimelineEvents,
+  vehicleDocuments,
+} from './fixtures/inventory';
+
 // ─── Handlers ─────────────────────────────────────────────────────────────────
 export { handlers } from './handlers';
 export { vehicleHandlers } from './handlers/vehicles';

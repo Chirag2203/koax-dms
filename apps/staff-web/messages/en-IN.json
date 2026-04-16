@@ -25,6 +25,89 @@
     "common": {
       "comingSoon": "Coming soon",
       "loading": "Loading..."
+    },
+    "inventory": {
+      "title": "Vehicles",
+      "addVehicle": "Add Vehicle",
+      "import": "Import",
+      "search": "Search VIN, Model, or Plate...",
+      "savedViews": {
+        "all": "All",
+        "listed": "Listed",
+        "inRefurb": "In Refurb",
+        "stale": "Stale (>60d)",
+        "myListings": "My Listings"
+      },
+      "columns": {
+        "photo": "Photo",
+        "vin": "VIN",
+        "year": "Year",
+        "details": "Vehicle Details",
+        "outlet": "Outlet",
+        "status": "Status",
+        "days": "Days",
+        "askPrice": "Ask Price",
+        "landedCost": "Landed Cost",
+        "margin": "Margin",
+        "cpo": "CPO",
+        "actions": "Actions"
+      },
+      "bulk": {
+        "selected": "{count} selected",
+        "export": "Export",
+        "updateStatus": "Update Status",
+        "assignOutlet": "Assign Outlet",
+        "archive": "Archive"
+      },
+      "empty": {
+        "title": "No vehicles match your filters.",
+        "clear": "Clear filters"
+      },
+      "pagination": {
+        "showing": "Showing {from}-{to} of {total} vehicles",
+        "perPage": "Rows per page"
+      },
+      "detail": {
+        "breadcrumb": "Inventory / Vehicles",
+        "tabs": {
+          "overview": "Overview",
+          "costLedger": "Cost Ledger",
+          "photos": "Photos",
+          "appraisal": "Appraisal",
+          "timeline": "Timeline",
+          "documents": "Documents"
+        },
+        "financial": {
+          "title": "Financial Snapshot",
+          "askPrice": "Ask Price",
+          "landedCost": "Landed Cost",
+          "margin": "Projected Margin",
+          "daysInInv": "Days in Inv."
+        },
+        "actions": {
+          "viewOnStorefront": "View on Storefront",
+          "submitForReview": "Submit for Review",
+          "publish": "Publish Vehicle",
+          "unpublish": "Unpublish",
+          "markRefurbComplete": "Mark Refurb Complete",
+          "edit": "Edit",
+          "more": "More actions"
+        },
+        "costLedger": {
+          "heading": "Expense Breakdown",
+          "addEntry": "Add Entry",
+          "columns": {
+            "category": "Category",
+            "date": "Date",
+            "amount": "Amount (₹)"
+          },
+          "total": "Total Landed Cost"
+        },
+        "banners": {
+          "draft": "This vehicle is a draft. Complete required fields and submit for review.",
+          "inRefurb": "This vehicle is in refurbishment. Mark refurb complete when ready."
+        }
+      }
     }
   }
 }

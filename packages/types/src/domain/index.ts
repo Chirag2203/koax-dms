@@ -6,3 +6,4 @@ export * from './customer';
 export * from './portal';
 export * from './consignor';
 export * from './staff';
+export * from './inventory';

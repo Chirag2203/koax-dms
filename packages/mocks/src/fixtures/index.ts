@@ -24,3 +24,9 @@ export {
   staffNotifications,
   dashboardStats,
 } from './staff';
+export {
+  costLedgerEntries,
+  appraisals,
+  vehicleTimelineEvents,
+  vehicleDocuments,
+} from './inventory';
