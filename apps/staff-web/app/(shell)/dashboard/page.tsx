@@ -108,13 +108,20 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* ── Main panels row ──────────────────────────────────────────────── */}
+      {/* ── Inventory row (full width for table readability) ────────────── */}
       <section
-        aria-label="Operational panels"
+        aria-label="Inventory snapshot"
         className="px-6 py-5 border-b border-[rgb(var(--line))]"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <InventorySnapshotPanel rows={INVENTORY_ROWS} />
+        <InventorySnapshotPanel rows={INVENTORY_ROWS} />
+      </section>
+
+      {/* ── Sales + Service row ──────────────────────────────────────────── */}
+      <section
+        aria-label="Sales and service panels"
+        className="px-6 py-5 border-b border-[rgb(var(--line))]"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           <SalesPipelinePanel />
           <ServiceBayPanel />
         </div>
