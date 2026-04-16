@@ -2,7 +2,7 @@
 spec_id: SPEC-STOREFRONT-001
 domain: storefront
 title: Landing Page (Home)
-status: draft
+status: shipped
 risk_level: low
 pii_sensitivity: none
 flags: [storefront.landing.v1]

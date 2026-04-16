@@ -2,7 +2,7 @@
 spec_id: SPEC-CONSIGNOR-PORTAL-001
 domain: consignor-portal
 title: Consignor Portal
-status: draft
+status: shipped
 risk_level: medium
 pii_sensitivity: high
 flags: [consignor-portal.v1]
@@ -70,3 +70,4 @@ Routes live under `app/(consignor)/` with the same auth system as the customer p
 | Date | Version | Author | Change |
 |------|---------|--------|--------|
 | 2026-04-16 | 0.1 | Claude (integrator) | Initial draft |
+| 2026-04-16 | 1.0 | Claude (integrator) | All 5 pages shipped. Routes at /consignor/* (real URL segment). 4 Zod types, 2 consigned vehicles, 2 payouts, 8 messages, 2 agreements. Type mismatches between parallel agents fixed (property names aligned to schema). Consignor nav sidebar + bottom tabs. |

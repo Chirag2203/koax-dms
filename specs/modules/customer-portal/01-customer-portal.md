@@ -2,7 +2,7 @@
 spec_id: SPEC-CUSTOMER-PORTAL-001
 domain: customer-portal
 title: Customer Portal (Account, Vehicles, Bookings, Documents, Preferences)
-status: draft
+status: shipped
 risk_level: medium
 pii_sensitivity: high
 flags: [customer-portal.v1]
@@ -72,3 +72,4 @@ Routes live under `app/(portal)/` with a separate layout, auth guard, and sideba
 | Date | Version | Author | Change |
 |------|---------|--------|--------|
 | 2026-04-16 | 0.1 | Claude (integrator) | Initial draft from research + plan agent |
+| 2026-04-16 | 1.0 | Claude (integrator) | All 8 pages shipped. UI fixes: portal cards use token classes (bg-bg-subtle, border-line) instead of raw var(--color-*). Vehicle cards: 2x2 grid, equal height via flexbox, grayscale images with color-on-hover, actions contained within card. Booking cards dark-compatible. Service history table rows use token-based bg. Header shows profile avatar when signed in. 12 Zod types, mock customer with 3 owned vehicles. |

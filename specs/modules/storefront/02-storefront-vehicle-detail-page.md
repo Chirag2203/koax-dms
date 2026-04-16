@@ -2,7 +2,7 @@
 spec_id: SPEC-STOREFRONT-002
 domain: storefront
 title: Vehicle Detail Page (VDP)
-status: draft
+status: shipped
 risk_level: medium
 pii_sensitivity: none
 flags: [storefront.vdp.v1]

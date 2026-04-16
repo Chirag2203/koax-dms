@@ -2,7 +2,7 @@
 spec_id: SPEC-STOREFRONT-003
 domain: storefront
 title: The Collection (Inventory Listing)
-status: draft
+status: shipped
 risk_level: low
 pii_sensitivity: none
 flags: [storefront.collection.v1]
