@@ -4,3 +4,4 @@ export * from './article';
 export * from './service-type';
 export * from './customer';
 export * from './portal';
+export * from './consignor';

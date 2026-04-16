@@ -12,3 +12,9 @@ export {
   documents,
   communicationPreferences,
 } from './portal';
+export {
+  consignedVehicles,
+  consignorPayouts,
+  consignorMessages,
+  consignmentAgreements,
+} from './consignor';

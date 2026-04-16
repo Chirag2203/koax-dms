@@ -172,6 +172,119 @@
         "viewAll": "सभी दस्तावेज़ देखें",
         "empty": "कोई दस्तावेज़ दर्ज नहीं।"
       }
+    },
+    "consignor": {
+      "nav": {
+        "dashboard": "डैशबोर्ड",
+        "vehicles": "मेरी गाड़ियाँ",
+        "payouts": "भुगतान",
+        "messages": "संदेश",
+        "documents": "दस्तावेज़",
+        "signOut": "साइन आउट",
+        "portalLabel": "कंसाइनर पोर्टल",
+        "backToAccount": "खाते पर वापस जाएँ"
+      },
+      "dashboard": {
+        "eyebrow": "कंसाइनर खाता",
+        "greeting": "स्वागत है, {name}.",
+        "greetingSubtitle": "यहाँ आपके कंसाइनमेंट पोर्टफोलियो का लाइव दृश्य है।",
+        "stats": {
+          "activeListings": "सक्रिय लिस्टिंग",
+          "totalViewings": "कुल व्यूइंग",
+          "totalInquiries": "कुल जाँच",
+          "estPayout": "अनुमानित भुगतान"
+        },
+        "vehicles": {
+          "title": "आपकी कंसाइन्ड गाड़ियाँ",
+          "viewDetails": "विवरण देखें",
+          "daysListed": "{days} दिन सूचीबद्ध",
+          "viewings": "{count} व्यूइंग",
+          "inquiries": "{count} जाँच",
+          "feeRate": "{rate}% शुल्क",
+          "askingPrice": "माँगी गई कीमत",
+          "listedPrice": "सूचीबद्ध कीमत",
+          "empty": "वर्तमान में कोई गाड़ी कंसाइनमेंट में नहीं।",
+          "emptyHint": "कंसाइनमेंट प्रक्रिया शुरू करने के लिए अपने सलाहकार से बात करें।"
+        },
+        "recentMessages": {
+          "title": "हालिया पत्राचार",
+          "viewAll": "सभी संदेश देखें",
+          "from": "से:",
+          "unread": "अपठित",
+          "empty": "अभी तक कोई संदेश नहीं।"
+        }
+      },
+      "payouts": {
+        "title": "भुगतान",
+        "subtitle": "आपके कंसाइनमेंट आय का पारदर्शी विवरण।",
+        "summary": {
+          "title": "भुगतान सारांश",
+          "totalEarned": "कुल अर्जित",
+          "totalPending": "लंबित भुगतान"
+        },
+        "card": {
+          "salePrice": "बिक्री मूल्य",
+          "bnFee": "BN Automobiles शुल्क ({rate}%)",
+          "reimbursables": "प्रतिपूर्ति",
+          "netPayout": "शुद्ध भुगतान",
+          "expectedBy": "{date} तक अपेक्षित",
+          "paidOn": "{date} को भुगतान किया",
+          "status": {
+            "pending": "लंबित",
+            "processing": "प्रसंस्करण",
+            "completed": "पूर्ण"
+          }
+        },
+        "empty": "कोई भुगतान रिकॉर्ड नहीं।",
+        "emptyHint": "आपकी गाड़ी बिकने के बाद भुगतान विवरण यहाँ दिखाई देगा।"
+      },
+      "messages": {
+        "title": "पत्राचार",
+        "subtitle": "BN Automobiles सलाहकार टीम के साथ आपका संचार लॉग।",
+        "advisor": "सलाहकार",
+        "you": "आप",
+        "compose": {
+          "placeholder": "अपने सलाहकार को संदेश लिखें…",
+          "send": "भेजें",
+          "sent": "संदेश भेजा गया।",
+          "label": "नया संदेश"
+        },
+        "empty": "अभी तक कोई संदेश नहीं।",
+        "emptyHint": "आपकी गाड़ी सूचीबद्ध होने के बाद आपका सलाहकार संपर्क करेगा।"
+      },
+      "documents": {
+        "title": "कंसाइनमेंट दस्तावेज़",
+        "subtitle": "आपके कंसाइनमेंट समझौते और संबंधित दस्तावेज़।",
+        "viewTerms": "शर्तें देखें",
+        "pdfComingSoon": "PDF डाउनलोड जल्द आ रहा है।",
+        "signedOn": "{date} को हस्ताक्षरित",
+        "duration": "अवधि: {months} महीने",
+        "feeRate": "शुल्क दर: {rate}%",
+        "empty": "कोई कंसाइनमेंट समझौता दर्ज नहीं।",
+        "emptyHint": "हस्ताक्षर के बाद आपका समझौता यहाँ दिखाई देगा।"
+      },
+      "vehicles": {
+        "title": "मेरी कंसाइन्ड गाड़ियाँ",
+        "subtitle": "हमारी देखरेख में रखी हर गाड़ी का पूरा रिकॉर्ड।",
+        "timeline": {
+          "consigned": "कंसाइन्ड",
+          "listed": "सूचीबद्ध",
+          "viewings": "व्यूइंग",
+          "offer": "ऑफर",
+          "sold": "बिका"
+        },
+        "priceHistory": "मूल्य समायोजित",
+        "empty": "वर्तमान में कोई गाड़ी कंसाइन्ड नहीं।",
+        "emptyHint": "कंसाइनमेंट शुरू करने के लिए अपने सलाहकार से बात करें।"
+      },
+      "status": {
+        "listed": "सूचीबद्ध",
+        "reserved": "आरक्षित",
+        "under-offer": "ऑफर के तहत",
+        "sold": "बिका",
+        "withdrawn": "वापस लिया",
+        "pending-listing": "सूचीकरण लंबित"
+      }
     }
   }
 }

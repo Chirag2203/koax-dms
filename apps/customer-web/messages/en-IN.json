@@ -487,6 +487,119 @@
       "empty": "No documents on file.",
       "emptyHint": "Upload your RC, insurance, or PUC to keep them safe."
     },
+    "consignor": {
+      "nav": {
+        "dashboard": "Dashboard",
+        "vehicles": "My Vehicles",
+        "payouts": "Payouts",
+        "messages": "Messages",
+        "documents": "Documents",
+        "signOut": "Sign Out",
+        "portalLabel": "Consignor Portal",
+        "backToAccount": "Back to Account"
+      },
+      "dashboard": {
+        "eyebrow": "CONSIGNOR ACCOUNT",
+        "greeting": "Welcome back, {name}.",
+        "greetingSubtitle": "Here is a live view of your consignment portfolio.",
+        "stats": {
+          "activeListings": "Active Listings",
+          "totalViewings": "Total Viewings",
+          "totalInquiries": "Total Inquiries",
+          "estPayout": "Est. Payout"
+        },
+        "vehicles": {
+          "title": "Your Consigned Vehicles",
+          "viewDetails": "View details",
+          "daysListed": "{days} days listed",
+          "viewings": "{count} viewings",
+          "inquiries": "{count} inquiries",
+          "feeRate": "{rate}% fee",
+          "askingPrice": "Asking",
+          "listedPrice": "Listed",
+          "empty": "No vehicles currently in consignment.",
+          "emptyHint": "Speak with your advisor to begin the consignment process."
+        },
+        "recentMessages": {
+          "title": "Recent Correspondence",
+          "viewAll": "View all messages",
+          "from": "From:",
+          "unread": "Unread",
+          "empty": "No messages yet."
+        }
+      },
+      "payouts": {
+        "title": "Payouts",
+        "subtitle": "A transparent breakdown of your consignment proceeds.",
+        "summary": {
+          "title": "Payout Summary",
+          "totalEarned": "Total Earned",
+          "totalPending": "Pending Payout"
+        },
+        "card": {
+          "salePrice": "Sale Price",
+          "bnFee": "BN Automobiles Fee ({rate}%)",
+          "reimbursables": "Reimbursables",
+          "netPayout": "Net Payout",
+          "expectedBy": "Expected by {date}",
+          "paidOn": "Paid on {date}",
+          "status": {
+            "pending": "Pending",
+            "processing": "Processing",
+            "completed": "Completed"
+          }
+        },
+        "empty": "No payouts on record.",
+        "emptyHint": "Once your vehicle is sold, payout details will appear here."
+      },
+      "messages": {
+        "title": "Correspondence",
+        "subtitle": "Your communication log with the BN Automobiles advisory team.",
+        "advisor": "Advisor",
+        "you": "You",
+        "compose": {
+          "placeholder": "Write a message to your advisor…",
+          "send": "Send",
+          "sent": "Message sent.",
+          "label": "New message"
+        },
+        "empty": "No messages yet.",
+        "emptyHint": "Your advisor will reach out once your vehicle is listed."
+      },
+      "documents": {
+        "title": "Consignment Documents",
+        "subtitle": "Your consignment agreements and associated documentation.",
+        "viewTerms": "View Terms",
+        "pdfComingSoon": "PDF download coming soon.",
+        "signedOn": "Signed {date}",
+        "duration": "Duration: {months} months",
+        "feeRate": "Fee Rate: {rate}%",
+        "empty": "No consignment agreements on file.",
+        "emptyHint": "Your agreement will appear here once signed."
+      },
+      "vehicles": {
+        "title": "My Consigned Vehicles",
+        "subtitle": "A full record of every vehicle you have placed in our care.",
+        "timeline": {
+          "consigned": "Consigned",
+          "listed": "Listed",
+          "viewings": "Viewings",
+          "offer": "Under Offer",
+          "sold": "Sold"
+        },
+        "priceHistory": "Price Adjusted",
+        "empty": "No vehicles currently consigned.",
+        "emptyHint": "Speak with your advisor to begin consignment."
+      },
+      "status": {
+        "listed": "Listed",
+        "reserved": "Reserved",
+        "under-offer": "Under Offer",
+        "sold": "Sold",
+        "withdrawn": "Withdrawn",
+        "pending-listing": "Pending Listing"
+      }
+    },
     "preferences": {
       "title": "Preferences",
       "subtitle": "Manage your communication channels, language, and account settings.",

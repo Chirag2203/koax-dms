@@ -13,6 +13,12 @@ export {
   documents,
   communicationPreferences,
 } from './fixtures/portal';
+export {
+  consignedVehicles,
+  consignorPayouts,
+  consignorMessages,
+  consignmentAgreements,
+} from './fixtures/consignor';
 
 // ─── Handlers ─────────────────────────────────────────────────────────────────
 export { handlers } from './handlers';
@@ -20,3 +26,4 @@ export { vehicleHandlers } from './handlers/vehicles';
 export { outletHandlers } from './handlers/outlets';
 export { articleHandlers } from './handlers/articles';
 export { portalHandlers } from './handlers/portal';
+export { consignorHandlers } from './handlers/consignor';
