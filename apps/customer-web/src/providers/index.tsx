@@ -3,6 +3,7 @@ import { ReactNode } from 'react';
 import { ThemeProvider } from './theme-provider';
 import { CityProvider } from './city-provider';
 import { IntlProvider } from './intl-provider';
+import { AuthProvider } from './auth-provider';
 
 export function Providers({
   children,
@@ -16,7 +17,9 @@ export function Providers({
   return (
     <IntlProvider locale={locale} messages={messages}>
       <ThemeProvider>
-        <CityProvider>{children}</CityProvider>
+        <CityProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </CityProvider>
       </ThemeProvider>
     </IntlProvider>
   );

@@ -73,5 +73,105 @@
     "retry": "पुनः प्रयास करें",
     "loading": "लोड हो रहा है",
     "error": "कुछ गलत हो गया। कृपया पुनः प्रयास करें।"
+  },
+  "portal": {
+    "nav": {
+      "account": "खाता",
+      "vehicles": "गाड़ियाँ",
+      "bookings": "बुकिंग",
+      "documents": "दस्तावेज़",
+      "preferences": "प्राथमिकताएँ",
+      "signOut": "साइन आउट",
+      "myAccount": "मेरा खाता"
+    },
+    "auth": {
+      "signIn": "साइन इन",
+      "signUp": "खाता बनाएँ",
+      "email": "ईमेल पता",
+      "phone": "फ़ोन नंबर",
+      "name": "पूरा नाम",
+      "city": "पसंदीदा शहर",
+      "language": "पसंदीदा भाषा",
+      "continue": "जारी रखें",
+      "createAccount": "खाता बनाएँ",
+      "noAccount": "BN Automobiles में नए हैं?",
+      "hasAccount": "पहले से खाता है?",
+      "otp": "सत्यापन कोड दर्ज करें",
+      "otpSent": "हमने आपके ईमेल पर एक कोड भेजा है"
+    },
+    "account": {
+      "memberLabel": "{city} खाता · सदस्य {since} से",
+      "memberAccount": "सदस्य खाता",
+      "greetingSubtitle": "यहाँ है जो हम आपके लिए संभाल रहे हैं।",
+      "greeting": {
+        "morning": "शुभ प्रभात, {name}.",
+        "afternoon": "शुभ अपराह्न, {name}.",
+        "evening": "शुभ संध्या, {name}."
+      },
+      "savedCars": {
+        "title": "सहेजी गई गाड़ियाँ",
+        "viewAll": "सभी देखें",
+        "empty": "अभी तक कोई गाड़ी सहेजी नहीं गई।",
+        "emptyLink": "संग्रह देखें →",
+        "listLabel": "सहेजी गई गाड़ियाँ"
+      },
+      "reservations": {
+        "title": "वर्तमान होल्ड",
+        "activeHold": "सक्रिय होल्ड",
+        "holdExpires": "होल्ड · समाप्त {date}",
+        "deposit": "जमा राशि:",
+        "payBalance": "शेष राशि चुकाएँ",
+        "release": "होल्ड छोड़ें",
+        "empty": "कोई सक्रिय आरक्षण नहीं।"
+      },
+      "visits": {
+        "title": "आगामी मुलाकातें",
+        "testDriveLabel": "टेस्ट ड्राइव",
+        "serviceLabel": "सर्विस",
+        "advisor": "सलाहकार",
+        "duration": "अवधि",
+        "estimatedCost": "अनुमानित लागत",
+        "reschedule": "पुनर्निर्धारित करें",
+        "cancel": "रद्द करें",
+        "empty": "कोई आगामी अपॉइंटमेंट नहीं।",
+        "scheduleLink": "टेस्ट ड्राइव या सर्विस शेड्यूल करें →"
+      },
+      "serviceHistory": {
+        "eyebrow": "द लेजर",
+        "title": "सर्विस और रिस्टोरेशन इतिहास",
+        "subtitle": "हमारे क्यूरेटर्स द्वारा किए गए हर तकनीकी हस्तक्षेप का स्थायी रिकॉर्ड।",
+        "requestService": "सर्विस का अनुरोध करें",
+        "colDate": "तारीख",
+        "colVehicleOp": "गाड़ी और ऑपरेशन",
+        "colStatus": "स्थिति",
+        "colCost": "लागत",
+        "completed": "पूर्ण",
+        "inProgress": "जारी",
+        "empty": "अभी तक कोई सर्विस रिकॉर्ड नहीं।",
+        "viewAll": "सभी रिकॉर्ड देखें"
+      },
+      "ownedVehicles": {
+        "title": "आपकी गाड़ियाँ",
+        "currentMileage": "वर्तमान माइलेज",
+        "nextService": "अगली सर्विस",
+        "reg": "रजिस्ट्रेशन",
+        "serviceCurrent": "सर्विस अद्यतन",
+        "serviceOverdue": "सर्विस अतिदेय",
+        "scheduleService": "सर्विस शेड्यूल करें",
+        "requestPickup": "पिकअप का अनुरोध करें",
+        "viewDocuments": "दस्तावेज़ देखें",
+        "empty": "अभी तक गैरेज में कोई गाड़ी नहीं।",
+        "emptyLink": "संग्रह देखें →",
+        "listLabel": "आपकी गाड़ियाँ"
+      },
+      "documents": {
+        "title": "दस्तावेज़ संग्रह",
+        "subtitle": "आपके स्वामित्व शीर्षक, बीमा प्रमाणपत्र और सर्विस रिकॉर्ड के लिए सुरक्षित डिजिटल भंडारण।",
+        "vaultLabel": "भंडारण स्थिति",
+        "vaultStatus": "पूरी तरह एन्क्रिप्टेड निजी वॉल्ट",
+        "viewAll": "सभी दस्तावेज़ देखें",
+        "empty": "कोई दस्तावेज़ दर्ज नहीं।"
+      }
+    }
   }
 }
