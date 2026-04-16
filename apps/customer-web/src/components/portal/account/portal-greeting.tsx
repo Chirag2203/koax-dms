@@ -45,7 +45,7 @@ export function PortalGreeting({ customer }: PortalGreetingProps) {
       <div className="grid grid-cols-12 gap-8">
         <div className="col-span-12 md:col-span-8">
           {/* Mono member label */}
-          <p className="font-mono text-[11px] uppercase tracking-widest text-[var(--color-brass)] mb-4">
+          <p className="font-mono text-[11px] uppercase tracking-widest text-accent mb-4">
             {t('memberLabel', {
               city: cityLabel,
               since: memberSince,
@@ -53,29 +53,29 @@ export function PortalGreeting({ customer }: PortalGreetingProps) {
           </p>
 
           {/* Time-based greeting */}
-          <h1 className="font-display text-4xl md:text-5xl lg:text-6xl text-[var(--color-ink)] leading-[1.1] mb-4">
+          <h1 className="font-display text-4xl md:text-5xl lg:text-6xl text-ink-primary leading-[1.1] mb-4">
             {t(`greeting.${greeting}`, { name: customer.name })}
           </h1>
 
           {/* Subtitle */}
-          <p className="text-lg text-[var(--color-ink-secondary)] leading-relaxed max-w-xl mt-4">
+          <p className="text-lg text-ink-secondary leading-relaxed max-w-xl mt-4">
             {t('greetingSubtitle')}
           </p>
         </div>
 
         {/* Last login meta */}
         <div className="col-span-12 md:col-span-4 flex flex-col justify-end items-end gap-1 text-right">
-          <span className="font-mono text-[10px] text-[var(--color-ink-muted)] uppercase tracking-widest">
+          <span className="font-mono text-[10px] text-ink-muted uppercase tracking-widest">
             {t('memberAccount')}
           </span>
-          <span className="font-mono text-sm text-[var(--color-ink)] uppercase tracking-wide">
+          <span className="font-mono text-sm text-ink-primary uppercase tracking-wide">
             {customer.avatar}
           </span>
         </div>
       </div>
 
       {/* Hairline divider */}
-      <div className="mt-8 border-t border-[var(--color-line)]" />
+      <div className="mt-8 border-t border-line" />
     </header>
   );
 }

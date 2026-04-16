@@ -24,17 +24,17 @@ export function PreferenceToggle({
   onChange,
 }: PreferenceToggleProps) {
   return (
-    <div className="py-6 border-b border-[var(--color-line)] last:border-0">
+    <div className="py-6 border-b border-line last:border-0">
       <div className="flex items-start justify-between gap-6">
         {/* Label + description */}
         <div className="flex-1 min-w-0">
           <label
             htmlFor={id}
-            className="font-sans text-base font-medium text-[var(--color-ink)] cursor-pointer select-none"
+            className="font-sans text-base font-medium text-ink-primary cursor-pointer select-none"
           >
             {label}
           </label>
-          <p className="text-sm text-[var(--color-ink-secondary)] mt-1 leading-relaxed">
+          <p className="text-sm text-ink-secondary mt-1 leading-relaxed">
             {description}
           </p>
         </div>
@@ -49,10 +49,10 @@ export function PreferenceToggle({
           onClick={() => onChange(!checked)}
           className={[
             'relative inline-flex h-6 w-11 items-center rounded-full flex-shrink-0 mt-0.5 transition-colors duration-200',
-            'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]',
+            'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
             checked
-              ? 'bg-[var(--color-accent,var(--color-brass))]'
-              : 'bg-[var(--color-line)]',
+              ? 'bg-accent'
+              : 'bg-line',
           ].join(' ')}
         >
           <span
@@ -66,7 +66,7 @@ export function PreferenceToggle({
       </div>
 
       {/* DPDP consent text */}
-      <p className="font-mono text-[10px] text-[var(--color-ink-muted)] mt-3 leading-relaxed max-w-lg">
+      <p className="font-mono text-[10px] text-ink-muted mt-3 leading-relaxed max-w-lg">
         {consentText}
       </p>
     </div>

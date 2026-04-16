@@ -19,29 +19,29 @@ export function AccountSection({ customer }: AccountSectionProps) {
 
   return (
     <section className="mb-12">
-      <h2 className="font-display text-xl text-[var(--color-ink)] mb-6">
+      <h2 className="font-display text-xl text-ink-primary mb-6">
         {t('account')}
       </h2>
 
       {/* Read-only fields */}
       <dl className="space-y-5 mb-10 max-w-md">
-        <div className="border-b border-[var(--color-line)] pb-4">
-          <dt className="font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-muted)] mb-1">
+        <div className="border-b border-line pb-4">
+          <dt className="font-mono text-[10px] uppercase tracking-widest text-ink-muted mb-1">
             Name
           </dt>
-          <dd className="text-base text-[var(--color-ink)] font-sans">{customer.name}</dd>
+          <dd className="text-base text-ink-primary font-sans">{customer.name}</dd>
         </div>
-        <div className="border-b border-[var(--color-line)] pb-4">
-          <dt className="font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-muted)] mb-1">
+        <div className="border-b border-line pb-4">
+          <dt className="font-mono text-[10px] uppercase tracking-widest text-ink-muted mb-1">
             Email
           </dt>
-          <dd className="text-base text-[var(--color-ink)] font-sans">{customer.email}</dd>
+          <dd className="text-base text-ink-primary font-sans">{customer.email}</dd>
         </div>
-        <div className="border-b border-[var(--color-line)] pb-4">
-          <dt className="font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-muted)] mb-1">
+        <div className="border-b border-line pb-4">
+          <dt className="font-mono text-[10px] uppercase tracking-widest text-ink-muted mb-1">
             Phone
           </dt>
-          <dd className="text-base text-[var(--color-ink)] font-sans">{customer.phone}</dd>
+          <dd className="text-base text-ink-primary font-sans">{customer.phone}</dd>
         </div>
       </dl>
 
@@ -50,12 +50,12 @@ export function AccountSection({ customer }: AccountSectionProps) {
         type="button"
         onClick={signOut}
         className={[
-          'border border-[var(--color-danger,#c0392b)] text-[var(--color-danger,#c0392b)]',
+          'border border-danger text-danger',
           'rounded-full px-8 py-3',
           'font-mono text-xs uppercase tracking-widest',
-          'hover:bg-[var(--color-danger,#c0392b)] hover:text-white',
+          'hover:bg-danger hover:text-white',
           'transition-colors duration-200',
-          'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-danger,#c0392b)]',
+          'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-danger',
         ].join(' ')}
       >
         {t('signOut')}

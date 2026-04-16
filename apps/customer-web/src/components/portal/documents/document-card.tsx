@@ -41,7 +41,7 @@ const DOC_TYPE_LABELS: Record<Document['type'], string> = {
 };
 
 function DocIcon({ type }: { type: Document['type'] }) {
-  const cls = 'h-5 w-5 flex-shrink-0 text-[var(--color-accent,var(--color-brass))]';
+  const cls = 'h-5 w-5 flex-shrink-0 text-accent';
   switch (type) {
     case 'insurance':
       return <Shield className={cls} aria-hidden="true" />;
@@ -70,7 +70,7 @@ export function DocumentCard({ doc }: DocumentCardProps) {
     const days = daysUntil(doc.expiresAt);
     if (days < 0) {
       expiryBadge = (
-        <span className="inline-flex items-center px-2 py-0.5 bg-[var(--color-danger,#c0392b)]/10 text-[var(--color-danger,#c0392b)] font-mono text-[10px] uppercase tracking-widest">
+        <span className="inline-flex items-center px-2 py-0.5 bg-danger/10 text-danger font-mono text-[10px] uppercase tracking-widest">
           {t('expired')}
         </span>
       );
@@ -92,17 +92,17 @@ export function DocumentCard({ doc }: DocumentCardProps) {
 
       {/* Name + meta */}
       <div className="flex-1 min-w-0">
-        <p className="font-display text-base text-[var(--color-ink)] leading-snug truncate">
+        <p className="font-display text-base text-ink-primary leading-snug truncate">
           {doc.name}
         </p>
         <div className="flex items-center gap-3 mt-1 flex-wrap">
-          <span className="font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-muted)]">
+          <span className="font-mono text-[10px] uppercase tracking-widest text-ink-muted">
             {typeLabel}
           </span>
-          <span className="font-mono text-[11px] text-[var(--color-ink-muted)]">
+          <span className="font-mono text-[11px] text-ink-muted">
             {t('uploadedOn', { date: uploadedLabel })}
           </span>
-          <span className="font-mono text-[11px] text-[var(--color-ink-muted)]">
+          <span className="font-mono text-[11px] text-ink-muted">
             {doc.fileSize}
           </span>
           {expiryBadge}
@@ -115,7 +115,7 @@ export function DocumentCard({ doc }: DocumentCardProps) {
         download
         target="_blank"
         rel="noopener noreferrer"
-        className="flex-shrink-0 p-2 text-[var(--color-ink-muted)] hover:text-[var(--color-brass)] transition-colors rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)]"
+        className="flex-shrink-0 p-2 text-ink-muted hover:text-accent transition-colors rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         aria-label={`${t('download')} ${doc.name}`}
         title={t('download')}
       >

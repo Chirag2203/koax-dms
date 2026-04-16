@@ -14,11 +14,11 @@ export default function VehiclesPage() {
   return (
     <div className="max-w-5xl">
       {/* ── Page header ──────────────────────────────────────────────────────── */}
-      <div className="px-6 md:px-12 lg:px-16 pt-10 pb-8 border-b border-[var(--color-line)]">
-        <h1 className="font-display text-3xl md:text-4xl text-[var(--color-ink)] leading-tight mb-2">
+      <div className="px-6 md:px-12 lg:px-16 pt-10 pb-8 border-b border-line">
+        <h1 className="font-display text-3xl md:text-4xl text-ink-primary leading-tight mb-2">
           {t('title')}
         </h1>
-        <p className="text-sm text-[var(--color-ink-secondary)] max-w-xl">
+        <p className="text-sm text-ink-secondary max-w-xl">
           {t('subtitle')}
         </p>
       </div>
@@ -28,12 +28,12 @@ export default function VehiclesPage() {
         {ownedVehicles.length === 0 ? (
           /* Empty state */
           <div className="py-24 text-center">
-            <p className="font-display text-xl italic text-[var(--color-ink-secondary)] mb-4">
+            <p className="font-display text-xl italic text-ink-secondary mb-4">
               {t('empty')}
             </p>
             <Link
               href="/collection"
-              className="font-mono text-[11px] uppercase tracking-widest text-[var(--color-brass)] hover:underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)]"
+              className="font-mono text-[11px] uppercase tracking-widest text-accent hover:underline underline-offset-4"
             >
               {t('emptyLink')} →
             </Link>
@@ -41,7 +41,7 @@ export default function VehiclesPage() {
         ) : (
           /* Vehicle grid */
           <div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="grid grid-cols-1 md:grid-cols-2 gap-6"
             role="list"
             aria-label={t('listLabel')}
           >

@@ -39,19 +39,19 @@ function BookingRow({ booking }: { booking: Booking }) {
   const dateTimeLabel = formatBookingDate(booking.date, booking.time);
 
   return (
-    <div className="py-6 first:pt-0 border-l-2 border-[var(--color-brass)] pl-5">
+    <div className="py-6 first:pt-0 border-l-2 border-accent pl-5">
       {/* Outlet label */}
-      <span className="font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-muted)] block mb-1">
+      <span className="font-mono text-[10px] uppercase tracking-widest text-ink-muted block mb-1">
         {cityLabel} · {booking.outletName}
       </span>
 
       {/* Date/time */}
-      <p className="font-mono text-xs text-[var(--color-ink)] uppercase tracking-wide mb-1">
+      <p className="font-mono text-xs text-ink-primary uppercase tracking-wide mb-1">
         {dateTimeLabel}
       </p>
 
       {/* Visit title */}
-      <h4 className="font-display text-lg text-[var(--color-ink)] leading-snug mb-1">
+      <h4 className="font-display text-lg text-ink-primary leading-snug mb-1">
         {booking.type === 'test-drive'
           ? t('visits.testDriveLabel')
           : t('visits.serviceLabel')}{' '}
@@ -59,7 +59,7 @@ function BookingRow({ booking }: { booking: Booking }) {
       </h4>
 
       {/* Advisor / duration / cost */}
-      <div className="text-sm text-[var(--color-ink-secondary)] space-y-0.5 mb-3">
+      <div className="text-sm text-ink-secondary space-y-0.5 mb-3">
         {booking.advisorName && (
           <p>
             {t('visits.advisor')}: {booking.advisorName}
@@ -80,14 +80,14 @@ function BookingRow({ booking }: { booking: Booking }) {
       {/* Actions */}
       <div className="flex items-center gap-4">
         <button
-          className="font-mono text-[10px] uppercase tracking-widest text-[var(--color-brass)] hover:underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)]"
+          className="font-mono text-[10px] uppercase tracking-widest text-accent hover:underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           aria-label={`Reschedule visit for ${booking.vehicleName}`}
         >
           {t('visits.reschedule')}
         </button>
-        <span className="text-[var(--color-line)]" aria-hidden="true">·</span>
+        <span className="text-line" aria-hidden="true">·</span>
         <button
-          className="font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)]"
+          className="font-mono text-[10px] uppercase tracking-widest text-ink-muted hover:text-ink-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           aria-label={`Cancel visit for ${booking.vehicleName}`}
         >
           {t('visits.cancel')}
@@ -108,28 +108,28 @@ export function UpcomingVisitsPanel({ bookings }: UpcomingVisitsPanelProps) {
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
         <CalendarDays
-          className="h-5 w-5 text-[var(--color-brass)]"
+          className="h-5 w-5 text-accent"
           aria-hidden="true"
         />
-        <h2 className="font-display text-2xl text-[var(--color-ink)]">
+        <h2 className="font-display text-2xl text-ink-primary">
           {t('visits.title')}
         </h2>
       </div>
 
       {upcoming.length === 0 ? (
         <div>
-          <p className="font-display text-base text-[var(--color-ink-secondary)] italic mb-4">
+          <p className="font-display text-base text-ink-secondary italic mb-4">
             {t('visits.empty')}
           </p>
           <Link
             href="/service"
-            className="font-mono text-[10px] uppercase tracking-widest text-[var(--color-brass)] hover:underline underline-offset-4"
+            className="font-mono text-[10px] uppercase tracking-widest text-accent hover:underline underline-offset-4"
           >
             {t('visits.scheduleLink')}
           </Link>
         </div>
       ) : (
-        <div className="divide-y divide-[var(--color-line)] space-y-0">
+        <div className="divide-y divide-line space-y-0">
           {upcoming.map((b) => (
             <BookingRow key={b.id} booking={b} />
           ))}

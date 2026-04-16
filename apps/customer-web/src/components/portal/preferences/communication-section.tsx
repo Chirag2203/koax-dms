@@ -23,7 +23,7 @@ export function CommunicationSection({ preferences, onUpdate }: CommunicationSec
 
   return (
     <section className="mb-12">
-      <h2 className="font-display text-xl text-[var(--color-ink)] mb-6">
+      <h2 className="font-display text-xl text-ink-primary mb-6">
         {t('communication')}
       </h2>
 

@@ -26,14 +26,14 @@ function formatBookingDate(dateStr: string, time: string): string {
 }
 
 const BORDER_COLOR: Record<Booking['type'], string> = {
-  'test-drive': 'border-[var(--color-brass)]',
-  service: 'border-[var(--color-success,#3b7a57)]',
+  'test-drive': 'border-accent',
+  service: 'border-success',
 };
 
 const STATUS_CLASSES: Record<Booking['status'], string> = {
-  confirmed: 'text-[var(--color-success,#3b7a57)]',
-  completed: 'text-[var(--color-ink-muted)]',
-  cancelled: 'text-[var(--color-danger,#c0392b)] line-through',
+  confirmed: 'text-success',
+  completed: 'text-ink-muted',
+  cancelled: 'text-danger line-through',
 };
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -57,7 +57,7 @@ export function BookingCard({ booking, onAction }: BookingCardProps) {
   return (
     <article
       className={[
-        'border border-[var(--color-line)] border-l-4 bg-bg-subtle',
+        'border border-line border-l-4 bg-bg-subtle',
         'p-6 md:p-8',
         BORDER_COLOR[booking.type],
       ].join(' ')}
@@ -65,15 +65,15 @@ export function BookingCard({ booking, onAction }: BookingCardProps) {
     >
       {/* Top row: date + type badge */}
       <div className="flex items-start justify-between gap-4 mb-3">
-        <span className="font-mono text-[11px] uppercase tracking-widest text-[var(--color-ink-muted)]">
+        <span className="font-mono text-[11px] uppercase tracking-widest text-ink-muted">
           {dateLabel}
         </span>
         <span
           className={[
             'font-mono text-[10px] uppercase tracking-widest px-2 py-0.5 border flex-shrink-0',
             booking.type === 'test-drive'
-              ? 'border-[var(--color-brass)] text-[var(--color-brass)] bg-[var(--color-brass)]/5'
-              : 'border-[var(--color-success,#3b7a57)] text-[var(--color-success,#3b7a57)] bg-[var(--color-success,#3b7a57)]/5',
+              ? 'border-accent text-accent bg-accent/5'
+              : 'border-success text-success bg-success/5',
           ].join(' ')}
         >
           {typeLabel}
@@ -81,46 +81,46 @@ export function BookingCard({ booking, onAction }: BookingCardProps) {
       </div>
 
       {/* Vehicle name */}
-      <h3 className="font-display text-lg text-[var(--color-ink)] leading-snug mb-4">
+      <h3 className="font-display text-lg text-ink-primary leading-snug mb-4">
         {booking.vehicleName}
       </h3>
 
       {/* Details grid */}
       <dl className="grid grid-cols-2 gap-x-6 gap-y-2 mb-5">
         <div>
-          <dt className="font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-muted)] mb-0.5">
+          <dt className="font-mono text-[10px] uppercase tracking-widest text-ink-muted mb-0.5">
             {t('outlet')}
           </dt>
-          <dd className="text-sm text-[var(--color-ink-secondary)]">{booking.outletName}</dd>
+          <dd className="text-sm text-ink-secondary">{booking.outletName}</dd>
         </div>
         {booking.advisorName && (
           <div>
-            <dt className="font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-muted)] mb-0.5">
+            <dt className="font-mono text-[10px] uppercase tracking-widest text-ink-muted mb-0.5">
               {t('advisor')}
             </dt>
-            <dd className="text-sm text-[var(--color-ink-secondary)]">{booking.advisorName}</dd>
+            <dd className="text-sm text-ink-secondary">{booking.advisorName}</dd>
           </div>
         )}
         {booking.estimatedDuration && (
           <div>
-            <dt className="font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-muted)] mb-0.5">
+            <dt className="font-mono text-[10px] uppercase tracking-widest text-ink-muted mb-0.5">
               {t('duration')}
             </dt>
-            <dd className="text-sm text-[var(--color-ink-secondary)]">{booking.estimatedDuration}</dd>
+            <dd className="text-sm text-ink-secondary">{booking.estimatedDuration}</dd>
           </div>
         )}
         {booking.estimatedCost && (
           <div>
-            <dt className="font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-muted)] mb-0.5">
+            <dt className="font-mono text-[10px] uppercase tracking-widest text-ink-muted mb-0.5">
               {t('estCost')}
             </dt>
-            <dd className="text-sm text-[var(--color-ink-secondary)]">{booking.estimatedCost}</dd>
+            <dd className="text-sm text-ink-secondary">{booking.estimatedCost}</dd>
           </div>
         )}
       </dl>
 
       {/* Status + actions */}
-      <div className="flex items-center justify-between flex-wrap gap-4 pt-4 border-t border-[var(--color-line)]">
+      <div className="flex items-center justify-between flex-wrap gap-4 pt-4 border-t border-line">
         {/* Status */}
         <span className={['font-mono text-xs uppercase tracking-widest', STATUS_CLASSES[booking.status]].join(' ')}>
           {statusLabel}
@@ -131,23 +131,23 @@ export function BookingCard({ booking, onAction }: BookingCardProps) {
           <div className="flex items-center gap-4">
             <button
               onClick={() => handleAction('reschedule')}
-              className="font-mono text-[10px] uppercase tracking-widest text-[var(--color-brass)] hover:underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)]"
+              className="font-mono text-[10px] uppercase tracking-widest text-accent hover:underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               aria-label={`Reschedule booking for ${booking.vehicleName}`}
             >
               {t('reschedule')}
             </button>
-            <span className="text-[var(--color-line)]" aria-hidden="true">·</span>
+            <span className="text-line" aria-hidden="true">·</span>
             <button
               onClick={() => handleAction('cancel')}
-              className="font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)]"
+              className="font-mono text-[10px] uppercase tracking-widest text-ink-muted hover:text-ink-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               aria-label={`Cancel booking for ${booking.vehicleName}`}
             >
               {t('cancel')}
             </button>
-            <span className="text-[var(--color-line)]" aria-hidden="true">·</span>
+            <span className="text-line" aria-hidden="true">·</span>
             <button
               onClick={() => handleAction('calendar')}
-              className="font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)]"
+              className="font-mono text-[10px] uppercase tracking-widest text-ink-muted hover:text-ink-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               aria-label={`Add booking for ${booking.vehicleName} to calendar`}
             >
               {t('addToCalendar')}

@@ -40,10 +40,10 @@ export function BookingFilters({ active, onChange }: BookingFiltersProps) {
             onClick={() => onChange(key)}
             className={[
               'px-4 py-1.5 rounded-full font-mono text-xs uppercase tracking-widest transition-colors',
-              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-accent)]',
+              'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
               isActive
-                ? 'bg-[var(--color-accent)] text-white'
-                : 'border border-[var(--color-line)] text-[var(--color-ink-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)]',
+                ? 'bg-accent text-white'
+                : 'border border-line text-ink-secondary hover:border-accent hover:text-accent',
             ].join(' ')}
           >
             {label}

@@ -45,7 +45,7 @@ function LedgerRow({ record }: { record: ServiceRecord }) {
       {/* Date column */}
       <td className="px-0 py-5 pr-8 align-top whitespace-nowrap">
         <span
-          className="font-mono text-sm text-[var(--color-ink-muted)] block"
+          className="font-mono text-sm text-ink-muted block"
           title={fullDate}
         >
           {monthYear}
@@ -54,10 +54,10 @@ function LedgerRow({ record }: { record: ServiceRecord }) {
 
       {/* Vehicle + operation */}
       <td className="py-5 pr-8 align-top">
-        <span className="font-display text-lg italic text-[var(--color-ink)] block leading-snug mb-0.5">
+        <span className="font-display text-lg italic text-ink-primary block leading-snug mb-0.5">
           {record.vehicleName}
         </span>
-        <span className="text-sm text-[var(--color-ink-secondary)]">
+        <span className="text-sm text-ink-secondary">
           {record.type}
           {itemsSummary && ` — ${itemsSummary}`}
         </span>
@@ -69,16 +69,16 @@ function LedgerRow({ record }: { record: ServiceRecord }) {
           <span
             className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
               record.status === 'completed'
-                ? 'bg-[var(--color-forest,#1F4D3A)]'
-                : 'bg-[var(--color-brass)]'
+                ? 'bg-success'
+                : 'bg-accent'
             }`}
             aria-hidden="true"
           />
           <span
             className={`font-mono text-[10px] uppercase tracking-widest ${
               record.status === 'completed'
-                ? 'text-[var(--color-forest,#1F4D3A)]'
-                : 'text-[var(--color-brass)]'
+                ? 'text-success'
+                : 'text-accent'
             }`}
           >
             {record.status === 'completed'
@@ -97,14 +97,14 @@ function LedgerRow({ record }: { record: ServiceRecord }) {
               href={record.invoiceUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-[var(--color-ink-muted)] group-hover:text-[var(--color-brass)] transition-colors"
+              className="text-ink-muted group-hover:text-accent transition-colors"
               aria-label={`View service record for ${record.vehicleName}`}
             >
               <FileText className="h-4 w-4" />
             </a>
           ) : (
             <span
-              className="text-[var(--color-ink-muted)]/30"
+              className="text-ink-muted/30"
               aria-hidden="true"
             >
               <FileText className="h-4 w-4" />
@@ -127,20 +127,20 @@ export function ServiceHistoryPreview({ records }: ServiceHistoryPreviewProps) {
       {/* Section header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-10">
         <div className="max-w-md">
-          <p className="font-mono text-[11px] uppercase tracking-widest text-[var(--color-brass)] mb-3">
+          <p className="font-mono text-[11px] uppercase tracking-widest text-accent mb-3">
             {t('serviceHistory.eyebrow')}
           </p>
-          <h2 className="font-display text-3xl md:text-4xl text-[var(--color-ink)] leading-tight">
+          <h2 className="font-display text-3xl md:text-4xl text-ink-primary leading-tight">
             {t('serviceHistory.title')}
           </h2>
-          <p className="text-sm text-[var(--color-ink-secondary)] mt-2 leading-relaxed">
+          <p className="text-sm text-ink-secondary mt-2 leading-relaxed">
             {t('serviceHistory.subtitle')}
           </p>
         </div>
         <div className="mt-6 md:mt-0">
           <Link
             href="/service"
-            className="font-mono text-[10px] uppercase tracking-widest border border-[var(--color-ink)] px-6 py-2.5 hover:bg-[var(--color-ink)] hover:text-[var(--color-paper)] transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)]"
+            className="font-mono text-[10px] uppercase tracking-widest border border-ink-primary px-6 py-2.5 hover:bg-ink-primary hover:text-bg-paper transition-all focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
             {t('serviceHistory.requestService')}
           </Link>
@@ -148,7 +148,7 @@ export function ServiceHistoryPreview({ records }: ServiceHistoryPreviewProps) {
       </div>
 
       {records.length === 0 ? (
-        <p className="font-display text-lg italic text-[var(--color-ink-secondary)] py-8">
+        <p className="font-display text-lg italic text-ink-secondary py-8">
           {t('serviceHistory.empty')}
         </p>
       ) : (
@@ -158,16 +158,16 @@ export function ServiceHistoryPreview({ records }: ServiceHistoryPreviewProps) {
             <table className="w-full text-left border-collapse">
               <thead className="bg-bg-subtle border-b border-line">
                 <tr>
-                  <th className="px-0 py-3 pr-8 font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-muted)]">
+                  <th className="px-0 py-3 pr-8 font-mono text-[10px] uppercase tracking-widest text-ink-muted">
                     {t('serviceHistory.colDate')}
                   </th>
-                  <th className="py-3 pr-8 font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-muted)]">
+                  <th className="py-3 pr-8 font-mono text-[10px] uppercase tracking-widest text-ink-muted">
                     {t('serviceHistory.colVehicleOp')}
                   </th>
-                  <th className="py-3 pr-8 font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-muted)] hidden md:table-cell">
+                  <th className="py-3 pr-8 font-mono text-[10px] uppercase tracking-widest text-ink-muted hidden md:table-cell">
                     {t('serviceHistory.colStatus')}
                   </th>
-                  <th className="py-3 font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-muted)] text-right">
+                  <th className="py-3 font-mono text-[10px] uppercase tracking-widest text-ink-muted text-right">
                     {t('serviceHistory.colCost')}
                   </th>
                 </tr>
@@ -185,7 +185,7 @@ export function ServiceHistoryPreview({ records }: ServiceHistoryPreviewProps) {
             <div className="mt-6 text-right">
               <Link
                 href="/vehicles"
-                className="font-mono text-[11px] uppercase tracking-widest text-[var(--color-brass)] hover:underline underline-offset-4"
+                className="font-mono text-[11px] uppercase tracking-widest text-accent hover:underline underline-offset-4"
               >
                 {t('serviceHistory.viewAll')} ({records.length}) →
               </Link>

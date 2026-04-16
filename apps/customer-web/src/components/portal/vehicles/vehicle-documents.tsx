@@ -44,27 +44,27 @@ function DocumentRow({ doc }: { doc: Document }) {
     <div className="flex items-start gap-4 py-5 group">
       {/* Icon */}
       <div
-        className="flex-shrink-0 mt-0.5 w-8 h-8 flex items-center justify-center border border-[var(--color-brass)]/30 bg-[var(--color-brass)]/5"
+        className="flex-shrink-0 mt-0.5 w-8 h-8 flex items-center justify-center border border-accent/30 bg-accent/5"
         aria-hidden="true"
       >
-        <FileText className="h-4 w-4 text-[var(--color-brass)]" />
+        <FileText className="h-4 w-4 text-accent" />
       </div>
 
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <p className="font-display text-base text-[var(--color-ink)] leading-snug mb-0.5">
+        <p className="font-display text-base text-ink-primary leading-snug mb-0.5">
           {doc.name}
         </p>
 
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1">
           {/* Upload date */}
-          <span className="font-mono text-[11px] text-[var(--color-ink-muted)]">
+          <span className="font-mono text-[11px] text-ink-muted">
             {t('uploadedOn')} {formatDate(doc.uploadedAt)}
           </span>
 
           {/* File size */}
           <span
-            className="font-mono text-[11px] text-[var(--color-ink-muted)]"
+            className="font-mono text-[11px] text-ink-muted"
             aria-label={`File size: ${doc.fileSize}`}
           >
             {doc.fileSize}
@@ -76,7 +76,7 @@ function DocumentRow({ doc }: { doc: Document }) {
               className={`inline-flex font-mono text-[9px] uppercase tracking-widest px-2 py-0.5 ${
                 expired
                   ? 'bg-red-100 text-red-700'
-                  : 'bg-[var(--color-warning,#f59e0b)]/10 text-[var(--color-warning,#b45309)]'
+                  : 'bg-warning/10 text-warning'
               }`}
             >
               {t('expires', { date: formatDate(doc.expiresAt) })}
@@ -89,7 +89,7 @@ function DocumentRow({ doc }: { doc: Document }) {
       <a
         href={doc.fileUrl}
         download
-        className="flex-shrink-0 flex items-center justify-center w-8 h-8 text-[var(--color-ink-muted)] hover:text-[var(--color-brass)] hover:border-[var(--color-brass)]/40 border border-transparent transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)]"
+        className="flex-shrink-0 flex items-center justify-center w-8 h-8 text-ink-muted hover:text-accent hover:border-accent/40 border border-transparent transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
         aria-label={`Download ${doc.name}`}
       >
         <Download className="h-4 w-4" />
@@ -106,20 +106,20 @@ export function VehicleDocuments({ documents }: VehicleDocumentsProps) {
   return (
     <section
       id="documents"
-      className="px-6 md:px-12 lg:px-16 py-12 border-t border-[var(--color-line)]"
+      className="px-6 md:px-12 lg:px-16 py-12 border-t border-line"
     >
       {/* Header */}
-      <h2 className="font-display text-2xl md:text-3xl text-[var(--color-ink)] mb-8">
+      <h2 className="font-display text-2xl md:text-3xl text-ink-primary mb-8">
         {t('documents')}
       </h2>
 
       {documents.length === 0 ? (
-        <p className="font-display text-lg italic text-[var(--color-ink-secondary)] py-8">
+        <p className="font-display text-lg italic text-ink-secondary py-8">
           {t('noDocuments')}
         </p>
       ) : (
         <div
-          className="divide-y divide-[var(--color-line)]"
+          className="divide-y divide-line"
           role="list"
           aria-label={t('documents')}
         >

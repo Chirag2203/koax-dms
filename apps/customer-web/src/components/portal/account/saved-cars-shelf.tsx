@@ -51,7 +51,7 @@ function SavedVehicleCard({ vehicle }: { vehicle: SavedVehicleDisplay }) {
       aria-label={`View ${vehicle.year} ${vehicle.make} ${vehicle.model}`}
     >
       {/* 4:5 image */}
-      <div className="relative aspect-[4/5] overflow-hidden bg-[var(--color-bg-subtle)] mb-4">
+      <div className="relative aspect-[4/5] overflow-hidden bg-bg-subtle mb-4">
         {vehicle.imageUrl ? (
           <Image
             src={vehicle.imageUrl}
@@ -61,17 +61,17 @@ function SavedVehicleCard({ vehicle }: { vehicle: SavedVehicleDisplay }) {
             className="object-cover transition-transform duration-700 group-hover:scale-[1.03]"
           />
         ) : (
-          <div className="absolute inset-0 bg-[var(--color-bg-subtle)]" />
+          <div className="absolute inset-0 bg-bg-subtle" />
         )}
       </div>
 
       {/* Meta */}
-      <span className="block font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-muted)] mb-1">
+      <span className="block font-mono text-[10px] uppercase tracking-widest text-ink-muted mb-1">
         {metaLine}
       </span>
 
       {/* Title */}
-      <h3 className="font-display text-xl text-[var(--color-ink)] leading-snug mb-2">
+      <h3 className="font-display text-xl text-ink-primary leading-snug mb-2">
         {vehicle.make} {vehicle.model}
       </h3>
 
@@ -79,7 +79,7 @@ function SavedVehicleCard({ vehicle }: { vehicle: SavedVehicleDisplay }) {
       <div className="flex items-center justify-between">
         <PriceDisplay amount={vehicle.price} size="sm" />
         <span
-          className="font-mono text-[10px] uppercase tracking-widest text-[var(--color-brass)] flex items-center gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+          className="font-mono text-[10px] uppercase tracking-widest text-accent flex items-center gap-1 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
           aria-hidden="true"
         >
           View <ArrowRight className="h-3 w-3" />
@@ -97,13 +97,13 @@ export function SavedCarsShelf({ vehicles }: SavedCarsShelfProps) {
   return (
     <section className="px-6 md:px-12 lg:px-16 py-12">
       {/* Section header */}
-      <div className="flex items-end justify-between mb-8 pb-4 border-b border-[var(--color-ink)]/10">
-        <h2 className="font-display text-3xl italic text-[var(--color-ink)]">
+      <div className="flex items-end justify-between mb-8 pb-4 border-b border-ink-primary/10">
+        <h2 className="font-display text-3xl italic text-ink-primary">
           {t('savedCars.title')}
         </h2>
         <Link
           href="/collection"
-          className="font-mono text-[11px] uppercase tracking-widest text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] transition-colors flex items-center gap-2"
+          className="font-mono text-[11px] uppercase tracking-widest text-ink-muted hover:text-ink-primary transition-colors flex items-center gap-2"
         >
           {t('savedCars.viewAll')}
           <ArrowRight className="h-3.5 w-3.5" />
@@ -113,12 +113,12 @@ export function SavedCarsShelf({ vehicles }: SavedCarsShelfProps) {
       {vehicles.length === 0 ? (
         /* Empty state */
         <div className="py-16 text-center">
-          <p className="font-display text-xl text-[var(--color-ink-secondary)] mb-4">
+          <p className="font-display text-xl text-ink-secondary mb-4">
             {t('savedCars.empty')}
           </p>
           <Link
             href="/collection"
-            className="font-mono text-[11px] uppercase tracking-widest text-[var(--color-brass)] hover:underline underline-offset-4"
+            className="font-mono text-[11px] uppercase tracking-widest text-accent hover:underline underline-offset-4"
           >
             {t('savedCars.emptyLink')}
           </Link>

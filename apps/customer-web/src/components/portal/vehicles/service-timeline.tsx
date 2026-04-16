@@ -52,10 +52,10 @@ function TimelineEntry({ record }: { record: ServiceRecord }) {
     <div className="grid grid-cols-[80px_1fr] md:grid-cols-[96px_1fr] gap-6 py-8 group">
       {/* Date column */}
       <div className="pt-1">
-        <span className="font-mono text-sm text-[var(--color-ink-muted)] block leading-tight">
+        <span className="font-mono text-sm text-ink-muted block leading-tight">
           {formatMonthYear(record.date)}
         </span>
-        <span className="font-mono text-[10px] text-[var(--color-ink-muted)]/60 mt-1 block">
+        <span className="font-mono text-[10px] text-ink-muted/60 mt-1 block">
           {formatKm(record.km)}
         </span>
       </div>
@@ -70,28 +70,28 @@ function TimelineEntry({ record }: { record: ServiceRecord }) {
               <span
                 className={`w-1.5 h-1.5 rounded-full flex-shrink-0 mt-0.5 ${
                   record.status === 'completed'
-                    ? 'bg-[var(--color-success,#16a34a)]'
-                    : 'bg-[var(--color-brass)]'
+                    ? 'bg-success'
+                    : 'bg-accent'
                 }`}
                 aria-hidden="true"
               />
-              <h3 className="font-display text-lg text-[var(--color-ink)] leading-snug">
+              <h3 className="font-display text-lg text-ink-primary leading-snug">
                 {record.type}
               </h3>
             </div>
-            <p className="text-sm text-[var(--color-ink-secondary)] ml-3.5">
+            <p className="text-sm text-ink-secondary ml-3.5">
               {record.vehicleName}
             </p>
           </div>
 
           {/* Cost */}
-          <span className="font-mono text-sm text-[var(--color-ink)] shrink-0 pt-0.5">
+          <span className="font-mono text-sm text-ink-primary shrink-0 pt-0.5">
             {formatCost(record.cost)}
           </span>
         </div>
 
         {/* Items */}
-        <p className="text-sm text-[var(--color-ink-secondary)] leading-relaxed ml-3.5 mb-3">
+        <p className="text-sm text-ink-secondary leading-relaxed ml-3.5 mb-3">
           {record.items.join(', ')}
         </p>
 
@@ -100,13 +100,13 @@ function TimelineEntry({ record }: { record: ServiceRecord }) {
           {/* Advisor initials badge */}
           <div className="flex items-center gap-2">
             <span
-              className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[var(--color-ink)]/8 font-mono text-[9px] uppercase tracking-wider text-[var(--color-ink-muted)]"
+              className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-ink-primary/8 font-mono text-[9px] uppercase tracking-wider text-ink-muted"
               title={record.advisorName}
               aria-label={`${t('advisorInitials')}: ${record.advisorName}`}
             >
               {advisorInitials(record.advisorName)}
             </span>
-            <span className="font-mono text-[10px] text-[var(--color-ink-muted)]">
+            <span className="font-mono text-[10px] text-ink-muted">
               {record.advisorName}
             </span>
           </div>
@@ -117,7 +117,7 @@ function TimelineEntry({ record }: { record: ServiceRecord }) {
               href={record.invoiceUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-[var(--color-brass)] hover:underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)]"
+              className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-accent hover:underline underline-offset-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
               <Download className="h-3 w-3" aria-hidden="true" />
               {t('downloadInvoice')}
@@ -135,19 +135,19 @@ export function ServiceTimeline({ records }: ServiceTimelineProps) {
   const t = useTranslations('portal.vehicles');
 
   return (
-    <section className="px-6 md:px-12 lg:px-16 py-12 border-t border-[var(--color-line)]">
+    <section className="px-6 md:px-12 lg:px-16 py-12 border-t border-line">
       {/* Header */}
-      <h2 className="font-display text-2xl md:text-3xl text-[var(--color-ink)] mb-8">
+      <h2 className="font-display text-2xl md:text-3xl text-ink-primary mb-8">
         {t('serviceHistory')}
       </h2>
 
       {records.length === 0 ? (
-        <p className="font-display text-lg italic text-[var(--color-ink-secondary)] py-8">
+        <p className="font-display text-lg italic text-ink-secondary py-8">
           {t('noRecords')}
         </p>
       ) : (
         <div
-          className="divide-y divide-[var(--color-line)]"
+          className="divide-y divide-line"
           role="list"
           aria-label={t('serviceHistory')}
         >

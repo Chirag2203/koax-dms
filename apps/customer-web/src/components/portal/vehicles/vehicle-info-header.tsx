@@ -47,7 +47,7 @@ function DetailRow({
 }) {
   return (
     <div className="flex items-baseline justify-between gap-4 py-2.5 border-b border-[var(--color-line)]">
-      <span className="font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-muted)] shrink-0">
+      <span className="font-mono text-[10px] uppercase tracking-widest text-ink-muted shrink-0">
         {label}
       </span>
       <span
@@ -73,7 +73,7 @@ export function VehicleInfoHeader({ vehicle }: VehicleInfoHeaderProps) {
       {/* Back link */}
       <Link
         href="/vehicles"
-        className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] transition-colors mb-8 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)]"
+        className="inline-flex items-center gap-2 font-mono text-[10px] uppercase tracking-widest text-ink-muted hover:text-[var(--color-ink)] transition-colors mb-8 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)]"
       >
         <ArrowLeft className="h-3 w-3" aria-hidden="true" />
         {t('backToVehicles')}
@@ -150,7 +150,7 @@ export function VehicleInfoHeader({ vehicle }: VehicleInfoHeaderProps) {
               value={
                 <span>
                   {formatDate(vehicle.nextServiceDue)}{' '}
-                  <span className="text-[var(--color-ink-muted)]">
+                  <span className="text-ink-muted">
                     · {formatKm(vehicle.nextServiceDueKm)}
                   </span>
                 </span>

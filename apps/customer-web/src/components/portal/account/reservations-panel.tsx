@@ -43,7 +43,7 @@ function ReservationRow({ reservation }: { reservation: Reservation }) {
     <div className="py-6 first:pt-0">
       <div className="flex gap-4">
         {/* Thumbnail */}
-        <div className="relative w-20 h-20 flex-shrink-0 overflow-hidden bg-[var(--color-bg-subtle)]">
+        <div className="relative w-20 h-20 flex-shrink-0 overflow-hidden bg-bg-subtle">
           {reservation.thumbnailUrl ? (
             <Image
               src={reservation.thumbnailUrl}
@@ -53,19 +53,19 @@ function ReservationRow({ reservation }: { reservation: Reservation }) {
               className="object-cover"
             />
           ) : (
-            <div className="absolute inset-0 bg-[var(--color-bg-subtle)]" />
+            <div className="absolute inset-0 bg-bg-subtle" />
           )}
         </div>
 
         {/* Content */}
         <div className="flex-1 min-w-0">
-          <h4 className="font-display text-lg text-[var(--color-ink)] leading-snug mb-1">
+          <h4 className="font-display text-lg text-ink-primary leading-snug mb-1">
             {reservation.vehicleName}
           </h4>
 
           <p
             className={`font-mono text-[10px] uppercase tracking-widest mb-1 ${
-              isUrgent ? 'text-[var(--color-error,#a64542)]' : 'text-[var(--color-ink-muted)]'
+              isUrgent ? 'text-danger' : 'text-ink-muted'
             }`}
           >
             {t('reservations.holdExpires', { date: expiryLabel })}
@@ -73,7 +73,7 @@ function ReservationRow({ reservation }: { reservation: Reservation }) {
             {daysLeft === 0 && ' · EXPIRES TODAY'}
           </p>
 
-          <p className="text-sm text-[var(--color-ink-secondary)] mb-3">
+          <p className="text-sm text-ink-secondary mb-3">
             {t('reservations.deposit')}{' '}
             <PriceDisplay amount={reservation.depositAmount} size="sm" />
           </p>
@@ -81,13 +81,13 @@ function ReservationRow({ reservation }: { reservation: Reservation }) {
           {/* Actions */}
           <div className="flex items-center gap-5">
             <button
-              className="bg-[var(--color-ink)] text-[var(--color-paper)] px-5 py-1.5 font-mono text-[10px] uppercase tracking-widest hover:opacity-90 transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)]"
+              className="bg-ink-primary text-bg-paper px-5 py-1.5 font-mono text-[10px] uppercase tracking-widest hover:opacity-90 transition-opacity focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               aria-label={`${t('reservations.payBalance')} for ${reservation.vehicleName}`}
             >
               {t('reservations.payBalance')}
             </button>
             <button
-              className="font-mono text-[10px] uppercase tracking-widest text-[var(--color-ink-muted)] hover:text-[var(--color-ink)] transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)]"
+              className="font-mono text-[10px] uppercase tracking-widest text-ink-muted hover:text-ink-primary transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               aria-label={`${t('reservations.release')} hold on ${reservation.vehicleName}`}
             >
               {t('reservations.release')}
@@ -116,11 +116,11 @@ export function ReservationsPanel({ reservations }: ReservationsPanelProps) {
     <div className="bg-bg-subtle border border-line p-8 md:p-10 h-full">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <Lock className="h-5 w-5 text-[var(--color-forest,#1F4D3A)]" aria-hidden="true" />
-        <h2 className="font-display text-2xl text-[var(--color-ink)]">
+        <Lock className="h-5 w-5 text-success" aria-hidden="true" />
+        <h2 className="font-display text-2xl text-ink-primary">
           {t('reservations.title')}
           {activeReservations.length > 0 && (
-            <span className="ml-2 font-mono text-sm text-[var(--color-ink-muted)]">
+            <span className="ml-2 font-mono text-sm text-ink-muted">
               ({activeReservations.length})
             </span>
           )}
@@ -128,11 +128,11 @@ export function ReservationsPanel({ reservations }: ReservationsPanelProps) {
       </div>
 
       {activeReservations.length === 0 ? (
-        <p className="font-display text-base text-[var(--color-ink-secondary)] italic">
+        <p className="font-display text-base text-ink-secondary italic">
           {t('reservations.empty')}
         </p>
       ) : (
-        <div className="divide-y divide-[var(--color-line)]">
+        <div className="divide-y divide-line">
           {activeReservations.map((r) => (
             <ReservationRow key={r.id} reservation={r} />
           ))}

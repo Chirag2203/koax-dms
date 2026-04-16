@@ -17,12 +17,12 @@ export function DocumentGroup({ vehicleName, documents }: DocumentGroupProps) {
   return (
     <div>
       {/* Vehicle header */}
-      <h3 className="font-display text-xl text-[var(--color-ink)] mb-4 pb-3 border-b border-[var(--color-line)]">
+      <h3 className="font-display text-xl text-ink-primary mb-4 pb-3 border-b border-line">
         {vehicleName}
       </h3>
 
       {/* Document rows */}
-      <div className="divide-y divide-[var(--color-line)]">
+      <div className="divide-y divide-line">
         {documents.map((doc) => (
           <DocumentCard key={doc.id} doc={doc} />
         ))}
