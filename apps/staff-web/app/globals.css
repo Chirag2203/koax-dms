@@ -139,3 +139,40 @@
     @apply text-[12px] font-medium uppercase tracking-[0.06em];
   }
 }
+
+/* ============================================================
+   Print styles — scoped to opt-in containers.
+   Used by VHC report and Invoice Preview (PLAN-SERVICE-002 §P7).
+   Note: print rendering may vary on iOS Safari.
+   ============================================================ */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .print-area-vhc,
+  .print-area-vhc *,
+  .print-area-invoice,
+  .print-area-invoice * {
+    visibility: visible;
+  }
+  .print-area-vhc,
+  .print-area-invoice {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 16px;
+    color: #000;
+    background: #fff;
+  }
+  .print-area-vhc details {
+    break-inside: avoid;
+  }
+  .print-area-vhc details[open],
+  .print-area-vhc details {
+    display: block;
+  }
+  .print-area-vhc details > summary::-webkit-details-marker {
+    display: none;
+  }
+}

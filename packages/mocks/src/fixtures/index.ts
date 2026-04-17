@@ -31,3 +31,14 @@ export {
   vehicleDocuments,
 } from './inventory';
 export { deals, interactions, kycStatuses } from './sales';
+export {
+  bays,
+  jobCards,
+  labourLines,
+  partsLines,
+  inspections,
+  appointments,
+  warrantyClaims,
+  timelineEvents,
+  advisorNotes,
+} from './service';

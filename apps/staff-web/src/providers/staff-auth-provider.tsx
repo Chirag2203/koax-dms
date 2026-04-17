@@ -23,7 +23,7 @@ export interface StaffUser {
   permissions: string[];
 }
 
-const STORAGE_KEY = 'bn-staff-user';
+const STORAGE_KEY = 'bn-staff-user-v2';
 
 // 8 hardcoded staff profiles for dev role-switching (Doc 14 — 24 roles)
 const MOCK_STAFF_PROFILES: StaffUser[] = [
@@ -147,8 +147,8 @@ const MOCK_STAFF_PROFILES: StaffUser[] = [
   },
 ];
 
-// Default mock user on first load — R10 Arjun Mehta, Sales Manager, Mumbai
-const DEFAULT_STAFF_USER = MOCK_STAFF_PROFILES[2] as StaffUser;
+// Default mock user on first load — R24 Meera Iyer, CEO (pan-India, all permissions)
+const DEFAULT_STAFF_USER = MOCK_STAFF_PROFILES[7] as StaffUser;
 
 interface StaffAuthContextValue {
   user: StaffUser | null;

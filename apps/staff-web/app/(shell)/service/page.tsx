@@ -1,12 +1,19 @@
+'use client';
+
+import { Suspense } from 'react';
+import { ServiceLandingView } from '@/src/components/service/service-landing-view';
+
+// Suspense boundary is required because ServiceLandingView uses useSearchParams()
 export default function ServicePage() {
   return (
-    <div className="flex min-h-full items-center justify-center bg-bg-canvas px-6 py-24">
-      <div className="text-center">
-        <h1 className="text-[28px] font-semibold leading-[1.25] text-ink-primary">
-          Service
-        </h1>
-        <p className="mt-2 text-sm text-ink-muted">Coming in Phase S4</p>
-      </div>
-    </div>
+    <Suspense
+      fallback={
+        <div className="flex min-h-full items-center justify-center bg-bg-canvas px-6 py-24">
+          <div className="h-6 w-6 animate-spin rounded-full border-2 border-line border-t-accent" />
+        </div>
+      }
+    >
+      <ServiceLandingView />
+    </Suspense>
   );
 }

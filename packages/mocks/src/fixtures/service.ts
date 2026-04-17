@@ -1,0 +1,1326 @@
+import type {
+  Bay,
+  JobCard,
+  LabourLine,
+  PartsLine,
+  Inspection,
+  InspectionItem,
+  Appointment,
+  WarrantyClaim,
+  JobCardTimelineEvent,
+  AdvisorNote,
+} from '@dms/types';
+
+// ─── VINs from vehicles fixture (first 10) ────────────────────────────────────
+// WP0AB2A91MS247831  Porsche 911 Carrera S       — bangalore
+// WP0ZZZ97ZNS112045  Porsche Panamera 4           — mumbai
+// WP1ZZZ9YZPS034789  Porsche Cayenne Coupe        — chennai
+// WP1ZZZ95ZNS078234  Porsche Cayenne              — bangalore
+// WP0ZZZ98ZMS561902  Porsche 718 Cayman           — mumbai
+// WP0AAA1X8PSA12345  Porsche Taycan               — chennai
+// WDD2221971A012345  Mercedes-Benz S-Class        — bangalore
+// WDC1930561A456789  Mercedes-Benz GLC            — mumbai
+// WDD1900761A789012  Mercedes-Benz E-Class        — bangalore
+// WDC2229601A234567  Mercedes-Benz GLE            — chennai
+
+// ─── Staff IDs from staff fixture ────────────────────────────────────────────
+// staff-r09-001  Priya Sharma       R09 Service Advisor  bangalore
+// staff-r10-001  Arjun Mehta        R10 Sales Manager    mumbai
+// staff-r12-001  Vikram Singh       R12 Parts Manager    chennai
+// (technicians are referenced below by deterministic IDs)
+
+const TECH_KUMAR = 'tech-r11-001';   // K. Kumar — technician, bangalore
+const TECH_PATEL = 'tech-r11-002';   // R. Patel — technician, mumbai
+const TECH_SHARMA = 'tech-r11-003';  // A. Sharma — technician, chennai
+const TECH_VERMA = 'tech-r11-004';   // S. Verma — technician, bangalore
+
+const ADVISOR_BLR = 'staff-r09-001';  // Priya Sharma
+const ADVISOR_MUM = 'staff-r09-002';  // Rajesh Kumar (service advisor, mumbai)
+const ADVISOR_CHE = 'staff-r09-003';  // Deepa Nair (service advisor, chennai)
+
+// ─── Bays (8) ─────────────────────────────────────────────────────────────────
+// Bangalore: BAY-01..03  (outletId: BLR-01)
+// Mumbai:    BAY-01..03  (outletId: MUM-01)
+// Chennai:   BAY-01..02  (outletId: CHE-01)
+// Status mix: 5 OCCUPIED, 2 FREE, 1 RESERVED
+
+export const bays: Bay[] = [
+  // ── Bangalore (3) ───────────────────────────────────────────────────────────
+  {
+    id: 'bay-blr-01',
+    code: 'BAY-01',
+    type: 'GENERAL',
+    status: 'OCCUPIED',
+    outletId: 'BLR-01',
+    currentJobCardId: 'jc-001',
+    advisorId: ADVISOR_BLR,
+  },
+  {
+    id: 'bay-blr-02',
+    code: 'BAY-02',
+    type: 'DETAILING',
+    status: 'OCCUPIED',
+    outletId: 'BLR-01',
+    currentJobCardId: 'jc-003',
+    advisorId: ADVISOR_BLR,
+  },
+  {
+    id: 'bay-blr-03',
+    code: 'BAY-03',
+    type: 'MECHANICAL',
+    status: 'FREE',
+    outletId: 'BLR-01',
+  },
+  // ── Mumbai (3) ──────────────────────────────────────────────────────────────
+  {
+    id: 'bay-mum-01',
+    code: 'BAY-01',
+    type: 'GENERAL',
+    status: 'OCCUPIED',
+    outletId: 'MUM-01',
+    currentJobCardId: 'jc-005',
+    advisorId: ADVISOR_MUM,
+  },
+  {
+    id: 'bay-mum-02',
+    code: 'BAY-02',
+    type: 'PAINT',
+    status: 'OCCUPIED',
+    outletId: 'MUM-01',
+    currentJobCardId: 'jc-007',
+    advisorId: ADVISOR_MUM,
+  },
+  {
+    id: 'bay-mum-03',
+    code: 'BAY-03',
+    type: 'DIAGNOSTIC',
+    status: 'RESERVED',
+    outletId: 'MUM-01',
+    advisorId: ADVISOR_MUM,
+  },
+  // ── Chennai (2) ─────────────────────────────────────────────────────────────
+  {
+    id: 'bay-che-01',
+    code: 'BAY-01',
+    type: 'GENERAL',
+    status: 'OCCUPIED',
+    outletId: 'CHE-01',
+    currentJobCardId: 'jc-010',
+    advisorId: ADVISOR_CHE,
+  },
+  {
+    id: 'bay-che-02',
+    code: 'BAY-02',
+    type: 'MECHANICAL',
+    status: 'FREE',
+    outletId: 'CHE-01',
+  },
+];
+
+// ─── Labour Lines (30 total, pre-defined pool distributed across job cards) ───
+
+export const labourLines: LabourLine[] = [
+  // jc-001 (Porsche 911 — Annual Service)
+  { id: 'lab-001', code: 'LAB-ENG-OIL', description: 'Engine Oil & Filter Change (Mobil 1 0W-40)', flatRateHours: 0.5, actualHours: 0.5, rate: 2000, technicianId: TECH_KUMAR, status: 'DONE' },
+  { id: 'lab-002', code: 'LAB-TYR-ROT', description: 'Tyre Rotation & Pressure Calibration', flatRateHours: 0.5, actualHours: 0.5, rate: 1500, technicianId: TECH_KUMAR, status: 'DONE' },
+  { id: 'lab-003', code: 'LAB-BRK-INSP', description: 'Brake System Inspection (pads, discs, fluid)', flatRateHours: 1.0, actualHours: 1.2, rate: 2000, technicianId: TECH_KUMAR, status: 'DONE' },
+
+  // jc-002 (Panamera — AC + Dash rattle)
+  { id: 'lab-004', code: 'LAB-AC-REGAS', description: 'AC Regas & System Leak Test', flatRateHours: 2.0, actualHours: 2.5, rate: 2000, technicianId: TECH_PATEL, status: 'IN_PROGRESS' },
+  { id: 'lab-005', code: 'LAB-INT-RATTLE', description: 'Dashboard Rattle Diagnosis & Foam Isolation', flatRateHours: 1.5, rate: 1800, technicianId: TECH_PATEL, status: 'PLANNED' },
+
+  // jc-003 (Cayenne — Paint touch-up)
+  { id: 'lab-006', code: 'LAB-PNT-TOUCH', description: 'Paint Touch-Up — Rear Bumper (3 chips)', flatRateHours: 3.0, actualHours: 3.0, rate: 2500, technicianId: TECH_KUMAR, status: 'DONE' },
+  { id: 'lab-007', code: 'LAB-PNT-POLISH', description: 'Single-Stage Machine Polish Post Touch-Up', flatRateHours: 2.0, actualHours: 2.0, rate: 2000, technicianId: TECH_KUMAR, status: 'DONE' },
+
+  // jc-004 (Cayenne — Warning light)
+  { id: 'lab-008', code: 'LAB-DIAG-OBD', description: 'OBD Diagnostic Scan — Multi-System', flatRateHours: 1.0, actualHours: 1.0, rate: 2000, technicianId: TECH_VERMA, status: 'DONE' },
+  { id: 'lab-009', code: 'LAB-ELE-SENSOR', description: 'O2 Sensor Replacement (Bank 1, Sensor 2)', flatRateHours: 1.5, actualHours: 1.5, rate: 2000, technicianId: TECH_VERMA, status: 'DONE' },
+
+  // jc-005 (718 Cayman — Major service)
+  { id: 'lab-010', code: 'LAB-ENG-OIL', description: 'Engine Oil & Filter Change (Porsche A40)', flatRateHours: 0.5, actualHours: 0.5, rate: 2000, technicianId: TECH_PATEL, status: 'DONE' },
+  { id: 'lab-011', code: 'LAB-SPARK-PLG', description: 'Spark Plug Replacement (Bosch set of 4)', flatRateHours: 2.0, actualHours: 2.0, rate: 2000, technicianId: TECH_PATEL, status: 'DONE' },
+  { id: 'lab-012', code: 'LAB-AIR-FILT', description: 'Air Filter Replacement', flatRateHours: 0.5, actualHours: 0.5, rate: 1500, technicianId: TECH_PATEL, status: 'DONE' },
+  { id: 'lab-013', code: 'LAB-WHL-ALIGN', description: 'Four-Wheel Alignment & Geometry Check', flatRateHours: 1.0, rate: 2000, technicianId: TECH_PATEL, status: 'PLANNED' },
+
+  // jc-006 (Taycan — Brake noise)
+  { id: 'lab-014', code: 'LAB-BRK-PAD', description: 'Brake Pad Replacement — Front Axle (PCCB system)', flatRateHours: 2.5, actualHours: 2.5, rate: 2500, technicianId: TECH_SHARMA, status: 'DONE' },
+  { id: 'lab-015', code: 'LAB-BRK-DISC', description: 'Front Brake Disc Skim (within tolerance)', flatRateHours: 1.5, actualHours: 1.5, rate: 2000, technicianId: TECH_SHARMA, status: 'DONE' },
+
+  // jc-007 (S-Class — Paint work after scrape)
+  { id: 'lab-016', code: 'LAB-PNT-PANEL', description: 'Front Bumper Respray (factory Mercedes code)', flatRateHours: 8.0, actualHours: 7.5, rate: 2500, technicianId: TECH_VERMA, status: 'IN_PROGRESS' },
+
+  // jc-008 (GLC — Annual service)
+  { id: 'lab-017', code: 'LAB-ENG-OIL', description: 'Engine Oil Change (Mercedes 229.6 5W-30)', flatRateHours: 0.5, actualHours: 0.5, rate: 2000, technicianId: TECH_PATEL, status: 'DONE' },
+  { id: 'lab-018', code: 'LAB-POL-CABIN', description: 'Cabin Filter & Pollen Filter Replacement', flatRateHours: 0.5, actualHours: 0.5, rate: 1500, technicianId: TECH_PATEL, status: 'DONE' },
+  { id: 'lab-019', code: 'LAB-BRK-FLUID', description: 'Brake Fluid Flush & Replacement (DOT 4+)', flatRateHours: 1.0, actualHours: 1.0, rate: 1800, technicianId: TECH_PATEL, status: 'DONE' },
+
+  // jc-009 (E-Class — Suspension check after pothole)
+  { id: 'lab-020', code: 'LAB-SUS-INSP', description: 'Full Suspension Geometry Inspection', flatRateHours: 1.5, actualHours: 1.5, rate: 2000, technicianId: TECH_KUMAR, status: 'DONE' },
+  { id: 'lab-021', code: 'LAB-SUS-ARM', description: 'Front Lower Control Arm Replacement (LH)', flatRateHours: 2.5, actualHours: 3.0, rate: 2000, technicianId: TECH_KUMAR, status: 'DONE' },
+
+  // jc-010 (GLE — PDI after purchase)
+  { id: 'lab-022', code: 'LAB-PDI-FULL', description: 'Pre-Delivery Inspection (210 Points)', flatRateHours: 6.0, actualHours: 5.5, rate: 2000, technicianId: TECH_SHARMA, status: 'DONE' },
+  { id: 'lab-023', code: 'LAB-ENG-OIL', description: 'Oil Change as part of PDI', flatRateHours: 0.5, actualHours: 0.5, rate: 2000, technicianId: TECH_SHARMA, status: 'DONE' },
+
+  // jc-011 (Porsche 911 — Tyre replacement)
+  { id: 'lab-024', code: 'LAB-TYR-MOUNT', description: 'Tyre Mounting & Balancing (4 tyres)', flatRateHours: 1.5, actualHours: 1.5, rate: 1800, technicianId: TECH_VERMA, status: 'DONE' },
+
+  // jc-012 (Panamera — Gearbox service)
+  { id: 'lab-025', code: 'LAB-GBX-OIL', description: 'PDK Gearbox Oil Change', flatRateHours: 2.0, actualHours: 2.0, rate: 2500, technicianId: TECH_PATEL, status: 'DONE' },
+  { id: 'lab-026', code: 'LAB-GBX-FLUSH', description: 'Gearbox System Flush & Reset (via PIWIS)', flatRateHours: 1.0, actualHours: 1.0, rate: 2500, technicianId: TECH_PATEL, status: 'DONE' },
+
+  // jc-013 (Cayenne Coupe — Coolant system)
+  { id: 'lab-027', code: 'LAB-COOL-FLUSH', description: 'Coolant System Flush & Refill (G13)', flatRateHours: 1.5, rate: 2000, technicianId: TECH_SHARMA, status: 'PLANNED' },
+
+  // jc-014 (BMW 5 Series — Electrical)
+  { id: 'lab-028', code: 'LAB-ELE-DIAG', description: 'Full Electrical Diagnostic (ISTA scan)', flatRateHours: 1.5, actualHours: 1.5, rate: 2000, technicianId: TECH_VERMA, status: 'DONE' },
+  { id: 'lab-029', code: 'LAB-ELE-BAT', description: 'Battery Replacement & BMS Registration (AGM 90Ah)', flatRateHours: 0.5, actualHours: 0.5, rate: 1800, technicianId: TECH_VERMA, status: 'DONE' },
+
+  // jc-015 (BMW i3 — Annual)
+  { id: 'lab-030', code: 'LAB-EV-INSPECT', description: 'EV Annual Inspection & HV System Check', flatRateHours: 3.0, rate: 2500, technicianId: TECH_SHARMA, status: 'IN_PROGRESS' },
+];
+
+// ─── Parts Lines (45 total) ───────────────────────────────────────────────────
+
+export const partsLines: PartsLine[] = [
+  // jc-001
+  { id: 'prt-001', partCode: 'PRT-OIL-0W40-5L', description: 'Mobil 1 0W-40 Engine Oil 5L', qty: 2, unitPrice: 3200, warrantyCovered: false, status: 'FITTED' },
+  { id: 'prt-002', partCode: 'PRT-OIL-FILT-911', description: 'OEM Oil Filter — Porsche 911 (992)', qty: 1, unitPrice: 1800, warrantyCovered: false, status: 'FITTED' },
+  { id: 'prt-003', partCode: 'PRT-TYR-PRESS-CAP', description: 'TPMS Valve Caps (set of 4)', qty: 1, unitPrice: 450, warrantyCovered: false, status: 'FITTED' },
+
+  // jc-002
+  { id: 'prt-004', partCode: 'PRT-AC-REFRIG-134A', description: 'R134A Refrigerant 1kg', qty: 2, unitPrice: 2800, warrantyCovered: false, status: 'FITTED' },
+  { id: 'prt-005', partCode: 'PRT-AC-FILT-PAN', description: 'AC Cabin Filter — Panamera (971)', qty: 1, unitPrice: 3500, warrantyCovered: true, status: 'ISSUED' },
+  { id: 'prt-006', partCode: 'PRT-FOAM-RATTLE', description: 'Acoustic Foam Strip 10mm × 2m', qty: 3, unitPrice: 350, warrantyCovered: false, status: 'RESERVED' },
+
+  // jc-003
+  { id: 'prt-007', partCode: 'PRT-PNT-MAHOG-400ML', description: 'Mahogany Metallic Base Coat Aerosol 400ml', qty: 2, unitPrice: 4500, warrantyCovered: false, status: 'FITTED' },
+  { id: 'prt-008', partCode: 'PRT-PNT-CLEAR-400ML', description: 'Clear Coat Aerosol 400ml', qty: 1, unitPrice: 3800, warrantyCovered: false, status: 'FITTED' },
+
+  // jc-004
+  { id: 'prt-009', partCode: 'PRT-O2-SENSOR-CAY', description: 'O2 Lambda Sensor Bank 1 S2 — Cayenne', qty: 1, unitPrice: 12500, warrantyCovered: true, status: 'FITTED' },
+
+  // jc-005
+  { id: 'prt-010', partCode: 'PRT-OIL-A40-5L', description: 'Porsche A40 Engine Oil 5L', qty: 2, unitPrice: 3800, warrantyCovered: false, status: 'FITTED' },
+  { id: 'prt-011', partCode: 'PRT-SPK-PLG-BOSCH-4', description: 'Bosch Spark Plugs YR8DEU — Set of 4', qty: 1, unitPrice: 8800, warrantyCovered: false, status: 'FITTED' },
+  { id: 'prt-012', partCode: 'PRT-AIR-FILT-718', description: 'OEM Air Filter — 718 Cayman', qty: 1, unitPrice: 4200, warrantyCovered: false, status: 'FITTED' },
+  { id: 'prt-013', partCode: 'PRT-OIL-FILT-718', description: 'OEM Oil Filter — 718 Cayman (982)', qty: 1, unitPrice: 1600, warrantyCovered: false, status: 'FITTED' },
+
+  // jc-006
+  { id: 'prt-014', partCode: 'PRT-BRK-PAD-F-PCB', description: 'PCCB Ceramic Brake Pads Front — Taycan', qty: 1, unitPrice: 42000, warrantyCovered: false, status: 'FITTED' },
+  { id: 'prt-015', partCode: 'PRT-BRK-DISC-F-TAY', description: 'Front Brake Discs (pair) — Taycan', qty: 1, unitPrice: 68000, warrantyCovered: false, status: 'FITTED' },
+
+  // jc-007
+  { id: 'prt-016', partCode: 'PRT-PNT-MB-W-213', description: 'Mercedes 213 White Metallic Base Coat 1L', qty: 1, unitPrice: 8500, warrantyCovered: false, status: 'ISSUED' },
+  { id: 'prt-017', partCode: 'PRT-PNT-PRIMER-1L', description: '2K Primer Filler 1L', qty: 1, unitPrice: 3200, warrantyCovered: false, status: 'FITTED' },
+
+  // jc-008
+  { id: 'prt-018', partCode: 'PRT-OIL-229.6-5W30', description: 'Mercedes 229.6 5W-30 Engine Oil 5L', qty: 1, unitPrice: 4200, warrantyCovered: false, status: 'FITTED' },
+  { id: 'prt-019', partCode: 'PRT-OIL-FILT-GLC', description: 'OEM Oil Filter — GLC 300', qty: 1, unitPrice: 1500, warrantyCovered: false, status: 'FITTED' },
+  { id: 'prt-020', partCode: 'PRT-CABIN-FILT-GLC', description: 'Cabin + Pollen Filter Set — GLC (X253)', qty: 1, unitPrice: 2800, warrantyCovered: false, status: 'FITTED' },
+  { id: 'prt-021', partCode: 'PRT-BRK-FLUID-DOT4', description: 'Brake Fluid DOT 4+ 1L', qty: 2, unitPrice: 850, warrantyCovered: false, status: 'FITTED' },
+
+  // jc-009
+  { id: 'prt-022', partCode: 'PRT-SUS-ARM-LH-E', description: 'Front Lower Control Arm LH — E-Class (W213)', qty: 1, unitPrice: 28500, warrantyCovered: false, status: 'FITTED' },
+  { id: 'prt-023', partCode: 'PRT-SUS-BUSH-FROT', description: 'Front Subframe Bush Kit', qty: 1, unitPrice: 4800, warrantyCovered: false, status: 'FITTED' },
+
+  // jc-010
+  { id: 'prt-024', partCode: 'PRT-OIL-229.51-5W30', description: 'Mercedes 229.51 5W-30 Engine Oil 5L', qty: 1, unitPrice: 4500, warrantyCovered: false, status: 'FITTED' },
+  { id: 'prt-025', partCode: 'PRT-OIL-FILT-GLE', description: 'OEM Oil Filter — GLE 300d', qty: 1, unitPrice: 1600, warrantyCovered: false, status: 'FITTED' },
+  { id: 'prt-026', partCode: 'PRT-FUEL-FILT-GLE', description: 'Fuel Filter (diesel) — GLE 300d', qty: 1, unitPrice: 3800, warrantyCovered: false, status: 'FITTED' },
+
+  // jc-011
+  { id: 'prt-027', partCode: 'PRT-TYR-PILOT-SP-245', description: 'Michelin Pilot Sport 4S 245/35R20', qty: 2, unitPrice: 32000, warrantyCovered: false, status: 'FITTED' },
+  { id: 'prt-028', partCode: 'PRT-TYR-PILOT-SP-305', description: 'Michelin Pilot Sport 4S 305/30R20', qty: 2, unitPrice: 38500, warrantyCovered: false, status: 'FITTED' },
+
+  // jc-012
+  { id: 'prt-029', partCode: 'PRT-GBX-OIL-PDK', description: 'Fuchs Titan ATF 8000 PDK Fluid 5L', qty: 2, unitPrice: 6500, warrantyCovered: false, status: 'FITTED' },
+
+  // jc-013
+  { id: 'prt-030', partCode: 'PRT-COOL-G13-5L', description: 'G13 Coolant Concentrate 5L', qty: 2, unitPrice: 3200, warrantyCovered: false, status: 'REQUESTED' },
+  { id: 'prt-031', partCode: 'PRT-COOL-HOSE-CAY', description: 'Coolant Hose Upper — Cayenne Coupe', qty: 1, unitPrice: 4800, warrantyCovered: true, status: 'RESERVED' },
+
+  // jc-014
+  { id: 'prt-032', partCode: 'PRT-BAT-AGM-90AH', description: 'Varta AGM 90Ah Battery (Start-Stop)', qty: 1, unitPrice: 18500, warrantyCovered: false, status: 'FITTED' },
+
+  // jc-015
+  { id: 'prt-033', partCode: 'PRT-EV-CABIN-FILT', description: 'Micro Fine Particle Cabin Filter — BMW i3', qty: 1, unitPrice: 3200, warrantyCovered: false, status: 'REQUESTED' },
+
+  // jc-016
+  { id: 'prt-034', partCode: 'PRT-OIL-LL04-5W30', description: 'BMW Longlife-04 5W-30 5L', qty: 2, unitPrice: 4800, warrantyCovered: false, status: 'FITTED' },
+  { id: 'prt-035', partCode: 'PRT-OIL-FILT-5SER', description: 'OEM Oil Filter — BMW 5 Series (G30)', qty: 1, unitPrice: 2200, warrantyCovered: false, status: 'FITTED' },
+
+  // jc-017
+  { id: 'prt-036', partCode: 'PRT-BRK-PAD-F30-F', description: 'Brembo Front Brake Pads — BMW F30/F10', qty: 1, unitPrice: 9800, warrantyCovered: false, status: 'FITTED' },
+  { id: 'prt-037', partCode: 'PRT-BRK-PAD-F30-R', description: 'Brembo Rear Brake Pads — BMW F30/F10', qty: 1, unitPrice: 8400, warrantyCovered: false, status: 'FITTED' },
+
+  // jc-018
+  { id: 'prt-038', partCode: 'PRT-SPARK-PLG-LR', description: 'NGK Spark Plugs ILTR5A — LR Set of 8', qty: 1, unitPrice: 12800, warrantyCovered: true, status: 'RESERVED' },
+  { id: 'prt-039', partCode: 'PRT-AIR-FILT-LR', description: 'OEM Air Filter — Land Rover Range Rover', qty: 1, unitPrice: 6500, warrantyCovered: true, status: 'REQUESTED' },
+  { id: 'prt-040', partCode: 'PRT-OIL-FILT-LR', description: 'OEM Oil Filter — Range Rover 5.0 V8', qty: 1, unitPrice: 2800, warrantyCovered: false, status: 'RESERVED' },
+
+  // extras distributed across misc job cards
+  { id: 'prt-041', partCode: 'PRT-WIPER-F-BOSCH', description: 'Bosch Aerotwin Front Wiper Blades (pair)', qty: 1, unitPrice: 2400, warrantyCovered: false, status: 'FITTED' },
+  { id: 'prt-042', partCode: 'PRT-BATT-KEY-FOB', description: 'CR2032 Key Fob Battery (2 pack)', qty: 1, unitPrice: 120, warrantyCovered: false, status: 'FITTED' },
+  { id: 'prt-043', partCode: 'PRT-AC-FILT-MB-E', description: 'AC Cabin Filter — E-Class (W213)', qty: 1, unitPrice: 2600, warrantyCovered: false, status: 'FITTED' },
+  { id: 'prt-044', partCode: 'PRT-TRANS-OIL-7G', description: '7G-Tronic Transmission Fluid 1L', qty: 6, unitPrice: 1800, warrantyCovered: false, status: 'FITTED' },
+  { id: 'prt-045', partCode: 'PRT-DUST-BOOT-TIE', description: 'Tie Rod End Dust Boot Set', qty: 2, unitPrice: 680, warrantyCovered: false, status: 'FITTED' },
+];
+
+// ─── Inspection Items (representative slice ~20 per inspection) ───────────────
+
+function makeInspectionItems(prefix: string): InspectionItem[] {
+  return [
+    // Engine & Powertrain
+    { id: `${prefix}-i01`, category: 'Engine & Powertrain', name: 'Engine Oil Level & Condition', outcome: 'PASS' },
+    { id: `${prefix}-i02`, category: 'Engine & Powertrain', name: 'Coolant Level & Condition', outcome: 'PASS' },
+    { id: `${prefix}-i03`, category: 'Engine & Powertrain', name: 'Drive Belts Condition', outcome: 'ADVISE', notes: 'Minor surface cracking — monitor at next service' },
+    { id: `${prefix}-i04`, category: 'Engine & Powertrain', name: 'Engine Mounts', outcome: 'PASS' },
+    // Brakes
+    { id: `${prefix}-i05`, category: 'Braking System', name: 'Front Brake Pad Thickness', outcome: 'PASS', notes: '7mm remaining' },
+    { id: `${prefix}-i06`, category: 'Braking System', name: 'Rear Brake Pad Thickness', outcome: 'ADVISE', notes: '3mm remaining — replacement due at next service' },
+    { id: `${prefix}-i07`, category: 'Braking System', name: 'Brake Disc Condition (front)', outcome: 'PASS' },
+    { id: `${prefix}-i08`, category: 'Braking System', name: 'Brake Fluid Condition', outcome: 'PASS' },
+    // Suspension
+    { id: `${prefix}-i09`, category: 'Suspension & Steering', name: 'Shock Absorbers (front)', outcome: 'PASS' },
+    { id: `${prefix}-i10`, category: 'Suspension & Steering', name: 'Shock Absorbers (rear)', outcome: 'PASS' },
+    { id: `${prefix}-i11`, category: 'Suspension & Steering', name: 'Steering Rack Play', outcome: 'PASS' },
+    // Electrical
+    { id: `${prefix}-i12`, category: 'Electrical', name: 'Battery State of Health', outcome: 'PASS' },
+    { id: `${prefix}-i13`, category: 'Electrical', name: 'All Exterior Lights', outcome: 'PASS' },
+    { id: `${prefix}-i14`, category: 'Electrical', name: 'Instrument Cluster — No Fault Codes', outcome: 'PASS' },
+    // Interior
+    { id: `${prefix}-i15`, category: 'Interior', name: 'AC Performance (vent temp)', outcome: 'PASS' },
+    { id: `${prefix}-i16`, category: 'Interior', name: 'All Windows & Sunroof Operation', outcome: 'PASS' },
+    { id: `${prefix}-i17`, category: 'Interior', name: 'Seat Adjustment & Heating', outcome: 'NA' },
+    // Exterior
+    { id: `${prefix}-i18`, category: 'Exterior', name: 'Paintwork — Panel Alignment', outcome: 'PASS' },
+    { id: `${prefix}-i19`, category: 'Exterior', name: 'Windscreen — Chips / Cracks', outcome: 'PASS' },
+    // Tyres
+    { id: `${prefix}-i20`, category: 'Tyres', name: 'Tread Depth — All Four Tyres', outcome: 'PASS', notes: 'FL: 6mm, FR: 6mm, RL: 5mm, RR: 5mm' },
+  ];
+}
+
+function summarizeItems(items: InspectionItem[]) {
+  return items.reduce(
+    (acc, item) => {
+      acc[item.outcome === 'PASS' ? 'pass' : item.outcome === 'FAIL' ? 'fail' : item.outcome === 'ADVISE' ? 'advise' : 'na']++;
+      return acc;
+    },
+    { pass: 0, fail: 0, advise: 0, na: 0 },
+  );
+}
+
+const insp001Items = makeInspectionItems('insp-001');
+const insp002Items: InspectionItem[] = [
+  ...makeInspectionItems('insp-002').slice(0, 14),
+  { id: 'insp-002-i15', category: 'Engine & Powertrain', name: 'Turbocharger Operation', outcome: 'ADVISE', notes: 'Minor oil seep at turbo inlet — monitor' },
+  { id: 'insp-002-i16', category: 'Electrical', name: 'PDK Mechatronics — Error Codes', outcome: 'FAIL', notes: 'P1A4A stored — gearbox oil change required' },
+  { id: 'insp-002-i17', category: 'Interior', name: 'Infotainment System Function', outcome: 'PASS' },
+  { id: 'insp-002-i18', category: 'Tyres', name: 'Tread Depth — All Four Tyres', outcome: 'PASS', notes: 'FL: 5mm, FR: 5mm, RL: 4mm, RR: 4mm' },
+  { id: 'insp-002-i19', category: 'Exterior', name: 'Paintwork Condition', outcome: 'PASS' },
+  { id: 'insp-002-i20', category: 'Braking System', name: 'Parking Brake Function', outcome: 'PASS' },
+];
+const insp003Items = makeInspectionItems('insp-003');
+const insp004Items: InspectionItem[] = [
+  ...makeInspectionItems('insp-004').slice(0, 16),
+  { id: 'insp-004-i17', category: 'Electrical', name: 'HV Battery Health (Taycan)', outcome: 'PASS', notes: '94% SoH' },
+  { id: 'insp-004-i18', category: 'Electrical', name: 'On-Board Charger Function', outcome: 'PASS' },
+  { id: 'insp-004-i19', category: 'Braking System', name: 'Regenerative Braking System', outcome: 'PASS' },
+  { id: 'insp-004-i20', category: 'Tyres', name: 'Tread Depth — All Four', outcome: 'PASS', notes: 'FL: 8mm, FR: 8mm, RL: 7mm, RR: 7mm' },
+];
+const insp005Items = makeInspectionItems('insp-005');
+
+export const inspections: Inspection[] = [
+  {
+    id: 'insp-001',
+    jobCardId: 'jc-001',
+    type: 'VHC_210',
+    items: insp001Items,
+    completedByTechnicianId: TECH_KUMAR,
+    completedAt: '2026-04-15T14:00:00.000Z',
+    summary: summarizeItems(insp001Items),
+  },
+  {
+    id: 'insp-002',
+    jobCardId: 'jc-005',
+    type: 'VHC_210',
+    items: insp002Items,
+    completedByTechnicianId: TECH_PATEL,
+    completedAt: '2026-04-14T11:30:00.000Z',
+    summary: summarizeItems(insp002Items),
+  },
+  {
+    id: 'insp-003',
+    jobCardId: 'jc-008',
+    type: 'VHC_210',
+    items: insp003Items,
+    completedByTechnicianId: TECH_PATEL,
+    completedAt: '2026-04-13T16:00:00.000Z',
+    summary: summarizeItems(insp003Items),
+  },
+  {
+    id: 'insp-004',
+    jobCardId: 'jc-006',
+    type: 'VHC_210',
+    items: insp004Items,
+    completedByTechnicianId: TECH_SHARMA,
+    completedAt: '2026-04-12T15:00:00.000Z',
+    summary: summarizeItems(insp004Items),
+  },
+  {
+    id: 'insp-005',
+    jobCardId: 'jc-010',
+    type: 'PRE_DELIVERY',
+    items: insp005Items,
+    completedByTechnicianId: TECH_SHARMA,
+    completedAt: '2026-04-16T12:00:00.000Z',
+    summary: summarizeItems(insp005Items),
+  },
+];
+
+// ─── Job Cards (18) — ~2 per status ──────────────────────────────────────────
+
+export const jobCards: JobCard[] = [
+  // ── RECEIVED (2) ────────────────────────────────────────────────────────────
+  {
+    id: 'jc-001',
+    jobNo: 'JC-2026-00101',
+    vin: 'WP0AB2A91MS247831', // Porsche 911 Carrera S — bangalore
+    customerId: 'customer-001',
+    outletId: 'BLR-01',
+    advisorId: ADVISOR_BLR,
+    technicianIds: [TECH_KUMAR],
+    bayId: 'bay-blr-01',
+    status: 'RECEIVED',
+    priority: 'NORMAL',
+    promisedAt: '2026-04-18T17:00:00.000Z',
+    receivedAt: '2026-04-17T09:00:00.000Z',
+    customerComplaint: 'Annual service due. Customer reports slight brake squeal when cold.',
+    odometerIn: 28450,
+    estimatedTotal: 45000,
+    labourLines: [labourLines[0]!, labourLines[1]!, labourLines[2]!],
+    partsLines: [partsLines[0]!, partsLines[1]!, partsLines[2]!],
+    inspectionId: 'insp-001',
+    attachments: [],
+  },
+  {
+    id: 'jc-002',
+    jobNo: 'JC-2026-00102',
+    vin: 'WP0ZZZ97ZNS112045', // Panamera 4 — mumbai
+    customerId: 'customer-002',
+    outletId: 'MUM-01',
+    advisorId: ADVISOR_MUM,
+    technicianIds: [TECH_PATEL],
+    status: 'RECEIVED',
+    priority: 'HIGH',
+    promisedAt: '2026-04-19T12:00:00.000Z',
+    receivedAt: '2026-04-17T10:30:00.000Z',
+    customerComplaint: 'AC not cooling adequately. Dash rattle at highway speeds.',
+    odometerIn: 35200,
+    estimatedTotal: 38000,
+    labourLines: [labourLines[3]!, labourLines[4]!],
+    partsLines: [partsLines[3]!, partsLines[4]!, partsLines[5]!],
+    attachments: [],
+  },
+
+  // ── DIAGNOSED (2) ───────────────────────────────────────────────────────────
+  {
+    id: 'jc-003',
+    jobNo: 'JC-2026-00103',
+    vin: 'WP1ZZZ9YZPS034789', // Cayenne Coupe — chennai (bay-blr-02 for detailing)
+    customerId: 'customer-003',
+    outletId: 'BLR-01',
+    advisorId: ADVISOR_BLR,
+    technicianIds: [TECH_KUMAR],
+    bayId: 'bay-blr-02',
+    status: 'DIAGNOSED',
+    priority: 'NORMAL',
+    promisedAt: '2026-04-18T15:00:00.000Z',
+    receivedAt: '2026-04-16T14:00:00.000Z',
+    customerComplaint: 'Paint touch-up after minor scrape on rear bumper (parking incident).',
+    diagnosticNotes: '3 stone chips + 1 keying scratch 8cm — bumper respray not required; spot repair viable.',
+    odometerIn: 42100,
+    estimatedTotal: 32000,
+    labourLines: [labourLines[5]!, labourLines[6]!],
+    partsLines: [partsLines[6]!, partsLines[7]!],
+    attachments: ['att-001'],
+  },
+  {
+    id: 'jc-004',
+    jobNo: 'JC-2026-00104',
+    vin: 'WP1ZZZ95ZNS078234', // Cayenne — bangalore
+    customerId: 'customer-004',
+    outletId: 'BLR-01',
+    advisorId: ADVISOR_BLR,
+    technicianIds: [TECH_VERMA],
+    status: 'DIAGNOSED',
+    priority: 'VIP',
+    promisedAt: '2026-04-18T11:00:00.000Z',
+    receivedAt: '2026-04-16T09:00:00.000Z',
+    customerComplaint: 'Check engine warning light on. Car running normally but owner concerned.',
+    diagnosticNotes: 'DTC P0141 — O2 sensor Bank 1 S2 heater circuit fault. Sensor replacement authorised by customer.',
+    odometerIn: 58300,
+    estimatedTotal: 22000,
+    labourLines: [labourLines[7]!, labourLines[8]!],
+    partsLines: [partsLines[8]!],
+    attachments: [],
+  },
+
+  // ── IN_PROGRESS (2) ─────────────────────────────────────────────────────────
+  {
+    id: 'jc-005',
+    jobNo: 'JC-2026-00105',
+    vin: 'WP0ZZZ98ZMS561902', // 718 Cayman — mumbai
+    customerId: 'customer-005',
+    outletId: 'MUM-01',
+    advisorId: ADVISOR_MUM,
+    technicianIds: [TECH_PATEL],
+    bayId: 'bay-mum-01',
+    status: 'IN_PROGRESS',
+    priority: 'NORMAL',
+    promisedAt: '2026-04-17T17:00:00.000Z',
+    receivedAt: '2026-04-15T09:00:00.000Z',
+    customerComplaint: 'Annual major service + tyre rotation. Customer also requesting wheel alignment check.',
+    diagnosticNotes: 'All systems nominal. Spark plugs at end of life (60k km). PDK service recommended.',
+    odometerIn: 61500,
+    estimatedTotal: 68000,
+    labourLines: [labourLines[9]!, labourLines[10]!, labourLines[11]!, labourLines[12]!],
+    partsLines: [partsLines[9]!, partsLines[10]!, partsLines[11]!, partsLines[12]!],
+    inspectionId: 'insp-002',
+    attachments: ['att-002'],
+  },
+  {
+    id: 'jc-006',
+    jobNo: 'JC-2026-00106',
+    vin: 'WP0AAA1X8PSA12345', // Taycan — chennai
+    customerId: 'customer-006',
+    outletId: 'CHE-01',
+    advisorId: ADVISOR_CHE,
+    technicianIds: [TECH_SHARMA],
+    status: 'IN_PROGRESS',
+    priority: 'HIGH',
+    promisedAt: '2026-04-17T16:00:00.000Z',
+    receivedAt: '2026-04-14T10:00:00.000Z',
+    customerComplaint: 'Brake noise (squealing) under moderate braking. PCCB ceramic system.',
+    diagnosticNotes: 'Front pads at 2mm — below minimum. Discs show heat stress marks. Full front axle brake replacement required.',
+    odometerIn: 33700,
+    estimatedTotal: 145000,
+    labourLines: [labourLines[13]!, labourLines[14]!],
+    partsLines: [partsLines[13]!, partsLines[14]!],
+    inspectionId: 'insp-004',
+    attachments: ['att-003'],
+  },
+
+  // ── WAITING_PARTS (2) ───────────────────────────────────────────────────────
+  {
+    id: 'jc-007',
+    jobNo: 'JC-2026-00107',
+    vin: 'WDD2221971A012345', // Mercedes S-Class — bangalore
+    customerId: 'customer-007',
+    outletId: 'MUM-01',
+    advisorId: ADVISOR_MUM,
+    technicianIds: [TECH_VERMA],
+    bayId: 'bay-mum-02',
+    status: 'WAITING_PARTS',
+    priority: 'HIGH',
+    promisedAt: '2026-04-21T12:00:00.000Z',
+    receivedAt: '2026-04-13T11:00:00.000Z',
+    customerComplaint: 'Paint touch-up required after minor accident — front bumper scuffed.',
+    diagnosticNotes: 'Front bumper — respray required (code 040 Brilliant White). Masking complete. Waiting on correct paint batch.',
+    odometerIn: 47800,
+    estimatedTotal: 85000,
+    labourLines: [labourLines[15]!],
+    partsLines: [partsLines[15]!, partsLines[16]!],
+    attachments: ['att-004', 'att-005'],
+  },
+  {
+    id: 'jc-008',
+    jobNo: 'JC-2026-00108',
+    vin: 'WDC1930561A456789', // GLC — mumbai
+    customerId: 'customer-008',
+    outletId: 'MUM-01',
+    advisorId: ADVISOR_MUM,
+    technicianIds: [TECH_PATEL],
+    status: 'WAITING_PARTS',
+    priority: 'NORMAL',
+    promisedAt: '2026-04-20T17:00:00.000Z',
+    receivedAt: '2026-04-12T09:00:00.000Z',
+    customerComplaint: 'Annual service + brake fluid change.',
+    diagnosticNotes: 'Service complete. Rear pads at 3mm — customer approved replacement. Ordered OEM pads from Mercedes authorised supplier.',
+    odometerIn: 52100,
+    estimatedTotal: 28000,
+    labourLines: [labourLines[16]!, labourLines[17]!, labourLines[18]!],
+    partsLines: [partsLines[17]!, partsLines[18]!, partsLines[19]!, partsLines[20]!],
+    inspectionId: 'insp-003',
+    attachments: [],
+  },
+
+  // ── ADDITIONAL_WORK_APPROVAL (2) ─────────────────────────────────────────────
+  {
+    id: 'jc-009',
+    jobNo: 'JC-2026-00109',
+    vin: 'WDD1900761A789012', // E-Class — bangalore
+    customerId: 'customer-009',
+    outletId: 'BLR-01',
+    advisorId: ADVISOR_BLR,
+    technicianIds: [TECH_KUMAR],
+    status: 'ADDITIONAL_WORK_APPROVAL',
+    priority: 'NORMAL',
+    promisedAt: '2026-04-18T12:00:00.000Z',
+    receivedAt: '2026-04-11T10:00:00.000Z',
+    customerComplaint: 'Clunking sound from front suspension, particularly over speed breakers.',
+    diagnosticNotes: 'Front LH lower control arm failed — bush completely worn. Also found RH side beginning to deteriorate. Customer approval pending for RH side as well (additional ₹32,000).',
+    odometerIn: 71200,
+    estimatedTotal: 52000,
+    labourLines: [labourLines[19]!, labourLines[20]!],
+    partsLines: [partsLines[21]!, partsLines[22]!],
+    attachments: ['att-006'],
+  },
+  {
+    id: 'jc-010',
+    jobNo: 'JC-2026-00110',
+    vin: 'WDC2229601A234567', // GLE — chennai
+    customerId: 'customer-010',
+    outletId: 'CHE-01',
+    advisorId: ADVISOR_CHE,
+    technicianIds: [TECH_SHARMA],
+    bayId: 'bay-che-01',
+    status: 'ADDITIONAL_WORK_APPROVAL',
+    priority: 'HIGH',
+    promisedAt: '2026-04-19T17:00:00.000Z',
+    receivedAt: '2026-04-10T09:00:00.000Z',
+    customerComplaint: 'Pre-delivery inspection + oil change before customer collection.',
+    diagnosticNotes: 'PDI complete. Discovered diesel particulate filter at 95% load — regeneration service recommended (₹18,000 additional). Customer approval pending.',
+    odometerIn: 23400,
+    estimatedTotal: 32000,
+    labourLines: [labourLines[21]!, labourLines[22]!],
+    partsLines: [partsLines[23]!, partsLines[24]!, partsLines[25]!],
+    inspectionId: 'insp-005',
+    attachments: [],
+  },
+
+  // ── QC (2) ──────────────────────────────────────────────────────────────────
+  {
+    id: 'jc-011',
+    jobNo: 'JC-2026-00111',
+    vin: 'WDD2050301R567890', // BMW 5 — bangalore (reusing another VIN)
+    customerId: 'customer-011',
+    outletId: 'BLR-01',
+    advisorId: ADVISOR_BLR,
+    technicianIds: [TECH_VERMA],
+    status: 'QC',
+    priority: 'NORMAL',
+    promisedAt: '2026-04-17T14:00:00.000Z',
+    receivedAt: '2026-04-10T09:00:00.000Z',
+    completedAt: '2026-04-16T15:00:00.000Z',
+    customerComplaint: 'Annual service + tyre set replacement (all four). Customer requesting Michelin Pilot Sport.',
+    diagnosticNotes: 'Service complete. All four tyres replaced with Michelin Pilot Sport 4S. Wheel alignment corrected. Road test complete.',
+    odometerIn: 39800,
+    odometerOut: 39885,
+    estimatedTotal: 178000,
+    finalTotal: 175000,
+    labourLines: [labourLines[23]!],
+    partsLines: [partsLines[26]!, partsLines[27]!],
+    attachments: [],
+  },
+  {
+    id: 'jc-012',
+    jobNo: 'JC-2026-00112',
+    vin: 'WBA5U5C08MCF12345', // BMW 5 series
+    customerId: 'customer-012',
+    outletId: 'MUM-01',
+    advisorId: ADVISOR_MUM,
+    technicianIds: [TECH_PATEL],
+    status: 'QC',
+    priority: 'VIP',
+    promisedAt: '2026-04-17T12:00:00.000Z',
+    receivedAt: '2026-04-09T10:00:00.000Z',
+    completedAt: '2026-04-16T11:00:00.000Z',
+    customerComplaint: 'PDK gearbox jerky in slow traffic. Customer requesting full gearbox service.',
+    diagnosticNotes: 'PDK fluid degraded. Full gearbox service performed. PIWIS adaptation reset. Road test — gear changes now smooth.',
+    odometerIn: 44500,
+    odometerOut: 44580,
+    estimatedTotal: 28000,
+    finalTotal: 28000,
+    labourLines: [labourLines[24]!, labourLines[25]!],
+    partsLines: [partsLines[28]!],
+    attachments: [],
+  },
+
+  // ── READY_FOR_DELIVERY (2) ───────────────────────────────────────────────────
+  {
+    id: 'jc-013',
+    jobNo: 'JC-2026-00113',
+    vin: 'WBAJY0C03MCG78901', // BMW 7 Series
+    customerId: 'customer-013',
+    outletId: 'CHE-01',
+    advisorId: ADVISOR_CHE,
+    technicianIds: [TECH_SHARMA],
+    status: 'READY_FOR_DELIVERY',
+    priority: 'NORMAL',
+    promisedAt: '2026-04-16T17:00:00.000Z',
+    receivedAt: '2026-04-08T09:00:00.000Z',
+    completedAt: '2026-04-15T14:00:00.000Z',
+    customerComplaint: 'Coolant temperature fluctuating. Concerned about potential engine overheating.',
+    diagnosticNotes: 'Upper coolant hose developing stress crack. Replaced hose and fully flushed cooling system with G13 coolant. System pressure test passed.',
+    odometerIn: 62100,
+    odometerOut: 62195,
+    estimatedTotal: 22000,
+    finalTotal: 21500,
+    labourLines: [labourLines[26]!],
+    partsLines: [partsLines[29]!, partsLines[30]!],
+    attachments: ['att-007'],
+  },
+  {
+    id: 'jc-014',
+    jobNo: 'JC-2026-00114',
+    vin: 'WBA7U8C07NCH34567', // BMW 6 Series
+    customerId: 'customer-014',
+    outletId: 'BLR-01',
+    advisorId: ADVISOR_BLR,
+    technicianIds: [TECH_VERMA],
+    status: 'READY_FOR_DELIVERY',
+    priority: 'HIGH',
+    promisedAt: '2026-04-16T14:00:00.000Z',
+    receivedAt: '2026-04-07T10:00:00.000Z',
+    completedAt: '2026-04-15T12:00:00.000Z',
+    customerComplaint: 'Battery draining overnight. Car dead in morning on two occasions.',
+    diagnosticNotes: 'ISTA scan confirmed IBS (Intelligent Battery Sensor) failure. AGM battery replaced and BMS adaptation registered via ISTA.',
+    odometerIn: 55900,
+    odometerOut: 55930,
+    estimatedTotal: 25000,
+    finalTotal: 24500,
+    labourLines: [labourLines[27]!, labourLines[28]!],
+    partsLines: [partsLines[31]!],
+    attachments: [],
+  },
+
+  // ── DELIVERED (2) ───────────────────────────────────────────────────────────
+  {
+    id: 'jc-015',
+    jobNo: 'JC-2026-00115',
+    vin: 'WBSKG0C08MCK90123', // BMW M4
+    customerId: 'customer-015',
+    outletId: 'CHE-01',
+    advisorId: ADVISOR_CHE,
+    technicianIds: [TECH_SHARMA],
+    status: 'DELIVERED',
+    priority: 'NORMAL',
+    promisedAt: '2026-04-14T17:00:00.000Z',
+    receivedAt: '2026-04-05T09:00:00.000Z',
+    completedAt: '2026-04-13T14:00:00.000Z',
+    deliveredAt: '2026-04-14T11:00:00.000Z',
+    customerComplaint: 'EV annual inspection required. HV battery check. Cabin filter replacement.',
+    diagnosticNotes: 'HV inspection complete. All systems healthy. Battery SoH 96%. Cabin micro-filter replaced.',
+    odometerIn: 31200,
+    odometerOut: 31240,
+    estimatedTotal: 18500,
+    finalTotal: 18500,
+    labourLines: [labourLines[29]!],
+    partsLines: [partsLines[32]!],
+    attachments: [],
+  },
+  {
+    id: 'jc-016',
+    jobNo: 'JC-2026-00116',
+    vin: 'WBY2Z21090VX45678', // BMW i8
+    customerId: 'customer-016',
+    outletId: 'BLR-01',
+    advisorId: ADVISOR_BLR,
+    technicianIds: [TECH_KUMAR],
+    status: 'REOPENED',
+    priority: 'HIGH',
+    promisedAt: '2026-04-13T17:00:00.000Z',
+    receivedAt: '2026-04-04T09:00:00.000Z',
+    completedAt: '2026-04-12T15:00:00.000Z',
+    deliveredAt: '2026-04-13T10:00:00.000Z',
+    customerComplaint: 'Annual service — oil change + filters.',
+    diagnosticNotes: 'Reopened for rework — customer reported intermittent engine warning light (P0171 lean bank 1) appearing 2 days after delivery. Vehicle returned for further investigation.',
+    odometerIn: 48700,
+    odometerOut: 48742,
+    estimatedTotal: 19500,
+    finalTotal: 19500,
+    labourLines: [labourLines[0]!],
+    partsLines: [partsLines[33]!, partsLines[34]!],
+    attachments: [],
+  },
+
+  // ── 2 additional job cards for more richness ─────────────────────────────────
+  {
+    id: 'jc-017',
+    jobNo: 'JC-2026-00117',
+    vin: 'SALKJBF46PA234567', // Land Rover Defender
+    customerId: 'customer-017',
+    outletId: 'MUM-01',
+    advisorId: ADVISOR_MUM,
+    technicianIds: [TECH_PATEL],
+    status: 'IN_PROGRESS',
+    priority: 'NORMAL',
+    promisedAt: '2026-04-18T17:00:00.000Z',
+    receivedAt: '2026-04-15T11:00:00.000Z',
+    customerComplaint: 'Brake pedal spongy. Complete brake service requested.',
+    diagnosticNotes: 'All four brake pads worn. Fluid contaminated. Full brake service authorised.',
+    odometerIn: 57400,
+    estimatedTotal: 35000,
+    labourLines: [],
+    partsLines: [partsLines[35]!, partsLines[36]!],
+    attachments: [],
+  },
+  {
+    id: 'jc-018',
+    jobNo: 'JC-2026-00118',
+    vin: 'SALEA2BX5NA890123', // Range Rover Sport
+    customerId: 'customer-018',
+    outletId: 'CHE-01',
+    advisorId: ADVISOR_CHE,
+    technicianIds: [TECH_SHARMA],
+    status: 'WAITING_PARTS',
+    priority: 'VIP',
+    promisedAt: '2026-04-22T17:00:00.000Z',
+    receivedAt: '2026-04-14T09:00:00.000Z',
+    customerComplaint: 'Annual service — 80,000 km. Spark plugs, air filter, oil change.',
+    diagnosticNotes: 'Ordered spark plugs and air filter from Land Rover authorised dealer. Parts ETA 3–4 working days.',
+    odometerIn: 81200,
+    estimatedTotal: 95000,
+    labourLines: [],
+    partsLines: [partsLines[37]!, partsLines[38]!, partsLines[39]!],
+    attachments: [],
+  },
+
+  // ── CANCELLED (1) ────────────────────────────────────────────────────────────
+  {
+    id: 'jc-019',
+    jobNo: 'JC-2026-00119',
+    vin: 'WAUTPBFY6N2006789', // Audi Q7 (new VIN)
+    customerId: 'customer-034',
+    outletId: 'MUM-01',
+    advisorId: ADVISOR_MUM,
+    technicianIds: [TECH_PATEL],
+    status: 'CANCELLED',
+    priority: 'NORMAL',
+    promisedAt: '2026-04-19T17:00:00.000Z',
+    receivedAt: '2026-04-15T14:00:00.000Z',
+    customerComplaint: 'AC compressor noise under load. Requested full AC system overhaul.',
+    diagnosticNotes: 'Cancelled — customer changed mind after receiving estimate. AC compressor replacement quote ₹72,000 deemed too high by customer. Vehicle to be collected unchecked. Bay freed.',
+    odometerIn: 64300,
+    estimatedTotal: 72000,
+    labourLines: [],
+    partsLines: [],
+    attachments: [],
+  },
+];
+
+// ─── Appointments (15) ────────────────────────────────────────────────────────
+
+export const appointments: Appointment[] = [
+  // ── SCHEDULED — next 7 days (5) ─────────────────────────────────────────────
+  {
+    id: 'apt-001',
+    customerId: 'customer-019',
+    vin: 'WP0AB2A91MS247831',
+    outletId: 'BLR-01',
+    serviceTypeId: 'annual-service',
+    scheduledAt: '2026-04-18T10:00:00.000Z',
+    estimatedDurationMins: 240,
+    advisorId: ADVISOR_BLR,
+    status: 'SCHEDULED',
+    notes: 'Customer requests Priya Sharma specifically.',
+    createdAt: '2026-04-15T09:00:00.000Z',
+  },
+  {
+    id: 'apt-002',
+    customerId: 'customer-020',
+    vin: 'WP0ZZZ97ZNS112045',
+    outletId: 'MUM-01',
+    serviceTypeId: 'mechanical-repair',
+    scheduledAt: '2026-04-18T14:00:00.000Z',
+    estimatedDurationMins: 120,
+    advisorId: ADVISOR_MUM,
+    status: 'SCHEDULED',
+    notes: 'Intermittent warning light — B+ code. Customer concerned.',
+    createdAt: '2026-04-15T11:30:00.000Z',
+  },
+  {
+    id: 'apt-003',
+    customerId: 'customer-021',
+    vin: 'WDD2221971A012345',
+    outletId: 'BLR-01',
+    serviceTypeId: 'aesthetic-detailing',
+    scheduledAt: '2026-04-19T09:00:00.000Z',
+    estimatedDurationMins: 480,
+    advisorId: ADVISOR_BLR,
+    status: 'SCHEDULED',
+    createdAt: '2026-04-14T15:00:00.000Z',
+  },
+  {
+    id: 'apt-004',
+    customerId: 'customer-022',
+    vin: 'SALKJBF46PA234567',
+    outletId: 'CHE-01',
+    serviceTypeId: 'mechanical-repair',
+    scheduledAt: '2026-04-21T11:00:00.000Z',
+    estimatedDurationMins: 180,
+    advisorId: ADVISOR_CHE,
+    status: 'SCHEDULED',
+    notes: 'Steering vibration at highway speeds. Possible wheel balance or tie rod.',
+    createdAt: '2026-04-16T10:00:00.000Z',
+  },
+  {
+    id: 'apt-005',
+    customerId: 'customer-023',
+    vin: 'WBA5U5C08MCF12345',
+    outletId: 'MUM-01',
+    serviceTypeId: 'pre-purchase-inspection',
+    scheduledAt: '2026-04-22T10:00:00.000Z',
+    estimatedDurationMins: 300,
+    advisorId: ADVISOR_MUM,
+    status: 'SCHEDULED',
+    notes: 'Customer purchasing this vehicle — third-party PPI requested.',
+    createdAt: '2026-04-16T14:00:00.000Z',
+  },
+
+  // ── CONFIRMED today (3) ──────────────────────────────────────────────────────
+  {
+    id: 'apt-006',
+    customerId: 'customer-024',
+    vin: 'WDC1930561A456789',
+    outletId: 'MUM-01',
+    serviceTypeId: 'annual-service',
+    scheduledAt: '2026-04-17T09:30:00.000Z',
+    estimatedDurationMins: 240,
+    advisorId: ADVISOR_MUM,
+    status: 'CONFIRMED',
+    createdAt: '2026-04-14T10:00:00.000Z',
+  },
+  {
+    id: 'apt-007',
+    customerId: 'customer-025',
+    vin: 'WP1ZZZ9YZPS034789',
+    outletId: 'BLR-01',
+    serviceTypeId: 'mechanical-repair',
+    scheduledAt: '2026-04-17T11:00:00.000Z',
+    estimatedDurationMins: 90,
+    advisorId: ADVISOR_BLR,
+    status: 'CONFIRMED',
+    notes: 'Park sensor beeping. Reverse camera image distorted.',
+    createdAt: '2026-04-15T16:00:00.000Z',
+  },
+  {
+    id: 'apt-008',
+    customerId: 'customer-026',
+    vin: 'WAUZZZF51NA012345',
+    outletId: 'CHE-01',
+    serviceTypeId: 'aesthetic-detailing',
+    scheduledAt: '2026-04-17T14:00:00.000Z',
+    estimatedDurationMins: 480,
+    advisorId: ADVISOR_CHE,
+    status: 'CONFIRMED',
+    notes: 'Full ceramic coating package. Customer wants PPF on hood as well.',
+    createdAt: '2026-04-13T11:00:00.000Z',
+  },
+
+  // ── CHECKED_IN (2) ──────────────────────────────────────────────────────────
+  {
+    id: 'apt-009',
+    customerId: 'customer-027',
+    vin: 'WDD1900761A789012',
+    outletId: 'BLR-01',
+    serviceTypeId: 'mechanical-repair',
+    scheduledAt: '2026-04-17T08:00:00.000Z',
+    estimatedDurationMins: 150,
+    advisorId: ADVISOR_BLR,
+    bayId: 'bay-blr-03',
+    status: 'CHECKED_IN',
+    createdAt: '2026-04-12T09:00:00.000Z',
+  },
+  {
+    id: 'apt-010',
+    customerId: 'customer-028',
+    vin: 'SALEA2BX5NA890123',
+    outletId: 'CHE-01',
+    serviceTypeId: 'annual-service',
+    scheduledAt: '2026-04-17T09:00:00.000Z',
+    estimatedDurationMins: 240,
+    advisorId: ADVISOR_CHE,
+    status: 'CHECKED_IN',
+    createdAt: '2026-04-10T14:00:00.000Z',
+  },
+
+  // ── Past appointments — CANCELLED / NO_SHOW (3) ──────────────────────────────
+  {
+    id: 'apt-011',
+    customerId: 'customer-029',
+    vin: 'WP0AAA1X8PSA12345',
+    outletId: 'BLR-01',
+    serviceTypeId: 'annual-service',
+    scheduledAt: '2026-04-10T10:00:00.000Z',
+    estimatedDurationMins: 240,
+    advisorId: ADVISOR_BLR,
+    status: 'CANCELLED',
+    notes: 'Customer cancelled — travelling abroad.',
+    createdAt: '2026-04-05T11:00:00.000Z',
+  },
+  {
+    id: 'apt-012',
+    customerId: 'customer-030',
+    vin: 'WDC2229601A234567',
+    outletId: 'MUM-01',
+    serviceTypeId: 'mechanical-repair',
+    scheduledAt: '2026-04-12T11:00:00.000Z',
+    estimatedDurationMins: 120,
+    advisorId: ADVISOR_MUM,
+    status: 'NO_SHOW',
+    createdAt: '2026-04-08T10:00:00.000Z',
+  },
+  {
+    id: 'apt-013',
+    customerId: 'customer-031',
+    vin: 'YV1LZBRMDPA123456',
+    outletId: 'CHE-01',
+    serviceTypeId: 'pre-purchase-inspection',
+    scheduledAt: '2026-04-14T14:00:00.000Z',
+    estimatedDurationMins: 300,
+    advisorId: ADVISOR_CHE,
+    status: 'CANCELLED',
+    notes: 'Deal fell through — vehicle no longer available.',
+    createdAt: '2026-04-09T14:00:00.000Z',
+  },
+  // ── 2 more SCHEDULED ─────────────────────────────────────────────────────────
+  {
+    id: 'apt-014',
+    customerId: 'customer-032',
+    vin: 'SAJWJ6FEXNCK12345',
+    outletId: 'BLR-01',
+    serviceTypeId: 'annual-service',
+    scheduledAt: '2026-04-20T10:00:00.000Z',
+    estimatedDurationMins: 360,
+    advisorId: ADVISOR_BLR,
+    status: 'SCHEDULED',
+    notes: '60,000 km major service — Jaguar F-Pace.',
+    createdAt: '2026-04-15T09:30:00.000Z',
+  },
+  {
+    id: 'apt-015',
+    customerId: 'customer-033',
+    vin: 'YV1DZBEK5NB234567',
+    outletId: 'MUM-01',
+    serviceTypeId: 'accessory-installation',
+    scheduledAt: '2026-04-23T10:00:00.000Z',
+    estimatedDurationMins: 120,
+    advisorId: ADVISOR_MUM,
+    status: 'SCHEDULED',
+    notes: 'Apple CarPlay retrofit + dash cam installation.',
+    createdAt: '2026-04-16T16:00:00.000Z',
+  },
+];
+
+// ─── Warranty Claims (8) ──────────────────────────────────────────────────────
+
+export const warrantyClaims: WarrantyClaim[] = [
+  // DRAFT (1)
+  {
+    id: 'wc-001',
+    claimNo: 'CLM-2026-0001',
+    vin: 'WP0AB2A91MS247831',
+    jobCardId: 'jc-001',
+    type: 'MANUFACTURER',
+    status: 'DRAFT',
+    amount: 45000,
+    reason: 'Premature front brake pad wear at 28,000 km — within Porsche 2-year warranty window. Both pads at minimum spec.',
+    partsIds: ['prt-002'],
+    labourIds: ['lab-003'],
+    notes: 'Photos taken. ISTA report attached. Awaiting Porsche India claim portal submission.',
+  },
+  // SUBMITTED (2)
+  {
+    id: 'wc-002',
+    claimNo: 'CLM-2026-0002',
+    vin: 'WP0AAA1X8PSA12345',
+    jobCardId: 'jc-006',
+    type: 'CPO',
+    status: 'SUBMITTED',
+    submittedAt: '2026-04-15T10:00:00.000Z',
+    amount: 125000,
+    reason: 'PCCB ceramic brake system failure below CPO warranty threshold (40,000 km). Pads and discs replaced under BN CPO 1-year warranty.',
+    partsIds: ['prt-014', 'prt-015'],
+    labourIds: ['lab-014', 'lab-015'],
+    notes: 'CPO policy BN-CPO-2025-0341. Porsche India pre-approval reference PA-2026-0088.',
+  },
+  {
+    id: 'wc-003',
+    claimNo: 'CLM-2026-0003',
+    vin: 'WP1ZZZ95ZNS078234',
+    jobCardId: 'jc-004',
+    type: 'MANUFACTURER',
+    status: 'SUBMITTED',
+    submittedAt: '2026-04-16T14:00:00.000Z',
+    amount: 22000,
+    reason: 'O2 sensor failure on 2022 Cayenne (58,000 km) — within 3-year manufacturer warranty.',
+    partsIds: ['prt-009'],
+    labourIds: ['lab-009'],
+    notes: 'DTC P0141 confirmed by PIWIS. Submitted via Porsche Partner Network portal.',
+  },
+  // UNDER_REVIEW (1)
+  {
+    id: 'wc-004',
+    claimNo: 'CLM-2026-0004',
+    vin: 'WDD2221971A012345',
+    jobCardId: 'jc-007',
+    type: 'EXTENDED',
+    status: 'UNDER_REVIEW',
+    submittedAt: '2026-04-14T09:00:00.000Z',
+    amount: 85000,
+    reason: 'Front bumper paint delamination on 2021 S-Class — manufacturer defect claim under extended paint warranty.',
+    partsIds: ['prt-016', 'prt-017'],
+    labourIds: ['lab-016'],
+    notes: 'Mercedes-Benz India case reference MB-2026-IND-3341. Awaiting physical inspection by MB India rep (scheduled 20 Apr).',
+  },
+  // APPROVED (2)
+  {
+    id: 'wc-005',
+    claimNo: 'CLM-2026-0005',
+    vin: 'WP0ZZZ98ZMS561902',
+    jobCardId: 'jc-005',
+    type: 'MANUFACTURER',
+    status: 'APPROVED',
+    submittedAt: '2026-04-10T11:00:00.000Z',
+    approvedAt: '2026-04-15T14:00:00.000Z',
+    amount: 68000,
+    reason: 'PDK mechatronics fault code P1A4A on 61,000 km — within Porsche warranty. Gearbox service + oil replacement.',
+    partsIds: ['prt-029'],
+    labourIds: ['lab-025', 'lab-026'],
+    notes: 'Porsche India approval reference PA-2026-0071. Credit note issued. Awaiting payment.',
+  },
+  {
+    id: 'wc-006',
+    claimNo: 'CLM-2026-0006',
+    vin: 'WDC1930561A456789',
+    jobCardId: 'jc-008',
+    type: 'CPO',
+    status: 'APPROVED',
+    submittedAt: '2026-04-08T10:00:00.000Z',
+    approvedAt: '2026-04-14T16:00:00.000Z',
+    amount: 35000,
+    reason: 'Rear brake pads below minimum at 52,000 km — covered under BN CPO warranty (1 year / 20,000 km from purchase).',
+    partsIds: [],
+    labourIds: ['lab-018'],
+    notes: 'CPO policy BN-CPO-2025-0289. Approved by warranty team. Awaiting disbursement.',
+  },
+  // REJECTED (1)
+  {
+    id: 'wc-007',
+    claimNo: 'CLM-2026-0007',
+    vin: 'WDD1900761A789012',
+    jobCardId: 'jc-009',
+    type: 'MANUFACTURER',
+    status: 'REJECTED',
+    submittedAt: '2026-04-06T10:00:00.000Z',
+    amount: 52000,
+    reason: 'Front lower control arm failure claimed under manufacturer warranty.',
+    partsIds: ['prt-022', 'prt-023'],
+    labourIds: ['lab-021'],
+    notes: 'Mercedes India rejected: vehicle has modification (aftermarket lowering springs) that voids suspension warranty. Customer informed.',
+  },
+  // PAID (1)
+  {
+    id: 'wc-008',
+    claimNo: 'CLM-2026-0008',
+    vin: 'WDC2229601A234567',
+    jobCardId: 'jc-010',
+    type: 'GOODWILL',
+    status: 'PAID',
+    submittedAt: '2026-03-20T10:00:00.000Z',
+    approvedAt: '2026-03-28T14:00:00.000Z',
+    paidAt: '2026-04-05T10:00:00.000Z',
+    amount: 32000,
+    reason: 'Goodwill claim for PDI rectification costs on newly purchased GLE — coolant hose replacement and DPF regeneration.',
+    partsIds: ['prt-030', 'prt-031'],
+    labourIds: ['lab-022'],
+    notes: 'Goodwill approved by Service Manager Sunita Reddy. Payment received via NEFT.',
+  },
+];
+
+// ─── Timeline Events (80 total) ───────────────────────────────────────────────
+
+export const timelineEvents: JobCardTimelineEvent[] = [
+  // ── jc-001 (RECEIVED) — 4 events ────────────────────────────────────────────
+  { id: 'tl-001', jobCardId: 'jc-001', at: '2026-04-17T09:00:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'received', description: 'Vehicle received at BLR-01. Job card JC-2026-00101 opened.', metadata: {} },
+  { id: 'tl-002', jobCardId: 'jc-001', at: '2026-04-17T09:15:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'status_changed', description: 'Status set to RECEIVED. Customer complaint logged.', metadata: { from: null, to: 'RECEIVED' } },
+  { id: 'tl-003', jobCardId: 'jc-001', at: '2026-04-17T09:20:00.000Z', actorId: TECH_KUMAR, actorName: 'K. Kumar', type: 'note', description: 'Technician K. Kumar assigned. Initial walkaround complete.', metadata: {} },
+  { id: 'tl-004', jobCardId: 'jc-001', at: '2026-04-17T10:00:00.000Z', actorId: TECH_KUMAR, actorName: 'K. Kumar', type: 'photo_uploaded', description: '3 pre-service photos uploaded (exterior walkaround).', metadata: { count: 3 } },
+
+  // ── jc-002 (RECEIVED) — 3 events ────────────────────────────────────────────
+  { id: 'tl-005', jobCardId: 'jc-002', at: '2026-04-17T10:30:00.000Z', actorId: ADVISOR_MUM, actorName: 'Rajesh Kumar', type: 'received', description: 'Vehicle received at MUM-01. Job card JC-2026-00102 opened.', metadata: {} },
+  { id: 'tl-006', jobCardId: 'jc-002', at: '2026-04-17T10:45:00.000Z', actorId: ADVISOR_MUM, actorName: 'Rajesh Kumar', type: 'status_changed', description: 'Customer complaint: AC not cooling + dash rattle logged.', metadata: { from: null, to: 'RECEIVED' } },
+  { id: 'tl-007', jobCardId: 'jc-002', at: '2026-04-17T11:00:00.000Z', actorId: TECH_PATEL, actorName: 'R. Patel', type: 'note', description: 'Technician assigned. Vehicle moved to bay for triage.', metadata: {} },
+
+  // ── jc-003 (DIAGNOSED) — 5 events ───────────────────────────────────────────
+  { id: 'tl-008', jobCardId: 'jc-003', at: '2026-04-16T14:00:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'received', description: 'Vehicle received. Paint damage photographed.', metadata: {} },
+  { id: 'tl-009', jobCardId: 'jc-003', at: '2026-04-16T14:30:00.000Z', actorId: TECH_KUMAR, actorName: 'K. Kumar', type: 'note', description: 'Paint assessment complete — 3 stone chips + 1 scratch. Spot repair viable.', metadata: {} },
+  { id: 'tl-010', jobCardId: 'jc-003', at: '2026-04-16T15:00:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'diagnosed', description: 'Diagnosis complete. Estimate sent to customer. Awaiting approval.', metadata: {} },
+  { id: 'tl-011', jobCardId: 'jc-003', at: '2026-04-16T16:00:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'estimate_approved', description: 'Customer approved estimate of ₹32,000 via WhatsApp.', metadata: { amount: 32000 } },
+  { id: 'tl-012', jobCardId: 'jc-003', at: '2026-04-16T16:10:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'status_changed', description: 'Status updated to DIAGNOSED. Work scheduled for tomorrow.', metadata: { from: 'RECEIVED', to: 'DIAGNOSED' } },
+
+  // ── jc-004 (DIAGNOSED) — 5 events ───────────────────────────────────────────
+  { id: 'tl-013', jobCardId: 'jc-004', at: '2026-04-16T09:00:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'received', description: 'Vehicle received. CEL noted on walkaround.', metadata: {} },
+  { id: 'tl-014', jobCardId: 'jc-004', at: '2026-04-16T10:00:00.000Z', actorId: TECH_VERMA, actorName: 'S. Verma', type: 'diagnosed', description: 'OBD scan complete. DTC P0141 confirmed — O2 sensor heater fault.', metadata: { dtc: 'P0141' } },
+  { id: 'tl-015', jobCardId: 'jc-004', at: '2026-04-16T10:30:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'estimate_approved', description: 'Customer approved O2 sensor replacement + warranty claim submission.', metadata: { amount: 22000 } },
+  { id: 'tl-016', jobCardId: 'jc-004', at: '2026-04-16T10:45:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'status_changed', description: 'Status updated to DIAGNOSED.', metadata: { from: 'RECEIVED', to: 'DIAGNOSED' } },
+  { id: 'tl-017', jobCardId: 'jc-004', at: '2026-04-16T11:00:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'note', description: 'Warranty claim CLM-2026-0003 submitted to Porsche India.', metadata: { claimId: 'wc-003' } },
+
+  // ── jc-005 (IN_PROGRESS) — 6 events ─────────────────────────────────────────
+  { id: 'tl-018', jobCardId: 'jc-005', at: '2026-04-15T09:00:00.000Z', actorId: ADVISOR_MUM, actorName: 'Rajesh Kumar', type: 'received', description: 'Vehicle received for major annual service.', metadata: {} },
+  { id: 'tl-019', jobCardId: 'jc-005', at: '2026-04-15T10:00:00.000Z', actorId: TECH_PATEL, actorName: 'R. Patel', type: 'diagnosed', description: 'Pre-service inspection complete. Spark plugs at end of life. PDK service due.', metadata: {} },
+  { id: 'tl-020', jobCardId: 'jc-005', at: '2026-04-15T10:30:00.000Z', actorId: ADVISOR_MUM, actorName: 'Rajesh Kumar', type: 'estimate_approved', description: 'Updated estimate ₹68,000 approved — includes spark plugs and PDK.', metadata: { amount: 68000 } },
+  { id: 'tl-021', jobCardId: 'jc-005', at: '2026-04-15T11:00:00.000Z', actorId: TECH_PATEL, actorName: 'R. Patel', type: 'labour_started', description: 'Work commenced. Oil change + filter complete.', metadata: {} },
+  { id: 'tl-022', jobCardId: 'jc-005', at: '2026-04-16T09:00:00.000Z', actorId: TECH_PATEL, actorName: 'R. Patel', type: 'part_fitted', description: 'Spark plugs fitted. Air filter replaced. Moving to PDK service.', metadata: { partCode: 'PRT-SPK-PLG-BOSCH-4' } },
+  { id: 'tl-023', jobCardId: 'jc-005', at: '2026-04-16T11:30:00.000Z', actorId: TECH_PATEL, actorName: 'R. Patel', type: 'inspection_complete', description: 'VHC inspection insp-002 completed. PDK fault code noted.', metadata: { inspectionId: 'insp-002' } },
+
+  // ── jc-006 (IN_PROGRESS) — 5 events ─────────────────────────────────────────
+  { id: 'tl-024', jobCardId: 'jc-006', at: '2026-04-14T10:00:00.000Z', actorId: ADVISOR_CHE, actorName: 'Deepa Nair', type: 'received', description: 'Taycan received. PCCB brake noise complaint.', metadata: {} },
+  { id: 'tl-025', jobCardId: 'jc-006', at: '2026-04-14T11:00:00.000Z', actorId: TECH_SHARMA, actorName: 'A. Sharma', type: 'diagnosed', description: 'Brake inspection complete. Front pads at 2mm, discs heat stressed. Full axle replacement required.', metadata: {} },
+  { id: 'tl-026', jobCardId: 'jc-006', at: '2026-04-14T12:00:00.000Z', actorId: ADVISOR_CHE, actorName: 'Deepa Nair', type: 'estimate_approved', description: 'Customer approved ₹145,000 estimate. PCCB parts ordered (ex-Porsche Chennai).', metadata: { amount: 145000 } },
+  { id: 'tl-027', jobCardId: 'jc-006', at: '2026-04-15T09:00:00.000Z', actorId: TECH_SHARMA, actorName: 'A. Sharma', type: 'labour_started', description: 'PCCB brake pads and discs arrived. Work commenced.', metadata: {} },
+  { id: 'tl-028', jobCardId: 'jc-006', at: '2026-04-16T14:00:00.000Z', actorId: TECH_SHARMA, actorName: 'A. Sharma', type: 'inspection_complete', description: 'VHC insp-004 complete. HV battery healthy at 94% SoH.', metadata: { inspectionId: 'insp-004' } },
+
+  // ── jc-007 (WAITING_PARTS) — 5 events ───────────────────────────────────────
+  { id: 'tl-029', jobCardId: 'jc-007', at: '2026-04-13T11:00:00.000Z', actorId: ADVISOR_MUM, actorName: 'Rajesh Kumar', type: 'received', description: 'S-Class received. Front bumper paint damage assessed.', metadata: {} },
+  { id: 'tl-030', jobCardId: 'jc-007', at: '2026-04-13T12:00:00.000Z', actorId: TECH_VERMA, actorName: 'S. Verma', type: 'diagnosed', description: 'Paint code identified: 040 Brilliant White. Correct batch ordered from Mercedes body shop supplier.', metadata: { paintCode: '040' } },
+  { id: 'tl-031', jobCardId: 'jc-007', at: '2026-04-13T14:00:00.000Z', actorId: ADVISOR_MUM, actorName: 'Rajesh Kumar', type: 'estimate_approved', description: 'Customer approved. Extended claim submitted to Mercedes India.', metadata: {} },
+  { id: 'tl-032', jobCardId: 'jc-007', at: '2026-04-14T09:00:00.000Z', actorId: TECH_VERMA, actorName: 'S. Verma', type: 'part_reserved', description: 'Paint materials reserved. Masking complete. Awaiting correct base coat batch.', metadata: { status: 'WAITING_PARTS' } },
+  { id: 'tl-033', jobCardId: 'jc-007', at: '2026-04-14T10:00:00.000Z', actorId: ADVISOR_MUM, actorName: 'Rajesh Kumar', type: 'status_changed', description: 'Status changed to WAITING_PARTS. ETA from supplier: 21 April.', metadata: { from: 'IN_PROGRESS', to: 'WAITING_PARTS' } },
+
+  // ── jc-008 (WAITING_PARTS) — 5 events ───────────────────────────────────────
+  { id: 'tl-034', jobCardId: 'jc-008', at: '2026-04-12T09:00:00.000Z', actorId: ADVISOR_MUM, actorName: 'Rajesh Kumar', type: 'received', description: 'GLC received for annual service + brake fluid change.', metadata: {} },
+  { id: 'tl-035', jobCardId: 'jc-008', at: '2026-04-12T11:00:00.000Z', actorId: TECH_PATEL, actorName: 'R. Patel', type: 'diagnosed', description: 'Service complete. Rear pads at 3mm — customer approved replacement.', metadata: {} },
+  { id: 'tl-036', jobCardId: 'jc-008', at: '2026-04-12T12:00:00.000Z', actorId: ADVISOR_MUM, actorName: 'Rajesh Kumar', type: 'part_reserved', description: 'OEM rear pads ordered via Mercedes authorised dealer. ETA 20 Apr.', metadata: {} },
+  { id: 'tl-037', jobCardId: 'jc-008', at: '2026-04-13T16:00:00.000Z', actorId: TECH_PATEL, actorName: 'R. Patel', type: 'inspection_complete', description: 'VHC insp-003 complete. All other systems OK.', metadata: { inspectionId: 'insp-003' } },
+  { id: 'tl-038', jobCardId: 'jc-008', at: '2026-04-13T16:30:00.000Z', actorId: ADVISOR_MUM, actorName: 'Rajesh Kumar', type: 'status_changed', description: 'Status set to WAITING_PARTS for rear brake pads.', metadata: { from: 'IN_PROGRESS', to: 'WAITING_PARTS' } },
+
+  // ── jc-009 (ADDITIONAL_WORK_APPROVAL) — 5 events ────────────────────────────
+  { id: 'tl-039', jobCardId: 'jc-009', at: '2026-04-11T10:00:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'received', description: 'E-Class received. Suspension clunking on speed breakers.', metadata: {} },
+  { id: 'tl-040', jobCardId: 'jc-009', at: '2026-04-11T11:30:00.000Z', actorId: TECH_KUMAR, actorName: 'K. Kumar', type: 'diagnosed', description: 'LH front lower control arm failed. RH also deteriorating.', metadata: {} },
+  { id: 'tl-041', jobCardId: 'jc-009', at: '2026-04-11T12:00:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'estimate_approved', description: 'LH arm replacement (₹52,000) approved. Additional RH arm (₹32,000) pending approval.', metadata: { amount: 52000, additionalAmount: 32000 } },
+  { id: 'tl-042', jobCardId: 'jc-009', at: '2026-04-11T14:00:00.000Z', actorId: TECH_KUMAR, actorName: 'K. Kumar', type: 'labour_started', description: 'LH control arm replacement in progress.', metadata: {} },
+  { id: 'tl-043', jobCardId: 'jc-009', at: '2026-04-12T10:00:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'status_changed', description: 'Status changed to ADDITIONAL_WORK_APPROVAL — awaiting customer go-ahead on RH arm.', metadata: { from: 'IN_PROGRESS', to: 'ADDITIONAL_WORK_APPROVAL' } },
+
+  // ── jc-010 (ADDITIONAL_WORK_APPROVAL) — 5 events ────────────────────────────
+  { id: 'tl-044', jobCardId: 'jc-010', at: '2026-04-10T09:00:00.000Z', actorId: ADVISOR_CHE, actorName: 'Deepa Nair', type: 'received', description: 'GLE received for pre-delivery inspection before customer collection.', metadata: {} },
+  { id: 'tl-045', jobCardId: 'jc-010', at: '2026-04-10T10:00:00.000Z', actorId: TECH_SHARMA, actorName: 'A. Sharma', type: 'diagnosed', description: 'PDI in progress. DPF at 95% load detected — regeneration service recommended.', metadata: {} },
+  { id: 'tl-046', jobCardId: 'jc-010', at: '2026-04-10T11:00:00.000Z', actorId: ADVISOR_CHE, actorName: 'Deepa Nair', type: 'note', description: 'Customer contacted re DPF regeneration. Awaiting approval. Goodwill claim wc-008 already paid for this vehicle.', metadata: {} },
+  { id: 'tl-047', jobCardId: 'jc-010', at: '2026-04-16T12:00:00.000Z', actorId: TECH_SHARMA, actorName: 'A. Sharma', type: 'inspection_complete', description: 'PDI inspection insp-005 complete. All 210 points checked.', metadata: { inspectionId: 'insp-005' } },
+  { id: 'tl-048', jobCardId: 'jc-010', at: '2026-04-16T12:30:00.000Z', actorId: ADVISOR_CHE, actorName: 'Deepa Nair', type: 'status_changed', description: 'Status ADDITIONAL_WORK_APPROVAL — awaiting customer decision on DPF service.', metadata: { from: 'IN_PROGRESS', to: 'ADDITIONAL_WORK_APPROVAL' } },
+
+  // ── jc-011 (QC) — 5 events ───────────────────────────────────────────────────
+  { id: 'tl-049', jobCardId: 'jc-011', at: '2026-04-10T09:00:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'received', description: 'BMW received for tyre replacement + annual service.', metadata: {} },
+  { id: 'tl-050', jobCardId: 'jc-011', at: '2026-04-10T10:00:00.000Z', actorId: TECH_VERMA, actorName: 'S. Verma', type: 'labour_started', description: 'Tyre removal commenced. All four Michelin Pilot Sport 4S fitted.', metadata: {} },
+  { id: 'tl-051', jobCardId: 'jc-011', at: '2026-04-11T14:00:00.000Z', actorId: TECH_VERMA, actorName: 'S. Verma', type: 'part_fitted', description: 'All four Pilot Sport 4S mounted and balanced. Alignment corrected.', metadata: {} },
+  { id: 'tl-052', jobCardId: 'jc-011', at: '2026-04-16T15:00:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'qc_passed', description: 'Road test complete. All OK. Job card moved to QC.', metadata: {} },
+  { id: 'tl-053', jobCardId: 'jc-011', at: '2026-04-16T15:30:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'status_changed', description: 'Status updated to QC.', metadata: { from: 'IN_PROGRESS', to: 'QC' } },
+
+  // ── jc-012 (QC) — 4 events ───────────────────────────────────────────────────
+  { id: 'tl-054', jobCardId: 'jc-012', at: '2026-04-09T10:00:00.000Z', actorId: ADVISOR_MUM, actorName: 'Rajesh Kumar', type: 'received', description: 'Panamera received. PDK gearbox jerk complaint.', metadata: {} },
+  { id: 'tl-055', jobCardId: 'jc-012', at: '2026-04-09T11:00:00.000Z', actorId: TECH_PATEL, actorName: 'R. Patel', type: 'diagnosed', description: 'PDK fluid degraded. Full gearbox service required.', metadata: {} },
+  { id: 'tl-056', jobCardId: 'jc-012', at: '2026-04-10T14:00:00.000Z', actorId: TECH_PATEL, actorName: 'R. Patel', type: 'part_fitted', description: 'PDK fluid flushed and replaced. PIWIS adaptation reset.', metadata: { partCode: 'PRT-GBX-OIL-PDK' } },
+  { id: 'tl-057', jobCardId: 'jc-012', at: '2026-04-16T11:00:00.000Z', actorId: ADVISOR_MUM, actorName: 'Rajesh Kumar', type: 'qc_passed', description: 'Road test — smooth PDK operation confirmed. Ready for QC sign-off.', metadata: {} },
+
+  // ── jc-013 (READY_FOR_DELIVERY) — 5 events ──────────────────────────────────
+  { id: 'tl-058', jobCardId: 'jc-013', at: '2026-04-08T09:00:00.000Z', actorId: ADVISOR_CHE, actorName: 'Deepa Nair', type: 'received', description: 'BMW 7 Series received. Coolant temperature fluctuation.', metadata: {} },
+  { id: 'tl-059', jobCardId: 'jc-013', at: '2026-04-08T10:30:00.000Z', actorId: TECH_SHARMA, actorName: 'A. Sharma', type: 'diagnosed', description: 'Upper coolant hose stress crack identified. Replacement authorised.', metadata: {} },
+  { id: 'tl-060', jobCardId: 'jc-013', at: '2026-04-09T09:00:00.000Z', actorId: TECH_SHARMA, actorName: 'A. Sharma', type: 'part_fitted', description: 'New coolant hose fitted. System flushed and refilled with G13.', metadata: { partCode: 'PRT-COOL-HOSE-CAY' } },
+  { id: 'tl-061', jobCardId: 'jc-013', at: '2026-04-15T14:00:00.000Z', actorId: ADVISOR_CHE, actorName: 'Deepa Nair', type: 'qc_passed', description: 'QC complete. System pressure test held. Ready for delivery.', metadata: {} },
+  { id: 'tl-062', jobCardId: 'jc-013', at: '2026-04-15T14:30:00.000Z', actorId: ADVISOR_CHE, actorName: 'Deepa Nair', type: 'ready_for_delivery', description: 'Job card moved to READY_FOR_DELIVERY. Customer informed by WhatsApp.', metadata: {} },
+
+  // ── jc-014 (READY_FOR_DELIVERY) — 4 events ──────────────────────────────────
+  { id: 'tl-063', jobCardId: 'jc-014', at: '2026-04-07T10:00:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'received', description: 'BMW 6 Series received. Overnight battery drain.', metadata: {} },
+  { id: 'tl-064', jobCardId: 'jc-014', at: '2026-04-07T11:30:00.000Z', actorId: TECH_VERMA, actorName: 'S. Verma', type: 'diagnosed', description: 'ISTA scan — IBS sensor failed. AGM battery ordered.', metadata: { dtc: 'D3E102' } },
+  { id: 'tl-065', jobCardId: 'jc-014', at: '2026-04-08T10:00:00.000Z', actorId: TECH_VERMA, actorName: 'S. Verma', type: 'part_fitted', description: 'AGM battery fitted. BMS adaptation registered via ISTA.', metadata: { partCode: 'PRT-BAT-AGM-90AH' } },
+  { id: 'tl-066', jobCardId: 'jc-014', at: '2026-04-15T12:00:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'ready_for_delivery', description: 'QC passed. Job card ready for delivery. Customer SMS sent.', metadata: {} },
+
+  // ── jc-015 (DELIVERED) — 5 events ───────────────────────────────────────────
+  { id: 'tl-067', jobCardId: 'jc-015', at: '2026-04-05T09:00:00.000Z', actorId: ADVISOR_CHE, actorName: 'Deepa Nair', type: 'received', description: 'BMW i3 received for EV annual inspection.', metadata: {} },
+  { id: 'tl-068', jobCardId: 'jc-015', at: '2026-04-05T10:00:00.000Z', actorId: TECH_SHARMA, actorName: 'A. Sharma', type: 'labour_started', description: 'HV inspection commenced. Battery SoH 96%.', metadata: {} },
+  { id: 'tl-069', jobCardId: 'jc-015', at: '2026-04-13T14:00:00.000Z', actorId: TECH_SHARMA, actorName: 'A. Sharma', type: 'qc_passed', description: 'All systems healthy. Cabin filter replaced. QC passed.', metadata: {} },
+  { id: 'tl-070', jobCardId: 'jc-015', at: '2026-04-13T15:00:00.000Z', actorId: ADVISOR_CHE, actorName: 'Deepa Nair', type: 'ready_for_delivery', description: 'Job card ready for delivery. Customer called.', metadata: {} },
+  { id: 'tl-071', jobCardId: 'jc-015', at: '2026-04-14T11:00:00.000Z', actorId: ADVISOR_CHE, actorName: 'Deepa Nair', type: 'delivered', description: 'Vehicle delivered to customer. Handover documents signed.', metadata: {} },
+
+  // ── jc-016 (DELIVERED) — 4 events ───────────────────────────────────────────
+  { id: 'tl-072', jobCardId: 'jc-016', at: '2026-04-04T09:00:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'received', description: 'BMW i8 received for annual service.', metadata: {} },
+  { id: 'tl-073', jobCardId: 'jc-016', at: '2026-04-04T11:00:00.000Z', actorId: TECH_KUMAR, actorName: 'K. Kumar', type: 'labour_started', description: 'Oil change + filter replacement commenced.', metadata: {} },
+  { id: 'tl-074', jobCardId: 'jc-016', at: '2026-04-12T15:00:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'qc_passed', description: 'QC complete. No issues found.', metadata: {} },
+  { id: 'tl-075', jobCardId: 'jc-016', at: '2026-04-13T10:00:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'delivered', description: 'Vehicle delivered. Customer signed off. Invoice generated.', metadata: {} },
+
+  // ── jc-017 (IN_PROGRESS) — 3 events ─────────────────────────────────────────
+  { id: 'tl-076', jobCardId: 'jc-017', at: '2026-04-15T11:00:00.000Z', actorId: ADVISOR_MUM, actorName: 'Rajesh Kumar', type: 'received', description: 'Defender received. Spongy brake pedal complaint.', metadata: {} },
+  { id: 'tl-077', jobCardId: 'jc-017', at: '2026-04-15T13:00:00.000Z', actorId: TECH_PATEL, actorName: 'R. Patel', type: 'diagnosed', description: 'All four pads worn. Fluid contaminated. Full brake service authorised.', metadata: {} },
+  { id: 'tl-078', jobCardId: 'jc-017', at: '2026-04-16T09:00:00.000Z', actorId: TECH_PATEL, actorName: 'R. Patel', type: 'labour_started', description: 'Brake service in progress — front axle first.', metadata: {} },
+
+  // ── jc-018 (WAITING_PARTS) — 2 events ───────────────────────────────────────
+  { id: 'tl-079', jobCardId: 'jc-018', at: '2026-04-14T09:00:00.000Z', actorId: ADVISOR_CHE, actorName: 'Deepa Nair', type: 'received', description: 'Range Rover Sport received for 80,000 km service.', metadata: {} },
+  { id: 'tl-080', jobCardId: 'jc-018', at: '2026-04-14T11:00:00.000Z', actorId: ADVISOR_CHE, actorName: 'Deepa Nair', type: 'status_changed', description: 'Parts ordered — spark plugs + air filter. ETA 3–4 working days. Status WAITING_PARTS.', metadata: { from: 'RECEIVED', to: 'WAITING_PARTS' } },
+
+  // ── jc-016 (REOPENED) — reopened events ─────────────────────────────────────
+  { id: 'tl-081', jobCardId: 'jc-016', at: '2026-04-15T09:30:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'reopened', description: 'Job card reopened for rework. Customer reported P0171 lean bank 1 warning light 2 days post-delivery. Reason: warranty rework — engine warning light post-service.', metadata: { from: 'DELIVERED', to: 'REOPENED', reason: 'P0171 lean bank 1 warning light appeared 2 days after delivery' } },
+  { id: 'tl-082', jobCardId: 'jc-016', at: '2026-04-15T09:35:00.000Z', actorId: ADVISOR_BLR, actorName: 'Priya Sharma', type: 'status_changed', description: 'Status auto-advanced from REOPENED to IN_PROGRESS. Vehicle booked back in for diagnostic investigation.', metadata: { from: 'REOPENED', to: 'IN_PROGRESS' } },
+
+  // ── jc-019 (CANCELLED) — cancel events ──────────────────────────────────────
+  { id: 'tl-083', jobCardId: 'jc-019', at: '2026-04-15T14:00:00.000Z', actorId: ADVISOR_MUM, actorName: 'Rajesh Kumar', type: 'received', description: 'Audi Q7 received. AC compressor noise complaint logged.', metadata: {} },
+  { id: 'tl-084', jobCardId: 'jc-019', at: '2026-04-15T15:30:00.000Z', actorId: ADVISOR_MUM, actorName: 'Rajesh Kumar', type: 'status_changed', description: 'Estimate ₹72,000 (AC compressor replacement) sent to customer for approval.', metadata: { from: 'RECEIVED', to: 'RECEIVED' } },
+  { id: 'tl-085', jobCardId: 'jc-019', at: '2026-04-16T10:00:00.000Z', actorId: ADVISOR_MUM, actorName: 'Rajesh Kumar', type: 'cancelled', description: 'Job card cancelled. Reason: customer changed mind — estimate too high (₹72,000 for AC compressor). Vehicle to be collected unchecked. Bay freed.', metadata: { from: 'RECEIVED', to: 'CANCELLED', reason: 'Customer changed mind — estimate too high' } },
+];
+
+// ─── Advisor Notes (20) ───────────────────────────────────────────────────────
+
+export const advisorNotes: AdvisorNote[] = [
+  // jc-001 (2)
+  { id: 'note-001', jobCardId: 'jc-001', authorId: ADVISOR_BLR, at: '2026-04-17T09:05:00.000Z', text: 'Customer Arjun Mehta requests phone call before any additional work is authorised. His number is +91 98765 43210.', pinned: true },
+  { id: 'note-002', jobCardId: 'jc-001', authorId: TECH_KUMAR, at: '2026-04-17T10:15:00.000Z', text: 'Brake squeal appears to be cold-weather related — pads are at 6mm. Will advise but not replace yet.' },
+
+  // jc-002 (2)
+  { id: 'note-003', jobCardId: 'jc-002', authorId: ADVISOR_MUM, at: '2026-04-17T10:35:00.000Z', text: 'Panamera AC issue — refrigerant confirmed low on gauges. Leak test underway before regas.', pinned: true },
+  { id: 'note-004', jobCardId: 'jc-002', authorId: TECH_PATEL, at: '2026-04-17T11:05:00.000Z', text: 'Dash rattle source — loose A-pillar trim clip. Easy fix once AC job is done.' },
+
+  // jc-003 (1)
+  { id: 'note-005', jobCardId: 'jc-003', authorId: ADVISOR_BLR, at: '2026-04-16T16:05:00.000Z', text: 'Paint touch-up approved via WhatsApp at 4pm. Customer wants delivery by 18 Apr EOD.', pinned: true },
+
+  // jc-004 (1)
+  { id: 'note-006', jobCardId: 'jc-004', authorId: ADVISOR_BLR, at: '2026-04-16T11:05:00.000Z', text: 'VIP customer — Suresh Malhotra. Ensure workshop is tidy when he visits to check progress.', pinned: true },
+
+  // jc-005 (2)
+  { id: 'note-007', jobCardId: 'jc-005', authorId: ADVISOR_MUM, at: '2026-04-15T10:45:00.000Z', text: 'Customer requested PDK service added. Updated estimate sent and approved at ₹68,000.' },
+  { id: 'note-008', jobCardId: 'jc-005', authorId: TECH_PATEL, at: '2026-04-16T11:00:00.000Z', text: 'Gearbox oil drained — fluid was dark brown/black at 61k km. PDK adaptation reset complete.' },
+
+  // jc-006 (1)
+  { id: 'note-009', jobCardId: 'jc-006', authorId: ADVISOR_CHE, at: '2026-04-14T12:05:00.000Z', text: 'Taycan PCCB pads cost ₹42,000 + discs ₹68,000. Customer approved despite high cost — vehicle under 3yr warranty for parts failure.', pinned: true },
+
+  // jc-007 (2)
+  { id: 'note-010', jobCardId: 'jc-007', authorId: ADVISOR_MUM, at: '2026-04-13T14:05:00.000Z', text: 'Mercedes warranty claim submitted. Their rep may call us directly on the outlet landline. Reference MB-2026-IND-3341.' },
+  { id: 'note-011', jobCardId: 'jc-007', authorId: TECH_VERMA, at: '2026-04-14T09:05:00.000Z', text: 'Masking complete. Primer applied. Waiting on Brilliant White base coat batch. Called supplier — confirmed dispatch tomorrow.' },
+
+  // jc-008 (1)
+  { id: 'note-012', jobCardId: 'jc-008', authorId: ADVISOR_MUM, at: '2026-04-12T12:05:00.000Z', text: 'Service done. Rear pads ordered via MB dealer. CPO claim wc-006 approved — customer will not be charged for rear pads.' },
+
+  // jc-009 (2)
+  { id: 'note-013', jobCardId: 'jc-009', authorId: ADVISOR_BLR, at: '2026-04-11T12:05:00.000Z', text: 'Customer Neha Joshi called — approving LH arm replacement. Still considering RH arm — will call back by COB.', pinned: true },
+  { id: 'note-014', jobCardId: 'jc-009', authorId: TECH_KUMAR, at: '2026-04-12T10:05:00.000Z', text: 'LH control arm removed. Joint completely failed — rubber shredded. Replacement ordered.' },
+
+  // jc-010 (1)
+  { id: 'note-015', jobCardId: 'jc-010', authorId: ADVISOR_CHE, at: '2026-04-10T11:05:00.000Z', text: 'DPF regeneration costs ₹18,000 extra. Left voicemail with customer. Will follow up tomorrow morning.' },
+
+  // jc-011 (1)
+  { id: 'note-016', jobCardId: 'jc-011', authorId: ADVISOR_BLR, at: '2026-04-16T15:35:00.000Z', text: 'QC road test on Hosur Road 10km. Tyres balanced perfectly. Alignment within spec. Ready for customer.' },
+
+  // jc-012 (1)
+  { id: 'note-017', jobCardId: 'jc-012', authorId: ADVISOR_MUM, at: '2026-04-16T11:10:00.000Z', text: 'VIP customer — Sunita Agarwal. QC passed. Car washed and sanitised. Ready to call for pickup.' },
+
+  // jc-013 (1)
+  { id: 'note-018', jobCardId: 'jc-013', authorId: ADVISOR_CHE, at: '2026-04-15T14:35:00.000Z', text: 'Customer Kiran Bhat confirmed pickup tomorrow (16 Apr). Invoice to be generated by finance before 10am.' },
+
+  // jc-015 (1)
+  { id: 'note-019', jobCardId: 'jc-015', authorId: ADVISOR_CHE, at: '2026-04-14T11:10:00.000Z', text: 'Delivered without issues. Customer happy with EV health report. Requested copy emailed to aditya.singh@singh.in.' },
+
+  // jc-018 (1)
+  { id: 'note-020', jobCardId: 'jc-018', authorId: ADVISOR_CHE, at: '2026-04-14T11:05:00.000Z', text: 'VIP customer — Range Rover Sport. Parts on order. Estimated delivery 22 Apr. Customer prefers to keep car at BN while waiting — no courtesy car needed.', pinned: true },
+];

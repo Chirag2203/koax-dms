@@ -6,6 +6,12 @@
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "@dms/customer-web", "dev"],
       "port": 3000
+    },
+    {
+      "name": "staff-web",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@dms/staff-web", "dev"],
+      "port": 3001
     }
   ]
 }

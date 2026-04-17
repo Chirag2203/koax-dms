@@ -8,3 +8,4 @@ export * from './consignor';
 export * from './staff';
 export * from './inventory';
 export * from './sales';
+export * from './service';
