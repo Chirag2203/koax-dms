@@ -30,3 +30,4 @@ export {
   vehicleTimelineEvents,
   vehicleDocuments,
 } from './inventory';
+export { deals, interactions, kycStatuses } from './sales';

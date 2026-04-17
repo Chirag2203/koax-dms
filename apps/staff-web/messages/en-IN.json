@@ -258,6 +258,114 @@
             "pricing": "Pricing"
           }
         }
+      },
+      "sales": {
+        "title": "Sales Pipeline",
+        "newLead": "New Lead",
+        "views": {
+          "kanban": "Kanban",
+          "list": "List"
+        },
+        "filters": {
+          "myDeals": "My deals only",
+          "allOutlets": "All Outlets",
+          "allSources": "All Sources"
+        },
+        "stages": {
+          "new-lead": "New Lead",
+          "contacted": "Contacted",
+          "test-drive": "Test Drive",
+          "reserved": "Reserved",
+          "sales-order": "Sales Order",
+          "delivered": "Delivered",
+          "lost": "Lost",
+          "on-hold": "On Hold"
+        },
+        "sources": {
+          "web": "Web",
+          "walk-in": "Walk-in",
+          "referral": "Referral",
+          "whatsapp": "WhatsApp",
+          "phone": "Phone"
+        },
+        "summary": {
+          "activeDeals": "{count} active deals",
+          "pipeline": "{amount} pipeline",
+          "deliveredThisMonth": "{count} delivered this month"
+        },
+        "card": {
+          "noAmount": "No amount",
+          "noVehicle": "No vehicle selected"
+        },
+        "empty": {
+          "noDeals": "No deals in this stage.",
+          "noResults": "No deals match the current filters."
+        },
+        "logCall": {
+          "title": "Log Call",
+          "direction": "Direction",
+          "inbound": "Inbound",
+          "outbound": "Outbound",
+          "duration": "Duration (minutes, optional)",
+          "notes": "Notes",
+          "notesPlaceholder": "Summarise what was discussed\u2026",
+          "save": "Save",
+          "saving": "Saving\u2026",
+          "cancel": "Cancel",
+          "toast": "Call logged successfully"
+        },
+        "scheduleTestDrive": {
+          "title": "Schedule Test Drive",
+          "subtitle": "Book a test drive slot for this customer",
+          "date": "Date",
+          "timeSlot": "Time Slot",
+          "notes": "Notes (optional)",
+          "notesPlaceholder": "Any special requests or preparation needed\u2026",
+          "schedule": "Schedule",
+          "saving": "Saving\u2026",
+          "cancel": "Cancel",
+          "toast": "Test drive scheduled"
+        }
+      },
+      "enquiryDetail": {
+        "breadcrumb": "Leads & Enquiries",
+        "subtitle": "{city} \u00b7 {source} \u00b7 opened {days} day(s) ago",
+        "actions": {
+          "assignLead": "Assign Lead",
+          "logCall": "Log Call",
+          "scheduleTestDrive": "Schedule Test Drive"
+        },
+        "ledger": {
+          "title": "Interaction Ledger",
+          "filters": {
+            "all": "All",
+            "messages": "Messages",
+            "calls": "Calls",
+            "notes": "Notes",
+            "system": "System"
+          },
+          "empty": "No interactions in this category."
+        },
+        "vehicle": {
+          "inStock": "IN STOCK",
+          "interestCategory": "Interest Category: {category}",
+          "assetIdentifier": "Asset Identifier",
+          "noVehicle": "No vehicle linked to this deal."
+        },
+        "kyc": {
+          "title": "Compliance & KYC",
+          "aadhaar": "Identity Verification (Aadhaar)",
+          "pan": "Financial Records (PAN)",
+          "bankStatement": "Bank Statement Linkage",
+          "statuses": {
+            "verified": "Verified",
+            "pending": "Pending",
+            "rejected": "Rejected",
+            "not-started": "Not Started"
+          },
+          "noRecord": "No KYC record available."
+        },
+        "notes": "Notes"
       }
     }
   }

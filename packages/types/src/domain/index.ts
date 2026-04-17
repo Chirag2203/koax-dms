@@ -7,3 +7,4 @@ export * from './portal';
 export * from './consignor';
 export * from './staff';
 export * from './inventory';
+export * from './sales';

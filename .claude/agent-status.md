@@ -1,107 +1,164 @@
-# Agent Status — Customer Web Modules
+# Agent Status — BN Automobiles DMS
 
-**Last updated:** 2026-04-16
-**Overall status:** ALL 3 CUSTOMER MODULES COMPLETE
-
-## Module 13: Storefront — SHIPPED
-- 8 pages: Landing, VDP, Collection, Cities, Certification, Service, Journal, Sell
-- 3 specs written (SPEC-STOREFRONT-001 through 003)
-- VDP gallery: Cinematic Grid (Proposal 2)
-- 28 vehicles with Unsplash images, Indian pricing
-
-## Module 14: Customer Portal — SHIPPED
-- 8 pages: Sign-in, Sign-up, Account, Vehicles, Vehicle Detail, Bookings, Documents, Preferences
-- Mock auth via localStorage (any email works)
-- Portal sidebar nav (desktop) + bottom tabs (mobile)
-- 1 mock customer (Arjun Mehta), 3 owned vehicles, 2 saved, 1 reservation, 2 bookings, 8 service records, 15 documents
-
-## Module 15: Consignor Portal — SHIPPED
-- 5 pages: Dashboard, Vehicles, Payouts, Messages, Documents
-- Routes at /consignor/* (real URL segment, not route group)
-- 2 consigned vehicles, 2 payouts, 8 messages, 2 agreements
-- Financial breakdown: sale - fee - reimbursables = net payout
-
-## Routes Summary (21 total)
-```
-/ — Landing (storefront)
-/collection — Inventory listing with 7 filters
-/collection/[vin] — Vehicle Detail Page
-/cities — Our Cities (3 outlets)
-/certification — The BN Standard
-/service — Service & Maintenance
-/journal — The Journal
-/sell — Sell Your Car
-/sign-in — Auth sign-in
-/sign-up — Auth sign-up
-/account — Customer account home
-/vehicles — My Vehicles
-/vehicles/[vin] — Vehicle detail (service history + docs)
-/bookings — Upcoming bookings
-/documents — Document vault
-/preferences — Communication preferences
-/consignor — Consignor dashboard
-/consignor/vehicles — Consigned vehicles
-/consignor/payouts — Payout tracking
-/consignor/messages — Advisor correspondence
-/consignor/documents — Consignment agreements
-```
-
-## Git Commits
-1. `feat: complete customer storefront` — 220 files
-2. `feat: complete customer portal` — 57 files
-3. `feat: complete consignor portal` — 31 files
-4. `docs: master plan for staff surface build`
-5. `fix: portal card backgrounds for dark theme + header auth state`
-6. `fix: improve vehicle cards — equal height, grayscale, 2x2 grid`
+**Last updated:** 2026-04-17
+**Session:** Customer-web complete; Staff-web phases S0→S2.1 shipped, S3 in progress
 
 ---
 
-# Staff Surface — Phase S0 (Foundation)
+## Surfaces
 
-## Research: staff-surface (2026-04-17, Opus)
+### Customer-web (:3000) — ALL 3 MODULES SHIPPED
 
-### Prior art — patterns to adopt
-- **Linear:** status-driven list, row-level keyboard grammar (J/K nav, E edit, Enter open) — our DataTable gets row shortcuts, not hidden menus
-- **Stripe Dashboard:** right-hand detail drawer over full-page nav. URL updates so drawer state is shareable. `⌘,` / `⌘.` for prev/next record within drawer
-- **Notion:** command palette as creation surface — accepts verb-first ("Create lead") AND noun-first ("WP0ZZZ97…")
-- **Raycast:** fuzzy match + recency/frecency ranking, categorical sections with right-rail shortcut hints. Score = 0.6·fuzzy + 0.3·recency + 0.1·roleRelevance
-- **Superhuman:** keystroke chords for nav (G+I/S/V), single keys for row actions (C=new, J/K=next/prev, ⌘+Enter=submit)
+| Module | Status | Routes | Notes |
+|--------|--------|--------|-------|
+| 13 Storefront | Shipped | /, /collection, /collection/[vin], /cities, /certification, /service, /journal, /sell (8) | Editorial luxury design, Playfair Display + Inter + IBM Plex Mono, cinematic grid VDP gallery |
+| 14 Customer Portal | Shipped | /sign-in, /sign-up, /account, /vehicles, /vehicles/[vin], /bookings, /documents, /preferences (8) | Mock auth via localStorage, sidebar nav, profile avatar in storefront header when signed in |
+| 15 Consignor Portal | Shipped | /consignor, /consignor/vehicles, /consignor/payouts, /consignor/messages, /consignor/documents (5) | Routes at /consignor/* (real URL segment, not route group) |
 
-### 8 staff user scenarios (3-keystroke paths)
-1. Sales Associate pipeline: `G → S → Enter` — Kanban mine-only default, days-in-stage
-2. Service Advisor drop-off: `⌘K → "new appt" → Enter` — customer typeahead, VIN autocomplete, bay strip
-3. Parts Manager GRN approval: `G → P → Enter on row` — 3-way qty match with amber discrepancy highlight
-4. Finance IRN review: `G → F → f` — invoice #, GSTIN, IRP error, inline/bulk retry
-5. GM aged inventory: `G → I → stale view` — days listed (red >60d), landed cost, margin ₹+%
-6. Receptionist walk-in lead: `⌘K → "new lead" → Enter` — phone+name required, auto outlet
-7. Technician job update: `⌘K → "JC-2026-0341" → ⌘↵` — current stepper, next line, parts chip
-8. CEO cross-outlet: `G → R → outlet=All` — 6 KPI strip, revenue trend by outlet
+**Total customer-web routes: 21.**
 
-### Command palette requirements
-- **Entities:** VINs (masked display, match full), customer names + phones, Job Cards (`JC-YYYY-NNNN`), Invoices, GRNs, Deals, Parts, Outlets, Users, Reports, verb-actions
-- **Matching:** hybrid. Verb-first for actions, noun-first for entities. Score blends fuzzy + recency + role relevance
-- **Recent items:** top 5 on empty open, per-user localStorage, cap 20
-- **Shortcut tiers:** Global chords at AppShell provider (G+I/S/V/P/F/R/C/N, active unless input focused). Contextual via `useShortcut(scope)` hook
+### Staff-web (:3001) — IN PROGRESS
 
-### DataTable design constraints
-- **Configurable columns:** all non-PK toggleable/draggable/resizable, persisted per saved view
-- **Sticky:** header row, first col on h-scroll, bulk strip above header when active, pagination footer
-- **Density:** 56px default, 44px compact (Inventory/Parts), 68px relaxed (Customers/Deals). Per-user per-route persistence
-- **Bulk actions:** sticky strip on ≥1 selection with "N selected" + actions + clear-X
-- **Saved views:** 3 scopes — per-user (private), per-outlet (R03+ shared), per-role. localStorage v1, server post-v1
-- **Performance 200+:** TanStack Table + TanStack Virtual row virtualization. <16ms/frame. Lazy photo thumbs, server pagination >500, cursor pagination >50
+| Phase | Module | Status | Key features |
+|-------|--------|--------|--------------|
+| S0 | Foundation | **Shipped** | App shell, 220px sidebar, 48px topbar, cmdk command palette (⌘K), 7 providers, 10 primitives, staff types + fixtures |
+| S1 | Dashboard | **Shipped** | / and /dashboard — 4 stat cards, Inventory panel full-width, Sales+Service 2-col, Activity Feed + Alerts (3+2 split) |
+| S2 | Inventory | **Shipped** | /inventory (dense DataTable, saved views, filters, bulk actions), /inventory/[vin] (6 tabs: Overview/Cost Ledger/Photos/Appraisal/Timeline/Documents) |
+| S2.1 | Inventory action flows | **Shipped** | /inventory/new (4-step wizard), /inventory/[vin]/edit (single-page form), 5 action modals (cost entry, photos upload, appraisal panel, doc upload, more-actions menu with Transfer/Clone/Archive) |
+| S3 | Sales | **IN PROGRESS** | Kanban pipeline + lead capture + enquiry detail (2 build agents running) |
+| S4-S10 | Service, Parts, Finance, Customers, Reports, Settings, Polish | Pending | Per master plan |
 
-### RBAC visual language
-- **Disabled-by-role:** muted present (40% opacity, not hidden). Tooltip: `"You need {Role} role to {verb} {object}."`
-- **Cross-outlet records:** outlet pill in every record header. Outside home outlet: 1px accent-blue ring + tooltip
-- **Co-approval:** primary CTA reads `"Request Co-Approval"` (not Confirm). Shows "Pending co-approval · waiting on {Name}" chip until second approval
-- **Tooltip pattern:** sentence case, concrete verb+object, never passive, never "permission denied"
+---
 
-### Handoff notes to spec/build
-- **DataTable ships S0** — consumed by Inventory/Sales/Service/Parts/Finance/Customers/Settings/Audit
-- **CommandPaletteProvider ships S0** with `useCommandEntity({type, id, label, shortcut})` registration API
-- **`useShortcut` hook ships S0**; `?` help overlay polish in S10
-- **`<Gate role="..." outlet="..." fallback="tooltip">`** primitive ships S0, wraps every privileged action
-- **Saved views**: localStorage per user+route in v1
+## Routes inventory (all live)
 
-## Plan: staff-S0-foundation — (awaiting plan agent)
+### Customer-web (:3000)
+```
+Storefront:
+  /                               Landing
+  /collection                     Inventory listing (7 filters, URL-driven)
+  /collection/[vin]               Vehicle Detail Page (cinematic grid gallery)
+  /cities                         3 outlets with team + service matrix
+  /certification                  210-point pillars
+  /service                        Service page with booking form
+  /journal                        Editorial article grid
+  /sell                           Consignment lead form
+
+Customer Portal:
+  /sign-in                        Mock email + OTP
+  /sign-up                        Mock customer creation
+  /account                        Greeting + saved cars + reservations + visits + history + docs
+  /vehicles                       Owned vehicle cards (2x2 grid, grayscale→color hover)
+  /vehicles/[vin]                 Service history timeline + documents
+  /bookings                       Test drives + service appointments
+  /documents                      All docs grouped by vehicle
+  /preferences                    DPDP-compliant toggles
+
+Consignor Portal:
+  /consignor                      Dashboard with stats
+  /consignor/vehicles             Consigned vehicle cards
+  /consignor/payouts              Financial breakdown (sale - fee - reimbursables = net)
+  /consignor/messages             Advisor correspondence
+  /consignor/documents            Consignment agreements
+```
+
+### Staff-web (:3001)
+```
+/                                 → redirects to /dashboard
+/dashboard                        Operational overview (4 KPIs, 3 panels, feed, alerts)
+/inventory                        Vehicle list (DataTable, saved views, filters, bulk actions)
+/inventory/[vin]                  Vehicle detail (6 tabs, state machine, financial snapshot)
+/inventory/new                    Create new vehicle (4-step wizard)
+/inventory/[vin]/edit             Edit vehicle (single-page form, VIN read-only)
+/sales, /service, /parts, /customers, /finance, /reports, /settings, /audit, /notifications — placeholder routes
+```
+
+---
+
+## Architectural decisions locked (do not change)
+
+1. **Two surfaces, one token source.** `@dms/tokens` exports `customerTokens.light/dark` + `staffTokens.light/dark`. Tailwind preset maps them to CSS variables via `[data-surface="customer|staff"][data-theme="light|dark"]` attributes.
+
+2. **Customer-web = Editorial Luxury.** Light default, Playfair Display + Inter + IBM Plex Mono, warm cream paper `#faf7f0`, brass accent `#8a6a3d`.
+
+3. **Staff-web = Modern Product Interface.** DARK default (`#0A0A0A` canvas), Inter + IBM Plex Mono only (NO serif), blue accent `#3B82F6`, dense tables, keyboard-first.
+
+4. **NEVER use `getTranslations` from `next-intl/server`.** We don't have the server plugin. All components that need i18n use `'use client'` + `useTranslations`.
+
+5. **NEVER use raw `var(--color-*)` in Tailwind arbitrary syntax.** Use token classes: `bg-bg-surface`, `text-ink-primary`, `border-line`, `text-accent`. This was a recurring bug in customer portal — fully scrubbed now, same rule applies to staff-web.
+
+6. **Mock auth only.** Customer-web: localStorage `bn-auth-user`. Staff-web: localStorage `bn-staff-user`. Both support role/profile switching via dev tools. No real OAuth/OTP.
+
+7. **Vehicle links use VIN** (not slug). `/collection/[vin]` (customer), `/inventory/[vin]` (staff).
+
+8. **Dialog/AlertDialog/Toast primitives at `@/src/components/primitives`** in staff-web. Used by inventory modals; future modules must reuse — do NOT build new modal primitives.
+
+9. **Gate RBAC primitive** wraps all role-gated UI. Fallback modes: `hide | disable | tooltip`. Role checks use role code arrays (`['R10','R19','R22','R24']`), NOT "R15+" shorthand.
+
+10. **No `getTranslations` outside next-intl client** — restated because it bit us in customer portal earlier.
+
+---
+
+## Mock data shape
+
+Located in `packages/mocks/src/`:
+
+### Fixtures shipped
+- `vehicles.ts` — 28 vehicles with real Unsplash images, pricing breakdown, Indian registration
+- `outlets.ts` — 3 outlets (Bangalore, Mumbai, Chennai)
+- `articles.ts` — 8 journal articles
+- `service-types.ts` — 6 service types
+- `customer.ts` — 1 mock customer (Arjun Mehta)
+- `portal.ts` — 3 owned vehicles, 2 saved, 1 reservation, 2 bookings, 8 service records, 15 documents
+- `consignor.ts` — 2 consigned vehicles, 2 payouts, 8 messages, 2 agreements
+- `staff.ts` — 8 staff users (R05, R09, R10, R12, R16, R19, R22, R24), 53 command palette items, 12 notifications, 4 dashboard stats
+- `inventory.ts` — 50 cost ledger entries, 10 appraisals, 62 timeline events, 40 documents (across first 10 vehicles)
+
+### Types shipped
+- `packages/types/src/domain/` — vehicle, outlet, article, service-type, customer, portal, consignor, staff, inventory
+
+### MSW handlers shipped
+- All CRUD for vehicles, outlets, articles
+- Portal endpoints: me, saved-vehicles, reservations, owned-vehicles, bookings, service-history, documents, preferences
+- Consignor endpoints: vehicles, payouts, messages, agreements
+- Staff endpoints: me, users, notifications, command-palette, dashboard stats
+- Inventory endpoints: 19 handlers (list, detail, cost-ledger CRUD, appraisal, documents, photos, transfer, clone, mark-stale, archive, vin-check, POST vehicles)
+
+---
+
+## Known quirks / workarounds
+
+1. **Staff dashboard layout v0.2** — Inventory panel moved from 3-column grid to its own full-width row (was too narrow for price column). Sales + Service below in 2-col. Spec updated.
+
+2. **Edit Vehicle Gate** — initially set to R15+, blocked R10 Sales Manager (default mock user). Fixed to `['R10','R12','R15','R16','R19','R22','R24']`. Acquisition section within the form remains R19+ only.
+
+3. **Portal cards used raw `var(--color-*)`** everywhere — caused broken dark-mode rendering. Fully migrated to Tailwind token classes. Same rule applies to staff-web.
+
+4. **VIN read-only in edit form** — VIN is identity, cannot change after creation (Doc 09).
+
+5. **Command palette placeholders** — CommandPalette ships with hardcoded placeholder items; real fuzzy search across all entities is polish (S10).
+
+6. **No real keyboard help overlay** yet — `?` to open shortcuts help deferred to S10.
+
+7. **Stitch designs may not exist** for all staff pages beyond those listed. When missing, use design agent to propose a layout following the staff design language, OR ask the user.
+
+8. **Next.js webpack cache** occasionally caches stale module-not-found errors after parallel agents create files — fix by `rm -rf .next` + restart.
+
+---
+
+## Next steps
+
+- **S3 Sales (in progress)** — Kanban pipeline + lead capture + enquiry detail. 2 Sonnet agents building in parallel right now.
+- **S4 Service** — 14 Stitch screens, largest module after Inventory. Bay board, job cards with 6 tabs, VHC inspection, warranty claims.
+- **S5 Parts** — Stock list, POs, GRNs with dual approval, low-stock alerts.
+- **S6 Finance** — Invoice list/detail with margin-scheme GST, TCS, IRN status, Tally export.
+- **S7 Customers** — 360° profile with PII masking + role-based reveal.
+- **S8 Reports** — Operations dashboard with outlet filter + role-locked KPIs (charts library TBD: Recharts or visx).
+- **S9 Settings & Platform** — Users/roles permission matrix, feature flags, audit log, notification templates.
+- **S10 Notifications + Polish** — Full notification inbox, command palette item registrations across modules, keyboard shortcut help overlay (`?`), Storybook stories, Playwright E2E.
+
+---
+
+## Active agents
+
+Currently 2 parallel Sales build agents (S3a+b Kanban + S3c lead/enquiry) running. Progress captured here by a 3rd historian agent.
