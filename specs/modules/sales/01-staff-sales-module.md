@@ -130,7 +130,14 @@ Reference: Stitch `sales_enquiry_detail`
 - Breadcrumb: "Leads & Enquiries" + status pill "Active Negotiating"
 - Customer name large Inter 32/600: "Vikram Malhotra"
 - Subtitle: city + source + "opened 2 days ago"
-- Right actions: "Assign Lead" + "Log Call" + "Schedule Test Drive" (primary)
+- Right actions (in this order, only Schedule Test Drive is accent-colored):
+  - Assign Lead (ghost)
+  - Update Lead (ghost) — opens Update modal (edit name/email/vehicle/budget/priority/notes)
+  - Add Note (ghost) — opens Add Note modal (title/body/visibility)
+  - Log Call (ghost) — opens Log Call modal (manual call log — direction/duration/notes)
+  - **WhatsApp** (ghost with green WhatsApp icon) — opens `wa.me/91{phone}?text={prefilled}` in new tab
+  - **AI Call** (ghost with sparkle icon) — opens AI Call dialog (see §6.3)
+  - Schedule Test Drive (accent primary)
 
 **Two-column layout:**
 
@@ -144,6 +151,18 @@ Reference: Stitch `sales_enquiry_detail`
   - "Enquiry Created — Walk-in customer looking for premium SUV. High intent, ready to close within 14 days if vehicle condition meets expectations."
 
 **Right (40%) — Sidebar panels:**
+
+**Panel 0 — Contact Details** (new, shown at top of sidebar):
+- Card: `rounded-md border border-line bg-bg-surface p-4`
+- Title "Contact Details" Inter 14/600 + eye toggle top-right (Show/Hide PII button — reveals masked fields for R19+, masks for others by default)
+- Phone row: mono text + 3 inline icon buttons on right:
+  - Copy icon (copies to clipboard, toast)
+  - Phone icon (opens `tel:+91XXXXXXXXXX` — triggers native dialer)
+  - WhatsApp icon (green, opens `https://wa.me/91XXXXXXXXXX?text={prefilled}`)
+- Email row: text + copy + mail icon (opens `mailto:{email}`)
+- City / Outlet row: show city, outlet code
+- Preferred contact time (if available): mono muted text
+- Mask phone for R05 by default (show last 4 only). R10+ can click eye icon to reveal full.
 
 Panel A — Vehicle of Interest:
 - Photo 200×120
@@ -159,6 +178,90 @@ Panel B — Compliance & KYC:
 - Financial Records (PAN): "Verified" green check
 - Bank Statement Shared: "Pending" amber
 - Each row: lucide icon + label + status badge
+
+## 6.3 WhatsApp Quick Action
+
+Clicking WhatsApp button in header opens a compact Dialog (sm 480px) BEFORE firing the deeplink — gives staff chance to pick a message template.
+
+**Dialog: "Send WhatsApp"**
+- Customer info (read-only): name + masked phone
+- Message template select (pre-approved DLT templates per Doc 13):
+  - "Greeting & Introduction" (default)
+  - "Share Vehicle Details"
+  - "Pricing Quote"
+  - "Test Drive Follow-up"
+  - "Document Request"
+  - "Custom Message"
+- Template preview (read-only text area, shows the template body with variables like {name}, {vehicleName} interpolated from the deal)
+- If "Custom Message" selected: free-text textarea instead of preview
+- Primary CTA: "Open WhatsApp" (green, like WhatsApp brand #25D366 — exception to token rule as it's a 3rd-party brand button)
+- On click: opens `https://wa.me/91{phone-digits-only}?text={encoded-message}` in new tab + logs an interaction with type `whatsapp-sent`, body = the message template name + preview, toast "Message sent on WhatsApp"
+
+## 6.4 AI Call Dialog
+
+New feature. When "AI Call" button clicked, opens Dialog (md 560px) with 2-stage flow:
+
+**Stage 1 — Call Setup:**
+- Title "AI Call Setup" + sparkle icon (lucide `Sparkles`)
+- Subtitle: "Configure the purpose of this call. Our AI agent will handle it and log the summary."
+- Fields:
+  - **Call Intent** — select with presets + "Custom":
+    - "Introduce BN Automobiles"
+    - "Share vehicle details and pricing"
+    - "Book a test drive appointment"
+    - "Follow up on previous interaction"
+    - "Request KYC documents"
+    - "Gather feedback post-delivery"
+    - "Custom"
+  - **Additional Context** — textarea, optional, max 500 chars. Placeholder: "Any specific points to cover, customer's recent concerns, or key terms to mention..."
+  - **Expected Outcome** — select: "Schedule test drive" / "Collect information" / "Send docs" / "Close sale" / "General update"
+  - Language: English / Hindi (default Hindi for non-Bangalore customers, English otherwise)
+- Info banner: `bg-accent-subtle border border-accent/30` with text "AI calls are recorded and summarized. The customer will be informed at the start of the call."
+- CTAs: Cancel + "Initiate AI Call" (primary accent with Sparkles icon, ⌘Enter)
+
+**Stage 2 — Call In Progress (transient, replaces Stage 1 after click):**
+- Animated avatar (pulsing circle with Phone icon, bg-accent/20, scales 1.0→1.1 every 1.5s)
+- "Calling {customer name}..." Inter 18/600
+- "AI Agent: BN Sales Assistant" mono muted
+- Live transcript panel (simulated) — reveals 3-4 scripted lines over 4 seconds:
+  - "Hello, is this Vikram?"
+  - "Yes, speaking."
+  - "I'm calling from BN Automobiles regarding your interest in the Range Rover..."
+  - "Would you be available for a test drive this weekend?"
+- Cancel button to end call early
+
+**Stage 3 — Call Summary (after 6-8 seconds auto-transitions from Stage 2):**
+- Title: "Call Completed"
+- Duration: "3m 24s"
+- Sentiment badge: Positive / Neutral / Needs Follow-up
+- AI-generated summary (mocked, varies by intent):
+  - "Customer confirmed interest in the Range Rover Autobiography. Booked a test drive for Saturday 10am at Bangalore outlet. Requested brochure copy and EMI options."
+- Action items (bullets, auto-extracted):
+  - "Schedule test drive: Saturday 10am BLR outlet"
+  - "Share brochure (PDF)"
+  - "Prepare EMI options: 48-60 months at 9-10% APR"
+- Save button: logs interaction with type `call-ai`, body = full summary, durationSeconds = 204, adds action items as a note
+- After save: closes dialog, toast "AI call logged"
+
+**Fixtures:**
+Add pre-written mock summaries per intent so the dialog feels alive. Store in a constant `AI_CALL_TEMPLATES` in the component or a separate file `apps/staff-web/src/lib/ai-call-templates.ts`.
+
+## 6.5 New interaction type
+
+Add `call-ai` to `InteractionTypeEnum` in `packages/types/src/domain/sales.ts`:
+```typescript
+export const InteractionTypeEnum = z.enum([
+  'whatsapp-sent','whatsapp-received','call-inbound','call-outbound','call-ai',
+  'email-sent','email-received','note','enquiry-created','stage-changed',
+  'assigned','test-drive-scheduled','payment-received',
+]);
+```
+
+The interaction card in the ledger renders with:
+- Icon: `Sparkles` (different from regular Phone icon)
+- Title: "AI Call — {intent label}"
+- Body: the generated summary
+- Metadata pills: duration + sentiment + language
 
 ## 7. Data model
 
@@ -260,3 +363,5 @@ GET /api/staff/sales/deals/:id/kyc
 | Date | Version | Author | Change |
 |------|---------|--------|--------|
 | 2026-04-17 | 0.1 | Claude (integrator) | Initial spec for staff Sales Phase S3 |
+| 2026-04-17 | 0.2 | Claude (integrator) | Phase S3 shipped (Kanban + list + lead capture + enquiry detail + 2 modals). All consistency fixes applied (card patterns, tab patterns, design doc 04). Added Update Lead + Add Note modals to enquiry detail header. |
+| 2026-04-17 | 0.3 | Claude (integrator) | Added §6.0 Contact Details sidebar panel, §6.3 WhatsApp quick action with template picker, §6.4 AI Call dialog (3-stage: setup → calling → summary), §6.5 new interaction type `call-ai`. |

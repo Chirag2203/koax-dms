@@ -62,6 +62,7 @@ export const InteractionTypeEnum = z.enum([
   'whatsapp-received',
   'call-inbound',
   'call-outbound',
+  'call-ai',
   'email-sent',
   'email-received',
   'note',

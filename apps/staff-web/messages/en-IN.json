@@ -335,6 +335,8 @@
           "updateLead": "Update Lead",
           "addNote": "Add Note",
           "logCall": "Log Call",
+          "whatsapp": "WhatsApp",
+          "aiCall": "AI Call",
           "scheduleTestDrive": "Schedule Test Drive"
         },
         "updateModal": {
@@ -407,7 +409,91 @@
           },
           "noRecord": "No KYC record available."
         },
-        "notes": "Notes"
+        "notes": "Notes",
+        "contact": {
+          "title": "Contact Details",
+          "phone": "Phone",
+          "email": "Email",
+          "location": "Location",
+          "showPii": "Show details",
+          "hidePii": "Hide details",
+          "copyPhone": "Copy phone",
+          "callNow": "Call now",
+          "openWhatsapp": "Open WhatsApp",
+          "copyEmail": "Copy email",
+          "sendEmail": "Send email",
+          "copied": "Copied to clipboard"
+        },
+        "whatsappDialog": {
+          "title": "Send WhatsApp",
+          "subtitle": "Select a template or compose a custom message. Opens in WhatsApp.",
+          "templates": {
+            "greeting": "Greeting & Introduction",
+            "vehicle-details": "Share Vehicle Details",
+            "pricing-quote": "Pricing Quote",
+            "test-drive-followup": "Test Drive Follow-up",
+            "document-request": "Document Request",
+            "custom": "Custom Message"
+          },
+          "customPlaceholder": "Type your message...",
+          "cancel": "Cancel",
+          "open": "Open WhatsApp",
+          "toast": "Message prepared on WhatsApp"
+        },
+        "aiCallDialog": {
+          "title": "AI Call Setup",
+          "subtitle": "Configure the purpose of this call. Our AI agent will handle it and log the summary.",
+          "infoBanner": "AI calls are recorded and summarized. The customer will be informed at the start of the call.",
+          "fields": {
+            "intent": "Call Intent",
+            "context": "Additional Context",
+            "contextPlaceholder": "Any specific points to cover, customer's recent concerns, or key terms to mention...",
+            "outcome": "Expected Outcome",
+            "language": "Language"
+          },
+          "intents": {
+            "introduction": "Introduce BN Automobiles",
+            "vehicle-details": "Share vehicle details and pricing",
+            "test-drive": "Book a test drive appointment",
+            "follow-up": "Follow up on previous interaction",
+            "kyc-request": "Request KYC documents",
+            "feedback": "Gather feedback post-delivery",
+            "custom": "Custom"
+          },
+          "outcomes": {
+            "schedule-test-drive": "Schedule test drive",
+            "collect-info": "Collect information",
+            "send-docs": "Send docs",
+            "close-sale": "Close sale",
+            "general": "General update"
+          },
+          "actions": {
+            "cancel": "Cancel",
+            "initiate": "Initiate AI Call",
+            "save": "Save & Close",
+            "endCall": "End Call"
+          },
+          "calling": {
+            "title": "Calling {name}...",
+            "agent": "AI Agent: BN Sales Assistant"
+          },
+          "summary": {
+            "title": "Call Completed",
+            "duration": "Duration",
+            "sentiment": "Sentiment",
+            "language": "Language",
+            "summaryHeading": "Summary",
+            "actionItems": "Action Items",
+            "sentimentLabels": {
+              "positive": "Positive",
+              "neutral": "Neutral",
+              "follow-up": "Needs Follow-up"
+            }
+          },
+          "toast": {
+            "logged": "AI call logged"
+          }
+        }
       }
     }
   }

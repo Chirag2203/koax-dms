@@ -13,6 +13,8 @@ import {
   XCircle,
   MinusCircle,
   ChevronLeft,
+  Sparkles,
+  MessageCircle,
 } from 'lucide-react';
 import { cn } from '@dms/ui';
 import type { Deal, Interaction, Kyc, InteractionType, KycStatus } from '@dms/types';
@@ -22,6 +24,9 @@ import { LogCallModal } from './log-call-modal';
 import { ScheduleTestDriveModal } from './schedule-test-drive-modal';
 import { UpdateLeadModal } from './update-lead-modal';
 import { AddNoteModal } from './add-note-modal';
+import { ContactDetailsPanel } from './contact-details-panel';
+import { WhatsappDialog } from './whatsapp-dialog';
+import { AiCallDialog } from './ai-call-dialog';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -101,6 +106,8 @@ function InteractionIcon({ type }: { type: InteractionType }) {
     case 'call-inbound':
     case 'call-outbound':
       return <Phone className={cn(cls, 'text-[rgb(var(--state-pending))]')} />;
+    case 'call-ai':
+      return <Sparkles className={cn(cls, 'text-accent')} />;
     case 'email-sent':
     case 'email-received':
       return <Mail className={cn(cls, 'text-accent')} />;
@@ -168,7 +175,7 @@ function filterInteractions(items: Interaction[], filter: InteractionFilter): In
     );
   }
   if (filter === 'calls') {
-    return items.filter((i) => ['call-inbound', 'call-outbound'].includes(i.type));
+    return items.filter((i) => ['call-inbound', 'call-outbound', 'call-ai'].includes(i.type));
   }
   if (filter === 'notes') {
     return items.filter((i) => i.type === 'note');
@@ -197,8 +204,24 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
   const [showScheduleTD, setShowScheduleTD] = useState(false);
   const [showUpdateLead, setShowUpdateLead] = useState(false);
   const [showAddNote, setShowAddNote] = useState(false);
+  const [whatsappOpen, setWhatsappOpen] = useState(false);
+  const [aiCallOpen, setAiCallOpen] = useState(false);
   const [dealData, setDealData] = useState<Deal>(deal);
   const [interactionList, setInteractionList] = useState<Interaction[]>(interactions);
+
+  async function handleInteractionSaved(interaction: Partial<Interaction>) {
+    try {
+      const res = await fetch(`/api/staff/sales/deals/${dealData.id}/interactions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(interaction),
+      });
+      const saved = await res.json() as Interaction;
+      setInteractionList((prev) => [saved, ...prev]);
+    } catch {
+      // swallow — toast is shown by the dialog
+    }
+  }
 
   const visibleInteractions = filterInteractions(
     [...interactionList].sort(
@@ -276,6 +299,22 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
                 className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-line bg-bg-surface text-sm font-medium text-ink-primary hover:bg-bg-subtle transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
               >
                 Log Call
+              </button>
+              <button
+                type="button"
+                onClick={() => setWhatsappOpen(true)}
+                className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-line bg-bg-surface text-sm font-medium text-[#25D366] hover:bg-bg-subtle transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+              >
+                <MessageCircle className="h-4 w-4" aria-hidden="true" />
+                WhatsApp
+              </button>
+              <button
+                type="button"
+                onClick={() => setAiCallOpen(true)}
+                className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-line bg-bg-surface text-sm font-medium text-ink-primary hover:bg-bg-subtle transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+              >
+                <Sparkles className="h-4 w-4" aria-hidden="true" />
+                AI Call
               </button>
               <button
                 type="button"
@@ -362,6 +401,11 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
                       <span className="font-mono text-[10px] text-ink-muted bg-bg-subtle px-1.5 py-0.5 rounded">
                         {item.addedByName}
                       </span>
+                      {item.type === 'call-ai' && (
+                        <span className="font-mono text-[10px] text-accent bg-accent/10 px-1.5 py-0.5 rounded">
+                          AI
+                        </span>
+                      )}
                       {item.templateId && (
                         <span className="font-mono text-[10px] text-ink-muted bg-bg-subtle px-1.5 py-0.5 rounded">
                           {item.templateId}
@@ -384,6 +428,18 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
 
           {/* RIGHT: Sidebar (40%) */}
           <div className="w-[40%] flex flex-col overflow-y-auto">
+            {/* Contact Details panel */}
+            <div className="m-4 mb-0">
+              <ContactDetailsPanel
+                customerName={dealData.customerName}
+                customerPhone={dealData.customerPhone}
+                customerEmail={dealData.customerEmail}
+                city={dealData.city}
+                outlet={dealData.outlet}
+                onOpenWhatsapp={() => setWhatsappOpen(true)}
+              />
+            </div>
+
             {/* Vehicle of Interest panel */}
             {dealData.vehicleName && (
               <div className="rounded-md border border-line bg-bg-surface p-6 m-4 mb-0">
@@ -489,6 +545,23 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
         onClose={() => setShowAddNote(false)}
         dealId={dealData.id}
         onSaved={(note) => setInteractionList((prev) => [note, ...prev])}
+      />
+      <WhatsappDialog
+        open={whatsappOpen}
+        onClose={() => setWhatsappOpen(false)}
+        dealId={dealData.id}
+        customerName={dealData.customerName}
+        customerPhone={dealData.customerPhone}
+        vehicleName={dealData.vehicleName}
+        onMessageSent={handleInteractionSaved}
+      />
+      <AiCallDialog
+        open={aiCallOpen}
+        onClose={() => setAiCallOpen(false)}
+        dealId={dealData.id}
+        customerName={dealData.customerName}
+        vehicleName={dealData.vehicleName}
+        onCallLogged={handleInteractionSaved}
       />
     </>
   );
