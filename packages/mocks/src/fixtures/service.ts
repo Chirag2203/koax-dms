@@ -186,7 +186,10 @@ export const labourLines: LabourLine[] = [
 export const partsLines: PartsLine[] = [
   // jc-001
   { id: 'prt-001', partCode: 'PRT-OIL-0W40-5L', description: 'Mobil 1 0W-40 Engine Oil 5L', qty: 2, unitPrice: 3200, warrantyCovered: false, status: 'FITTED' },
-  { id: 'prt-002', partCode: 'PRT-OIL-FILT-911', description: 'OEM Oil Filter — Porsche 911 (992)', qty: 1, unitPrice: 1800, warrantyCovered: false, status: 'FITTED' },
+  // PLAN-PARTS-003 fixture amendment: partCode aligned with catalog `POR-OIL-FLTR-9A2`
+  // so the P3 Linked Service Job Cards section has real demo data. Long-term
+  // goal is a single parts namespace across service + parts (P6 territory).
+  { id: 'prt-002', partCode: 'POR-OIL-FLTR-9A2', description: 'OEM Oil Filter — Porsche 911 (992)', qty: 1, unitPrice: 1800, warrantyCovered: false, status: 'FITTED' },
   { id: 'prt-003', partCode: 'PRT-TYR-PRESS-CAP', description: 'TPMS Valve Caps (set of 4)', qty: 1, unitPrice: 450, warrantyCovered: false, status: 'FITTED' },
 
   // jc-002
@@ -205,7 +208,9 @@ export const partsLines: PartsLine[] = [
   { id: 'prt-010', partCode: 'PRT-OIL-A40-5L', description: 'Porsche A40 Engine Oil 5L', qty: 2, unitPrice: 3800, warrantyCovered: false, status: 'FITTED' },
   { id: 'prt-011', partCode: 'PRT-SPK-PLG-BOSCH-4', description: 'Bosch Spark Plugs YR8DEU — Set of 4', qty: 1, unitPrice: 8800, warrantyCovered: false, status: 'FITTED' },
   { id: 'prt-012', partCode: 'PRT-AIR-FILT-718', description: 'OEM Air Filter — 718 Cayman', qty: 1, unitPrice: 4200, warrantyCovered: false, status: 'FITTED' },
-  { id: 'prt-013', partCode: 'PRT-OIL-FILT-718', description: 'OEM Oil Filter — 718 Cayman (982)', qty: 1, unitPrice: 1600, warrantyCovered: false, status: 'FITTED' },
+  // PLAN-PARTS-003 fixture amendment: partCode aligned with catalog `POR-OIL-FLTR-9A2`
+  // (fits both 911 and 718 per the catalog part's fitsVehicles field).
+  { id: 'prt-013', partCode: 'POR-OIL-FLTR-9A2', description: 'OEM Oil Filter — 718 Cayman (982)', qty: 1, unitPrice: 1600, warrantyCovered: false, status: 'FITTED' },
 
   // jc-006
   { id: 'prt-014', partCode: 'PRT-BRK-PAD-F-PCB', description: 'PCCB Ceramic Brake Pads Front — Taycan', qty: 1, unitPrice: 42000, warrantyCovered: false, status: 'FITTED' },
@@ -217,7 +222,9 @@ export const partsLines: PartsLine[] = [
 
   // jc-008
   { id: 'prt-018', partCode: 'PRT-OIL-229.6-5W30', description: 'Mercedes 229.6 5W-30 Engine Oil 5L', qty: 1, unitPrice: 4200, warrantyCovered: false, status: 'FITTED' },
-  { id: 'prt-019', partCode: 'PRT-OIL-FILT-GLC', description: 'OEM Oil Filter — GLC 300', qty: 1, unitPrice: 1500, warrantyCovered: false, status: 'FITTED' },
+  // PLAN-PARTS-003 fixture amendment: partCode aligned with catalog `MB-OIL-FLTR-M274`
+  // (GLC 300 uses the M274 engine — same oil filter).
+  { id: 'prt-019', partCode: 'MB-OIL-FLTR-M274', description: 'OEM Oil Filter — GLC 300', qty: 1, unitPrice: 1500, warrantyCovered: false, status: 'FITTED' },
   { id: 'prt-020', partCode: 'PRT-CABIN-FILT-GLC', description: 'Cabin + Pollen Filter Set — GLC (X253)', qty: 1, unitPrice: 2800, warrantyCovered: false, status: 'FITTED' },
   { id: 'prt-021', partCode: 'PRT-BRK-FLUID-DOT4', description: 'Brake Fluid DOT 4+ 1L', qty: 2, unitPrice: 850, warrantyCovered: false, status: 'FITTED' },
 

@@ -65,7 +65,14 @@ export type StateChipStatus =
   | 'grn-pending-qc'
   | 'grn-matched'
   | 'grn-rejected'
-  | 'grn-posted';
+  | 'grn-posted'
+  // ── Parts: Stock Movement types (P3) ─────────────────────────────────────────
+  | 'mov-in'
+  | 'mov-out'
+  | 'mov-adjust'
+  | 'mov-transfer'
+  // ── Parts: Criticality chip (shown only for CRITICAL / SAFETY) (P3) ──────────
+  | 'crit-safety';
 
 export interface StateChipProps {
   status: StateChipStatus;
@@ -362,6 +369,33 @@ const STATUS_CONFIG: Record<
     label: 'Posted',
     dot: 'bg-[rgb(var(--state-sold))]',
     chip: 'bg-[rgb(var(--state-sold)/0.1)] text-[rgb(var(--state-sold))]',
+  },
+  // ── Parts: Stock Movement types (P3) ─────────────────────────────────────
+  'mov-in': {
+    label: 'In',
+    dot: 'bg-[rgb(var(--state-listed))]',
+    chip: 'bg-[rgb(var(--state-listed)/0.1)] text-[rgb(var(--state-listed))]',
+  },
+  'mov-out': {
+    label: 'Out',
+    dot: 'bg-[rgb(var(--state-overdue))]',
+    chip: 'bg-[rgb(var(--state-overdue)/0.1)] text-[rgb(var(--state-overdue))]',
+  },
+  'mov-adjust': {
+    label: 'Adjust',
+    dot: 'bg-[rgb(var(--state-pending))]',
+    chip: 'bg-[rgb(var(--state-pending)/0.1)] text-[rgb(var(--state-pending))]',
+  },
+  'mov-transfer': {
+    label: 'Transfer',
+    dot: 'bg-[rgb(var(--state-reserved))]',
+    chip: 'bg-[rgb(var(--state-reserved)/0.1)] text-[rgb(var(--state-reserved))]',
+  },
+  // Criticality chip — consumers override `label` to "Critical" vs "Safety"
+  'crit-safety': {
+    label: 'Safety',
+    dot: 'bg-[rgb(var(--state-overdue))]',
+    chip: 'bg-[rgb(var(--state-overdue)/0.1)] text-[rgb(var(--state-overdue))]',
   },
 };
 
