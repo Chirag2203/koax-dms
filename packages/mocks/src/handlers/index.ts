@@ -7,6 +7,7 @@ import { staffHandlers } from './staff';
 import { inventoryHandlers } from './inventory';
 import { salesHandlers } from './sales';
 import { serviceHandlers } from './service';
+import { partsHandlers } from './parts/index';
 
 export const handlers = [
   ...vehicleHandlers,
@@ -18,4 +19,5 @@ export const handlers = [
   ...inventoryHandlers,
   ...salesHandlers,
   ...serviceHandlers,
+  ...partsHandlers,
 ];

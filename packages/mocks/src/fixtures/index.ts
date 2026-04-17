@@ -42,3 +42,10 @@ export {
   timelineEvents,
   advisorNotes,
 } from './service';
+export {
+  parts,
+  suppliers,
+  purchaseOrders,
+  grns,
+  stockMovements,
+} from './parts/index';
