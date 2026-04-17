@@ -23,7 +23,7 @@ Scope for v1 covers the full PO → GRN → Stock flow, the Parts master, suppli
 
 | Route | Purpose |
 |---|---|
-| `/parts` | Landing — 5 tabs: Stock List (default) / Low Stock / Purchase Orders / GRNs / Suppliers. URL-sync via `?view=low-stock\|po\|grn\|suppliers`. |
+| `/parts` | Landing — 5 tabs: Stock List (default) / Low Stock / Purchase Orders / GRNs / Suppliers. URL-sync via `?tab=stock-list\|low-stock\|po\|grn\|suppliers` (amended 2026-04-17 from `?view=` for cross-module consistency with service module — see PLAN-PARTS-002 §3). |
 | `/parts/[partCode]` | Part detail — stock card, per-outlet stock, supersession chain (read-only), movement history, linked open POs, "Raise PO" CTA, open Service JobCards consuming this part |
 | `/parts/po/new` | Create PO form. Accepts `?jobCard=&part=` pre-fill from the Service S4.1 "Create PO" affordance |
 | `/parts/po/[id]` | PO detail + approval actions (Approve / Reject / Cancel / Mark Dispatched / Mark Received / Close) |
@@ -361,3 +361,4 @@ Every new Dialog, SlideInPanel, AlertDialog, form section in this module MUST fo
 |------|--------|
 | 2026-04-17 | Spec written from research. Approval thresholds locked (₹10k / ₹50k / ₹2L). Auto-reserve + inter-outlet transfer added to P6 per user decision. |
 | 2026-04-17 | **P1 shipped.** Types + state-machine + fixtures + handlers + Zustand store (slice-decomposed) + hydrator + layout all landed. §8 clarified — fixture count is 65 parts (20 BMW + 15 Audi + 15 MB + 10 Porsche + 5 shared) matching the per-brand breakdown; the earlier "60" summary was a round figure. Two new staff records seeded to back parts fixtures: `staff-r13-001` Harish Naidu (R13 Parts Counter, Bangalore) and `staff-r03-001` Neha Kapoor (R03 Outlet Manager, Mumbai). `grn-003` repositioned as a walk-in (no poId) since its original target PO was PENDING_APPROVAL — fixture invariant now holds that any GRN with a poId references a PO at DISPATCHED or beyond. Store decomposed into slices: `types.ts` + `id-helpers.ts` + `post-grn-logic.ts` (pure) + 5 slices (`part/supplier/po/grn/stock`) + `index.ts` composer; public entry `parts-store.ts` is a thin re-export preserving `@/src/lib/parts/parts-store` imports. `postGrn` pre-aggregates OK-condition lines by partCode before the weighted-avg recompute (avoids compounding when one GRN has multiple lines for the same part). PO auto-transition (`allLinesFullyReceived` / `hasAnyReceipt`) filters `condition === 'OK'` so damaged/wrong stock never flips PO status. §11.2 auto-reserve hook marked TODO at the postGrn seam — wire in P6. |
+| 2026-04-17 | **§2 URL contract amendment** — `?view=` changed to `?tab=` for cross-module consistency with service (see PLAN-PARTS-002 §3). No impact on P1 (no UI shipped); applies to P2 landing. |

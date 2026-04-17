@@ -45,7 +45,27 @@ export type StateChipStatus =
   | 'priority-low'
   | 'priority-normal'
   | 'priority-high'
-  | 'priority-vip';
+  | 'priority-vip'
+  // ── Parts: Stock status ──────────────────────────────────────────────────────
+  | 'stock-ok'
+  | 'stock-low'
+  | 'stock-out'
+  // ── Parts: Purchase Order statuses ───────────────────────────────────────────
+  | 'po-draft'
+  | 'po-pending-approval'
+  | 'po-approved'
+  | 'po-rejected'
+  | 'po-cancelled'
+  | 'po-dispatched'
+  | 'po-partially-received'
+  | 'po-received'
+  | 'po-closed'
+  // ── Parts: GRN statuses ──────────────────────────────────────────────────────
+  | 'grn-draft'
+  | 'grn-pending-qc'
+  | 'grn-matched'
+  | 'grn-rejected'
+  | 'grn-posted';
 
 export interface StateChipProps {
   status: StateChipStatus;
@@ -254,6 +274,94 @@ const STATUS_CONFIG: Record<
     label: 'VIP',
     dot: 'bg-[rgb(var(--state-cpo))]',
     chip: 'bg-[rgb(var(--state-cpo)/0.1)] text-[rgb(var(--state-cpo))]',
+  },
+  // ── Parts: Stock status ────────────────────────────────────────────────────
+  'stock-ok': {
+    label: 'OK',
+    dot: 'bg-[rgb(var(--state-listed))]',
+    chip: 'bg-[rgb(var(--state-listed)/0.1)] text-[rgb(var(--state-listed))]',
+  },
+  'stock-low': {
+    label: 'Low',
+    dot: 'bg-[rgb(var(--state-overdue))]',
+    chip: 'bg-[rgb(var(--state-overdue)/0.1)] text-[rgb(var(--state-overdue))]',
+  },
+  'stock-out': {
+    label: 'Out',
+    dot: 'bg-[rgb(var(--state-stale))]',
+    chip: 'bg-[rgb(var(--state-stale)/0.1)] text-[rgb(var(--state-stale))]',
+  },
+  // ── Parts: Purchase Order statuses ─────────────────────────────────────────
+  'po-draft': {
+    label: 'Draft',
+    dot: 'bg-[rgb(var(--state-draft))]',
+    chip: 'bg-[rgb(var(--state-draft)/0.1)] text-[rgb(var(--state-draft))]',
+  },
+  'po-pending-approval': {
+    label: 'Pending Approval',
+    dot: 'bg-[rgb(var(--state-pending))]',
+    chip: 'bg-[rgb(var(--state-pending)/0.1)] text-[rgb(var(--state-pending))]',
+  },
+  'po-approved': {
+    label: 'Approved',
+    dot: 'bg-[rgb(var(--state-reserved))]',
+    chip: 'bg-[rgb(var(--state-reserved)/0.1)] text-[rgb(var(--state-reserved))]',
+  },
+  'po-rejected': {
+    label: 'Rejected',
+    dot: 'bg-[rgb(var(--state-overdue))]',
+    chip: 'bg-[rgb(var(--state-overdue)/0.1)] text-[rgb(var(--state-overdue))]',
+  },
+  'po-cancelled': {
+    label: 'Cancelled',
+    dot: 'bg-[rgb(var(--state-stale))]',
+    chip: 'bg-[rgb(var(--state-stale)/0.1)] text-[rgb(var(--state-stale))]',
+  },
+  'po-dispatched': {
+    label: 'Dispatched',
+    dot: 'bg-[rgb(var(--state-in-refurb))]',
+    chip: 'bg-[rgb(var(--state-in-refurb)/0.1)] text-[rgb(var(--state-in-refurb))]',
+  },
+  'po-partially-received': {
+    label: 'Partially Received',
+    dot: 'bg-[rgb(var(--state-pending))]',
+    chip: 'bg-[rgb(var(--state-pending)/0.1)] text-[rgb(var(--state-pending))]',
+  },
+  'po-received': {
+    label: 'Received',
+    dot: 'bg-[rgb(var(--state-listed))]',
+    chip: 'bg-[rgb(var(--state-listed)/0.1)] text-[rgb(var(--state-listed))]',
+  },
+  'po-closed': {
+    label: 'Closed',
+    dot: 'bg-[rgb(var(--state-sold))]',
+    chip: 'bg-[rgb(var(--state-sold)/0.1)] text-[rgb(var(--state-sold))]',
+  },
+  // ── Parts: GRN statuses ────────────────────────────────────────────────────
+  'grn-draft': {
+    label: 'Draft',
+    dot: 'bg-[rgb(var(--state-draft))]',
+    chip: 'bg-[rgb(var(--state-draft)/0.1)] text-[rgb(var(--state-draft))]',
+  },
+  'grn-pending-qc': {
+    label: 'Pending QC',
+    dot: 'bg-[rgb(var(--state-pending))]',
+    chip: 'bg-[rgb(var(--state-pending)/0.1)] text-[rgb(var(--state-pending))]',
+  },
+  'grn-matched': {
+    label: 'Matched',
+    dot: 'bg-[rgb(var(--state-reserved))]',
+    chip: 'bg-[rgb(var(--state-reserved)/0.1)] text-[rgb(var(--state-reserved))]',
+  },
+  'grn-rejected': {
+    label: 'Rejected',
+    dot: 'bg-[rgb(var(--state-overdue))]',
+    chip: 'bg-[rgb(var(--state-overdue)/0.1)] text-[rgb(var(--state-overdue))]',
+  },
+  'grn-posted': {
+    label: 'Posted',
+    dot: 'bg-[rgb(var(--state-sold))]',
+    chip: 'bg-[rgb(var(--state-sold)/0.1)] text-[rgb(var(--state-sold))]',
   },
 };
 
