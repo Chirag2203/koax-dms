@@ -20,6 +20,8 @@ import { StateChip } from '@/src/components/primitives';
 import type { StateChipStatus } from '@/src/components/primitives';
 import { LogCallModal } from './log-call-modal';
 import { ScheduleTestDriveModal } from './schedule-test-drive-modal';
+import { UpdateLeadModal } from './update-lead-modal';
+import { AddNoteModal } from './add-note-modal';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -193,15 +195,19 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
   const [interactionFilter, setInteractionFilter] = useState<InteractionFilter>('all');
   const [showLogCall, setShowLogCall] = useState(false);
   const [showScheduleTD, setShowScheduleTD] = useState(false);
+  const [showUpdateLead, setShowUpdateLead] = useState(false);
+  const [showAddNote, setShowAddNote] = useState(false);
+  const [dealData, setDealData] = useState<Deal>(deal);
+  const [interactionList, setInteractionList] = useState<Interaction[]>(interactions);
 
   const visibleInteractions = filterInteractions(
-    [...interactions].sort(
+    [...interactionList].sort(
       (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
     ),
     interactionFilter,
   );
 
-  const opened = daysAgo(deal.createdAt);
+  const opened = daysAgo(dealData.createdAt);
 
   return (
     <>
@@ -219,11 +225,11 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
             </Link>
             <span className="text-ink-muted text-xs">/</span>
             <span className="font-mono text-[11px] uppercase tracking-widest bg-bg-subtle text-ink-muted px-2 py-0.5 rounded">
-              ENQ-{deal.id.replace('deal-', '').padStart(4, '0')}
+              ENQ-{dealData.id.replace('deal-', '').padStart(4, '0')}
             </span>
             <StateChip
-              status={STAGE_STATUS_MAP[deal.stage]}
-              label={STAGE_LABEL[deal.stage]}
+              status={STAGE_STATUS_MAP[dealData.stage]}
+              label={STAGE_LABEL[dealData.stage]}
             />
           </div>
 
@@ -231,12 +237,12 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="text-[32px] font-semibold leading-[1.2] text-ink-primary tracking-tight">
-                {deal.customerName}
+                {dealData.customerName}
               </h1>
               <p className="text-sm text-ink-muted mt-1">
-                {deal.city.charAt(0).toUpperCase() + deal.city.slice(1)}
+                {dealData.city.charAt(0).toUpperCase() + dealData.city.slice(1)}
                 {' · '}
-                {deal.source === 'walk-in' ? 'Walk-in' : deal.source.charAt(0).toUpperCase() + deal.source.slice(1)}
+                {dealData.source === 'walk-in' ? 'Walk-in' : dealData.source.charAt(0).toUpperCase() + dealData.source.slice(1)}
                 {' · '}
                 opened {opened} day{opened !== 1 ? 's' : ''} ago
               </p>
@@ -246,33 +252,35 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
             <div className="flex items-center gap-2 shrink-0 pt-1">
               <button
                 type="button"
-                className={cn(
-                  'h-9 px-4 rounded-md text-sm font-medium border border-line',
-                  'bg-bg-canvas text-ink-secondary hover:text-ink-primary hover:bg-bg-subtle',
-                  'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
-                )}
+                className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-line bg-bg-surface text-sm font-medium text-ink-primary hover:bg-bg-subtle transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
               >
                 Assign Lead
               </button>
               <button
                 type="button"
+                onClick={() => setShowUpdateLead(true)}
+                className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-line bg-bg-surface text-sm font-medium text-ink-primary hover:bg-bg-subtle transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+              >
+                Update Lead
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowAddNote(true)}
+                className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-line bg-bg-surface text-sm font-medium text-ink-primary hover:bg-bg-subtle transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+              >
+                Add Note
+              </button>
+              <button
+                type="button"
                 onClick={() => setShowLogCall(true)}
-                className={cn(
-                  'h-9 px-4 rounded-md text-sm font-medium border border-line',
-                  'bg-bg-canvas text-ink-secondary hover:text-ink-primary hover:bg-bg-subtle',
-                  'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
-                )}
+                className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-line bg-bg-surface text-sm font-medium text-ink-primary hover:bg-bg-subtle transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
               >
                 Log Call
               </button>
               <button
                 type="button"
                 onClick={() => setShowScheduleTD(true)}
-                className={cn(
-                  'h-9 px-4 rounded-md text-sm font-semibold',
-                  'bg-accent text-white hover:bg-accent/90',
-                  'transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2',
-                )}
+                className="inline-flex items-center gap-2 h-9 px-4 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
               >
                 Schedule Test Drive
               </button>
@@ -285,23 +293,33 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
           {/* LEFT: Interaction Ledger (60%) */}
           <div className="w-[60%] flex flex-col border-r border-line overflow-hidden">
             {/* Section header + filter tabs */}
-            <div className="shrink-0 px-6 pt-5 pb-0 border-b border-line">
+            <div className="shrink-0 px-6 pt-5 pb-0">
               <h2 className="text-base font-semibold text-ink-primary mb-3">Interaction Ledger</h2>
-              <div className="flex items-center gap-1">
+              <div className="flex items-end gap-0 border-b border-line" role="tablist" aria-label="Interaction filter tabs">
                 {FILTER_TABS.map((tab) => (
                   <button
                     key={tab.key}
                     type="button"
+                    role="tab"
+                    id={`tab-filter-${tab.key}`}
+                    aria-controls={`panel-filter-${tab.key}`}
+                    aria-selected={interactionFilter === tab.key}
                     onClick={() => setInteractionFilter(tab.key)}
                     className={cn(
-                      'h-8 px-3 rounded-t text-xs font-medium transition-colors',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+                      'relative px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none',
+                      'focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
                       interactionFilter === tab.key
-                        ? 'text-ink-primary border-b-2 border-accent bg-accent/5'
+                        ? 'text-ink-primary'
                         : 'text-ink-muted hover:text-ink-secondary',
                     )}
                   >
                     {tab.label}
+                    {interactionFilter === tab.key && (
+                      <span
+                        className="absolute bottom-0 left-0 right-0 h-[2px] rounded-t-sm bg-accent"
+                        aria-hidden="true"
+                      />
+                    )}
                   </button>
                 ))}
               </div>
@@ -367,14 +385,14 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
           {/* RIGHT: Sidebar (40%) */}
           <div className="w-[40%] flex flex-col overflow-y-auto">
             {/* Vehicle of Interest panel */}
-            {deal.vehicleName && (
-              <div className="p-5 border-b border-line">
-                {deal.vehicleImage && (
+            {dealData.vehicleName && (
+              <div className="rounded-md border border-line bg-bg-surface p-6 m-4 mb-0">
+                {dealData.vehicleImage && (
                   <div className="relative w-full aspect-video rounded-md overflow-hidden mb-4 bg-bg-subtle">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
-                      src={deal.vehicleImage}
-                      alt={deal.vehicleName}
+                      src={dealData.vehicleImage}
+                      alt={dealData.vehicleName}
                       className="w-full h-full object-cover"
                     />
                     <span className="absolute top-2 left-2 font-mono text-[10px] uppercase tracking-widest bg-[rgb(var(--state-listed)/0.9)] text-white px-2 py-0.5 rounded">
@@ -387,31 +405,31 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
                   Interest Category: SUV
                 </p>
                 <h3 className="text-base font-semibold text-ink-primary leading-snug mb-0.5">
-                  {deal.vehicleName}
+                  {dealData.vehicleName}
                 </h3>
                 <p className="text-sm text-ink-muted mb-3">Autobiography trim</p>
 
                 <div className="border-t border-line my-3" />
 
-                {deal.vehicleVin && (
+                {dealData.vehicleVin && (
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs text-ink-muted">Asset Identifier</span>
                     <span className="font-mono text-xs text-ink-primary bg-bg-subtle px-2 py-0.5 rounded select-all">
-                      {deal.vehicleVin}
+                      {dealData.vehicleVin}
                     </span>
                   </div>
                 )}
 
-                {deal.amount > 0 && (
+                {dealData.amount > 0 && (
                   <p className="font-mono text-[28px] font-semibold text-ink-primary tabular-nums mt-3">
-                    &#8377; {formatINR(deal.amount)}
+                    &#8377; {formatINR(dealData.amount)}
                   </p>
                 )}
               </div>
             )}
 
             {/* Compliance & KYC panel */}
-            <div className="p-5">
+            <div className="rounded-md border border-line bg-bg-surface p-4 m-4 mb-0">
               <h3 className="text-sm font-semibold text-ink-primary mb-4">Compliance &amp; KYC</h3>
 
               {kyc ? (
@@ -435,13 +453,13 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
             </div>
 
             {/* Deal notes */}
-            {deal.notes && (
-              <div className="px-5 pb-5">
+            {dealData.notes && (
+              <div className="rounded-md border border-line bg-bg-surface p-4 m-4 mb-4">
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
                   Notes
                 </h3>
-                <p className="text-sm text-ink-secondary leading-relaxed bg-bg-subtle rounded-md p-3 border border-line">
-                  {deal.notes}
+                <p className="text-sm text-ink-secondary leading-relaxed">
+                  {dealData.notes}
                 </p>
               </div>
             )}
@@ -453,12 +471,24 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
       <LogCallModal
         open={showLogCall}
         onClose={() => setShowLogCall(false)}
-        dealId={deal.id}
+        dealId={dealData.id}
       />
       <ScheduleTestDriveModal
         open={showScheduleTD}
         onClose={() => setShowScheduleTD(false)}
-        dealId={deal.id}
+        dealId={dealData.id}
+      />
+      <UpdateLeadModal
+        open={showUpdateLead}
+        onClose={() => setShowUpdateLead(false)}
+        deal={dealData}
+        onSaved={(updated) => setDealData((prev) => ({ ...prev, ...updated }))}
+      />
+      <AddNoteModal
+        open={showAddNote}
+        onClose={() => setShowAddNote(false)}
+        dealId={dealData.id}
+        onSaved={(note) => setInteractionList((prev) => [note, ...prev])}
       />
     </>
   );

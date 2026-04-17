@@ -108,6 +108,31 @@ export const salesHandlers = [
   }),
 
   /**
+   * PATCH /api/staff/sales/deals/:id
+   * Updates writable lead fields. Echoes back merged deal.
+   */
+  http.patch('/api/staff/sales/deals/:id', async ({ params, request }) => {
+    await randomDelay();
+
+    const { id } = params;
+    const deal = deals.find((d) => d.id === id);
+
+    if (!deal) {
+      return HttpResponse.json({ error: 'Deal not found' }, { status: 404 });
+    }
+
+    const body = (await request.json()) as Partial<Deal>;
+    const updatedDeal: Deal = {
+      ...deal,
+      ...body,
+      id: deal.id, // prevent id override
+      lastActivityAt: new Date().toISOString(),
+    };
+
+    return HttpResponse.json({ data: updatedDeal });
+  }),
+
+  /**
    * POST /api/staff/sales/deals/:id/move
    * Body: { toStage: DealStage }
    */

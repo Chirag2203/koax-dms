@@ -24,15 +24,15 @@ const MAX_COUNT = Math.max(...PIPELINE_STAGES.map((s) => s.count));
 
 export function SalesPipelinePanel() {
   return (
-    <div className="bg-bg-surface border border-[rgb(var(--line))] rounded-md flex flex-col">
+    <div className="bg-bg-surface border border-line rounded-md flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[rgb(var(--line))]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-line">
         <h2 className="text-[18px] font-semibold leading-[1.4] text-ink-primary">
           Sales
         </h2>
         <Link
           href="/sales"
-          className="text-xs text-[rgb(var(--accent))] hover:text-[rgb(var(--accent-hover))] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--accent))] rounded"
+          className="text-xs text-accent hover:text-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
         >
           View all →
         </Link>
@@ -52,7 +52,7 @@ export function SalesPipelinePanel() {
               </div>
               <div className="h-1.5 w-full bg-bg-subtle rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-[rgb(var(--accent))] rounded-full transition-all"
+                  className="h-full bg-accent rounded-full transition-all"
                   style={{ width: `${pct}%` }}
                 />
               </div>
@@ -62,7 +62,7 @@ export function SalesPipelinePanel() {
       </div>
 
       {/* Top deal callout */}
-      <div className="px-4 py-3 border-t border-[rgb(var(--line))] text-[12px] text-ink-secondary">
+      <div className="px-4 py-3 border-t border-line text-[12px] text-ink-secondary">
         <span className="text-ink-muted">Top deal: </span>
         Porsche Panamera 4 &middot;{' '}
         <span className="font-mono tabular-nums">&#8377;1,28,50,000</span>

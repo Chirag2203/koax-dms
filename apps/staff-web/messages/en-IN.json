@@ -332,8 +332,50 @@
         "subtitle": "{city} \u00b7 {source} \u00b7 opened {days} day(s) ago",
         "actions": {
           "assignLead": "Assign Lead",
+          "updateLead": "Update Lead",
+          "addNote": "Add Note",
           "logCall": "Log Call",
           "scheduleTestDrive": "Schedule Test Drive"
+        },
+        "updateModal": {
+          "title": "Update Lead",
+          "fields": {
+            "name": "Customer name",
+            "phone": "Phone number",
+            "phoneReadOnlyHint": "Phone is used as identity and cannot be changed",
+            "email": "Email address",
+            "vehicle": "Vehicle of interest",
+            "budget": "Budget range",
+            "budgetMin": "Minimum",
+            "budgetMax": "Maximum",
+            "priority": "Priority",
+            "notes": "Notes"
+          },
+          "actions": {
+            "cancel": "Cancel",
+            "save": "Save changes"
+          },
+          "toast": {
+            "saved": "Lead updated",
+            "failed": "Could not save. Please try again."
+          }
+        },
+        "noteModal": {
+          "title": "Add a note",
+          "fields": {
+            "title": "Title (optional)",
+            "body": "Note",
+            "visibility": "Visibility",
+            "internal": "Internal only",
+            "shared": "Shared with team"
+          },
+          "actions": {
+            "cancel": "Cancel",
+            "save": "Add note"
+          },
+          "toast": {
+            "added": "Note added"
+          }
         },
         "ledger": {
           "title": "Interaction Ledger",

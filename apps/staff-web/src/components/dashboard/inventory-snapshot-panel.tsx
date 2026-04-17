@@ -60,7 +60,7 @@ function AgeingBar({ rows }: { rows: InventoryRow[] }) {
   }));
 
   return (
-    <div className="mt-3 pt-3 border-t border-[rgb(var(--line))]">
+    <div className="mt-3 pt-3 border-t border-line">
       <span className="text-[10px] uppercase tracking-widest text-ink-muted font-medium">
         Ageing distribution
       </span>
@@ -92,15 +92,15 @@ function AgeingBar({ rows }: { rows: InventoryRow[] }) {
 
 export function InventorySnapshotPanel({ rows }: InventorySnapshotPanelProps) {
   return (
-    <div className="bg-bg-surface border border-[rgb(var(--line))] rounded-md flex flex-col">
+    <div className="bg-bg-surface border border-line rounded-md flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-[rgb(var(--line))]">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-line">
         <h2 className="text-[18px] font-semibold leading-[1.4] text-ink-primary">
           Inventory
         </h2>
         <Link
           href="/inventory"
-          className="text-xs text-[rgb(var(--accent))] hover:text-[rgb(var(--accent-hover))] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--accent))] rounded"
+          className="text-xs text-accent hover:text-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
         >
           View all →
         </Link>
@@ -110,7 +110,7 @@ export function InventorySnapshotPanel({ rows }: InventorySnapshotPanelProps) {
       <div className="flex-1 overflow-hidden">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-[rgb(var(--line))]">
+            <tr className="border-b border-line">
               <th className="px-3 py-2 text-left text-[10px] uppercase tracking-[0.06em] font-medium text-ink-muted w-12">
                 &nbsp;
               </th>

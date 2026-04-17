@@ -56,16 +56,16 @@ const ALERT_ITEMS: AlertItem[] = [
 
 export function AlertsTasksPanel() {
   return (
-    <div className="bg-bg-surface border border-[rgb(var(--line))] rounded-md flex flex-col">
+    <div className="bg-bg-surface border border-line rounded-md flex flex-col">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-[rgb(var(--line))]">
+      <div className="px-4 py-3 border-b border-line">
         <h2 className="text-[18px] font-semibold leading-[1.4] text-ink-primary">
           Alerts &amp; tasks
         </h2>
       </div>
 
       {/* Alert list */}
-      <ul className="flex-1 divide-y divide-[rgb(var(--line))]">
+      <ul className="flex-1 divide-y divide-line">
         {ALERT_ITEMS.map((item) => {
           const Icon = item.icon;
           return (
@@ -75,7 +75,7 @@ export function AlertsTasksPanel() {
                 className={cn(
                   'flex items-center gap-3 px-4 py-3',
                   'hover:bg-bg-hover transition-colors',
-                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--accent))] focus-visible:ring-inset',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset',
                 )}
               >
                 <Icon
