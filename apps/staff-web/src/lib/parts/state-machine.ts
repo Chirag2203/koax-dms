@@ -129,7 +129,7 @@ export function requiredApproverRole(total: number): string {
  * R13 (Parts Counter) = 1, R12 (Parts Manager) = 2, R03 (Outlet Manager) = 3,
  * R19 (GM) = 4, R22 (CFO) = 5, R24 (CEO) = 6.
  */
-const ROLE_RANK: Record<string, number> = {
+export const ROLE_RANK: Record<string, number> = {
   R13: 1,
   R12: 2,
   R03: 3,

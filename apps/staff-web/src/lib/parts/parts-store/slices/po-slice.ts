@@ -68,6 +68,17 @@ export const createPoSlice: PartsSlice<PoActions> = (set) => ({
       }
       if (next === 'REJECTED') {
         target.rejectedReason = opts.reason ?? '';
+        // Stamp approver identity on rejection too — the same approver field
+        // captures "who took the terminal decision". P5 timeline relies on this
+        // to show actor + timestamp on the Rejected node.
+        target.approverId = opts.actor.id;
+        target.approvedAt = nowIso;
+      }
+      if (next === 'CANCELLED') {
+        // Reuse rejectedReason to store cancel reason — schema has no
+        // dedicated cancelReason/cancelledAt fields in v1. Timeline + sidebar
+        // surface this under a "Cancelled" label (not "Rejected").
+        target.rejectedReason = opts.reason ?? '';
       }
       if (next === 'DISPATCHED') {
         target.dispatchedAt = nowIso;
