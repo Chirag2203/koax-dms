@@ -11,8 +11,9 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { PackageSearch } from 'lucide-react';
-import { DataTable } from '@/src/components/primitives';
+import { PackageSearch, Plus } from 'lucide-react';
+import { cn } from '@dms/ui';
+import { DataTable, Gate } from '@/src/components/primitives';
 import { usePartsStore } from '@/src/lib/parts/parts-store';
 import {
   PartsFilterBar,
@@ -22,12 +23,14 @@ import {
   type PartsFilters,
 } from '../parts-filter-bar';
 import { buildStockListColumns } from './stock-list-columns';
+import { NewPartDialog } from '../new-part-dialog';
 
 export function StockListTab() {
   const router = useRouter();
   const parts = usePartsStore((s) => s.parts);
 
   const [filters, setFilters] = useState<PartsFilters>(DEFAULT_PARTS_FILTERS);
+  const [newOpen, setNewOpen] = useState(false);
 
   // Derive unique brand list from fixtures (memoized on parts identity)
   const brands = useMemo(
@@ -52,6 +55,34 @@ export function StockListTab() {
 
   return (
     <div className="flex flex-col gap-4 p-6">
+      {/* Tab subheader with title + count + CTA */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-baseline gap-2">
+          <h2 className="text-base font-semibold text-ink-primary">Stock</h2>
+          <span className="text-sm text-ink-muted">
+            · {parts.length} parts
+          </span>
+        </div>
+        <Gate
+          role={['R12', 'R19', 'R22', 'R24']}
+          fallback="tooltip"
+          tooltipMessage="Requires Parts Manager role"
+        >
+          <button
+            type="button"
+            onClick={() => setNewOpen(true)}
+            className={cn(
+              'inline-flex items-center gap-1.5 h-9 px-3 rounded-md bg-accent text-white',
+              'text-sm font-medium hover:bg-accent/90 transition-colors',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+            )}
+          >
+            <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+            New Part
+          </button>
+        </Gate>
+      </div>
+
       <PartsFilterBar filters={filters} onChange={setFilters} brands={brands} />
 
       <DataTable
@@ -81,6 +112,8 @@ export function StockListTab() {
           </div>
         }
       />
+
+      <NewPartDialog open={newOpen} onClose={() => setNewOpen(false)} />
     </div>
   );
 }

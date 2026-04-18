@@ -148,6 +148,7 @@ export const PurchaseOrderSchema = z.object({
   fxRate: z.number().optional(),
   notes: z.string().optional(),
   linkedJobCardId: z.string().optional(), // Service-originated PO
+  groupRef: z.string().optional(), // P4.1 — links sibling POs from a multi-outlet split submission
 });
 
 // GRN
@@ -256,6 +257,9 @@ These mirror the Service warranty-claim thresholds (PLAN-SERVICE-002) and slot i
 | Adjust stock | ⛔ | 📝 + Finance co-sign | ⛔ | ✅ | ✅ | ✅ |
 | Inter-outlet transfer | ⛔ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Issue parts to JobCard | ✅ | ✅ | ⛔ | ⛔ | ⛔ | ✅ |
+| Create supplier (P4.1) | ⛔ | ✅ | ⛔ | ✅ | ✅ | ✅ |
+| Create part (P4.1) | ⛔ | ✅ | ⛔ | ✅ | ✅ | ✅ |
+| Edit part master (P4.1) | ⛔ | ✅ | ⛔ | ✅ | ✅ | ✅ |
 
 Default user is R24 Meera Iyer — sees all actions. Gates remain in code for later role-switcher testing.
 
@@ -276,6 +280,7 @@ Default user is R24 Meera Iyer — sees all actions. Gates remain in code for la
 | **P2 — Landing** | `/parts/page.tsx` with 5 tabs, filter bars, DataTables, URL-sync, empty/loading/error states, per-outlet stock badges, "Raise PO" quick action on Low Stock rows | `parts-landing-view.tsx`, `tabs/{stock-list,low-stock,purchase-orders,grns,suppliers}-tab.tsx` |
 | **P3 — Part detail** | `/parts/[partCode]` — stock card with per-outlet breakdown, supersession chain row (read-only), Movement History (paginated DataTable), Open POs, Suppliers, linked Service JobCards | `parts/[partCode]/page.tsx`, `part-detail-view.tsx` |
 | **P4 — Create flows** | `/parts/po/new` (supplier + outlet + line builder with part search combobox, pre-fill from `?jobCard=&part=`) + `/parts/grn/new` (PO pre-fill grid, QC fields) | `new-po-form.tsx`, `new-grn-form.tsx` |
+| **P4.1 — Enhancements** | Add New Supplier dialog + Add New Part slide-in panel + Edit Part Master panel + Multi-outlet Split PO (one form → N sibling POs linked by `groupRef`). See `specs/modules/parts/05-p4-1-enhancements-phase.md` (PLAN-PARTS-005). | `new-supplier-dialog/`, `new-part-dialog/`, `edit-part-dialog/`, `new-po/` deltas |
 | **P5 — Detail + approvals** | `/parts/po/[id]` (role+threshold-gated Approve / Reject / Cancel / Dispatch / Receive / Close) + `/parts/grn/[id]` (QC + Discrepancy + Post — triggers stock movements) | `po-detail-view.tsx`, `grn-detail-view.tsx`, `action-flows/{approve-po,reject-po,cancel-po,dispatch-po,post-grn,reject-grn,record-discrepancy}-dialog.tsx` |
 | **P6 — Integration** | Replace S4 "Create PO (coming in S5)" stub with real link. Auto-reserve Service PartsLine on GRN POST (see §11). Update inventory vehicle detail refurb parts list to `/parts/[partCode]`. | Service tabs file edits; parts-store.postGrn hook |
 
@@ -362,3 +367,4 @@ Every new Dialog, SlideInPanel, AlertDialog, form section in this module MUST fo
 | 2026-04-17 | Spec written from research. Approval thresholds locked (₹10k / ₹50k / ₹2L). Auto-reserve + inter-outlet transfer added to P6 per user decision. |
 | 2026-04-17 | **P1 shipped.** Types + state-machine + fixtures + handlers + Zustand store (slice-decomposed) + hydrator + layout all landed. §8 clarified — fixture count is 65 parts (20 BMW + 15 Audi + 15 MB + 10 Porsche + 5 shared) matching the per-brand breakdown; the earlier "60" summary was a round figure. Two new staff records seeded to back parts fixtures: `staff-r13-001` Harish Naidu (R13 Parts Counter, Bangalore) and `staff-r03-001` Neha Kapoor (R03 Outlet Manager, Mumbai). `grn-003` repositioned as a walk-in (no poId) since its original target PO was PENDING_APPROVAL — fixture invariant now holds that any GRN with a poId references a PO at DISPATCHED or beyond. Store decomposed into slices: `types.ts` + `id-helpers.ts` + `post-grn-logic.ts` (pure) + 5 slices (`part/supplier/po/grn/stock`) + `index.ts` composer; public entry `parts-store.ts` is a thin re-export preserving `@/src/lib/parts/parts-store` imports. `postGrn` pre-aggregates OK-condition lines by partCode before the weighted-avg recompute (avoids compounding when one GRN has multiple lines for the same part). PO auto-transition (`allLinesFullyReceived` / `hasAnyReceipt`) filters `condition === 'OK'` so damaged/wrong stock never flips PO status. §11.2 auto-reserve hook marked TODO at the postGrn seam — wire in P6. |
 | 2026-04-17 | **§2 URL contract amendment** — `?view=` changed to `?tab=` for cross-module consistency with service (see PLAN-PARTS-002 §3). No impact on P1 (no UI shipped); applies to P2 landing. |
+| 2026-04-17 | **P4.1 amendments** (pre-implementation): §4 PurchaseOrderSchema adds optional `groupRef` (links sibling POs from multi-outlet split); §7 role-gate table adds three rows (Create supplier / Create part / Edit part master — all R12+R19+R22+R24); §9 rollout table inserts P4.1 row between P4 and P5; non-goals clarified: edit-supplier master deferred to v1.1 (P4.1 adds CREATE only). Detailed plan: `05-p4-1-enhancements-phase.md` (PLAN-PARTS-005). |

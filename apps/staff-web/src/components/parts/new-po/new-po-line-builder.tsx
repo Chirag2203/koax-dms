@@ -12,7 +12,7 @@
 // and the service module's warranty-form useFieldArray precedent — no
 // per-cell `<label htmlFor>` needed.
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import { Plus, X } from 'lucide-react';
 import { cn } from '@dms/ui';
@@ -21,8 +21,18 @@ import { AmountCell } from '@/src/components/primitives';
 import {
   computeLineTotal,
   findFirstDuplicateIndex,
+  lineQty,
 } from './new-po-helpers';
+import { emptyLine } from './new-po-schema';
 import type { NewPoFormValues } from './new-po-schema';
+import { NewPartDialog } from '../new-part-dialog';
+
+const SENTINEL_ADD_PART = '__add_new_part__';
+const OUTLETS: Array<'BLR-01' | 'MUM-01' | 'CHE-01'> = [
+  'BLR-01',
+  'MUM-01',
+  'CHE-01',
+];
 
 export interface NewPoLineBuilderProps {
   parts: Part[];
@@ -31,6 +41,7 @@ export interface NewPoLineBuilderProps {
 export function NewPoLineBuilder({ parts }: NewPoLineBuilderProps) {
   const {
     control,
+    setValue,
     formState: { errors },
   } = useFormContext<NewPoFormValues>();
 
@@ -38,6 +49,13 @@ export function NewPoLineBuilder({ parts }: NewPoLineBuilderProps) {
     control,
     name: 'lines',
   });
+
+  // Track which line is triggering the New Part dialog so we can auto-assign
+  // the created partCode + unitPrice back to that specific line.
+  const [addingPartForIdx, setAddingPartForIdx] = useState<number | null>(null);
+
+  const mode = useWatch({ control, name: 'mode' }) ?? 'single';
+  const isSplit = mode === 'split';
 
   // Grouping for <select> <optgroup> — memoized on parts identity
   const grouped = useMemo(() => {
@@ -60,79 +78,117 @@ export function NewPoLineBuilder({ parts }: NewPoLineBuilderProps) {
     });
   }, [parts]);
 
+  const gridColsClass = isSplit
+    ? 'grid-cols-[32px_1fr_70px_70px_70px_120px_120px_40px]'
+    : 'grid-cols-[32px_1fr_80px_140px_140px_40px]';
+
   return (
-    <section className="rounded-md border border-line bg-bg-surface p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-[11px] font-mono uppercase tracking-widest text-ink-muted">
-          Line Items
-        </h2>
-        <button
-          type="button"
-          onClick={() =>
-            append({ partCode: '', qty: 1, unitPrice: 0 })
-          }
+    <>
+      <section className="rounded-md border border-line bg-bg-surface p-6">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-[11px] font-mono uppercase tracking-widest text-ink-muted">
+            Line Items
+          </h2>
+          <button
+            type="button"
+            onClick={() => append(emptyLine(mode))}
+            className={cn(
+              'inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-line',
+              'bg-bg-surface text-[13px] font-medium text-ink-primary',
+              'hover:bg-bg-subtle hover:border-accent hover:text-accent transition-colors',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+            )}
+          >
+            <Plus className="h-3 w-3" aria-hidden="true" />
+            Add line
+          </button>
+        </div>
+
+        {/* Header row (labels) */}
+        <div
           className={cn(
-            'inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-line',
-            'bg-bg-surface text-[13px] font-medium text-ink-primary',
-            'hover:bg-bg-subtle hover:border-accent hover:text-accent transition-colors',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+            'hidden md:grid gap-3 items-center pb-2 border-b border-line',
+            'text-[11px] font-medium uppercase tracking-wide text-ink-muted',
+            gridColsClass,
           )}
         >
-          <Plus className="h-3 w-3" aria-hidden="true" />
-          Add line
-        </button>
-      </div>
+          <span>#</span>
+          <span>Part</span>
+          {isSplit ? (
+            <>
+              <span className="text-right">BLR</span>
+              <span className="text-right">MUM</span>
+              <span className="text-right">CHE</span>
+            </>
+          ) : (
+            <span className="text-right">Qty</span>
+          )}
+          <span className="text-right">Unit Price ₹</span>
+          <span className="text-right">Line Total ₹</span>
+          <span className="sr-only">Remove</span>
+        </div>
 
-      {/* Header row (labels) */}
-      <div className="hidden md:grid grid-cols-[32px_1fr_80px_140px_140px_40px] gap-3 items-center pb-2 border-b border-line text-[11px] font-medium uppercase tracking-wide text-ink-muted">
-        <span>#</span>
-        <span>Part</span>
-        <span className="text-right">Qty</span>
-        <span className="text-right">Unit Price ₹</span>
-        <span className="text-right">Line Total ₹</span>
-        <span className="sr-only">Remove</span>
-      </div>
+        {/* Dynamic rows */}
+        <ul className="flex flex-col">
+          {fields.map((field, idx) => (
+            <LineRow
+              key={field.id}
+              idx={idx}
+              canRemove={fields.length > 1}
+              onRemove={() => remove(idx)}
+              parts={parts}
+              grouped={grouped}
+              isSplit={isSplit}
+              gridColsClass={gridColsClass}
+              onAddPart={() => setAddingPartForIdx(idx)}
+            />
+          ))}
+        </ul>
 
-      {/* Dynamic rows */}
-      <ul className="flex flex-col">
-        {fields.map((field, idx) => (
-          <LineRow
-            key={field.id}
-            idx={idx}
-            canRemove={fields.length > 1}
-            onRemove={() => remove(idx)}
-            parts={parts}
-            grouped={grouped}
-          />
-        ))}
-      </ul>
-
-      {/* Add line footer button (full-width for keyboard reach) */}
-      <button
-        type="button"
-        onClick={() =>
-          append({ partCode: '', qty: 1, unitPrice: 0 })
-        }
-        className={cn(
-          'mt-4 w-full h-10 rounded-md border border-dashed border-line',
-          'text-[13px] text-ink-secondary hover:text-accent hover:border-accent/50 transition-colors',
-          'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
-        )}
-        aria-label="Add another line"
-      >
-        + Add line
-      </button>
-
-      {/* Array-level error */}
-      {errors.lines && (errors.lines as { message?: string }).message && (
-        <p
-          role="alert"
-          className="mt-2 text-[12px] text-[rgb(var(--state-stale))]"
+        {/* Add line footer button (full-width for keyboard reach) */}
+        <button
+          type="button"
+          onClick={() => append(emptyLine(mode))}
+          className={cn(
+            'mt-4 w-full h-10 rounded-md border border-dashed border-line',
+            'text-[13px] text-ink-secondary hover:text-accent hover:border-accent/50 transition-colors',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+          )}
+          aria-label="Add another line"
         >
-          {(errors.lines as { message?: string }).message}
-        </p>
-      )}
-    </section>
+          + Add line
+        </button>
+
+        {/* Array-level error */}
+        {errors.lines && (errors.lines as { message?: string }).message && (
+          <p
+            role="alert"
+            className="mt-2 text-[12px] text-[rgb(var(--state-stale))]"
+          >
+            {(errors.lines as { message?: string }).message}
+          </p>
+        )}
+      </section>
+
+      <NewPartDialog
+        open={addingPartForIdx !== null}
+        onClose={() => setAddingPartForIdx(null)}
+        onCreated={(newPart) => {
+          if (addingPartForIdx === null) return;
+          setValue(
+            `lines.${addingPartForIdx}.partCode`,
+            newPart.partCode,
+            { shouldDirty: true, shouldValidate: true },
+          );
+          setValue(
+            `lines.${addingPartForIdx}.unitPrice`,
+            newPart.lastPurchasePrice,
+            { shouldDirty: true, shouldValidate: true },
+          );
+          setAddingPartForIdx(null);
+        }}
+      />
+    </>
   );
 }
 
@@ -144,9 +200,21 @@ interface LineRowProps {
   onRemove: () => void;
   parts: Part[];
   grouped: [string, Part[]][];
+  isSplit: boolean;
+  gridColsClass: string;
+  onAddPart: () => void;
 }
 
-function LineRow({ idx, canRemove, onRemove, parts, grouped }: LineRowProps) {
+function LineRow({
+  idx,
+  canRemove,
+  onRemove,
+  parts,
+  grouped,
+  isSplit,
+  gridColsClass,
+  onAddPart,
+}: LineRowProps) {
   const {
     register,
     control,
@@ -158,9 +226,9 @@ function LineRow({ idx, canRemove, onRemove, parts, grouped }: LineRowProps) {
   const lineValues = useWatch({ control, name: `lines.${idx}` });
   const allLines = useWatch({ control, name: 'lines' });
 
-  const qty = lineValues?.qty ?? 0;
+  const qtySum = lineValues ? lineQty(lineValues) : 0;
   const unitPrice = lineValues?.unitPrice ?? 0;
-  const lineTotal = computeLineTotal(qty, unitPrice);
+  const lineTotal = computeLineTotal(qtySum, unitPrice);
 
   const selectedPart = parts.find((p) => p.partCode === lineValues?.partCode);
 
@@ -168,27 +236,39 @@ function LineRow({ idx, canRemove, onRemove, parts, grouped }: LineRowProps) {
 
   const rowError = errors.lines?.[idx];
 
+  const partRegistration = register(`lines.${idx}.partCode`, {
+    onChange: (e) => {
+      // Sentinel: open New Part dialog instead of selecting
+      if (e.target.value === SENTINEL_ADD_PART) {
+        e.preventDefault();
+        // Revert the <select> back to the previous value
+        setValue(`lines.${idx}.partCode`, lineValues?.partCode ?? '', {
+          shouldValidate: true,
+        });
+        onAddPart();
+        return;
+      }
+      // Pre-fill unit price from part.lastPurchasePrice
+      const p = parts.find((pp) => pp.partCode === e.target.value);
+      if (p) {
+        setValue(`lines.${idx}.unitPrice`, p.lastPurchasePrice, {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
+      }
+    },
+  });
+
   return (
     <li className="py-3 border-b border-line last:border-b-0">
-      <div className="grid grid-cols-[32px_1fr_80px_140px_140px_40px] gap-3 items-start">
+      <div className={cn('grid gap-3 items-start', gridColsClass)}>
         <span className="text-[11px] font-mono text-ink-muted pt-3">
           {idx + 1}
         </span>
 
         <div className="flex flex-col gap-1">
           <select
-            {...register(`lines.${idx}.partCode`, {
-              onChange: (e) => {
-                // Pre-fill unit price from part.lastPurchasePrice
-                const p = parts.find((pp) => pp.partCode === e.target.value);
-                if (p) {
-                  setValue(`lines.${idx}.unitPrice`, p.lastPurchasePrice, {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  });
-                }
-              },
-            })}
+            {...partRegistration}
             aria-label={`Part for line ${idx + 1}`}
             className={cn(
               'h-10 w-full rounded-md bg-bg-subtle border border-line px-3',
@@ -206,6 +286,10 @@ function LineRow({ idx, canRemove, onRemove, parts, grouped }: LineRowProps) {
                 ))}
               </optgroup>
             ))}
+            {/* Sentinel — always last */}
+            <optgroup label="—">
+              <option value={SENTINEL_ADD_PART}>+ Add new part</option>
+            </optgroup>
           </select>
           {selectedPart && (
             <span className="text-[11px] text-ink-muted -mt-0.5">
@@ -230,20 +314,41 @@ function LineRow({ idx, canRemove, onRemove, parts, grouped }: LineRowProps) {
           )}
         </div>
 
-        <input
-          type="number"
-          step="1"
-          min="1"
-          {...register(`lines.${idx}.qty`, {
-            setValueAs: (v) => (v === '' ? undefined : parseInt(v, 10)),
-          })}
-          aria-label={`Qty for line ${idx + 1}`}
-          className={cn(
-            'h-10 w-full rounded-md bg-bg-subtle border border-line px-2',
-            'text-sm text-right font-mono tabular-nums text-ink-primary',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
-          )}
-        />
+        {/* Qty cells — single mode gets one input; split mode gets three */}
+        {isSplit ? (
+          OUTLETS.map((outletId) => (
+            <input
+              key={outletId}
+              type="number"
+              step="1"
+              min="0"
+              {...register(`lines.${idx}.qtyByOutlet.${outletId}`, {
+                setValueAs: (v) => (v === '' ? 0 : parseInt(v, 10)),
+              })}
+              aria-label={`${outletId} qty for line ${idx + 1}`}
+              className={cn(
+                'h-10 w-full rounded-md bg-bg-subtle border border-line px-2',
+                'text-sm text-right font-mono tabular-nums text-ink-primary',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+              )}
+            />
+          ))
+        ) : (
+          <input
+            type="number"
+            step="1"
+            min="1"
+            {...register(`lines.${idx}.qty`, {
+              setValueAs: (v) => (v === '' ? undefined : parseInt(v, 10)),
+            })}
+            aria-label={`Qty for line ${idx + 1}`}
+            className={cn(
+              'h-10 w-full rounded-md bg-bg-subtle border border-line px-2',
+              'text-sm text-right font-mono tabular-nums text-ink-primary',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+            )}
+          />
+        )}
 
         <input
           type="number"

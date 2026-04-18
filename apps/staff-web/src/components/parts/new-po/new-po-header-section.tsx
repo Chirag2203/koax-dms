@@ -6,13 +6,17 @@
 
 'use client';
 
-import { cloneElement, isValidElement, useEffect, useId } from 'react';
+import { cloneElement, isValidElement, useEffect, useId, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { cn } from '@dms/ui';
 import type { Supplier } from '@dms/types';
 import { OUTLET_NAMES, OUTLET_ORDER } from '../helpers';
 import { deriveImportFromSupplier } from './new-po-helpers';
+import { emptyLine } from './new-po-schema';
 import type { NewPoFormValues } from './new-po-schema';
+import { NewSupplierDialog } from '../new-supplier-dialog';
+
+const SENTINEL_ADD_SUPPLIER = '__add_new_supplier__';
 
 export interface NewPoHeaderSectionProps {
   suppliers: Supplier[];
@@ -23,12 +27,41 @@ export function NewPoHeaderSection({ suppliers }: NewPoHeaderSectionProps) {
     register,
     watch,
     setValue,
+    getValues,
     formState: { errors },
   } = useFormContext<NewPoFormValues>();
 
+  const mode = watch('mode') ?? 'single';
   const supplierId = watch('supplierId');
   const isImport = watch('isImport');
   const linkedJobCardId = watch('linkedJobCardId');
+
+  const [newSupplierOpen, setNewSupplierOpen] = useState(false);
+
+  // Auto-select newly-created supplier
+  const handleSupplierCreated = (supplier: Supplier) => {
+    setValue('supplierId', supplier.id, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
+  };
+
+  // Mode toggle: when switching, re-seed lines so the qty/qtyByOutlet shape
+  // matches the new mode. Preserve partCode + unitPrice across the toggle.
+  const handleModeChange = (next: 'single' | 'split') => {
+    if (next === mode) return;
+    const lines = getValues('lines');
+    const reshaped = lines.map((l) => {
+      const emptyForNext = emptyLine(next);
+      return {
+        ...emptyForNext,
+        partCode: l.partCode,
+        unitPrice: l.unitPrice,
+      };
+    });
+    setValue('mode', next, { shouldDirty: true });
+    setValue('lines', reshaped, { shouldDirty: true, shouldValidate: true });
+  };
 
   // Auto-toggle isImport when supplier currency != INR
   useEffect(() => {
@@ -47,17 +80,66 @@ export function NewPoHeaderSection({ suppliers }: NewPoHeaderSectionProps) {
   );
   const imports = suppliers.filter((s) => s.isImport);
 
-  return (
-    <section className="rounded-md border border-line bg-bg-surface p-6">
-      <h2 className="text-[11px] font-mono uppercase tracking-widest text-ink-muted mb-4">
-        Header
-      </h2>
+  // Register + onChange intercept for the supplier select (sentinel handling)
+  const supplierRegistration = register('supplierId');
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+  return (
+    <>
+      <section className="rounded-md border border-line bg-bg-surface p-6">
+        {/* Mode segmented toggle */}
+        <div className="mb-5 flex items-center gap-2">
+          <span className="text-[11px] font-medium uppercase tracking-wide text-ink-muted mr-2">
+            Mode
+          </span>
+          <div
+            role="tablist"
+            aria-label="PO mode"
+            className="inline-flex rounded-md border border-line bg-bg-subtle p-0.5"
+          >
+            {(['single', 'split'] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                role="tab"
+                aria-selected={mode === m}
+                onClick={() => handleModeChange(m)}
+                className={cn(
+                  'h-8 px-3 rounded text-[13px] font-medium transition-colors',
+                  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+                  mode === m
+                    ? 'bg-bg-surface text-ink-primary shadow-sm'
+                    : 'text-ink-muted hover:text-ink-primary',
+                )}
+              >
+                {m === 'single' ? 'Single outlet' : 'Split across outlets'}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <h2 className="text-[11px] font-mono uppercase tracking-widest text-ink-muted mb-4">
+          Header
+        </h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
         {/* Supplier */}
         <Field label="Supplier *" error={errors.supplierId?.message}>
           <select
-            {...register('supplierId')}
+            {...supplierRegistration}
+            onChange={(e) => {
+              if (e.target.value === SENTINEL_ADD_SUPPLIER) {
+                e.preventDefault();
+                // Revert to the currently-watched supplierId (pre-change value
+                // on this render) — preserves the user's existing selection
+                // when they open the dialog without committing the sentinel.
+                setValue('supplierId', supplierId ?? '', {
+                  shouldValidate: true,
+                });
+                setNewSupplierOpen(true);
+                return;
+              }
+              supplierRegistration.onChange(e);
+            }}
             className={selectCls}
             aria-label="Supplier"
           >
@@ -89,23 +171,46 @@ export function NewPoHeaderSection({ suppliers }: NewPoHeaderSectionProps) {
                 ))}
               </optgroup>
             )}
+            {/* Sentinel — always last */}
+            <optgroup label="—">
+              <option value={SENTINEL_ADD_SUPPLIER}>+ Add new supplier</option>
+            </optgroup>
           </select>
         </Field>
 
-        {/* Outlet */}
-        <Field label="Outlet *" error={errors.outletId?.message}>
-          <select
-            {...register('outletId')}
-            className={selectCls}
-            aria-label="Outlet"
-          >
-            {OUTLET_ORDER.map((id) => (
-              <option key={id} value={id}>
-                {OUTLET_NAMES[id] ?? id}
-              </option>
-            ))}
-          </select>
-        </Field>
+        {/* Outlet — hidden in split mode (one PO per outlet) */}
+        {mode === 'single' && (
+          <Field label="Outlet *" error={errors.outletId?.message}>
+            <select
+              {...register('outletId')}
+              className={selectCls}
+              aria-label="Outlet"
+            >
+              {OUTLET_ORDER.map((id) => (
+                <option key={id} value={id}>
+                  {OUTLET_NAMES[id] ?? id}
+                </option>
+              ))}
+            </select>
+          </Field>
+        )}
+
+        {mode === 'split' && (
+          <div className="md:col-start-2 flex flex-col gap-1.5 justify-end">
+            <span className="text-[11px] font-medium uppercase tracking-wide text-ink-muted">
+              Split
+            </span>
+            <div
+              className={cn(
+                'h-10 flex items-center gap-2 rounded-md px-3',
+                'border-l-4 border-l-accent border border-line bg-bg-subtle',
+                'text-[13px] text-ink-secondary',
+              )}
+            >
+              Splitting across BLR / MUM / CHE — 1 PO per non-empty outlet on submit.
+            </div>
+          </div>
+        )}
 
         {/* Expected Delivery */}
         <Field
@@ -182,8 +287,15 @@ export function NewPoHeaderSection({ suppliers }: NewPoHeaderSectionProps) {
             )}
           />
         </Field>
-      </div>
-    </section>
+        </div>
+      </section>
+
+      <NewSupplierDialog
+        open={newSupplierOpen}
+        onClose={() => setNewSupplierOpen(false)}
+        onCreated={handleSupplierCreated}
+      />
+    </>
   );
 }
 

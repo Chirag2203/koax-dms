@@ -136,6 +136,7 @@ export const PurchaseOrderSchema = z.object({
   fxRate: z.number().optional(),
   notes: z.string().optional(),
   linkedJobCardId: z.string().optional(), // Service-originated PO
+  groupRef: z.string().optional(), // P4.1 — links sibling POs from multi-outlet split submission
 });
 export type PurchaseOrder = z.infer<typeof PurchaseOrderSchema>;
 

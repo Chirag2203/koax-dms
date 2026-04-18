@@ -7,10 +7,11 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Factory } from 'lucide-react';
+import { Factory, Plus } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
+import { cn } from '@dms/ui';
 import type { Supplier } from '@dms/types';
-import { DataTable, AmountCell } from '@/src/components/primitives';
+import { DataTable, AmountCell, Gate } from '@/src/components/primitives';
 import { usePartsStore } from '@/src/lib/parts/parts-store';
 import {
   activePoCount,
@@ -19,12 +20,14 @@ import {
   lifetimeValue,
 } from '../helpers';
 import { SupplierDetailPanel } from '../supplier-detail-panel';
+import { NewSupplierDialog } from '../new-supplier-dialog';
 
 export function SuppliersTab() {
   const suppliers = usePartsStore((s) => s.suppliers);
   const purchaseOrders = usePartsStore((s) => s.purchaseOrders);
 
   const [selected, setSelected] = useState<string | null>(null);
+  const [newOpen, setNewOpen] = useState(false);
 
   // Pre-compute aggregates once per (suppliers, pos) tuple so row renders stay cheap.
   const enriched = useMemo(
@@ -120,6 +123,34 @@ export function SuppliersTab() {
 
   return (
     <div className="flex flex-col gap-4 p-6">
+      {/* Tab subheader with title + count + CTA */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-baseline gap-2">
+          <h2 className="text-base font-semibold text-ink-primary">Suppliers</h2>
+          <span className="text-sm text-ink-muted">
+            · {suppliers.length} total
+          </span>
+        </div>
+        <Gate
+          role={['R12', 'R19', 'R22', 'R24']}
+          fallback="tooltip"
+          tooltipMessage="Requires Parts Manager role"
+        >
+          <button
+            type="button"
+            onClick={() => setNewOpen(true)}
+            className={cn(
+              'inline-flex items-center gap-1.5 h-9 px-3 rounded-md bg-accent text-white',
+              'text-sm font-medium hover:bg-accent/90 transition-colors',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+            )}
+          >
+            <Plus className="h-3.5 w-3.5" aria-hidden="true" />
+            New Supplier
+          </button>
+        </Gate>
+      </div>
+
       <DataTable
         columns={columns}
         data={enriched}
@@ -137,6 +168,7 @@ export function SuppliersTab() {
         supplierId={selected}
         onClose={() => setSelected(null)}
       />
+      <NewSupplierDialog open={newOpen} onClose={() => setNewOpen(false)} />
     </div>
   );
 }

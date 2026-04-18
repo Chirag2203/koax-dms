@@ -18,15 +18,55 @@ export function computeLineTotal(qty: number, unitPrice: number): number {
   return Math.round(qty * unitPrice);
 }
 
+/** Total qty on a line — sums single `qty` or sums `qtyByOutlet` entries. */
+export function lineQty(line: NewPoLineValues): number {
+  if (line.qty != null) return line.qty;
+  if (line.qtyByOutlet) {
+    return (
+      (line.qtyByOutlet['BLR-01'] ?? 0) +
+      (line.qtyByOutlet['MUM-01'] ?? 0) +
+      (line.qtyByOutlet['CHE-01'] ?? 0)
+    );
+  }
+  return 0;
+}
+
 export function computePoTotals(
   lines: NewPoLineValues[],
 ): { subtotal: number; gst: number; total: number } {
   const subtotal = lines.reduce(
-    (acc, l) => acc + computeLineTotal(l.qty || 0, l.unitPrice || 0),
+    (acc, l) => acc + computeLineTotal(lineQty(l), l.unitPrice || 0),
     0,
   );
   const gst = Math.round(subtotal * GST_RATE);
   return { subtotal, gst, total: subtotal + gst };
+}
+
+/**
+ * Per-outlet rollup for split-mode summary rail.
+ * Returns one entry per outlet with its line count + subtotal.
+ */
+export function computeSplitOutletBreakdown(
+  lines: NewPoLineValues[],
+): Array<{ outletId: 'BLR-01' | 'MUM-01' | 'CHE-01'; lineCount: number; subtotal: number }> {
+  const outlets: Array<'BLR-01' | 'MUM-01' | 'CHE-01'> = ['BLR-01', 'MUM-01', 'CHE-01'];
+  return outlets.map((outletId) => {
+    let lineCount = 0;
+    let subtotal = 0;
+    for (const l of lines) {
+      const q = l.qtyByOutlet?.[outletId] ?? 0;
+      if (q > 0) {
+        lineCount += 1;
+        subtotal += computeLineTotal(q, l.unitPrice || 0);
+      }
+    }
+    return { outletId, lineCount, subtotal };
+  });
+}
+
+/** Count of outlets receiving at least one line. Used for Submit label. */
+export function countNonZeroOutlets(lines: NewPoLineValues[]): number {
+  return computeSplitOutletBreakdown(lines).filter((b) => b.lineCount > 0).length;
 }
 
 // ─── Line ID generator — collision-safe under rapid submits ──────────────────
@@ -81,6 +121,8 @@ export function buildPrefillDefaults(
   prefill: PrefillInputs,
 ): NewPoFormValues {
   const { part, supplier, outletId, linkedJobCardId } = prefill;
+  // Pre-fill is always single-mode — deep-links come from "Raise PO for a part"
+  // workflows where the user is targeting one outlet (§11.1).
   const firstLine: NewPoLineValues = part
     ? {
         partCode: part.partCode,
@@ -91,6 +133,7 @@ export function buildPrefillDefaults(
 
   return {
     ...base,
+    mode: 'single',
     supplierId: supplier?.id ?? base.supplierId,
     outletId: outletId ?? base.outletId,
     isImport: deriveImportFromSupplier(supplier),
@@ -109,19 +152,23 @@ export function mapFormToCreateInput(
   values: NewPoFormValues,
   supplier: Supplier | undefined,
   createdByStaffId: string,
+  overrideOutletId?: 'BLR-01' | 'MUM-01' | 'CHE-01',
+  overrideLines?: NewPoLineValues[],
+  groupRef?: string,
 ): Omit<PurchaseOrder, 'id' | 'poNo' | 'createdAt' | 'status'> {
-  const totals = computePoTotals(values.lines);
+  const effectiveLines = overrideLines ?? values.lines;
+  const totals = computePoTotals(effectiveLines);
 
   return {
     supplierId: values.supplierId,
-    outletId: values.outletId,
+    outletId: overrideOutletId ?? values.outletId,
     createdBy: createdByStaffId,
-    lines: values.lines.map((l, idx) => ({
+    lines: effectiveLines.map((l, idx) => ({
       id: makeLineId(idx),
       partCode: l.partCode,
-      qty: l.qty,
+      qty: lineQty(l),
       unitPrice: l.unitPrice,
-      lineTotal: computeLineTotal(l.qty, l.unitPrice),
+      lineTotal: computeLineTotal(lineQty(l), l.unitPrice),
     })),
     subtotal: totals.subtotal,
     gst: totals.gst,
@@ -131,7 +178,58 @@ export function mapFormToCreateInput(
     fxRate: values.isImport ? values.fxRate : undefined,
     notes: values.notes?.trim() ? values.notes.trim() : undefined,
     linkedJobCardId: values.linkedJobCardId,
+    groupRef,
   };
+}
+
+/**
+ * Derive N sibling PO payloads from a split-mode form. One PO per outlet that
+ * has at least one non-zero line; outlets with all-zero lines are skipped.
+ *
+ * Each sibling gets the shared `groupRef` stamp (PLAN-PARTS-005 §6).
+ */
+export function deriveSplitPos(
+  values: NewPoFormValues,
+  supplier: Supplier | undefined,
+  createdByStaffId: string,
+  groupRef: string,
+): Array<Omit<PurchaseOrder, 'id' | 'poNo' | 'createdAt' | 'status'>> {
+  const outlets: Array<'BLR-01' | 'MUM-01' | 'CHE-01'> = [
+    'BLR-01',
+    'MUM-01',
+    'CHE-01',
+  ];
+  const payloads: Array<Omit<PurchaseOrder, 'id' | 'poNo' | 'createdAt' | 'status'>> = [];
+  for (const outletId of outlets) {
+    const linesForOutlet: NewPoLineValues[] = values.lines
+      .filter((l) => (l.qtyByOutlet?.[outletId] ?? 0) > 0)
+      .map((l) => ({
+        partCode: l.partCode,
+        qty: l.qtyByOutlet?.[outletId] ?? 0,
+        unitPrice: l.unitPrice,
+      }));
+    if (linesForOutlet.length === 0) continue;
+    payloads.push(
+      mapFormToCreateInput(
+        values,
+        supplier,
+        createdByStaffId,
+        outletId,
+        linesForOutlet,
+        groupRef,
+      ),
+    );
+  }
+  return payloads;
+}
+
+/** Shared group-ref generator for multi-outlet split POs. */
+export function makeGroupRef(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return `pogroup-${crypto.randomUUID().slice(0, 8)}`;
+  }
+  const rand = Math.random().toString(36).slice(2, 7);
+  return `pogroup-${Date.now()}-${rand}`;
 }
 
 // ─── Duplicate-partCode detector (for soft warning chip) ─────────────────────

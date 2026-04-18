@@ -7,12 +7,14 @@
 
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Pencil } from 'lucide-react';
 import { cn } from '@dms/ui';
 import type { Part } from '@dms/types';
-import { StateChip } from '@/src/components/primitives';
+import { Gate, StateChip } from '@/src/components/primitives';
 import { stockStatusFor, stockStatusToChip } from '../helpers';
+import { EditPartDialog } from '../edit-part-dialog';
 
 export interface PartHeaderProps {
   part: Part;
@@ -23,6 +25,7 @@ function titleCase(s: string): string {
 }
 
 export function PartHeader({ part }: PartHeaderProps) {
+  const [editOpen, setEditOpen] = useState(false);
   const stockStatus = stockStatusFor(part);
   const isCriticalChip =
     part.criticality === 'CRITICAL' || part.criticality === 'SAFETY';
@@ -92,6 +95,25 @@ export function PartHeader({ part }: PartHeaderProps) {
           >
             New GRN
           </Link>
+          <Gate
+            role={['R12', 'R19', 'R22', 'R24']}
+            fallback="tooltip"
+            tooltipMessage="Requires Parts Manager role"
+          >
+            <button
+              type="button"
+              onClick={() => setEditOpen(true)}
+              className={cn(
+                'inline-flex items-center gap-2 h-10 px-4 rounded-md border border-line',
+                'bg-bg-surface text-sm font-medium text-ink-primary',
+                'hover:bg-bg-subtle transition-colors',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1',
+              )}
+            >
+              <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+              Edit
+            </button>
+          </Gate>
           <Link
             href={`/parts/po/new?part=${encodeURIComponent(part.partCode)}`}
             className={cn(
@@ -104,6 +126,11 @@ export function PartHeader({ part }: PartHeaderProps) {
           </Link>
         </div>
       </div>
+      <EditPartDialog
+        part={part}
+        open={editOpen}
+        onClose={() => setEditOpen(false)}
+      />
     </>
   );
 }

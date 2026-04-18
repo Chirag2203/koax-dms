@@ -27,6 +27,9 @@ import { NewPoFormSchema, defaultsForNewPo } from './new-po-schema';
 import type { NewPoFormValues } from './new-po-schema';
 import {
   buildPrefillDefaults,
+  countNonZeroOutlets,
+  deriveSplitPos,
+  makeGroupRef,
   mapFormToCreateInput,
   staffOutletToOutletId,
 } from './new-po-helpers';
@@ -99,9 +102,19 @@ export function NewPurchaseOrderForm({
   });
   const {
     handleSubmit,
+    watch,
     formState: { isDirty, isSubmitting },
     reset,
   } = methods;
+
+  // Split-mode gating for the top-header Submit button
+  const watchedMode = watch('mode');
+  const watchedLines = watch('lines');
+  const splitNonZeroOutlets =
+    watchedMode === 'split' ? countNonZeroOutlets(watchedLines ?? []) : 1;
+  const topSubmitDisabled =
+    isSubmitting ||
+    (watchedMode === 'split' && splitNonZeroOutlets === 0);
 
   // Re-seed when deep-link changes (rare — but keeps the form reactive)
   useEffect(() => {
@@ -116,14 +129,29 @@ export function NewPurchaseOrderForm({
     }
     const actor: Actor = { id: user.id, name: user.name };
     const supplier = suppliers.find((s) => s.id === values.supplierId);
+
+    if (values.mode === 'split') {
+      // Derive N sibling POs (one per non-zero outlet) linked by a shared groupRef
+      const groupRef = makeGroupRef();
+      const payloads = deriveSplitPos(values, supplier, user.id, groupRef);
+      const siblings = payloads.map((input) =>
+        usePartsStore.getState().createPurchaseOrder(input, actor),
+      );
+      const poNos = siblings.map((p) => p.poNo).join(' · ');
+      toast(
+        `Created ${siblings.length} ${siblings.length === 1 ? 'PO' : 'POs'}: ${poNos}`,
+        'success',
+      );
+      setTimeout(() => {
+        router.push(`/parts?tab=po&group=${encodeURIComponent(groupRef)}`);
+      }, 600);
+      return;
+    }
+
+    // Single-outlet mode
     const input = mapFormToCreateInput(values, supplier, user.id);
-
-    const newPo = usePartsStore
-      .getState()
-      .createPurchaseOrder(input, actor);
-
+    const newPo = usePartsStore.getState().createPurchaseOrder(input, actor);
     toast(`${newPo.poNo} created as Draft`, 'success');
-    // Give the toast 600ms of visibility before navigating away (spec §6.1)
     setTimeout(() => {
       router.push(`/parts/po/${newPo.id}`);
     }, 600);
@@ -195,7 +223,7 @@ export function NewPurchaseOrderForm({
             <button
               type="submit"
               form="new-po-form"
-              disabled={isSubmitting}
+              disabled={topSubmitDisabled}
               aria-busy={isSubmitting}
               className={cn(
                 'h-10 px-4 rounded-md bg-accent text-white text-sm font-medium',
@@ -204,7 +232,11 @@ export function NewPurchaseOrderForm({
                 'disabled:opacity-50 disabled:cursor-not-allowed',
               )}
             >
-              {isSubmitting ? 'Creating…' : 'Submit'}
+              {isSubmitting
+                ? 'Creating…'
+                : watchedMode === 'split' && splitNonZeroOutlets > 0
+                  ? `Submit (${splitNonZeroOutlets} ${splitNonZeroOutlets === 1 ? 'PO' : 'POs'})`
+                  : 'Submit'}
             </button>
           </div>
         </div>

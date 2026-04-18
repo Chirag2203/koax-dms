@@ -83,24 +83,29 @@ export function PurchaseOrdersTab() {
   const purchaseOrders = usePartsStore((s) => s.purchaseOrders);
   const suppliers = usePartsStore((s) => s.suppliers);
 
-  // Read-once deep-link from Suppliers panel: if ?supplier=<id> is present,
-  // seed the supplier filter. Subsequent user changes are not re-synced.
+  // Read-once deep-links from the module:
+  //   - ?supplier=<id> seeded from SupplierDetailPanel "View POs"
+  //   - ?group=<ref>   seeded from split-PO submit (P4.1)
+  // Both exceptions to the spec §3 "no filter URL persistence" — documented
+  // in PLAN-PARTS-002 §3 and PLAN-PARTS-005 §6.7.
   const initialSupplier = searchParams.get('supplier');
+  const initialGroup = searchParams.get('group');
   const [filters, setFilters] = useState<PoFilters>(() => ({
     ...DEFAULT_PO_FILTERS,
     supplierId:
       initialSupplier && suppliers.some((s) => s.id === initialSupplier)
         ? initialSupplier
         : 'ALL',
-    // When a supplier is pre-filtered, broaden the date range so the user
-    // sees all POs for that supplier regardless of recency.
-    dateRange: initialSupplier ? 'all' : 'this-month',
+    // Widen date range when any deep-link filter is active.
+    dateRange: initialSupplier || initialGroup ? 'all' : 'this-month',
   }));
 
   const filtered = useMemo(
     () =>
       purchaseOrders
         .filter((po) => {
+          // Group-ref filter (read-once, not in `filters` state)
+          if (initialGroup && po.groupRef !== initialGroup) return false;
           if (filters.status !== 'ALL' && po.status !== filters.status) return false;
           if (filters.supplierId !== 'ALL' && po.supplierId !== filters.supplierId)
             return false;
@@ -122,7 +127,7 @@ export function PurchaseOrdersTab() {
         .sort(
           (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
         ),
-    [purchaseOrders, suppliers, filters],
+    [purchaseOrders, suppliers, filters, initialGroup],
   );
 
   const columns = useMemo(() => buildPoColumns({ suppliers }), [suppliers]);
@@ -130,6 +135,32 @@ export function PurchaseOrdersTab() {
 
   return (
     <div className="flex flex-col gap-4 p-6">
+      {initialGroup && (
+        <div
+          role="note"
+          className={cn(
+            'flex items-center justify-between gap-4',
+            'rounded-md border border-line bg-bg-subtle',
+            'border-l-4 border-l-accent',
+            'px-4 py-3 text-sm',
+          )}
+        >
+          <span className="text-ink-primary">
+            Showing {filtered.length}{' '}
+            {filtered.length === 1 ? 'PO' : 'POs'} in group{' '}
+            <span className="font-mono text-[13px] text-ink-primary bg-bg-surface border border-line rounded px-1.5 py-0.5 ml-1">
+              {initialGroup}
+            </span>
+          </span>
+          <button
+            type="button"
+            onClick={() => router.push('/parts?tab=po')}
+            className="text-[13px] font-medium text-accent hover:text-accent/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+          >
+            Clear filter
+          </button>
+        </div>
+      )}
       {/* Filter bar */}
       <div
         className={cn(

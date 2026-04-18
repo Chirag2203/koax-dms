@@ -75,6 +75,7 @@ cap. Columns files are leaf modules (import helpers + primitives; export a
 
 - Primary tab: `?tab=<id>`. Valid ids: `stock-list`, `low-stock`, `po`, `grn`, `suppliers`. Unknown or missing → `stock-list`. Default value is NOT written to URL on first mount (matches service).
 - Secondary filter state (outlet / brand / category / criticality / search / has-discrepancy / date range / status) — NOT synced to URL in P2. `useState` per tab.
+- **Documented exceptions (read-once deep-links, not full URL sync):** `?supplier=<id>` (PO tab initial filter seed — added alongside SupplierDetailPanel "View POs" link); `?group=<ref>` (PO tab initial filter seed — added in P4.1 for multi-outlet Split PO sibling navigation, see PLAN-PARTS-005 §6.7). Both are read once on PO-tab mount into initial `useState`; subsequent user changes are not re-synced back to URL.
 - `?part=<code>` deep-link into `/parts/po/new` is read in P4 (out of scope here).
 - Row-click navigation uses `router.push` (not `replace`) so the landing page is in history.
 

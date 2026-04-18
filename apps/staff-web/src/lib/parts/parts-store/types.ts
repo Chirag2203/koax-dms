@@ -42,6 +42,11 @@ export interface PartsState {
 
 export interface PartActions {
   updatePart(partCode: string, patch: Partial<Part>, actor: Actor): void;
+  /**
+   * Create a new Part. Throws `Error('PART_CODE_EXISTS')` on duplicate.
+   * Added in P4.1 (PLAN-PARTS-005 §2.1).
+   */
+  createPart(input: Part, actor: Actor): Part;
 }
 
 export interface SupplierActions {
