@@ -363,7 +363,7 @@ export function StaffSidebar() {
               role="menu"
               aria-label="User menu"
               className={[
-                'absolute bottom-full mb-1 bg-bg-surface border border-line-strong rounded-md shadow-3 overflow-hidden z-50 py-1',
+                'absolute bottom-full mb-1 bg-bg-surface border border-line-strong rounded-md shadow-3 z-50 py-1',
                 collapsed ? 'left-full ml-2 w-48' : 'left-0 right-0',
               ].join(' ')}
             >
