@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTranslations } from 'next-intl';
@@ -111,7 +112,11 @@ export function StaffSidebar() {
   // User dropdown
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [roleSwitchOpen, setRoleSwitchOpen] = useState(false);
+  const [roleMenuPos, setRoleMenuPos] = useState<{ top: number; left: number } | null>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const roleTriggerRef = useRef<HTMLButtonElement>(null);
+  const rolePortalRef = useRef<HTMLDivElement>(null);
+  const [portalReady, setPortalReady] = useState(false);
 
   const { user, signOut, switchRole } = useStaffAuth();
   const { outlet, setOutlet } = useOutlet();
@@ -138,13 +143,18 @@ export function StaffSidebar() {
     }
   };
 
-  // Close dropdowns on outside click
+  // Close dropdowns on outside click (role-switch portal is outside the
+  // sidebar DOM so we also test it explicitly before closing).
   useEffect(() => {
     function handleClick(e: MouseEvent) {
-      if (outletRef.current && !outletRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (outletRef.current && !outletRef.current.contains(target)) {
         setOutletOpen(false);
       }
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+      const inUserMenu =
+        (userMenuRef.current && userMenuRef.current.contains(target)) ||
+        (rolePortalRef.current && rolePortalRef.current.contains(target));
+      if (!inUserMenu) {
         setUserMenuOpen(false);
         setRoleSwitchOpen(false);
       }
@@ -152,6 +162,31 @@ export function StaffSidebar() {
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
+
+  // Portal readiness (SSR guard)
+  useEffect(() => {
+    setPortalReady(true);
+  }, []);
+
+  // Measure the role-switch submenu anchor whenever it opens or the viewport
+  // changes. Submenu is rendered via portal because the sidebar <aside> has
+  // overflow-hidden (for the collapse animation) which otherwise clips it.
+  useEffect(() => {
+    if (!roleSwitchOpen) return;
+    function update() {
+      const btn = roleTriggerRef.current;
+      if (!btn) return;
+      const r = btn.getBoundingClientRect();
+      setRoleMenuPos({ top: r.top, left: r.right + 4 });
+    }
+    update();
+    window.addEventListener('resize', update);
+    window.addEventListener('scroll', update, true);
+    return () => {
+      window.removeEventListener('resize', update);
+      window.removeEventListener('scroll', update, true);
+    };
+  }, [roleSwitchOpen]);
 
   const isActive = (href: string) => {
     if (href === '/dashboard') return pathname === '/dashboard' || pathname === '/';
@@ -367,74 +402,24 @@ export function StaffSidebar() {
                 collapsed ? 'left-full ml-2 w-48' : 'left-0 right-0',
               ].join(' ')}
             >
-              {/* Switch role — dev-affordance (PLAN-PARTS-007 §3) */}
-              <div className="relative">
-                <button
-                  type="button"
-                  role="menuitem"
-                  aria-haspopup="menu"
-                  aria-expanded={roleSwitchOpen}
-                  onClick={() => setRoleSwitchOpen((o) => !o)}
-                  className="flex items-center gap-2 w-full px-3 h-9 text-left hover:bg-bg-hover text-ink-secondary hover:text-ink-primary transition-colors duration-100 text-[13px]"
-                >
-                  <UserCog size={14} aria-hidden="true" />
-                  <span className="flex-1">Switch role</span>
-                  <ChevronDown
-                    size={12}
-                    className={`transition-transform ${roleSwitchOpen ? '-rotate-90' : '-rotate-90'}`}
-                    aria-hidden="true"
-                  />
-                </button>
-
-                {roleSwitchOpen && (
-                  <div
-                    role="menu"
-                    aria-label="Switch role"
-                    className="absolute left-full ml-1 -top-1 bg-bg-surface border border-line-strong rounded-md shadow-3 overflow-hidden z-50 py-1 w-60"
-                  >
-                    <div className="px-3 py-1.5 text-[10px] uppercase tracking-widest text-ink-muted border-b border-line">
-                      Dev — test role gates
-                    </div>
-                    {MOCK_STAFF_PROFILES.map((profile) => {
-                      const active = user?.role === profile.role;
-                      return (
-                        <button
-                          key={profile.role}
-                          type="button"
-                          role="menuitemradio"
-                          aria-checked={active}
-                          onClick={() => {
-                            switchRole(profile.role);
-                            setRoleSwitchOpen(false);
-                            setUserMenuOpen(false);
-                          }}
-                          className="flex items-center gap-2 w-full px-3 h-10 text-left hover:bg-bg-hover text-ink-secondary hover:text-ink-primary transition-colors duration-100"
-                        >
-                          <span
-                            className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/80 flex items-center justify-center font-mono text-[10px] font-medium text-white leading-none uppercase"
-                            aria-hidden="true"
-                          >
-                            {profile.avatar}
-                          </span>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-[13px] text-ink-primary truncate leading-tight">
-                              {profile.name}
-                            </div>
-                            <div className="text-[10px] text-ink-muted truncate">
-                              <span className="font-mono">{profile.role}</span>
-                              <span className="mx-1">·</span>
-                              {profile.roleName}
-                            </div>
-                          </div>
-                          {active && (
-                            <Check size={12} className="text-accent flex-shrink-0" aria-hidden="true" />
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
+              {/* Switch role — trigger only; submenu is portaled below */}
+              <button
+                ref={roleTriggerRef}
+                type="button"
+                role="menuitem"
+                aria-haspopup="menu"
+                aria-expanded={roleSwitchOpen}
+                onClick={() => setRoleSwitchOpen((o) => !o)}
+                className="flex items-center gap-2 w-full px-3 h-9 text-left hover:bg-bg-hover text-ink-secondary hover:text-ink-primary transition-colors duration-100 text-[13px]"
+              >
+                <UserCog size={14} aria-hidden="true" />
+                <span className="flex-1">Switch role</span>
+                <ChevronDown
+                  size={12}
+                  className="-rotate-90"
+                  aria-hidden="true"
+                />
+              </button>
 
               {/* Profile */}
               <button
@@ -521,6 +506,61 @@ export function StaffSidebar() {
           )}
         </button>
       </div>
+
+      {/* Role-switch submenu — portaled out of the <aside> (which has
+          overflow-hidden for the collapse animation) so it isn't clipped. */}
+      {portalReady && roleSwitchOpen && roleMenuPos &&
+        createPortal(
+          <div
+            ref={rolePortalRef}
+            role="menu"
+            aria-label="Switch role"
+            style={{ position: 'fixed', top: roleMenuPos.top, left: roleMenuPos.left }}
+            className="bg-bg-surface border border-line-strong rounded-md shadow-3 overflow-hidden z-[100] py-1 w-60"
+          >
+            <div className="px-3 py-1.5 text-[10px] uppercase tracking-widest text-ink-muted border-b border-line">
+              Dev — test role gates
+            </div>
+            {MOCK_STAFF_PROFILES.map((profile) => {
+              const active = user?.role === profile.role;
+              return (
+                <button
+                  key={profile.role}
+                  type="button"
+                  role="menuitemradio"
+                  aria-checked={active}
+                  onClick={() => {
+                    switchRole(profile.role);
+                    setRoleSwitchOpen(false);
+                    setUserMenuOpen(false);
+                  }}
+                  className="flex items-center gap-2 w-full px-3 h-10 text-left hover:bg-bg-hover text-ink-secondary hover:text-ink-primary transition-colors duration-100"
+                >
+                  <span
+                    className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/80 flex items-center justify-center font-mono text-[10px] font-medium text-white leading-none uppercase"
+                    aria-hidden="true"
+                  >
+                    {profile.avatar}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[13px] text-ink-primary truncate leading-tight">
+                      {profile.name}
+                    </div>
+                    <div className="text-[10px] text-ink-muted truncate">
+                      <span className="font-mono">{profile.role}</span>
+                      <span className="mx-1">·</span>
+                      {profile.roleName}
+                    </div>
+                  </div>
+                  {active && (
+                    <Check size={12} className="text-accent flex-shrink-0" aria-hidden="true" />
+                  )}
+                </button>
+              );
+            })}
+          </div>,
+          document.body,
+        )}
     </aside>
   );
 }
