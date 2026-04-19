@@ -161,6 +161,20 @@ interface ServiceActions {
   addPart(jobCardId: string, part: Omit<PartsLine, 'id'>, actor: Actor): PartsLine;
   updatePart(lineId: string, patch: Partial<PartsLine>, actor: Actor): void;
   deletePart(lineId: string, actor: Actor): void;
+  /**
+   * Flip REQUESTED partsLines to RESERVED when matching stock arrives via a
+   * posted GRN. Called by the Parts module's post-grn-dialog on successful
+   * POST — keeps the Parts store free of a hard service-store import (cross-
+   * store wiring lives in the UI layer). Partial reservations (delta.qty <
+   * line.qty) are not supported in v1 — the whole line flips atomically.
+   *
+   * Spec reference: PLAN-PARTS-007 §2
+   */
+  reserveJobCardParts(
+    jobCardId: string,
+    deltas: Array<{ partCode: string; qty: number }>,
+    actor: Actor,
+  ): void;
 
   /** Inspection */
   startInspection(jobCardId: string, actor: Actor): Inspection;
@@ -531,6 +545,44 @@ export const useServiceStore = create<ServiceStore>()(
               });
               break;
             }
+          }
+        });
+      },
+
+      reserveJobCardParts(jobCardId, deltas, actor) {
+        set((state) => {
+          const jc = findJC(state, jobCardId);
+          if (!jc) return;
+
+          // Track per-partCode remaining delta so multiple REQUESTED lines for
+          // the same partCode consume the GRN's received qty in fixture order.
+          const remaining = new Map<string, number>();
+          for (const d of deltas) {
+            remaining.set(d.partCode, (remaining.get(d.partCode) ?? 0) + d.qty);
+          }
+
+          for (const line of jc.partsLines) {
+            if (line.status !== 'REQUESTED') continue;
+            const avail = remaining.get(line.partCode) ?? 0;
+            if (avail <= 0) continue;
+            // v1: flip whole line atomically only when we have enough stock.
+            if (avail < line.qty) continue;
+            line.status = 'RESERVED';
+            remaining.set(line.partCode, avail - line.qty);
+
+            // Mirror to the flat partsLines array
+            const flat = state.partsLines.find((p) => p.id === line.id);
+            if (flat) flat.status = 'RESERVED';
+
+            pushEvent(state, {
+              jobCardId,
+              at: now(),
+              actorId: actor.id,
+              actorName: actor.name,
+              type: 'part_reserved',
+              description: `Parts reserved from GRN posting: ${line.description}.`,
+              metadata: { lineId: line.id, partCode: line.partCode },
+            });
           }
         });
       },

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Plus, BookmarkCheck, PackageCheck, Wrench, RotateCcw, Pencil, Trash2, ExternalLink } from 'lucide-react';
 import { cn } from '@dms/ui';
 import { Gate, StateChip } from '@/src/components/primitives';
@@ -115,28 +116,27 @@ function PartsRow({ line, index, jobCardId, onEdit, toast }: PartsRowProps) {
           'hover:bg-accent/5 transition-colors',
         )}
       >
-        {/* Part Code */}
-        <span className="font-mono text-[11px] text-ink-secondary truncate">
+        {/* Part Code — cross-link to /parts/[partCode] detail (PLAN-PARTS-007 §3) */}
+        <Link
+          href={`/parts/${encodeURIComponent(line.partCode)}`}
+          className="font-mono text-[11px] text-accent hover:underline truncate focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent rounded"
+        >
           {line.partCode}
-        </span>
+        </Link>
 
-        {/* Description + shortage stub */}
+        {/* Description + shortage → Create PO (PLAN-PARTS-007 §3) */}
         <div className="min-w-0 pr-2">
           <span className="text-[13px] text-ink-primary truncate block">
             {line.description}
           </span>
           {isShortage && line.status === 'REQUESTED' && (
-            <a
-              href={`/parts/po/new?jobCard=${jobCardId}&part=${line.partCode}`}
-              onClick={(e) => {
-                e.preventDefault();
-                toast('S5 Parts module — coming soon', 'info');
-              }}
+            <Link
+              href={`/parts/po/new?jobCard=${jobCardId}&part=${encodeURIComponent(line.partCode)}`}
               className="inline-flex items-center gap-1 text-[11px] text-ink-muted hover:text-accent mt-0.5"
             >
               <ExternalLink className="h-2.5 w-2.5" aria-hidden="true" />
-              Create PO (S5)
-            </a>
+              Create PO
+            </Link>
           )}
         </div>
 

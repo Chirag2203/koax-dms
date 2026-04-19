@@ -25,8 +25,10 @@ export interface StaffUser {
 
 const STORAGE_KEY = 'bn-staff-user-v2';
 
-// 8 hardcoded staff profiles for dev role-switching (Doc 14 — 24 roles)
-const MOCK_STAFF_PROFILES: StaffUser[] = [
+// 8 hardcoded staff profiles for dev role-switching (Doc 14 — 24 roles).
+// Exported so the sidebar role switcher (PLAN-PARTS-007 §3) can list them
+// without duplicating the fixture data.
+export const MOCK_STAFF_PROFILES: StaffUser[] = [
   {
     id: 'staff-r05-001',
     name: 'Rahul Kumar',

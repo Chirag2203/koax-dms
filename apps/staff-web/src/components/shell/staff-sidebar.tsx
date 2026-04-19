@@ -26,9 +26,10 @@ import {
 } from 'lucide-react';
 
 // Providers created by Agent B — will resolve at compile time
-import { useStaffAuth } from '@/src/providers/staff-auth-provider';
+import { useStaffAuth, MOCK_STAFF_PROFILES } from '@/src/providers/staff-auth-provider';
 import { useOutlet } from '@/src/providers/outlet-provider';
 import { useTheme } from '@/src/providers/theme-provider';
+import { UserCog } from 'lucide-react';
 
 const SIDEBAR_STORAGE_KEY = 'bn-staff-sidebar-collapsed';
 
@@ -109,9 +110,10 @@ export function StaffSidebar() {
 
   // User dropdown
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [roleSwitchOpen, setRoleSwitchOpen] = useState(false);
   const userMenuRef = useRef<HTMLDivElement>(null);
 
-  const { user, signOut } = useStaffAuth();
+  const { user, signOut, switchRole } = useStaffAuth();
   const { outlet, setOutlet } = useOutlet();
   const { resolvedTheme, setTheme } = useTheme();
 
@@ -144,6 +146,7 @@ export function StaffSidebar() {
       }
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
         setUserMenuOpen(false);
+        setRoleSwitchOpen(false);
       }
     }
     document.addEventListener('mousedown', handleClick);
@@ -364,6 +367,75 @@ export function StaffSidebar() {
                 collapsed ? 'left-full ml-2 w-48' : 'left-0 right-0',
               ].join(' ')}
             >
+              {/* Switch role — dev-affordance (PLAN-PARTS-007 §3) */}
+              <div className="relative">
+                <button
+                  type="button"
+                  role="menuitem"
+                  aria-haspopup="menu"
+                  aria-expanded={roleSwitchOpen}
+                  onClick={() => setRoleSwitchOpen((o) => !o)}
+                  className="flex items-center gap-2 w-full px-3 h-9 text-left hover:bg-bg-hover text-ink-secondary hover:text-ink-primary transition-colors duration-100 text-[13px]"
+                >
+                  <UserCog size={14} aria-hidden="true" />
+                  <span className="flex-1">Switch role</span>
+                  <ChevronDown
+                    size={12}
+                    className={`transition-transform ${roleSwitchOpen ? '-rotate-90' : '-rotate-90'}`}
+                    aria-hidden="true"
+                  />
+                </button>
+
+                {roleSwitchOpen && (
+                  <div
+                    role="menu"
+                    aria-label="Switch role"
+                    className="absolute left-full ml-1 -top-1 bg-bg-surface border border-line-strong rounded-md shadow-3 overflow-hidden z-50 py-1 w-60"
+                  >
+                    <div className="px-3 py-1.5 text-[10px] uppercase tracking-widest text-ink-muted border-b border-line">
+                      Dev — test role gates
+                    </div>
+                    {MOCK_STAFF_PROFILES.map((profile) => {
+                      const active = user?.role === profile.role;
+                      return (
+                        <button
+                          key={profile.role}
+                          type="button"
+                          role="menuitemradio"
+                          aria-checked={active}
+                          onClick={() => {
+                            switchRole(profile.role);
+                            setRoleSwitchOpen(false);
+                            setUserMenuOpen(false);
+                          }}
+                          className="flex items-center gap-2 w-full px-3 h-10 text-left hover:bg-bg-hover text-ink-secondary hover:text-ink-primary transition-colors duration-100"
+                        >
+                          <span
+                            className="flex-shrink-0 w-6 h-6 rounded-full bg-accent/80 flex items-center justify-center font-mono text-[10px] font-medium text-white leading-none uppercase"
+                            aria-hidden="true"
+                          >
+                            {profile.avatar}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[13px] text-ink-primary truncate leading-tight">
+                              {profile.name}
+                            </div>
+                            <div className="text-[10px] text-ink-muted truncate">
+                              <span className="font-mono">{profile.role}</span>
+                              <span className="mx-1">·</span>
+                              {profile.roleName}
+                            </div>
+                          </div>
+                          {active && (
+                            <Check size={12} className="text-accent flex-shrink-0" aria-hidden="true" />
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
               {/* Profile */}
               <button
                 type="button"

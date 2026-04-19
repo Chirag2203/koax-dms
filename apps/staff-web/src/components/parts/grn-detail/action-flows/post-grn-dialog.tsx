@@ -11,6 +11,7 @@ import { useState, useMemo } from 'react';
 import type { Grn, PurchaseOrder } from '@dms/types';
 import { Dialog, ToastContainer } from '@/src/components/primitives';
 import { usePartsStore } from '@/src/lib/parts/parts-store';
+import { useServiceStore } from '@/src/lib/service/service-store';
 import { useStaffAuth } from '@/src/hooks/use-staff-auth';
 import { useToast } from '@/src/hooks/use-toast';
 import { previewPostEffects } from '../grn-detail-helpers';
@@ -54,6 +55,20 @@ export function PostGrnDialog({ open, onClose, grn, po }: PostGrnDialogProps) {
     setBusy(false);
 
     if (ok) {
+      // Cross-module wiring (PLAN-PARTS-007 §1): if the posted GRN's linked PO
+      // is tied to a job card, flip any matching REQUESTED parts to RESERVED.
+      if (po?.linkedJobCardId && preview.perPartDeltas.length > 0) {
+        try {
+          useServiceStore.getState().reserveJobCardParts(
+            po.linkedJobCardId,
+            preview.perPartDeltas.map((d) => ({ partCode: d.partCode, qty: d.delta })),
+            { id: user.id, name: user.name },
+          );
+        } catch {
+          // Service store not yet hydrated on this route — silent no-op
+          // (post already succeeded; reservation retry is a v2 concern).
+        }
+      }
       onClose();
       toast(
         `${grn.grnNo} posted · ${preview.movementCount} stock movement${preview.movementCount !== 1 ? 's' : ''} written`,
