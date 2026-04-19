@@ -177,7 +177,15 @@ export function StaffSidebar() {
       const btn = roleTriggerRef.current;
       if (!btn) return;
       const r = btn.getBoundingClientRect();
-      setRoleMenuPos({ top: r.top, left: r.right + 4 });
+      // 8 role rows × 40px + header 28px + padding ≈ 360px; cap to 80vh.
+      const MENU_MAX_H = Math.min(360, Math.floor(window.innerHeight * 0.8));
+      // Prefer aligning top with trigger, but flip upward if we'd overflow
+      // the viewport bottom. Always keep a 12px margin from the edges.
+      let top = r.top;
+      if (top + MENU_MAX_H > window.innerHeight - 12) {
+        top = Math.max(12, window.innerHeight - MENU_MAX_H - 12);
+      }
+      setRoleMenuPos({ top, left: r.right + 4 });
     }
     update();
     window.addEventListener('resize', update);
@@ -515,8 +523,13 @@ export function StaffSidebar() {
             ref={rolePortalRef}
             role="menu"
             aria-label="Switch role"
-            style={{ position: 'fixed', top: roleMenuPos.top, left: roleMenuPos.left }}
-            className="bg-bg-surface border border-line-strong rounded-md shadow-3 overflow-hidden z-[100] py-1 w-60"
+            style={{
+              position: 'fixed',
+              top: roleMenuPos.top,
+              left: roleMenuPos.left,
+              maxHeight: `min(360px, calc(100vh - 24px))`,
+            }}
+            className="bg-bg-surface border border-line-strong rounded-md shadow-3 overflow-y-auto overflow-x-hidden z-[100] py-1 w-60"
           >
             <div className="px-3 py-1.5 text-[10px] uppercase tracking-widest text-ink-muted border-b border-line">
               Dev — test role gates
