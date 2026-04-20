@@ -10,5 +10,7 @@ export const CustomerSchema = z.object({
   preferredCity: CityEnum,
   preferredLanguage: z.enum(['en-IN', 'hi-IN']),
   memberSince: z.string(),
+  /** PAN card number — used for auto-match fingerprinting (SPEC-VEHICLES-001 §3.4) */
+  pan: z.string().optional(),
 });
 export type Customer = z.infer<typeof CustomerSchema>;

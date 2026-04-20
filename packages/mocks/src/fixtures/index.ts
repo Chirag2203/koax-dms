@@ -2,7 +2,6 @@ export { vehicles } from './vehicles';
 export { outlets } from './outlets';
 export { articles } from './articles';
 export { serviceTypes } from './service-types';
-export { mockCustomer } from './customer';
 export {
   ownedVehicles,
   savedVehicles,
@@ -49,3 +48,12 @@ export {
   grns,
   stockMovements,
 } from './parts/index';
+export {
+  mockCustomer,
+  custBnDealer,
+  vehicleModuleCustomers,
+} from './customer';
+export { vehicleMasters } from './vehicles.fixtures';
+export { ownershipRows } from './ownership.fixtures';
+export { ownershipEvents } from './ownership-events.fixtures';
+export { ownershipClaims } from './ownership-claims.fixtures';

@@ -15,6 +15,7 @@
     "@dms/tokens": "workspace:*",
     "@dms/types": "workspace:*",
     "@dms/ui": "workspace:*",
+    "@dms/vehicles-core": "workspace:*",
     "@hookform/resolvers": "^3.4.0",
     "@tanstack/react-query": "^5.40.0",
     "@tanstack/react-table": "^8.17.0",

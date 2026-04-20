@@ -126,6 +126,9 @@ importers:
       '@dms/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@dms/vehicles-core':
+        specifier: workspace:*
+        version: link:../../packages/vehicles-core
       '@hookform/resolvers':
         specifier: ^3.4.0
         version: 3.10.0(react-hook-form@7.72.1(react@18.3.1))
@@ -327,6 +330,25 @@ importers:
       typescript:
         specifier: ^5.4.0
         version: 5.9.3
+
+  packages/vehicles-core:
+    dependencies:
+      '@dms/types':
+        specifier: workspace:*
+        version: link:../types
+      zod:
+        specifier: ^3.23.0
+        version: 3.25.76
+    devDependencies:
+      '@dms/config-typescript':
+        specifier: workspace:*
+        version: link:../config-typescript
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+      vitest:
+        specifier: ^1.6.0
+        version: 1.6.1(@types/node@20.19.39)
 
 packages:
 
