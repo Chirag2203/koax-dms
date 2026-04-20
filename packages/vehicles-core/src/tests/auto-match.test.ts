@@ -17,6 +17,7 @@ function makeCustomer(overrides: Partial<Customer> & { id: string; name: string 
     preferredCity: 'bangalore',
     preferredLanguage: 'en-IN',
     memberSince: '2023-01-01',
+    contactConfidential: false,
     ...overrides,
   };
 }

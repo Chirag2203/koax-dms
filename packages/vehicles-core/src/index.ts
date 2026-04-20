@@ -22,3 +22,6 @@ export type {
   OwnershipHistorySummary,
   ServiceRecordView,
 } from './view-types';
+
+export { maskedContactFor, R19_RANK } from './contact-mask';
+export type { ContactView } from './contact-mask';

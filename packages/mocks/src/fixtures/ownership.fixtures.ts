@@ -1,7 +1,8 @@
 // FIXTURE: demo data — SPEC-VEHICLES-001 §5
-// VehicleOwnership rows for all 3 demo VINs + VIN-X ghost.
+// FIXTURE AUDIT 2026-04-20 (PLAN-VEHICLES-002 §1.5): removed VIN-X anon row — ghost scenario retired
+// VehicleOwnership rows for all 3 demo VINs.
 // Covers all 5 ownership states: ACTIVE, TRANSFERRED, REVOKED, PENDING_CLAIM, REJECTED
-// Also demonstrates: GRACE, joint ownership, anonymized row.
+// Also demonstrates: GRACE, joint ownership.
 
 import type { VehicleOwnership } from '@dms/types';
 
@@ -197,27 +198,4 @@ export const ownershipRows: VehicleOwnership[] = [
     schemaVersion: 'v1',
   },
 
-  // ─── VIN-X: WBA5A5C5XFD654321 — 2017 BMW 5 Series — anonymized ghost ─────
-  // piiRetentionUntil is in the past; customerId replaced with anon sentinel.
-  // Demonstrates anonymized-row display in C360/portal (SPEC-VEHICLES-001 §5).
-  {
-    id: 'own-vinx-anon',
-    vin: 'WBA5A5C5XFD654321',
-    customerId: 'anon-1', // replaced by anonymizeRow()
-    source: 'BN_SALE',
-    state: 'TRANSFERRED',
-    isJoint: false,
-    fromAt: '2018-04-10T09:00:00.000Z',
-    toAt: '2023-01-15T10:00:00.000Z',
-    kmAtOpen: 5000,
-    kmAtClose: 102000,
-    kmStale: false,
-    closeReason: 'BN_SALE_TRANSFER',
-    createdBy: 'staff-blr-sm-01',
-    createdAt: '2018-04-10T09:00:00.000Z',
-    closedBy: 'staff-blr-sm-01',
-    closedAt: '2023-01-15T10:00:00.000Z',
-    piiRetentionUntil: '2023-01-14T00:00:00.000Z', // PAST — already anonymized
-    schemaVersion: 'v1',
-  },
 ];

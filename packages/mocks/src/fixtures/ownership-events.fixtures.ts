@@ -1,5 +1,6 @@
 // FIXTURE: demo data — SPEC-VEHICLES-001 §5
-// OwnershipChangeEvent append-only audit log for all demo VINs.
+// FIXTURE AUDIT 2026-04-20 (PLAN-VEHICLES-002 §1.5): removed VIN-X ANONYMIZE event — ghost scenario retired
+// OwnershipChangeEvent append-only audit log for all 3 demo VINs.
 
 import type { OwnershipChangeEvent } from '@dms/types';
 
@@ -233,16 +234,4 @@ export const ownershipEvents: OwnershipChangeEvent[] = [
     schemaVersion: 'v1',
   },
 
-  // ─── VIN-X event — anonymization ─────────────────────────────────────────
-  {
-    id: 'evt-vinx-001',
-    vin: 'WBA5A5C5XFD654321',
-    at: '2023-01-16T00:00:00.000Z',
-    kind: 'ANONYMIZE',
-    actorId: 'system',
-    actorRole: 'R24',
-    ownershipId: 'own-vinx-anon',
-    payload: { anonSentinel: 'anon-1', originalCustomerId: '[redacted]' },
-    schemaVersion: 'v1',
-  },
 ];

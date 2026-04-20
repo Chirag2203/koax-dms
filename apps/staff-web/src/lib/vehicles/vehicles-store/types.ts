@@ -120,6 +120,12 @@ export interface OwnershipActions {
       kmAtClose: number;
       kmAtOpen: number;
       linkedSalesOrderId?: string;
+      /**
+       * Override the close reason stamped on every discovered ACTIVE row.
+       * Defaults to 'BN_SALE_TRANSFER' when omitted.
+       * PLAN-VEHICLES-002 §A (L8: same reason for ALL discovered ACTIVE rows).
+       */
+      closeReason?: CloseReason;
     },
     actor: Actor,
   ): { closedIds: string[]; openedIds: string[] };

@@ -213,3 +213,4 @@ My defaults: #1 read-only in P2 + add `captureConsent` action scaffold for v2. #
 | Date | Change |
 |------|--------|
 | 2026-04-20 | SPEC-CUSTOMERS-001 drafted. Composes SPEC-VEHICLES-001. Status → approved. |
+| 2026-04-20 | PLAN-VEHICLES-002 Phase A: added `contactConfidential: boolean` field to `CustomerSchema` (default `false`); added `maskedContactFor(customer, viewerRank): ContactView` helper in `@dms/vehicles-core` — staff below R19 (rank 4) see masked phone/email/address when flag is true. `cust-karan-shah` is the sole demo fixture with `contactConfidential: true`. |

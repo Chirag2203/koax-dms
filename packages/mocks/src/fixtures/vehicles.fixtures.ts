@@ -1,5 +1,6 @@
 // FIXTURE: demo data — SPEC-VEHICLES-001 §5
-// 4 VehicleMaster records: VIN-A (BMW), VIN-B (Audi), VIN-C (Porsche), VIN-X (anonymized ghost)
+// 3 VehicleMaster records: VIN-A (BMW), VIN-B (Audi), VIN-C (Porsche)
+// FIXTURE AUDIT 2026-04-20 (PLAN-VEHICLES-002 §1.5): removed VIN-X anonymized ghost — no longer needed for demo scenarios
 
 import type { VehicleMaster } from '@dms/types';
 
@@ -55,21 +56,4 @@ export const vehicleMasters: VehicleMaster[] = [
     schemaVersion: 'v1',
   },
 
-  // ─── VIN-X: 2017 BMW 5 Series — anonymized ghost ──────────────────────────
-  // Demonstrates post-PII-TTL display: customerId replaced with anon-1
-  {
-    vin: 'WBA5A5C5XFD654321',
-    make: 'BMW',
-    model: '5 Series',
-    variant: '530d M Sport',
-    year: 2017,
-    color: 'Mineral Grey',
-    rcNumber: 'KA03GH3456',
-    firstTouchedAt: '2018-04-10T09:00:00.000Z',
-    firstTouchSource: 'BN_SALE',
-    firstTouchOutletId: 'BLR-01',
-    lastKnownKm: 102000,
-    lastKnownKmAt: '2023-01-15T10:00:00.000Z',
-    schemaVersion: 'v1',
-  },
 ];

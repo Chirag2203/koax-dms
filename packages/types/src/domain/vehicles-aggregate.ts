@@ -37,6 +37,10 @@ export const CloseReasonEnum = z.enum([
   'DECEASED_FORM31',
   'ERASURE_REQUEST',
   'REJECTED_CLAIM',
+  /** Vehicle consigned to BN Automobiles for sale on behalf of owner. PLAN-VEHICLES-002 §A */
+  'CONSIGNED_TO_BN',
+  /** Consignment agreement terminated — vehicle returned to owner. PLAN-VEHICLES-002 §A */
+  'CONSIGNMENT_RETURNED',
 ]);
 export type CloseReason = z.infer<typeof CloseReasonEnum>;
 
@@ -90,6 +94,12 @@ export const VehicleMasterSchema = z.object({
   lastKnownKmAt: z.string().datetime(),
   /** Link to inventory.Vehicle if applicable */
   inventoryVehicleVin: z.string().optional(),
+  /**
+   * True when onboarding data is saved but required fields (RC, photos, etc.)
+   * are still incomplete. Staff UI shows an amber banner until resolved.
+   * PLAN-VEHICLES-002 §A — metadataIncomplete flag.
+   */
+  metadataIncomplete: z.boolean().optional(),
   schemaVersion: z.literal('v1').default('v1'),
 });
 export type VehicleMaster = z.infer<typeof VehicleMasterSchema>;

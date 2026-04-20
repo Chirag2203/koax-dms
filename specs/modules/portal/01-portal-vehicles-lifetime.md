@@ -355,3 +355,4 @@ Decision made during P1 implementation based on audit output.
 | Date | Change |
 |------|--------|
 | 2026-04-20 | SPEC-PORTAL-VEHICLES-001 drafted. Depends on SPEC-VEHICLES-001. Status → approved. |
+| 2026-04-20 | PLAN-VEHICLES-002 Phase A (PII rule 8 — own-customer mask exception): portal adapter always returns raw contact for the authenticated customer viewing their own profile; `maskedContactFor` is a staff-surface concern only and is never called in portal-vehicle-adapter paths. |

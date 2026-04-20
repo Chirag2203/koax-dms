@@ -143,11 +143,13 @@ export const createOwnershipSlice: VehiclesSlice<CoreOwnershipActions> = (set) =
         .filter((r): r is VehicleOwnership => r?.state === 'ACTIVE');
 
       const transferAt = now();
+      // L8: same closeReason stamped on ALL discovered ACTIVE rows (PLAN-VEHICLES-002 §A)
+      const resolvedCloseReason = input.closeReason ?? 'BN_SALE_TRANSFER';
       const localClosedIds: string[] = [];
       for (const row of activeRows) {
         row.state = 'TRANSFERRED';
         row.toAt = transferAt;
-        row.closeReason = 'BN_SALE_TRANSFER';
+        row.closeReason = resolvedCloseReason;
         row.closedBy = actor.id;
         row.closedAt = transferAt;
         row.kmAtClose = input.kmAtClose;
@@ -158,7 +160,7 @@ export const createOwnershipSlice: VehiclesSlice<CoreOwnershipActions> = (set) =
           id: makeEventId(), vin, at: transferAt, kind: 'CLOSE',
           actorId: actor.id, actorRole: actor.role ?? 'UNKNOWN',
           ownershipId: row.id,
-          payload: { reason: 'BN_SALE_TRANSFER', kmAtClose: input.kmAtClose },
+          payload: { reason: resolvedCloseReason, kmAtClose: input.kmAtClose },
           schemaVersion: 'v1',
         });
       }

@@ -84,6 +84,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         preferredCity: data.preferredCity,
         preferredLanguage: data.preferredLanguage,
         memberSince: new Date().toISOString().split('T')[0] ?? '',
+        contactConfidential: false,
       };
       localStorage.setItem(STORAGE_KEY, JSON.stringify(customer));
       setUser(customer);
