@@ -9,6 +9,7 @@ import { SalesPipelinePanel } from '@/src/components/dashboard/sales-pipeline-pa
 import { ServiceBayPanel } from '@/src/components/dashboard/service-bay-panel';
 import { ActivityFeed } from '@/src/components/dashboard/activity-feed';
 import { AlertsTasksPanel } from '@/src/components/dashboard/alerts-tasks-panel';
+import { PendingClaimsCard } from '@/src/components/dashboard/pending-claims-card';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -138,8 +139,9 @@ export default function DashboardPage() {
             <ActivityFeed />
           </div>
 
-          {/* Alerts & tasks — 2/5 cols */}
-          <div className="lg:col-span-2">
+          {/* Alerts & tasks + Pending Claims (R09+) stacked — 2/5 cols */}
+          <div className="lg:col-span-2 flex flex-col gap-4">
+            <PendingClaimsCard />
             <AlertsTasksPanel />
           </div>
         </div>
