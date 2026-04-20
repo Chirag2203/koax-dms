@@ -171,7 +171,7 @@ describe('inferVehicleFromJC', () => {
 describe('applyBackfillToState — service walk-in', () => {
   it('creates a VehicleMaster for a new walk-in JC VIN', () => {
     const state = makeEmptyState();
-    applyBackfillToState(state, [], [SAMPLE_JC]);
+    applyBackfillToState(state, [], [SAMPLE_JC], []);
     const vin = safeVin(SAMPLE_JC.vin);
     expect(state.vehicles[vin]).toBeDefined();
     expect(state.vehicles[vin]?.metadataIncomplete).toBe(true);
@@ -180,7 +180,7 @@ describe('applyBackfillToState — service walk-in', () => {
 
   it('creates one ownership row with SERVICE_ONLY_WALKIN source', () => {
     const state = makeEmptyState();
-    applyBackfillToState(state, [], [SAMPLE_JC]);
+    applyBackfillToState(state, [], [SAMPLE_JC], []);
     const vin = safeVin(SAMPLE_JC.vin);
     const ownershipIds = state.ownershipIdByVin[vin] ?? [];
     expect(ownershipIds.length).toBe(1);
@@ -191,23 +191,24 @@ describe('applyBackfillToState — service walk-in', () => {
     expect(ownership?.linkedJobCardId).toBe(SAMPLE_JC.id);
   });
 
-  it('emits an OPEN event with backfill metadata', () => {
+  it('emits an OPEN event with a clean payload (no synthetic meta)', () => {
     const state = makeEmptyState();
-    applyBackfillToState(state, [], [SAMPLE_JC]);
+    applyBackfillToState(state, [], [SAMPLE_JC], []);
     const vin = safeVin(SAMPLE_JC.vin);
     const events = state.events.filter((e) => e.vin === vin && e.kind === 'OPEN');
     expect(events.length).toBe(1);
-    expect((events[0]?.payload as Record<string, unknown>)?.meta).toMatchObject({
-      backfill: true,
-      backfillSource: 'SERVICE',
-    });
+    const payload = events[0]?.payload as Record<string, unknown>;
+    expect(payload.source).toBe('SERVICE_ONLY_WALKIN');
+    expect(payload.linkedJobCardId).toBe(SAMPLE_JC.id);
+    // No synthetic backfill markers surface in UI payload per user requirement
+    expect(payload.meta).toBeUndefined();
   });
 });
 
 describe('applyBackfillToState — inventory', () => {
   it('creates a VehicleMaster with BN_CONSIGNMENT source for inventory vehicle', () => {
     const state = makeEmptyState();
-    applyBackfillToState(state, [SAMPLE_INV_VEHICLE], []);
+    applyBackfillToState(state, [SAMPLE_INV_VEHICLE], [], []);
     const vin = safeVin(SAMPLE_INV_VEHICLE.vin);
     expect(state.vehicles[vin]).toBeDefined();
     expect(state.vehicles[vin]?.firstTouchSource).toBe('BN_CONSIGNMENT');
@@ -217,7 +218,7 @@ describe('applyBackfillToState — inventory', () => {
 
   it('creates one ACTIVE ownership row against cust-bn-dealer', () => {
     const state = makeEmptyState();
-    applyBackfillToState(state, [SAMPLE_INV_VEHICLE], []);
+    applyBackfillToState(state, [SAMPLE_INV_VEHICLE], [], []);
     const vin = safeVin(SAMPLE_INV_VEHICLE.vin);
     const ownershipIds = state.ownershipIdByVin[vin] ?? [];
     expect(ownershipIds.length).toBe(1);
@@ -231,11 +232,11 @@ describe('applyBackfillToState — inventory', () => {
 describe('applyBackfillToState — idempotency (S-V2-12)', () => {
   it('running backfill twice does NOT increase vehicle count', () => {
     const state = makeEmptyState();
-    applyBackfillToState(state, [SAMPLE_INV_VEHICLE], [SAMPLE_JC]);
+    applyBackfillToState(state, [SAMPLE_INV_VEHICLE], [SAMPLE_JC], []);
     const countAfterFirst = Object.keys(state.vehicles).length;
 
     // Second run — same fixtures, same state
-    applyBackfillToState(state, [SAMPLE_INV_VEHICLE], [SAMPLE_JC]);
+    applyBackfillToState(state, [SAMPLE_INV_VEHICLE], [SAMPLE_JC], []);
     const countAfterSecond = Object.keys(state.vehicles).length;
 
     expect(countAfterSecond).toBe(countAfterFirst);
@@ -243,10 +244,10 @@ describe('applyBackfillToState — idempotency (S-V2-12)', () => {
 
   it('running backfill twice does NOT increase ownership count', () => {
     const state = makeEmptyState();
-    applyBackfillToState(state, [SAMPLE_INV_VEHICLE], [SAMPLE_JC]);
+    applyBackfillToState(state, [SAMPLE_INV_VEHICLE], [SAMPLE_JC], []);
     const countAfterFirst = Object.keys(state.ownerships).length;
 
-    applyBackfillToState(state, [SAMPLE_INV_VEHICLE], [SAMPLE_JC]);
+    applyBackfillToState(state, [SAMPLE_INV_VEHICLE], [SAMPLE_JC], []);
     const countAfterSecond = Object.keys(state.ownerships).length;
 
     expect(countAfterSecond).toBe(countAfterFirst);
@@ -257,12 +258,12 @@ describe('applyBackfillToState — L10 conflict skip', () => {
   it('does NOT open a second ownership for an existing VIN with a different ACTIVE owner', () => {
     const state = makeEmptyState();
     // First: backfill JC with customer-test-01 for vin WBA3A5C50DF999001
-    applyBackfillToState(state, [], [SAMPLE_JC]);
+    applyBackfillToState(state, [], [SAMPLE_JC], []);
     const vin = safeVin(SAMPLE_JC.vin);
     const ownershipsBefore = (state.ownershipIdByVin[vin] ?? []).length;
 
     // Second: try to backfill another JC for same VIN but different customer
-    applyBackfillToState(state, [], [SAMPLE_JC_EXISTING_VIN_DIFFERENT_CUSTOMER]);
+    applyBackfillToState(state, [], [SAMPLE_JC_EXISTING_VIN_DIFFERENT_CUSTOMER], []);
     const ownershipsAfter = (state.ownershipIdByVin[vin] ?? []).length;
 
     expect(ownershipsAfter).toBe(ownershipsBefore);
@@ -278,7 +279,7 @@ describe('applyBackfillToState — existing VIN already in canonical fixtures', 
     state.vehicles[vin] = inferVehicleFromJC(SAMPLE_JC);
     state.vehicles[vin]!.metadataIncomplete = false; // mark as enriched
 
-    applyBackfillToState(state, [], [SAMPLE_JC]);
+    applyBackfillToState(state, [], [SAMPLE_JC], []);
 
     // Should NOT have overwritten metadataIncomplete — VIN was already tracked
     expect(state.vehicles[vin]?.metadataIncomplete).toBe(false);

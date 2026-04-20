@@ -105,14 +105,18 @@ export function ExistingVehiclePicker({ onPick, onCancel }: ExistingVehiclePicke
   const displayRows = [...available, ...disabled];
 
   return (
-    <div className="flex flex-col max-w-[640px] mx-auto py-8 px-4">
-      {/* Heading */}
-      <div className="mb-6">
-        <h2 className="text-xl font-semibold text-ink-primary">Select an existing vehicle</h2>
-        <p className="mt-1 text-sm text-ink-secondary">
+    <div className="mx-auto max-w-[1440px] px-6 pb-12 pt-6">
+      {/* Page header — canonical detail-page shell. */}
+      <div className="border-b border-line pb-5 mb-8">
+        <h1 className="text-[28px] font-semibold leading-[1.25] text-ink-primary">
+          Select an existing vehicle
+        </h1>
+        <p className="mt-2 text-sm text-ink-secondary">
           Only vehicles already in the BN lifetime ledger are shown here.
         </p>
       </div>
+
+      <div className="max-w-[920px]">
 
       {/* Search */}
       <div className="relative mb-4">
@@ -220,6 +224,7 @@ export function ExistingVehiclePicker({ onPick, onCancel }: ExistingVehiclePicke
         >
           ← Back
         </button>
+      </div>
       </div>
     </div>
   );

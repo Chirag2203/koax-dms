@@ -128,16 +128,20 @@ export function ExistingSaleFieldsForm({ vin, onCancel }: ExistingSaleFieldsForm
 
   return (
     <>
-      <form
-        onSubmit={onSubmit}
-        noValidate
-        className="flex flex-col max-w-[560px] mx-auto py-8 px-4 gap-6"
-      >
-        {/* Heading */}
-        <div>
-          <h2 className="text-xl font-semibold text-ink-primary">Sale floor details</h2>
-          <p className="mt-1 text-sm text-ink-secondary font-mono text-[12px]">{vin}</p>
+      <div className="mx-auto max-w-[1440px] px-6 pb-12 pt-6">
+        {/* Page header — canonical detail-page shell. */}
+        <div className="border-b border-line pb-5 mb-8">
+          <h1 className="text-[28px] font-semibold leading-[1.25] text-ink-primary">
+            Sale floor details
+          </h1>
+          <p className="mt-2 text-sm text-ink-secondary font-mono">{vin}</p>
         </div>
+
+        <form
+          onSubmit={onSubmit}
+          noValidate
+          className="flex flex-col max-w-[640px] gap-6"
+        >
 
         {/* Asking price */}
         <div className="flex flex-col gap-1.5">
@@ -283,7 +287,8 @@ export function ExistingSaleFieldsForm({ vin, onCancel }: ExistingSaleFieldsForm
             {isSubmitting ? 'Listing…' : 'List for sale'}
           </button>
         </div>
-      </form>
+        </form>
+      </div>
 
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
     </>

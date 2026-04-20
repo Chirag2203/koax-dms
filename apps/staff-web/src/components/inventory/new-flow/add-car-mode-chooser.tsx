@@ -54,35 +54,37 @@ const MODES: ModeCard[] = [
 
 export function AddCarModeChooser({ onSelect }: AddCarModeChooserProps) {
   return (
-    <div className="flex flex-col items-center px-4 py-16">
-      {/* Heading */}
-      <div className="text-center mb-10">
-        <h2 className="text-2xl font-semibold text-ink-primary">Add a car to Sale Inventory</h2>
-        <p className="mt-2 text-sm text-ink-secondary max-w-[420px]">
+    <div className="mx-auto max-w-[1440px] px-6 pb-12 pt-6">
+      {/* Page header — matches the canonical detail-page shell used across staff-web. */}
+      <div className="border-b border-line pb-5 mb-8">
+        <h1 className="text-[28px] font-semibold leading-[1.25] text-ink-primary">
+          Add a car to Sale Inventory
+        </h1>
+        <p className="mt-2 text-sm text-ink-secondary">
           Choose how this vehicle is coming onto the sale floor.
         </p>
       </div>
 
-      {/* Option cards */}
-      <div className="flex flex-col sm:flex-row gap-4 w-full max-w-[640px]">
+      {/* Option cards — left-aligned within the 1440px container. */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-[920px]">
         {MODES.map(({ mode, icon: Icon, title, description }) => (
           <button
             key={mode}
             type="button"
             onClick={() => onSelect(mode)}
             className={cn(
-              'flex-1 flex flex-col items-center text-center gap-4 rounded-xl border border-line',
-              'bg-bg-canvas px-8 py-10 cursor-pointer',
+              'flex flex-col text-left gap-4 rounded-md border border-line',
+              'bg-bg-surface p-6 cursor-pointer',
               'hover:border-accent hover:bg-accent/5 hover:shadow-sm',
               'transition-colors duration-150',
               'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2',
             )}
           >
-            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-accent/10">
-              <Icon className="h-7 w-7 text-accent" aria-hidden="true" />
+            <span className="flex h-12 w-12 items-center justify-center rounded-md bg-accent/10">
+              <Icon className="h-6 w-6 text-accent" aria-hidden="true" />
             </span>
             <span>
-              <span className="block text-base font-semibold text-ink-primary mb-1.5">
+              <span className="block text-[15px] font-semibold text-ink-primary mb-1.5">
                 {title}
               </span>
               <span className="block text-[13px] text-ink-secondary leading-relaxed">

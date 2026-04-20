@@ -31,6 +31,13 @@ const EFFECTIVE_TO_CHIP: Record<EffectiveState, StateChipStatus> = {
   REJECTED: 'own-rejected',
 };
 
+const SOURCE_LABELS: Record<string, string> = {
+  BN_SALE: 'BN Sale',
+  BN_CONSIGNMENT: 'BN Consignment',
+  SERVICE_ONLY_WALKIN: 'Service Walk-in',
+  LEGACY_IMPORT: 'Legacy Import',
+};
+
 function isOwnershipRow(
   item: VehicleOwnership | OwnershipChangeEvent,
 ): item is VehicleOwnership {
@@ -163,9 +170,9 @@ export function OwnershipTab({ vehicle }: OwnershipTabProps) {
                         )}
                       </div>
                       <div className="flex items-center gap-3 mt-1.5 text-xs text-ink-muted flex-wrap">
-                        <span>Source: {row.source.replace(/_/g, ' ')}</span>
-                        <span>From: {new Date(row.fromAt).toLocaleDateString('en-IN')}</span>
-                        {row.toAt && <span>To: {new Date(row.toAt).toLocaleDateString('en-IN')}</span>}
+                        <span>Source: {SOURCE_LABELS[row.source] ?? row.source}</span>
+                        <span>From: {new Date(row.fromAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>
+                        {row.toAt && <span>To: {new Date(row.toAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</span>}
                         <span className="font-mono">{row.kmAtOpen.toLocaleString('en-IN')} km open</span>
                         {row.kmAtClose && (
                           <span className="font-mono">{row.kmAtClose.toLocaleString('en-IN')} km close</span>

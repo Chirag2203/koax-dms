@@ -127,11 +127,18 @@ export function NewVehicleIntakeForm({ onCancel }: NewVehicleIntakeFormProps) {
 
   return (
     <>
-      <form onSubmit={onSubmit} noValidate className="flex flex-col max-w-[640px] mx-auto py-8 px-4 gap-5">
-        <div>
-          <h2 className="text-xl font-semibold text-ink-primary">New vehicle intake</h2>
-          <p className="mt-1 text-sm text-ink-secondary">Capture owner, vehicle, and sale details.</p>
+      <div className="mx-auto max-w-[1440px] px-6 pb-12 pt-6">
+        {/* Page header — canonical detail-page shell. */}
+        <div className="border-b border-line pb-5 mb-8">
+          <h1 className="text-[28px] font-semibold leading-[1.25] text-ink-primary">
+            New vehicle intake
+          </h1>
+          <p className="mt-2 text-sm text-ink-secondary">
+            Capture owner, vehicle, and sale details.
+          </p>
         </div>
+
+        <form onSubmit={onSubmit} noValidate className="flex flex-col max-w-[920px] gap-5">
 
         {/* A — Owner */}
         <Sec>A — Owner details</Sec>
@@ -259,7 +266,8 @@ export function NewVehicleIntakeForm({ onCancel }: NewVehicleIntakeFormProps) {
             {isSubmitting ? 'Processing…' : 'Add to Sale Inventory'}
           </button>
         </div>
-      </form>
+        </form>
+      </div>
 
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
     </>
