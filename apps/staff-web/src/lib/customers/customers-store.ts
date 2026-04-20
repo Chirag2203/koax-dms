@@ -15,7 +15,7 @@ import type { Customer } from '@dms/types';
 
 // ─── Audit event ──────────────────────────────────────────────────────────────
 
-export type CustomerAuditEventKind = 'PROFILE_UPDATE' | 'PDF_EXPORT' | 'ERASURE';
+export type CustomerAuditEventKind = 'CREATE' | 'PROFILE_UPDATE' | 'PDF_EXPORT' | 'ERASURE';
 
 export interface CustomerAuditEvent {
   id: string;
@@ -42,9 +42,26 @@ export interface Actor {
   role?: string;
 }
 
+// ─── createCustomer input ─────────────────────────────────────────────────────
+
+export interface CreateCustomerInput {
+  name: string;
+  phone: string;
+  email: string;
+  preferredCity?: Customer['preferredCity'];
+  contactConfidential?: boolean;
+}
+
 export interface CustomersActions {
   /** Upsert a batch of customers (called by hydrator). */
   hydrateCustomers(customers: Customer[]): void;
+
+  /**
+   * Create a new customer.
+   * Idempotency: if phone + email match an existing customer, returns the existing one.
+   * Emits a CREATE audit event.
+   */
+  createCustomer(input: CreateCustomerInput, actor?: Actor): Customer;
 
   /** Update mutable profile fields. */
   updateCustomerProfile(
@@ -70,10 +87,26 @@ function nextEventId() {
   return `cust-evt-${Date.now()}-${++_eventCounter}`;
 }
 
+/** Slugify a customer name into a URL-safe fragment. */
+function slugifyName(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 32);
+}
+
+/** Generate a customer id like `cust-{slug}-{random}`. */
+function nextCustomerId(name: string): string {
+  const slug = slugifyName(name) || 'customer';
+  const rand = Math.random().toString(36).slice(2, 7);
+  return `cust-${slug}-${rand}`;
+}
+
 // ─── Store ────────────────────────────────────────────────────────────────────
 
 export const useCustomersStore = create<CustomersStore>()(
-  immer((set) => ({
+  immer((set, get) => ({
     customers: {},
     auditEvents: [],
     hydrated: false,
@@ -86,6 +119,44 @@ export const useCustomersStore = create<CustomersStore>()(
         }
         state.hydrated = true;
       });
+    },
+
+    createCustomer(input, actor) {
+      // Idempotency: return existing customer if phone + email already match
+      const existing = Object.values(get().customers).find(
+        (c) => c.phone === input.phone && c.email === input.email,
+      );
+      if (existing) return existing;
+
+      const newCustomer: Customer = {
+        id: nextCustomerId(input.name),
+        name: input.name,
+        phone: input.phone,
+        email: input.email,
+        avatar: input.name
+          .split(' ')
+          .map((w) => w[0] ?? '')
+          .slice(0, 2)
+          .join('')
+          .toUpperCase(),
+        preferredCity: input.preferredCity ?? 'bangalore',
+        preferredLanguage: 'en-IN',
+        memberSince: new Date().toISOString().split('T')[0]!,
+        contactConfidential: input.contactConfidential ?? false,
+      };
+
+      set((state) => {
+        state.customers[newCustomer.id] = newCustomer;
+        state.auditEvents.push({
+          id: nextEventId(),
+          customerId: newCustomer.id,
+          kind: 'CREATE',
+          at: new Date().toISOString(),
+          actorId: actor?.id ?? 'staff-system',
+        });
+      });
+
+      return newCustomer;
     },
 
     updateCustomerProfile(id, patch, actor) {

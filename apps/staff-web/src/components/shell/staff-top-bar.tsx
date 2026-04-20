@@ -22,7 +22,7 @@ interface StaffTopBarProps {
 
 const ROUTE_LABELS: Record<string, string> = {
   dashboard: 'Dashboard',
-  inventory: 'Inventory',
+  inventory: 'Sale Inventory',
   sales: 'Sales',
   service: 'Service',
   parts: 'Parts',
