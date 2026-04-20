@@ -15,3 +15,6 @@ export type { LogCallModalProps } from './log-call-modal';
 
 export { ScheduleTestDriveModal } from './schedule-test-drive-modal';
 export type { ScheduleTestDriveModalProps } from './schedule-test-drive-modal';
+
+export { SoCompleteDialog } from './so-complete-dialog';
+export type { SoCompleteDialogProps } from './so-complete-dialog';

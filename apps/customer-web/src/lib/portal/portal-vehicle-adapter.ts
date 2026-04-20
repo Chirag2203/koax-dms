@@ -165,8 +165,11 @@ export function buildServiceRecordViews(
   for (const jc of vinJcs) {
     const receivedMs = new Date(jc.receivedAt).getTime();
     if (receivedMs >= windowStart && receivedMs <= windowEnd) {
-      // Real technician name only if still active
-      const tech = staffDirectory[jc.advisorId];
+      // Use primary technician if present, otherwise fall back to advisor.
+      // Display real name only if the staff member is still active in the directory —
+      // left-BN staff (e.g. 'staff-r09-999') render as 'Service Technician' (PII safety).
+      const primaryTechId = jc.technicianIds?.[0] ?? jc.advisorId;
+      const tech = staffDirectory[primaryTechId];
       const techName = tech?.status === 'active' ? tech.displayName : 'Service Technician';
 
       const labourCost = jc.labourLines.reduce((s, l) => s + l.rate * (l.actualHours ?? l.flatRateHours), 0);

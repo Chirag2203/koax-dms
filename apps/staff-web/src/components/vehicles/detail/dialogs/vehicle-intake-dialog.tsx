@@ -12,11 +12,13 @@ export interface VehicleIntakeDialogProps {
   open: boolean;
   onClose: () => void;
   vin: string;
+  /** Optional callback after vehicle data is saved — used by service JC creation flow. */
+  onConfirm?: () => void;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function VehicleIntakeDialog({ open, onClose, vin }: VehicleIntakeDialogProps) {
+export function VehicleIntakeDialog({ open, onClose, vin, onConfirm }: VehicleIntakeDialogProps) {
   const { user } = useStaffAuth();
   const upsertVehicle = useVehiclesStore((s) => s.upsertVehicle);
   const vehicle = useVehiclesStore((s) => s.vehicles[vin]);
@@ -48,7 +50,11 @@ export function VehicleIntakeDialog({ open, onClose, vin }: VehicleIntakeDialogP
       },
       { id: user.id, name: user.name, role: user.role },
     );
-    onClose();
+    if (onConfirm) {
+      onConfirm();
+    } else {
+      onClose();
+    }
   }
 
   const inputClass = cn(

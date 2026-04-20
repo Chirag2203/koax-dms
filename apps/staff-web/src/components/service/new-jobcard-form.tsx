@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,10 +9,13 @@ import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { cn } from '@dms/ui';
 import { useServiceStore } from '@/src/lib/service/service-store';
+import { useVehiclesStore } from '@/src/lib/vehicles/vehicles-store';
 import { useStaffAuth } from '@/src/providers/staff-auth-provider';
 import { useToast } from '@/src/hooks/use-toast';
 import { ToastContainer } from '@/src/components/primitives';
 import { serviceTypes } from '@dms/mocks/fixtures';
+import { normalizeVin, VinError } from '@dms/vehicles-core';
+import { VehicleIntakeDialog } from '@/src/components/vehicles/detail/dialogs/vehicle-intake-dialog';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -146,6 +149,16 @@ export function NewJobCardForm() {
   const createJobCard = useServiceStore((s) => s.createJobCard);
   const assignBay     = useServiceStore((s) => s.assignBay);
 
+  // ── Vehicle intake dialog state (1A cross-store wiring) ───────────────────
+  const [intakeDialogVin, setIntakeDialogVin] = useState<string | null>(null);
+  // Pending JC data to create after intake dialog confirms
+  const [pendingJcData, setPendingJcData] = useState<{
+    vin: string; customerId: string; outletId: string; advisorId: string;
+    technicianIds: string[]; bayId?: string; priority: 'LOW' | 'NORMAL' | 'HIGH' | 'VIP';
+    promisedAt: string; customerComplaint: string; diagnosticNotes?: string;
+    odometerIn: number; estimatedTotal: number; attachments: string[];
+  } | null>(null);
+
   const freeBays = useMemo(() => bays.filter((b) => b.status === 'FREE'), [bays]);
 
   // If ?appointmentId present, pre-fill from appointment
@@ -211,38 +224,99 @@ export function NewJobCardForm() {
     }, 0);
   }, [selectedTypeIds, allServiceTypes]);
 
-  const actor = { id: user?.id ?? 'unknown', name: user?.name ?? 'Unknown' };
+  const actorId = user?.id ?? 'unknown';
+  const actorName = user?.name ?? 'Unknown';
+
+  // ── After intake dialog confirms, open ownership + create JC ─────────────────
+  const handleIntakeConfirm = useCallback(() => {
+    if (!pendingJcData) return;
+    const actor = { id: actorId, name: actorName };
+    const vehiclesStore = useVehiclesStore.getState();
+
+    // Open ownership for walk-in (intake dialog already upserted the vehicle)
+    try {
+      vehiclesStore.openOwnership({
+        vin: pendingJcData.vin,
+        customerId: pendingJcData.customerId,
+        source: 'SERVICE_ONLY_WALKIN',
+        kmAtOpen: pendingJcData.odometerIn,
+      }, actor);
+    } catch {
+      // Vehicle may already have an ACTIVE ownership — proceed to create JC anyway
+    }
+
+    const jc = createJobCard(pendingJcData, actor);
+    if (pendingJcData.bayId) assignBay(pendingJcData.bayId, jc.id, actor);
+
+    toast('Vehicle auto-registered · first BN touch recorded', 'success');
+    setPendingJcData(null);
+    setIntakeDialogVin(null);
+    router.push(`/service/jobcards/${jc.id}`);
+  }, [pendingJcData, actorId, actorName, createJobCard, assignBay, toast, router]);
 
   const onSubmit = handleSubmit(async (data) => {
+    const actor = { id: actorId, name: actorName };
     const promisedAt = `${data.promisedDate}T${data.promisedTime}:00`;
     const effectiveCustomerId =
       data.customerType === 'existing' && data.customerId
         ? data.customerId
         : data.walkinName ?? 'Walk-in';
 
-    const jc = createJobCard(
-      {
-        vin: data.vin,
-        customerId: effectiveCustomerId,
-        outletId: data.outletId,
-        advisorId: data.advisorId,
-        technicianIds: [],
-        bayId: data.bayId || undefined,
-        priority: data.priority,
-        promisedAt,
-        customerComplaint: data.customerComplaint,
-        diagnosticNotes: data.initialNotes || undefined,
-        odometerIn: data.odometerIn,
-        estimatedTotal: 0,
-        attachments: [],
-      },
-      actor,
-    );
-
-    if (data.bayId) {
-      assignBay(data.bayId, jc.id, actor);
+    // ── 1A: Normalize VIN and check vehicles store ──────────────────────────
+    let normalizedVin = data.vin;
+    try {
+      normalizedVin = normalizeVin(data.vin);
+    } catch (e) {
+      if (e instanceof VinError) {
+        // Non-standard VIN (e.g. test data) — proceed without normalization
+      }
     }
 
+    const vehiclesStore = useVehiclesStore.getState();
+    const vehicleExists = Boolean(vehiclesStore.vehicles[normalizedVin]);
+
+    const jcPayload = {
+      vin: normalizedVin,
+      customerId: effectiveCustomerId,
+      outletId: data.outletId,
+      advisorId: data.advisorId,
+      technicianIds: [] as string[],
+      bayId: data.bayId || undefined,
+      priority: data.priority,
+      promisedAt,
+      customerComplaint: data.customerComplaint,
+      diagnosticNotes: data.initialNotes || undefined,
+      odometerIn: data.odometerIn,
+      estimatedTotal: 0,
+      attachments: [] as string[],
+    };
+
+    if (!vehicleExists) {
+      // Unknown VIN — first upsert a skeleton vehicle record, then show intake dialog
+      vehiclesStore.upsertVehicle({
+        vin: normalizedVin,
+        make: data.make ?? '',
+        model: data.model ?? '',
+        year: Number(data.year) || new Date().getFullYear(),
+        variant: undefined,
+        color: '',
+        rcNumber: '',
+        firstTouchedAt: new Date().toISOString(),
+        firstTouchSource: 'SERVICE_ONLY_WALKIN',
+        firstTouchOutletId: (data.outletId as 'BLR-01' | 'MUM-01' | 'CHE-01') ?? 'BLR-01',
+        lastKnownKm: data.odometerIn,
+        lastKnownKmAt: new Date().toISOString(),
+      }, actor);
+
+      // Store pending JC data and open intake dialog to complete vehicle metadata
+      setPendingJcData(jcPayload);
+      setIntakeDialogVin(normalizedVin);
+      return; // Wait for dialog confirm
+    }
+
+    // Known VIN — proceed directly
+    const jc = createJobCard(jcPayload, actor);
+    if (data.bayId) assignBay(data.bayId, jc.id, actor);
     toast(`Job card ${jc.jobNo} created`, 'success');
     router.push(`/service/jobcards/${jc.id}`);
   });
@@ -252,6 +326,16 @@ export function NewJobCardForm() {
   return (
     <>
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
+
+      {/* Vehicle intake dialog — opens when a walk-in JC is created for an unknown VIN */}
+      {intakeDialogVin && (
+        <VehicleIntakeDialog
+          open={Boolean(intakeDialogVin)}
+          onClose={() => { setIntakeDialogVin(null); setPendingJcData(null); }}
+          vin={intakeDialogVin}
+          onConfirm={handleIntakeConfirm}
+        />
+      )}
 
       <div className="px-6 py-5 max-w-[900px] mx-auto space-y-6">
 

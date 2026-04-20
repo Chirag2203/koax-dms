@@ -10,6 +10,26 @@ import { effectiveState } from '@dms/vehicles-core';
 import type { EffectiveState } from '@dms/vehicles-core';
 import type { VehicleMaster, VehicleOwnership } from '@dms/types';
 import { VehicleRowActions } from './vehicle-row-actions';
+import { useCpoEligibility } from '@/src/lib/vehicles/use-cpo-eligibility';
+
+// ─── CPO cell (hook must be called inside a component, not a column fn) ───────
+
+function CpoCell({ vin }: { vin: string }) {
+  const cpo = useCpoEligibility(vin);
+  if (cpo.badge === 'NOT_ELIGIBLE') return <span className="text-ink-muted text-xs">—</span>;
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center h-5 px-2 rounded-sm text-[10px] font-medium uppercase tracking-wide',
+        cpo.badge === 'ELIGIBLE'
+          ? 'bg-[rgb(var(--state-success)/0.12)] text-[rgb(var(--state-success))]'
+          : 'bg-[rgb(var(--state-warning)/0.12)] text-[rgb(var(--state-warning))]',
+      )}
+    >
+      {cpo.badge === 'ELIGIBLE' ? 'Eligible' : 'At Risk'}
+    </span>
+  );
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -127,6 +147,13 @@ export function VehiclesTable({
         </span>
       ),
       size: 100,
+    },
+    {
+      id: 'cpo',
+      header: 'CPO',
+      enableSorting: false,
+      cell: ({ row }) => <CpoCell vin={row.original.vehicle.vin} />,
+      size: 90,
     },
     {
       id: 'actions',

@@ -7,6 +7,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { cn } from '@dms/ui';
 import { AlertDialog } from '@/src/components/primitives';
+import { useVehiclesStore } from '@/src/lib/vehicles/vehicles-store';
+import { normalizeVin } from '@dms/vehicles-core';
 import {
   WizardShell,
   StepAcquisition,
@@ -196,6 +198,43 @@ export default function NewVehiclePage() {
     setIsSubmitting(true);
     try {
       const values = getValues();
+
+      // ── 1B: Inventory → Vehicles cross-store wiring ─────────────────────────
+      // After acquisition commit, wire vehicles-store so the VIN appears in lifetime view.
+      try {
+        const vehiclesStore = useVehiclesStore.getState();
+        const normalizedVin = normalizeVin(values.vin ?? '');
+        const outletId = (values.outlet === 'MUM' ? 'MUM-01' : values.outlet === 'CHE' ? 'CHE-01' : 'BLR-01') as 'BLR-01' | 'MUM-01' | 'CHE-01';
+        const now = new Date().toISOString();
+
+        vehiclesStore.upsertVehicle({
+          vin: normalizedVin,
+          make: values.make ?? '',
+          model: values.model ?? '',
+          variant: values.variant || undefined,
+          year: values.year || new Date().getFullYear(),
+          color: values.color ?? '',
+          rcNumber: values.registrationCity ?? '',
+          firstTouchedAt: now,
+          firstTouchSource: 'BN_CONSIGNMENT',
+          firstTouchOutletId: outletId,
+          lastKnownKm: values.odometer ?? 0,
+          lastKnownKmAt: now,
+        }, { id: 'staff-system', name: 'Inventory System' });
+
+        vehiclesStore.openOwnership({
+          vin: normalizedVin,
+          customerId: 'cust-bn-dealer',
+          source: 'BN_CONSIGNMENT',
+          kmAtOpen: values.odometer ?? 0,
+          fromAt: now,
+        }, { id: 'staff-system', name: 'Inventory System' });
+
+        vehiclesStore.linkInventoryVehicle(normalizedVin, normalizedVin);
+      } catch {
+        // VIN normalization or ownership error — non-blocking; inventory still proceeds
+      }
+
       const res = await fetch('/api/staff/inventory/vehicles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
