@@ -1,14 +1,15 @@
 import type { Customer } from '@dms/types';
 
 export const mockCustomer: Customer = {
-  id: 'cust-arjun-mehta-001',
+  id: 'cust-arjun-mehta',
   name: 'Arjun Mehta',
-  email: 'arjun.mehta@email.com',
-  phone: '+91 98XX XXXX 42',
+  email: 'arjun.mehta@gmail.com',
+  phone: '+919876001003',
   avatar: 'AM',
   preferredCity: 'bangalore',
   preferredLanguage: 'en-IN',
-  memberSince: '2026-03-01',
+  memberSince: '2023-04-10',
+  pan: 'DDDPM3456D',
 };
 
 // ─── Customers added for vehicles module (SPEC-VEHICLES-001 §5) ──────────────

@@ -38,6 +38,9 @@ importers:
       '@dms/ui':
         specifier: workspace:*
         version: link:../../packages/ui
+      '@dms/vehicles-core':
+        specifier: workspace:*
+        version: link:../../packages/vehicles-core
       '@hookform/resolvers':
         specifier: ^3.4.0
         version: 3.10.0(react-hook-form@7.72.1(react@18.3.1))
@@ -47,6 +50,9 @@ importers:
       framer-motion:
         specifier: ^11.2.0
         version: 11.18.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      immer:
+        specifier: ^11.1.4
+        version: 11.1.4
       lucide-react:
         specifier: ^0.383.0
         version: 0.383.0(react@18.3.1)
@@ -68,6 +74,9 @@ importers:
       zod:
         specifier: ^3.23.0
         version: 3.25.76
+      zustand:
+        specifier: ^5.0.12
+        version: 5.0.12(@types/react@18.3.28)(immer@11.1.4)(react@18.3.1)
     devDependencies:
       '@dms/config-eslint':
         specifier: workspace:*

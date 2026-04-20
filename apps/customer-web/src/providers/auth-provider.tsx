@@ -35,15 +35,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<Customer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Hydrate from localStorage on mount
+  // Hydrate from localStorage on mount; seed default mock customer if absent
+  // so the portal demo auto-authenticates. Mirrors staff-web DEFAULT_STAFF_USER.
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         setUser(JSON.parse(stored) as Customer);
+      } else {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(mockCustomer));
+        setUser(mockCustomer);
       }
     } catch {
-      // ignore parse errors
+      // ignore parse errors — fall back to default
+      setUser(mockCustomer);
     } finally {
       setIsLoading(false);
     }
