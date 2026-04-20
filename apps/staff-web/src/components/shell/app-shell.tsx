@@ -1,6 +1,8 @@
 'use client';
 
 import { useKeyboardShortcuts } from '@/src/hooks/use-keyboard-shortcuts';
+import { CustomersStoreHydrator } from '@/src/lib/customers/customers-store-hydrator';
+import { VehiclesStoreHydrator } from '@/src/lib/vehicles/vehicles-store-hydrator';
 import { CommandPalette } from './command-palette';
 import { StaffSidebar } from './staff-sidebar';
 import { StaffTopBar } from './staff-top-bar';
@@ -23,6 +25,10 @@ export function AppShell({ children }: AppShellProps) {
           {children}
         </main>
       </div>
+
+      {/* Global hydrators */}
+      <CustomersStoreHydrator />
+      <VehiclesStoreHydrator />
 
       {/* Command palette — portals into document.body */}
       <CommandPalette />

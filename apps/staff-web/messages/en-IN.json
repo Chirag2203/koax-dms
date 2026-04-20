@@ -11,6 +11,7 @@
       "service": "Service",
       "parts": "Parts",
       "customers": "Customers",
+      "vehicles": "Vehicles",
       "finance": "Finance",
       "reports": "Reports",
       "notifications": "Notifications",
@@ -494,6 +495,128 @@
             "logged": "AI call logged"
           }
         }
+      }
+    },
+    "vehicles": {
+      "title": "Vehicles",
+      "subtitle": "Lifetime records, ownership, claims and service history",
+      "addVehicle": "Add Vehicle",
+      "ownershipQueue": "Ownership Queue",
+      "filters": {
+        "city": "City",
+        "state": "State",
+        "source": "Source",
+        "cpo": "CPO"
+      },
+      "columns": {
+        "vin": "VIN",
+        "makeModel": "Make / Model",
+        "owner": "Current Owner",
+        "state": "State",
+        "firstTouch": "First Touch",
+        "cpo": "CPO",
+        "km": "km",
+        "actions": "Actions"
+      },
+      "actions": {
+        "view": "View",
+        "assignOwner": "Assign Owner",
+        "revoke": "Revoke"
+      },
+      "detail": {
+        "breadcrumb": "Vehicles",
+        "tabs": {
+          "overview": "Overview",
+          "ownership": "Ownership",
+          "service": "Service",
+          "sales": "Sales",
+          "documents": "Documents",
+          "costs": "Costs"
+        },
+        "notFound": {
+          "title": "Vehicle not found",
+          "description": "This VIN does not exist in the system."
+        }
+      },
+      "ownership": {
+        "revokeTitle": "Revoke Ownership",
+        "revokeDescription": "This will immediately revoke access with a 7-day grace window.",
+        "assignTitle": "Assign Owner",
+        "restoreTitle": "Restore Ownership",
+        "emptyState": "No ownership records for this vehicle."
+      },
+      "queue": {
+        "title": "Ownership Queue",
+        "subtitle": "Pending portal claims awaiting review",
+        "columns": {
+          "vin": "VIN",
+          "claimant": "Claimant",
+          "submitted": "Submitted",
+          "autoMatch": "Auto-match",
+          "state": "State",
+          "actions": "Actions"
+        },
+        "approve": "Approve",
+        "reject": "Reject",
+        "emptyState": "No pending claims."
+      },
+      "intake": {
+        "title": "Vehicle Intake",
+        "make": "Make",
+        "model": "Model",
+        "year": "Year",
+        "variant": "Variant",
+        "color": "Color",
+        "rcNumber": "RC Number",
+        "outlet": "First Touch Outlet"
+      }
+    },
+    "customers": {
+      "title": "Customers",
+      "subtitle": "360° customer profiles, vehicles, interactions, and consents",
+      "addCustomer": "Add Customer",
+      "filters": {
+        "city": "City",
+        "search": "Search customers..."
+      },
+      "columns": {
+        "name": "Name",
+        "email": "Email",
+        "phone": "Phone",
+        "city": "City",
+        "memberSince": "Member Since",
+        "vehicles": "Vehicles",
+        "actions": "Actions"
+      },
+      "actions": {
+        "view": "View Profile",
+        "assignVehicle": "Assign Vehicle",
+        "revoke": "Revoke Ownership"
+      },
+      "detail": {
+        "breadcrumb": "Customers",
+        "exportPdf": "Export PDF",
+        "tabs": {
+          "profile": "Profile",
+          "vehicles": "Vehicles",
+          "interactions": "Interactions",
+          "comms": "Communications",
+          "consents": "Consents"
+        },
+        "notFound": {
+          "title": "Customer not found",
+          "description": "This customer does not exist in the system."
+        }
+      },
+      "vehicles": {
+        "emptyState": "No vehicles associated with this customer.",
+        "viewHistory": "View History"
+      },
+      "erasure": {
+        "title": "Right to Erasure",
+        "description": "This will permanently delete all personal data for this customer. This action cannot be undone.",
+        "confirmLabel": "Delete all data",
+        "confirmPrompt": "Type the customer email to confirm"
       }
     }
   }

@@ -72,7 +72,20 @@ export type StateChipStatus =
   | 'mov-adjust'
   | 'mov-transfer'
   // ── Parts: Criticality chip (shown only for CRITICAL / SAFETY) (P3) ──────────
-  | 'crit-safety';
+  | 'crit-safety'
+  // ── Vehicles: Ownership states ───────────────────────────────────────────────
+  | 'own-pending-claim'
+  | 'own-active'
+  | 'own-active-joint'
+  | 'own-grace'
+  | 'own-revoked'
+  | 'own-transferred'
+  | 'own-rejected'
+  // ── Vehicles: Claim states ───────────────────────────────────────────────────
+  | 'claim-pending'
+  | 'claim-auto-approved'
+  | 'claim-approved'
+  | 'claim-rejected';
 
 export interface StateChipProps {
   status: StateChipStatus;
@@ -394,6 +407,63 @@ const STATUS_CONFIG: Record<
   // Criticality chip — consumers override `label` to "Critical" vs "Safety"
   'crit-safety': {
     label: 'Safety',
+    dot: 'bg-[rgb(var(--state-overdue))]',
+    chip: 'bg-[rgb(var(--state-overdue)/0.1)] text-[rgb(var(--state-overdue))]',
+  },
+  // ── Vehicles: Ownership states ─────────────────────────────────────────────
+  'own-pending-claim': {
+    label: 'Pending Claim',
+    dot: 'bg-[rgb(var(--state-pending))]',
+    chip: 'bg-[rgb(var(--state-pending)/0.1)] text-[rgb(var(--state-pending))]',
+  },
+  'own-active': {
+    label: 'Active',
+    dot: 'bg-[rgb(var(--state-listed))]',
+    chip: 'bg-[rgb(var(--state-listed)/0.1)] text-[rgb(var(--state-listed))]',
+  },
+  'own-active-joint': {
+    label: 'Active (Joint)',
+    dot: 'bg-[rgb(var(--state-listed))]',
+    chip: 'bg-[rgb(var(--state-listed)/0.1)] text-[rgb(var(--state-listed))]',
+  },
+  'own-grace': {
+    label: 'Grace',
+    dot: 'bg-[rgb(var(--state-in-refurb))]',
+    chip: 'bg-[rgb(var(--state-in-refurb)/0.1)] text-[rgb(var(--state-in-refurb))]',
+  },
+  'own-revoked': {
+    label: 'Revoked',
+    dot: 'bg-[rgb(var(--state-overdue))]',
+    chip: 'bg-[rgb(var(--state-overdue)/0.1)] text-[rgb(var(--state-overdue))]',
+  },
+  'own-transferred': {
+    label: 'Transferred',
+    dot: 'bg-[rgb(var(--state-sold))]',
+    chip: 'bg-[rgb(var(--state-sold)/0.1)] text-[rgb(var(--state-sold))]',
+  },
+  'own-rejected': {
+    label: 'Rejected',
+    dot: 'bg-[rgb(var(--state-stale))]',
+    chip: 'bg-[rgb(var(--state-stale)/0.1)] text-[rgb(var(--state-stale))]',
+  },
+  // ── Vehicles: Claim states ─────────────────────────────────────────────────
+  'claim-pending': {
+    label: 'Pending',
+    dot: 'bg-[rgb(var(--state-pending))]',
+    chip: 'bg-[rgb(var(--state-pending)/0.1)] text-[rgb(var(--state-pending))]',
+  },
+  'claim-auto-approved': {
+    label: 'Auto-Approved',
+    dot: 'bg-[rgb(var(--state-reserved))]',
+    chip: 'bg-[rgb(var(--state-reserved)/0.1)] text-[rgb(var(--state-reserved))]',
+  },
+  'claim-approved': {
+    label: 'Approved',
+    dot: 'bg-[rgb(var(--state-listed))]',
+    chip: 'bg-[rgb(var(--state-listed)/0.1)] text-[rgb(var(--state-listed))]',
+  },
+  'claim-rejected': {
+    label: 'Rejected',
     dot: 'bg-[rgb(var(--state-overdue))]',
     chip: 'bg-[rgb(var(--state-overdue)/0.1)] text-[rgb(var(--state-overdue))]',
   },

@@ -55,6 +55,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { key: 'dashboard', href: '/dashboard', icon: LayoutDashboard },
       { key: 'inventory', href: '/inventory', icon: Car, badge: '42' },
+      { key: 'vehicles', href: '/vehicles', icon: Car },
       { key: 'sales', href: '/sales', icon: Receipt },
       { key: 'service', href: '/service', icon: Wrench },
       { key: 'parts', href: '/parts', icon: Boxes },

@@ -33,3 +33,6 @@ export type { DialogProps, AlertDialogProps } from './dialog';
 
 export { ToastContainer } from './toast';
 export type { ToastContainerProps } from './toast';
+
+export { OwnershipBadge } from './ownership-badge';
+export type { OwnershipBadgeProps } from './ownership-badge';
