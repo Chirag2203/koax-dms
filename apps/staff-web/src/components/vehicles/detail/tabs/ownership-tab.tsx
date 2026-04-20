@@ -231,10 +231,7 @@ export function OwnershipTab({ vehicle }: OwnershipTabProps) {
               {events.map((evt, i) => (
                 <OwnershipTimelineEvent
                   key={evt.id}
-                  kind={evt.kind}
-                  actorId={evt.actorId}
-                  at={evt.at}
-                  payload={evt.payload as Record<string, unknown> | undefined}
+                  event={evt}
                   isLast={i === events.length - 1}
                 />
               ))}

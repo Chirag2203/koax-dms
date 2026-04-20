@@ -11,3 +11,4 @@ export * from './sales';
 export * from './service';
 export * from './parts';
 export * from './vehicles-aggregate';
+export * from './documents';

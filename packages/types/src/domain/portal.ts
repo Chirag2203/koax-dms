@@ -87,6 +87,13 @@ export const DocumentSchema = z.object({
   expiresAt: z.string().optional(),
   fileUrl: z.string(),
   fileSize: z.string(),
+  /**
+   * Id of a newer document that superseded this one (REPLACE operation).
+   * Portal renders as boolean "Replaced" label — never exposes the id (L27).
+   * Staff-web keeps the id for linking to the replacement doc.
+   * PLAN-VEHICLES-003 §1.3.
+   */
+  supersededBy: z.string().optional(),
 });
 export type Document = z.infer<typeof DocumentSchema>;
 

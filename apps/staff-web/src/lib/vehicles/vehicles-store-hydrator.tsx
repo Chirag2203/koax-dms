@@ -276,7 +276,7 @@ export function applyBackfillToState(
         actorId: actor,
         actorRole: 'R10',
         ownershipId: priorId,
-        payload: { source: 'BN_SALE', kmAtOpen: priorKmAtOpen },
+        payload: { source: 'BN_SALE', kmAtOpen: priorKmAtOpen, buyerCustomerId: consignor.id },
         schemaVersion: 'v1',
       });
 
@@ -322,7 +322,7 @@ export function applyBackfillToState(
       actorId: actor,
       actorRole: 'R10',
       ownershipId: bnId,
-      payload: { source: 'BN_CONSIGNMENT', kmAtOpen: priorKmAtClose },
+      payload: { source: 'BN_CONSIGNMENT', kmAtOpen: priorKmAtClose, consignorCustomerId: consignor?.id },
       schemaVersion: 'v1',
     });
   }
@@ -386,6 +386,7 @@ export function applyBackfillToState(
         source: 'SERVICE_ONLY_WALKIN',
         linkedJobCardId: jc.id,
         kmAtOpen: jc.odometerIn ?? 0,
+        customerId: jc.customerId,
       },
       schemaVersion: 'v1',
     });

@@ -1,184 +1,119 @@
 'use client';
 
-import {
-  UserPlus, UserMinus, ArrowRightLeft, FileText,
-  CheckCircle, XCircle, RotateCcw, EyeOff, Download, Users, Clipboard,
-} from 'lucide-react';
-import { cn } from '@dms/ui';
-import type { OwnershipEventKind } from '@dms/types';
-import { STAFF_NAMES } from '@/src/components/parts/helpers';
-import { useCustomersStore } from '@/src/lib/customers/customers-store';
+/**
+ * OwnershipTimelineEvent — thin adapter between OwnershipChangeEvent and
+ * the shared TimelineEntryRow primitive.
+ *
+ * All rendering logic (source labels, actor resolution, km formatting,
+ * "[object Object]" suppression) lives in renderTimelineEntry() +
+ * PAYLOAD_KEY_LABELS in @dms/vehicles-core. This component is a ≤80 LoC
+ * shell that wires the store context into the pure render functions.
+ *
+ * PLAN-002 behaviors preserved (L20): joint badge, formatINR, relative
+ * timestamps, consecutive-collapse — all handled by the shared primitive.
+ *
+ * Spec reference: PLAN-VEHICLES-003 §9, deliverable #8
+ * LoC budget: ≤80
+ */
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+import { useMemo } from 'react';
+import { renderTimelineEntry } from '@dms/vehicles-core';
+import type { RenderContext } from '@dms/vehicles-core';
+import type { OwnershipChangeEvent } from '@dms/types';
+import { useCustomersStore } from '@/src/lib/customers/customers-store';
+import { useVehiclesStore } from '@/src/lib/vehicles/vehicles-store';
+import { STAFF_NAMES } from '@/src/components/parts/helpers';
+import { TimelineEntryRow } from './shared/timeline-entry-row';
+import { TIMELINE_LABELS } from './shared/timeline-i18n';
+
+// ─── Props ────────────────────────────────────────────────────────────────────
 
 export interface OwnershipTimelineEventProps {
-  kind: OwnershipEventKind;
-  actorId: string;
-  at: string;
-  payload?: Record<string, unknown>;
+  event: OwnershipChangeEvent;
   isLast?: boolean;
-}
-
-// ─── Event config ─────────────────────────────────────────────────────────────
-
-const EVENT_CONFIG: Record<
-  OwnershipEventKind,
-  { icon: React.ElementType; label: string; color: string }
-> = {
-  OPEN: { icon: UserPlus, label: 'Ownership opened', color: 'text-[rgb(var(--state-listed))]' },
-  CLOSE: { icon: UserMinus, label: 'Ownership closed', color: 'text-[rgb(var(--state-stale))]' },
-  TRANSFER: { icon: ArrowRightLeft, label: 'Ownership transferred', color: 'text-[rgb(var(--state-sold))]' },
-  CLAIM_SUBMIT: { icon: FileText, label: 'Claim submitted', color: 'text-[rgb(var(--state-pending))]' },
-  CLAIM_APPROVE: { icon: CheckCircle, label: 'Claim approved', color: 'text-[rgb(var(--state-listed))]' },
-  CLAIM_REJECT: { icon: XCircle, label: 'Claim rejected', color: 'text-[rgb(var(--state-overdue))]' },
-  RESTORE: { icon: RotateCcw, label: 'Ownership restored', color: 'text-[rgb(var(--state-in-refurb))]' },
-  ANONYMIZE: { icon: EyeOff, label: 'PII anonymized', color: 'text-[rgb(var(--state-stale))]' },
-  PDF_EXPORT: { icon: Download, label: 'PDF exported', color: 'text-[rgb(var(--state-draft))]' },
-  JOINT_ADD: { icon: Users, label: 'Joint owner added', color: 'text-[rgb(var(--state-listed))]' },
-  FORM31_APPROVE: { icon: Clipboard, label: 'Form 31 approved', color: 'text-[rgb(var(--state-reserved))]' },
-};
-
-// ─── Display helpers ──────────────────────────────────────────────────────────
-
-const SOURCE_LABELS: Record<string, string> = {
-  BN_SALE: 'BN Sale',
-  BN_CONSIGNMENT: 'BN Consignment',
-  SERVICE_ONLY_WALKIN: 'Service Walk-in',
-  LEGACY_IMPORT: 'Legacy Import',
-};
-
-const CLOSE_REASON_LABELS: Record<string, string> = {
-  BN_SALE_TRANSFER: 'Sale transfer',
-  CONSIGNED_TO_BN: 'Consigned to BN',
-  CONSIGNMENT_RETURNED: 'Consignment returned',
-  MANUAL_REVOKE: 'Manual revoke',
-  SELF_REVOKE_SOLD: 'Sold privately',
-  CLAIM_OVERLAP: 'Claim overlap',
-  DECEASED_FORM31: 'Form 31 inheritance',
-  ERASURE_REQUEST: 'Erasure request',
-  REJECTED_CLAIM: 'Rejected claim',
-};
-
-function titleCaseSource(s: string): string {
-  return SOURCE_LABELS[s] ?? s;
-}
-
-function titleCaseCloseReason(s: string): string {
-  return CLOSE_REASON_LABELS[s] ?? s;
-}
-
-function formatPayloadValue(key: string, value: unknown): string | null {
-  if (value === null || value === undefined) return null;
-  if (typeof value === 'object') return null; // skip nested objects (noise)
-  if (key === 'source' && typeof value === 'string') return titleCaseSource(value);
-  if (key === 'closeReason' && typeof value === 'string') return titleCaseCloseReason(value);
-  if (key === 'kmAtOpen' || key === 'kmAtClose') {
-    const num = typeof value === 'number' ? value : Number(value);
-    if (Number.isFinite(num)) return `${num.toLocaleString('en-IN')} km`;
-  }
-  if (typeof value === 'boolean') return value ? 'yes' : 'no';
-  return String(value);
-}
-
-const PAYLOAD_LABELS: Record<string, string> = {
-  source: 'Source',
-  closeReason: 'Reason',
-  kmAtOpen: 'Km at open',
-  kmAtClose: 'Km at close',
-  linkedJobCardId: 'Job card',
-  linkedSalesOrderId: 'Sales order',
-  priorCloseReason: 'Prior reason',
-};
-
-// Internal-only keys we never surface to the UI
-const HIDDEN_PAYLOAD_KEYS = new Set(['schemaVersion', 'meta']);
-
-function formatDateTime(iso: string): string {
-  return new Date(iso).toLocaleDateString('en-IN', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function OwnershipTimelineEvent({
-  kind,
-  actorId,
-  at,
-  payload,
+  event,
   isLast = false,
 }: OwnershipTimelineEventProps) {
   const customers = useCustomersStore((s) => s.customers);
+  const ownerships = useVehiclesStore((s) => s.ownerships);
 
-  const config = EVENT_CONFIG[kind] ?? {
-    icon: Clipboard,
-    label: kind,
-    color: 'text-ink-muted',
-  };
-  const Icon = config.icon;
+  // Enrich payload with customerId resolved from the linked ownership row,
+  // so title templates for BN_SALE/BN_CONSIGNMENT/SERVICE_WALKIN/LEGACY_IMPORT
+  // can produce "Sale to {name}" etc. even when fixture payloads don't embed
+  // the customerId directly.
+  const enrichedEvent = useMemo(() => {
+    const payload = { ...(event.payload ?? {}) };
+    const linkedOwnership = event.ownershipId ? ownerships[event.ownershipId] : undefined;
+    const linkedCustomerId = linkedOwnership?.customerId;
+    if (linkedCustomerId) {
+      const source = payload['source'];
+      if (source === 'BN_SALE' && !payload['buyerCustomerId']) {
+        payload['buyerCustomerId'] = linkedCustomerId;
+      } else if (source === 'BN_CONSIGNMENT' && !payload['consignorCustomerId']) {
+        payload['consignorCustomerId'] = linkedCustomerId;
+      } else if ((source === 'SERVICE_ONLY_WALKIN' || source === 'LEGACY_IMPORT') && !payload['customerId']) {
+        payload['customerId'] = linkedCustomerId;
+      }
+    }
+    // JOINT_ADD uses `customerId` in fixtures; renderer expects
+    // `jointWithCustomerId`. Alias to keep renderer stable.
+    if (event.kind === 'JOINT_ADD' && !payload['jointWithCustomerId']) {
+      if (typeof payload['customerId'] === 'string') {
+        payload['jointWithCustomerId'] = payload['customerId'];
+      } else if (linkedCustomerId) {
+        payload['jointWithCustomerId'] = linkedCustomerId;
+      }
+    }
+    return { ...event, payload };
+  }, [event, ownerships]);
 
-  // Resolve actor display name from staff or customer directories. If neither
-  // matches, fall back to a friendly "BN Automobiles" rather than the raw id.
-  const actorName = resolveActorName(actorId, customers);
+  const ctx: RenderContext = useMemo(() => ({
+    resolveCustomerName(id: string) {
+      if (id.startsWith('anon-')) return `Owner #${id.slice(5)} (anonymized)`;
+      return customers[id]?.name ?? 'Customer';
+    },
+    resolveStaffName(id: string) {
+      if (STAFF_NAMES[id]) return STAFF_NAMES[id]!;
+      if (id.startsWith('cust-')) return customers[id]?.name ?? 'Customer';
+      return 'BN Automobiles';
+    },
+    resolveVehicleRef(vin: string) { return vin; },
+    resolveOwnershipRef(ownershipId: string) { return ownershipId; },
+    now: new Date().toISOString(),
+  }), [customers]);
 
-  const payloadLines = payload
-    ? Object.entries(payload)
-        .filter(([k]) => !HIDDEN_PAYLOAD_KEYS.has(k))
-        .map(([k, v]) => {
-          const formatted = formatPayloadValue(k, v);
-          if (formatted === null) return null;
-          const label = PAYLOAD_LABELS[k] ?? k;
-          return { label, value: formatted };
-        })
-        .filter((entry): entry is { label: string; value: string } => entry !== null)
-    : [];
+  const view = useMemo(
+    () => renderTimelineEntry({ kind: 'OWNERSHIP', event: enrichedEvent }, ctx),
+    [enrichedEvent, ctx],
+  );
+
+  // Resolve title from static i18n table (avoids next-intl hook in pure helper)
+  const title = resolveTitleKey(view.titleKey, view.titleParams);
 
   return (
-    <div className="flex gap-3">
-      <div className="flex flex-col items-center">
-        <div className={cn(
-          'flex h-7 w-7 shrink-0 items-center justify-center rounded-full',
-          'bg-bg-subtle border border-line',
-          config.color,
-        )}>
-          <Icon className="h-3.5 w-3.5" aria-hidden="true" />
-        </div>
-        {!isLast && (
-          <div className="w-px flex-1 bg-line mt-1 mb-0" style={{ minHeight: 16 }} />
-        )}
-      </div>
-
-      <div className="pb-4 flex-1 min-w-0">
-        <p className="text-sm text-ink-primary font-medium">{config.label}</p>
-        <p className="text-xs text-ink-muted mt-0.5">
-          {formatDateTime(at)} · {actorName}
-        </p>
-        {payloadLines.length > 0 && (
-          <p className="text-xs text-ink-secondary mt-1">
-            {payloadLines
-              .map((p) => `${p.label}: ${p.value}`)
-              .join(' · ')}
-          </p>
-        )}
-      </div>
-    </div>
+    <TimelineEntryRow
+      entry={view}
+      title={title}
+      chipLabels={TIMELINE_LABELS}
+      isLast={isLast}
+    />
   );
 }
 
-// ─── Actor name resolution ────────────────────────────────────────────────────
+// ─── Title resolution (static fallback — no next-intl hook needed here) ───────
 
-function resolveActorName(
-  actorId: string,
-  customersMap: Record<string, { name: string }>,
+function resolveTitleKey(
+  key: string,
+  params: Record<string, string | number>,
 ): string {
-  if (STAFF_NAMES[actorId]) return STAFF_NAMES[actorId]!;
-  if (actorId.startsWith('cust-')) {
-    return customersMap[actorId]?.name ?? 'Customer';
+  let template = TIMELINE_LABELS[key] ?? key;
+  for (const [k, v] of Object.entries(params)) {
+    template = template.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v));
   }
-  // Legacy / system / unknown sources — present as the dealership itself.
-  return 'BN Automobiles';
+  return template;
 }

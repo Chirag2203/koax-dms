@@ -100,6 +100,11 @@ export const VehicleMasterSchema = z.object({
    * PLAN-VEHICLES-002 §A — metadataIncomplete flag.
    */
   metadataIncomplete: z.boolean().optional(),
+  /**
+   * Set at LISTED SalesEvent emission time (P2). Used by stale-listing chip.
+   * PLAN-VEHICLES-003 L39.
+   */
+  listedAt: z.string().datetime().optional(),
   schemaVersion: z.literal('v1').default('v1'),
 });
 export type VehicleMaster = z.infer<typeof VehicleMasterSchema>;
@@ -179,3 +184,90 @@ export const OwnershipChangeEventSchema = z.object({
   schemaVersion: z.literal('v1').default('v1'),
 });
 export type OwnershipChangeEvent = z.infer<typeof OwnershipChangeEventSchema>;
+
+// ─── OwnershipEventPayloads (TypeScript-only discriminated union) ──────────────
+
+/**
+ * Per-kind payload shapes for OwnershipChangeEvent.
+ * TypeScript-only — Zod envelope uses z.record(z.unknown()) for forward-compat.
+ * Every key in these types must appear in translation-table.ts PAYLOAD_KEY_LABELS.
+ * PLAN-VEHICLES-003 §1.1 / §12.
+ */
+export type OwnershipEventPayloads = {
+  OPEN: { source: VehicleTouchSource; kmAtOpen: number; isJoint?: boolean; jointWithCustomerId?: string; consignorCustomerId?: string };
+  CLOSE: { closeReason: CloseReason; kmAtClose?: number; graceUntilAt?: string };
+  TRANSFER: { buyerCustomerId: string; kmAtClose?: number; closeReason?: CloseReason };
+  CLAIM_SUBMIT: { claimantCustomerId: string; autoMatchHit: boolean };
+  CLAIM_APPROVE: { overlapsOwnershipId?: string };
+  CLAIM_REJECT: { category: string; reason?: string };
+  RESTORE: { priorCloseReason?: CloseReason };
+  ANONYMIZE: { reason?: string };
+  PDF_EXPORT: { reason?: string };
+  JOINT_ADD: { jointWithCustomerId: string };
+  FORM31_APPROVE: { heirCustomerId: string };
+};
+
+// ─── SalesEvent ───────────────────────────────────────────────────────────────
+
+/**
+ * Sales event kinds — parallel stream to OwnershipEvent (not merged per L1).
+ * PLAN-VEHICLES-003 §1.1
+ */
+export const SalesEventKindEnum = z.enum([
+  'ACQUIRED',
+  'LISTED',
+  'PRICE_CHANGED',
+  'RESERVED',
+  'RESERVATION_LOST',
+  'SOLD',
+  'RETURNED',
+]);
+export type SalesEventKind = z.infer<typeof SalesEventKindEnum>;
+
+/**
+ * Envelope schema — payload uses z.record(z.unknown()) for forward-compat.
+ * Per-kind validation is done at write boundaries via event-payload-validators.ts.
+ * actorRole: z.string() — TODO(L40): tighten to RoleIdEnum when added to @dms/types.
+ */
+export const SalesEventSchema = z.object({
+  id: z.string(),
+  vin: z.string(),
+  at: z.string().datetime(),
+  kind: SalesEventKindEnum,
+  actorId: z.string(),
+  actorRole: z.string(), // TODO(L40): tighten to RoleIdEnum when added
+  dealId: z.string().optional(),
+  salesOrderId: z.string().optional(),
+  payload: z.record(z.unknown()).optional(),
+  schemaVersion: z.literal('v1').default('v1'),
+});
+export type SalesEvent = z.infer<typeof SalesEventSchema>;
+
+/**
+ * TypeScript-only discriminated union for type-safe payload access.
+ * Every key must appear in translation-table.ts PAYLOAD_KEY_LABELS.
+ * PLAN-VEHICLES-003 §1.1 / §12.
+ */
+export type SalesEventPayloads = {
+  ACQUIRED: { acquisitionCost: number; kmAtAcquisition: number; source: VehicleTouchSource; consignorCustomerId?: string };
+  LISTED: { listPrice: number; outletId: string };
+  PRICE_CHANGED: { fromPrice: number; toPrice: number; reason?: string };
+  RESERVED: { dealId: string; depositAmount: number; expiresAt: string };
+  RESERVATION_LOST: { dealId: string; reason: 'EXPIRED' | 'CANCELLED' | 'BUYER_WITHDREW' };
+  SOLD: {
+    salesOrderId: string;
+    finalPrice: number;
+    flow: 'MARGIN_SCHEME' | 'CONSIGNMENT_COMMISSION';
+    tcsCollected: number;
+    tcsWaived?: boolean;
+    tcsWaivedReason?: string;
+    gstMargin?: number;
+    commissionEarned?: number;
+    sellerSignatures: Array<{ customerId: string; signedAt: string; actorId: string }>;
+    override?: { by: string; reason: string; proofDocIds: string[] };
+    buyerCustomerId: string;
+  };
+  RETURNED: { salesOrderId: string; reason: string; noteForFinance?: string };
+};
+
+

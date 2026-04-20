@@ -25,3 +25,47 @@ export type {
 
 export { maskedContactFor, R19_RANK } from './contact-mask';
 export type { ContactView } from './contact-mask';
+
+// ─── PLAN-VEHICLES-003 Phase 1 additions ─────────────────────────────────────
+
+export {
+  computeGstMargin,
+  DEFAULT_COMMISSION_PCT,
+  TCS_THRESHOLD_INR,
+  TCS_RATE,
+  GST_RATE,
+  GST_DIVISOR,
+} from './gst-margin';
+export type { GstMarginInput, ComputedGstMargin } from './gst-margin';
+
+export {
+  buildVehicleTimeline,
+  renderTimelineEntry,
+  renderLegacyFallback,
+} from './timeline-adapter';
+export type {
+  TimelineEntry,
+  RenderContext,
+  TimelineEntryView,
+  TimelineChip,
+  TimelineMetaItem,
+} from './timeline-adapter';
+
+export {
+  PAYLOAD_KEY_LABELS,
+  labelFor,
+  formatterFor,
+} from './translation-table';
+export type { FormatterName, QualifiedKey, PayloadKeyLabels } from './translation-table';
+
+export { documentExpiryChip, staleListingChip } from './doc-expiry';
+
+export {
+  SalesEventPayloadValidators,
+  DocumentAccessPayloadValidators,
+  PayloadValidationError,
+  validateSalesEventPayload,
+  validateDocumentAccessPayload,
+  SalesEventKindEnum,
+  DocumentAccessKindEnum,
+} from './event-payload-validators';

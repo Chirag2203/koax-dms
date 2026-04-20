@@ -18,7 +18,7 @@ export function VehicleDetailView({ vin }: VehicleDetailViewProps) {
   if (!vehicle) return null;
 
   return (
-    <div className="mx-auto max-w-[1440px] px-6 pb-12 pt-6">
+    <div className="w-full px-6 pb-12 pt-6">
       <VehicleDetailHeader vehicle={vehicle} />
       <VehicleDetailBody vehicle={vehicle} />
     </div>

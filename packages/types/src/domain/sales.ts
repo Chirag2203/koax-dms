@@ -48,6 +48,18 @@ export const DealSchema = z.object({
   budgetMin: z.number().optional(),
   budgetMax: z.number().optional(),
   notes: z.string().optional(),
+  /**
+   * Set when stage transitions to 'lost' (the cancelled state in this enum).
+   * Discriminates WHY the deal was cancelled. PLAN-VEHICLES-003 L26.
+   * Note: DealStageEnum does NOT add 'EXPIRED' — expiry is modelled as
+   * stage:'lost' + cancellationReason:'EXPIRED'.
+   */
+  cancellationReason: z.enum([
+    'EXPIRED',
+    'BUYER_WITHDREW',
+    'INVENTORY_SOLD',
+    'MANUAL_CANCEL',
+  ]).optional(),
 });
 
 export type DealStage = z.infer<typeof DealStageEnum>;
