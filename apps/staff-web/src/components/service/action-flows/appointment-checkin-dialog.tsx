@@ -2,11 +2,15 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Lock } from 'lucide-react';
 import { Dialog } from '@/src/components/primitives/dialog';
 import { useServiceStore } from '@/src/lib/service/service-store';
+import { useCustomersStore } from '@/src/lib/customers/customers-store';
 import { useStaffAuth } from '@/src/providers/staff-auth-provider';
 import { useToast } from '@/src/hooks/use-toast';
 import { ToastContainer } from '@/src/components/primitives';
+import { maskedContactFor } from '@dms/vehicles-core';
+import { ROLE_RANK } from '@/src/lib/vehicles/state-machine';
 import { cn } from '@dms/ui';
 import type { Appointment, JobCard } from '@dms/types';
 
@@ -155,6 +159,14 @@ export function AppointmentCheckinDialog({
     phone: '—',
   };
 
+  // Contact masking (PLAN-VEHICLES-002 §E)
+  const storeCustomer = useCustomersStore((s) => s.customers[appointment.customerId]);
+  const viewerRank = ROLE_RANK[user?.role ?? ''] ?? 0;
+  const contact = storeCustomer
+    ? maskedContactFor(storeCustomer, viewerRank)
+    : { phone: '', email: '', isMasked: false };
+  const displayPhone = storeCustomer ? (contact.phone || '—') : customer.phone;
+
   function handleClose() {
     setOdometerIn('');
     setBayId(appointment.bayId ?? '');
@@ -278,7 +290,14 @@ export function AppointmentCheckinDialog({
               </div>
               <div>
                 <p className="text-[11px] text-ink-muted">Phone</p>
-                <p className="font-mono text-[13px] text-ink-secondary">{customer.phone}</p>
+                <p className="font-mono text-[13px] text-ink-secondary flex items-center gap-1">
+                  {displayPhone}
+                  {contact.isMasked && storeCustomer?.phone && (
+                    <span title="Confidential — full contact requires R19+ access" className="inline-flex">
+                      <Lock className="h-3 w-3 text-ink-muted" aria-hidden="true" />
+                    </span>
+                  )}
+                </p>
               </div>
               {appointment.vin && (
                 <div>

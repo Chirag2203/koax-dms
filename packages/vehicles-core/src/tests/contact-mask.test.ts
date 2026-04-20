@@ -22,8 +22,8 @@ const normalCustomer = {
   contactConfidential: false as const,
 };
 
-const LOW_RANK = R19_RANK - 1; // 3 — below GM, masking applies
-const HIGH_RANK = R19_RANK;     // 4 — GM (R19), masking bypassed
+const LOW_RANK = R19_RANK - 1; // below GM (e.g. R13 = 5) — masking applies
+const HIGH_RANK = R19_RANK;     // GM (R19) — masking bypassed
 
 // ─── masked-when-confidential-and-low-rank ────────────────────────────────────
 

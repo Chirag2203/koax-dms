@@ -2,8 +2,12 @@
 
 import { useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { Lock } from 'lucide-react';
 import type { ColumnDef } from '@tanstack/react-table';
 import { DataTable } from '@/src/components/primitives';
+import { useStaffAuth } from '@/src/providers/staff-auth-provider';
+import { maskedContactFor } from '@dms/vehicles-core';
+import { ROLE_RANK } from '@/src/lib/vehicles/state-machine';
 import type { Customer } from '@dms/types';
 import { CustomerRowActions } from './customer-row-actions';
 
@@ -21,6 +25,8 @@ export function CustomersTable({
   vehicleCountByCustomer = {},
 }: CustomersTableProps) {
   const router = useRouter();
+  const { user } = useStaffAuth();
+  const viewerRank = ROLE_RANK[user?.role ?? ''] ?? 0;
 
   const columns = useMemo<ColumnDef<Customer>[]>(() => [
     {
@@ -29,6 +35,7 @@ export function CustomersTable({
       accessorFn: (r) => r.name,
       cell: ({ row }) => {
         const c = row.original;
+        const contact = maskedContactFor(c, viewerRank);
         return (
           <div className="flex items-center gap-2">
             <span className="w-8 h-8 rounded-full bg-accent/80 flex items-center justify-center font-mono text-[11px] font-medium text-white shrink-0">
@@ -36,7 +43,14 @@ export function CustomersTable({
             </span>
             <div>
               <div className="text-sm font-medium text-ink-primary">{c.name}</div>
-              <div className="text-xs text-ink-muted">{c.email}</div>
+              <div className="flex items-center gap-1 text-xs text-ink-muted">
+                {contact.email || '—'}
+                {contact.isMasked && !!c.email && (
+                  <span title="Confidential — full contact requires R19+ access" className="inline-flex">
+                    <Lock className="h-3 w-3 text-ink-muted" aria-hidden="true" />
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         );
@@ -46,9 +60,20 @@ export function CustomersTable({
       id: 'phone',
       header: 'Phone',
       accessorFn: (r) => r.phone,
-      cell: ({ row }) => (
-        <span className="text-sm font-mono text-ink-secondary">{row.original.phone}</span>
-      ),
+      cell: ({ row }) => {
+        const c = row.original;
+        const contact = maskedContactFor(c, viewerRank);
+        return (
+          <span className="flex items-center gap-1 text-sm font-mono text-ink-secondary">
+            {contact.phone || '—'}
+            {contact.isMasked && !!c.phone && (
+              <span title="Confidential — full contact requires R19+ access" className="inline-flex">
+                <Lock className="h-3 w-3 text-ink-muted" aria-hidden="true" />
+              </span>
+            )}
+          </span>
+        );
+      },
     },
     {
       id: 'city',
@@ -96,7 +121,7 @@ export function CustomersTable({
       ),
       size: 60,
     },
-  ], [router, vehicleCountByCustomer]);
+  ], [router, vehicleCountByCustomer, viewerRank]);
 
   return (
     <DataTable

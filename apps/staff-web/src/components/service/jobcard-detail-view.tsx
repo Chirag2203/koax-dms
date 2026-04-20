@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useServiceStore } from '@/src/lib/service/service-store';
+import { useCustomersStore } from '@/src/lib/customers/customers-store';
+import { maskedContactFor } from '@dms/vehicles-core';
+import { ROLE_RANK } from '@/src/lib/vehicles/state-machine';
 import {
   ChevronRight,
   Phone,
@@ -14,6 +17,7 @@ import {
   ExternalLink,
   RotateCcw,
   StickyNote,
+  Lock,
 } from 'lucide-react';
 import { cn } from '@dms/ui';
 import {
@@ -255,6 +259,13 @@ export function JobCardDetailView({ jobCard: initialJobCard }: JobCardDetailView
   const setJobCardStatus = useServiceStore((s) => s.setJobCardStatus);
   const logCommunication = useServiceStore((s) => s.logCommunication);
 
+  // Look up the real customer from the store for contact masking (PLAN-VEHICLES-002 §E)
+  const storeCustomer = useCustomersStore((s) => s.customers[jobCard.customerId]);
+  const viewerRank = ROLE_RANK[user?.role ?? ''] ?? 0;
+  const contact = storeCustomer
+    ? maskedContactFor(storeCustomer, viewerRank)
+    : { phone: '', email: '', isMasked: false };
+
   const notes = allAdvisorNotes.filter((n) => n.jobCardId === jobCard.id);
   const timeline = allTimelineEvents.filter((e) => e.jobCardId === jobCard.id);
   const recentComms = allCommunications
@@ -268,6 +279,9 @@ export function JobCardDetailView({ jobCard: initialJobCard }: JobCardDetailView
     email: '—',
     phoneDigits: '',
   };
+  // Use masked contact values from the store if available; fall back to CUSTOMER_MAP
+  const displayPhone = storeCustomer ? (contact.phone || '—') : customer.phone;
+  const displayEmail = storeCustomer ? (contact.email || '—') : customer.email;
   const outletCode = OUTLET_MAP[jobCard.outletId] ?? 'bangalore';
   const advisorName = ADVISOR_MAP[jobCard.advisorId] ?? jobCard.advisorId;
 
@@ -686,16 +700,30 @@ export function JobCardDetailView({ jobCard: initialJobCard }: JobCardDetailView
                   className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                 >
                   <Phone className="h-3 w-3 text-ink-muted shrink-0" aria-hidden="true" />
-                  <span className="font-mono text-[12px] text-ink-secondary">{customer.phone}</span>
+                  <span className="font-mono text-[12px] text-ink-secondary flex items-center gap-1">
+                    {displayPhone}
+                    {contact.isMasked && storeCustomer?.phone && (
+                      <span title="Confidential — full contact requires R19+ access" className="inline-flex">
+                        <Lock className="h-3 w-3 text-ink-muted" aria-hidden="true" />
+                      </span>
+                    )}
+                  </span>
                 </a>
                 <a
-                  href={`mailto:${customer.email.replace(/••••/g, 'masked')}`}
+                  href={`mailto:${displayEmail.replace(/••••/g, 'masked')}`}
                   aria-label={`Email ${customer.name}`}
                   onClick={handleEmail}
                   className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                 >
                   <Mail className="h-3 w-3 text-ink-muted shrink-0" aria-hidden="true" />
-                  <span className="font-mono text-[12px] text-ink-secondary">{customer.email}</span>
+                  <span className="font-mono text-[12px] text-ink-secondary flex items-center gap-1">
+                    {displayEmail}
+                    {contact.isMasked && storeCustomer?.email && (
+                      <span title="Confidential — full contact requires R19+ access" className="inline-flex">
+                        <Lock className="h-3 w-3 text-ink-muted" aria-hidden="true" />
+                      </span>
+                    )}
+                  </span>
                 </a>
               </div>
             </SidebarCard>

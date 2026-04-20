@@ -10,7 +10,11 @@ import {
   ExternalLink,
   Calendar,
   MapPin,
+  Lock,
 } from 'lucide-react';
+import { useCustomersStore } from '@/src/lib/customers/customers-store';
+import { maskedContactFor } from '@dms/vehicles-core';
+import { ROLE_RANK } from '@/src/lib/vehicles/state-machine';
 import { cn } from '@dms/ui';
 import { StateChip, ToastContainer, Gate } from '@/src/components/primitives';
 import type { StateChipStatus } from '@/src/components/primitives';
@@ -220,6 +224,15 @@ export function AppointmentDetailView({ appointment: initialAppointment }: Appoi
     phoneDigits: '',
   };
 
+  // Look up real customer from the store for contact masking (PLAN-VEHICLES-002 §E)
+  const storeCustomer = useCustomersStore((s) => s.customers[appointment.customerId]);
+  const viewerRank = ROLE_RANK[user?.role ?? ''] ?? 0;
+  const contact = storeCustomer
+    ? maskedContactFor(storeCustomer, viewerRank)
+    : { phone: '', email: '', isMasked: false };
+  const displayPhone = storeCustomer ? (contact.phone || '—') : customer.phone;
+  const displayEmail = storeCustomer ? (contact.email || '—') : customer.email;
+
   const isActive = appointment.status === 'SCHEDULED' || appointment.status === 'CONFIRMED';
   const isCheckedIn = appointment.status === 'CHECKED_IN';
   const isTerminal = appointment.status === 'CANCELLED' || appointment.status === 'NO_SHOW';
@@ -356,10 +369,24 @@ export function AppointmentDetailView({ appointment: initialAppointment }: Appoi
                 } />
                 <DetailRow label="Customer" value={customer.name} />
                 <DetailRow label="Phone" value={
-                  <span className="font-mono">{customer.phone}</span>
+                  <span className="font-mono flex items-center gap-1">
+                    {displayPhone}
+                    {contact.isMasked && storeCustomer?.phone && (
+                      <span title="Confidential — full contact requires R19+ access" className="inline-flex">
+                        <Lock className="h-3 w-3 text-ink-muted" aria-hidden="true" />
+                      </span>
+                    )}
+                  </span>
                 } />
                 <DetailRow label="Email" value={
-                  <span className="font-mono text-[12px]">{customer.email}</span>
+                  <span className="font-mono text-[12px] flex items-center gap-1">
+                    {displayEmail}
+                    {contact.isMasked && storeCustomer?.email && (
+                      <span title="Confidential — full contact requires R19+ access" className="inline-flex">
+                        <Lock className="h-3 w-3 text-ink-muted" aria-hidden="true" />
+                      </span>
+                    )}
+                  </span>
                 } />
                 <DetailRow label="VIN" value={
                   appointment.vin
@@ -437,15 +464,29 @@ export function AppointmentDetailView({ appointment: initialAppointment }: Appoi
                   className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                 >
                   <Phone className="h-3 w-3 text-ink-muted shrink-0" aria-hidden="true" />
-                  <span className="font-mono text-[12px] text-ink-secondary">{customer.phone}</span>
+                  <span className="font-mono text-[12px] text-ink-secondary flex items-center gap-1">
+                    {displayPhone}
+                    {contact.isMasked && storeCustomer?.phone && (
+                      <span title="Confidential — full contact requires R19+ access" className="inline-flex">
+                        <Lock className="h-3 w-3 text-ink-muted" aria-hidden="true" />
+                      </span>
+                    )}
+                  </span>
                 </a>
                 <a
-                  href={`mailto:${customer.email.replace(/••••/g, 'masked')}`}
+                  href={`mailto:${displayEmail.replace(/••••/g, 'masked')}`}
                   aria-label={`Email ${customer.name}`}
                   className="flex items-center gap-2 hover:opacity-80 transition-opacity"
                 >
                   <Mail className="h-3 w-3 text-ink-muted shrink-0" aria-hidden="true" />
-                  <span className="font-mono text-[12px] text-ink-secondary">{customer.email}</span>
+                  <span className="font-mono text-[12px] text-ink-secondary flex items-center gap-1">
+                    {displayEmail}
+                    {contact.isMasked && storeCustomer?.email && (
+                      <span title="Confidential — full contact requires R19+ access" className="inline-flex">
+                        <Lock className="h-3 w-3 text-ink-muted" aria-hidden="true" />
+                      </span>
+                    )}
+                  </span>
                 </a>
               </div>
             </SidebarCard>

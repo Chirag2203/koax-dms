@@ -66,7 +66,7 @@ export interface CustomersActions {
   /** Update mutable profile fields. */
   updateCustomerProfile(
     id: string,
-    patch: Partial<Pick<Customer, 'name' | 'email' | 'phone'>>,
+    patch: Partial<Pick<Customer, 'name' | 'email' | 'phone' | 'contactConfidential'>>,
     actor: Actor,
   ): void;
 

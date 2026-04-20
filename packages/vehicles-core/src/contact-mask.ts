@@ -9,12 +9,18 @@
  *   Email:   "a***@***.com"      — first letter + *** @ *** + last domain segment
  *   Address: "Hidden — confidential" when present; undefined when absent
  *
- * Spec reference: PLAN-VEHICLES-002 §A, Doc 14 (ROLE_RANK R19 = rank 4)
+ * Spec reference: PLAN-VEHICLES-002 §A + L11; Doc 14 §2.3.
+ * Source of truth: `apps/staff-web/src/lib/vehicles/state-machine.ts::ROLE_RANK`
+ * where R19 = 6 (General Manager and above).
  * LoC budget: ≤80
  */
 
-/** Viewer rank at which masking is bypassed (GM and above). */
-export const R19_RANK = 4;
+/**
+ * Viewer rank at which masking is bypassed (GM and above).
+ * Must match `ROLE_RANK['R19']` in `apps/staff-web/src/lib/vehicles/state-machine.ts`.
+ * If ROLE_RANK ever changes, update this constant in lockstep.
+ */
+export const R19_RANK = 6;
 
 export interface ContactView {
   phone: string;

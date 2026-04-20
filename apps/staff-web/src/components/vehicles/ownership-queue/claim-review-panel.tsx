@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
+import { CheckCircle, XCircle, AlertTriangle, Lock } from 'lucide-react';
 import { cn } from '@dms/ui';
 import { SlideInPanel, VinBadge, Gate } from '@/src/components/primitives';
 import { useVehiclesStore } from '@/src/lib/vehicles/vehicles-store';
 import { useCustomersStore } from '@/src/lib/customers/customers-store';
 import { useStaffAuth } from '@/src/providers/staff-auth-provider';
+import { maskedContactFor } from '@dms/vehicles-core';
+import { ROLE_RANK } from '@/src/lib/vehicles/state-machine';
 import type { OwnershipClaim, RejectionReason } from '@dms/types';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -24,14 +26,16 @@ export function ClaimReviewPanel({ open, claim, onClose }: ClaimReviewPanelProps
   const [showReject, setShowReject] = useState(false);
 
   const { user } = useStaffAuth();
+  const viewerRank = ROLE_RANK[user?.role ?? ''] ?? 0;
   const approveClaim = useVehiclesStore((s) => s.approveClaim);
   const rejectClaim = useVehiclesStore((s) => s.rejectClaim);
   const runSweep = useVehiclesStore((s) => s.runAnonymizationSweep);
   const ownerships = useVehiclesStore((s) => s.ownerships);
   const customers = useCustomersStore((s) => s.customers);
-  const claimantName = claim
-    ? customers[claim.claimantCustomerId]?.name ?? claim.claimantCustomerId
-    : '';
+  const claimant = claim ? (customers[claim.claimantCustomerId] ?? null) : null;
+  const claimantName = claimant?.name ?? claim?.claimantCustomerId ?? '';
+
+  const contact = claimant ? maskedContactFor(claimant, viewerRank) : null;
 
   const overlapping = claim?.overlapsOwnershipId
     ? ownerships[claim.overlapsOwnershipId]
@@ -80,6 +84,43 @@ export function ClaimReviewPanel({ open, claim, onClose }: ClaimReviewPanelProps
             </div>
           </dl>
         </div>
+
+        {/* Claimant contact */}
+        {contact && (claimant?.phone || claimant?.email) && (
+          <div className="rounded-md border border-line bg-bg-surface p-4">
+            <p className="text-xs font-mono uppercase tracking-widest text-ink-muted mb-3">
+              Claimant Contact
+            </p>
+            <dl className="space-y-2 text-sm">
+              {claimant?.phone && (
+                <div className="flex items-center gap-2">
+                  <dt className="text-xs text-ink-muted w-12 shrink-0">Phone</dt>
+                  <dd className="font-mono text-xs text-ink-secondary flex items-center gap-1">
+                    {contact.phone || '—'}
+                    {contact.isMasked && (
+                      <span title="Confidential — full contact requires R19+ access" className="inline-flex">
+                        <Lock className="h-3 w-3 text-ink-muted" aria-hidden="true" />
+                      </span>
+                    )}
+                  </dd>
+                </div>
+              )}
+              {claimant?.email && (
+                <div className="flex items-center gap-2">
+                  <dt className="text-xs text-ink-muted w-12 shrink-0">Email</dt>
+                  <dd className="font-mono text-xs text-ink-secondary flex items-center gap-1">
+                    {contact.email || '—'}
+                    {contact.isMasked && (
+                      <span title="Confidential — full contact requires R19+ access" className="inline-flex">
+                        <Lock className="h-3 w-3 text-ink-muted" aria-hidden="true" />
+                      </span>
+                    )}
+                  </dd>
+                </div>
+              )}
+            </dl>
+          </div>
+        )}
 
         {/* Overlap banner */}
         {overlapping && (
