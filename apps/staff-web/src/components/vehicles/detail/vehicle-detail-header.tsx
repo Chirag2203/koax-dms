@@ -67,7 +67,9 @@ export function VehicleDetailHeader({ vehicle }: VehicleDetailHeaderProps) {
     : null;
 
   const outletCode = OUTLET_MAP[vehicle.firstTouchOutletId] ?? 'bangalore';
-  const metadataIncomplete = !vehicle.make || vehicle.make === '';
+  // Use the canonical metadataIncomplete flag (set by backfill for walk-in JC VINs).
+  // PLAN-VEHICLES-002 §B concern 6 — flag is authoritative; do not derive from make === ''.
+  const metadataIncomplete = vehicle.metadataIncomplete === true;
 
   return (
     <>
@@ -117,6 +119,24 @@ export function VehicleDetailHeader({ vehicle }: VehicleDetailHeaderProps) {
             )}
           </div>
         </div>
+
+        {/* Amber banner — rendered above the tab nav for auto-backfilled walk-in VINs.
+            PLAN-VEHICLES-002 §B.4 — metadataIncomplete flag triggers this banner.
+            Uses --state-overdue token (amber) per design rules. */}
+        {metadataIncomplete && (
+          <div className="mt-4 rounded-md border border-[rgb(var(--state-overdue)/0.4)] bg-[rgb(var(--state-overdue)/0.06)] px-4 py-2.5 text-sm text-[rgb(var(--state-overdue))]">
+            Metadata incomplete — vehicle was auto-registered from a service visit.{' '}
+            <Gate role={['R09', 'R19', 'R22', 'R24']} fallback="hide">
+              <button
+                type="button"
+                onClick={() => setIntakeOpen(true)}
+                className="font-medium underline underline-offset-2 hover:opacity-80 transition-opacity"
+              >
+                Enrich details
+              </button>
+            </Gate>
+          </div>
+        )}
       </div>
 
       <VehicleIntakeDialog
