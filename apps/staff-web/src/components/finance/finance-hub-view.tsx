@@ -76,27 +76,20 @@ const MODULE_CARDS: ModuleCard[] = [
 
 export function FinanceHubView() {
   const t = useTranslations('finance.hub');
-  const { period, outletScope, setPeriod, setOutletScope, getMarginReconciliation, getTcsRegister, getCustomerLedger, getVendorInvoiceList } =
-    useFinanceStore((s) => ({
-      period: s.period,
-      outletScope: s.outletScope,
-      setPeriod: s.setPeriod,
-      setOutletScope: s.setOutletScope,
-      getMarginReconciliation: s.getMarginReconciliation,
-      getTcsRegister: s.getTcsRegister,
-      getCustomerLedger: s.getCustomerLedger,
-      getVendorInvoiceList: s.getVendorInvoiceList,
-    }));
+  const period = useFinanceStore((s) => s.period);
+  const outletScope = useFinanceStore((s) => s.outletScope);
+  const setPeriod = useFinanceStore((s) => s.setPeriod);
+  const setOutletScope = useFinanceStore((s) => s.setOutletScope);
+  const getMarginReconciliation = useFinanceStore((s) => s.getMarginReconciliation);
+  const getTcsRegister = useFinanceStore((s) => s.getTcsRegister);
+  const getCustomerLedger = useFinanceStore((s) => s.getCustomerLedger);
+  const getVendorInvoiceList = useFinanceStore((s) => s.getVendorInvoiceList);
 
   // L14: pure selectors
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const gstRows = useMemo(() => getMarginReconciliation(period, outletScope), [period, outletScope]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const tcsRows = useMemo(() => getTcsRegister(period, outletScope), [period, outletScope]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const ledgerEntries = useMemo(() => getCustomerLedger(outletScope), [outletScope]);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const vendorInvoices = useMemo(() => getVendorInvoiceList(period, outletScope), [period, outletScope]);
+  const gstRows = useMemo(() => getMarginReconciliation(period, outletScope), [getMarginReconciliation, period, outletScope]);
+  const tcsRows = useMemo(() => getTcsRegister(period, outletScope), [getTcsRegister, period, outletScope]);
+  const ledgerEntries = useMemo(() => getCustomerLedger(outletScope), [getCustomerLedger, outletScope]);
+  const vendorInvoices = useMemo(() => getVendorInvoiceList(period, outletScope), [getVendorInvoiceList, period, outletScope]);
 
   // Computed KPIs
   const totalGstLiabilityPaise = useMemo(

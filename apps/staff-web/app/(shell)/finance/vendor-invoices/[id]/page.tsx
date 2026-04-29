@@ -25,15 +25,12 @@ export default function VendorInvoiceDetailPage({ params }: Props) {
   const router = useRouter();
   const { id } = params;
 
-  const { period, outletScope, getVendorInvoiceList } = useFinanceStore((s) => ({
-    period: s.period,
-    outletScope: s.outletScope,
-    getVendorInvoiceList: s.getVendorInvoiceList,
-  }));
+  const period = useFinanceStore((s) => s.period);
+  const outletScope = useFinanceStore((s) => s.outletScope);
+  const getVendorInvoiceList = useFinanceStore((s) => s.getVendorInvoiceList);
 
   // L14: pure selector
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const invoices = useMemo(() => getVendorInvoiceList(period, outletScope), [period, outletScope]);
+  const invoices = useMemo(() => getVendorInvoiceList(period, outletScope), [getVendorInvoiceList, period, outletScope]);
   const invoice = invoices.find((inv) => inv.id === id);
 
   if (!invoice) {

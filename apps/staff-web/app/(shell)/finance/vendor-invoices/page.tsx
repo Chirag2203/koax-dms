@@ -23,12 +23,10 @@ import type { VendorInvoice } from '@dms/types';
 export default function VendorInvoicesPage() {
   const t = useTranslations('finance.vendorInvoices');
   const router = useRouter();
-  const { setPeriod, setOutletScope, period, outletScope } = useFinanceStore((s) => ({
-    period: s.period,
-    outletScope: s.outletScope,
-    setPeriod: s.setPeriod,
-    setOutletScope: s.setOutletScope,
-  }));
+  const period = useFinanceStore((s) => s.period);
+  const outletScope = useFinanceStore((s) => s.outletScope);
+  const setPeriod = useFinanceStore((s) => s.setPeriod);
+  const setOutletScope = useFinanceStore((s) => s.setOutletScope);
 
   const handleSelect = (invoice: VendorInvoice) => {
     router.push(`/finance/vendor-invoices/${invoice.id}`);

@@ -21,10 +21,8 @@ import type { CustomerLedgerEntry } from '@dms/types';
 
 export default function CustomerLedgerPage() {
   const t = useTranslations('finance.customerLedger');
-  const { outletScope, setOutletScope } = useFinanceStore((s) => ({
-    outletScope: s.outletScope,
-    setOutletScope: s.setOutletScope,
-  }));
+  const outletScope = useFinanceStore((s) => s.outletScope);
+  const setOutletScope = useFinanceStore((s) => s.setOutletScope);
 
   const [selected, setSelected] = useState<CustomerLedgerEntry | null>(null);
 

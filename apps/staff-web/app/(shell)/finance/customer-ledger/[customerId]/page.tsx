@@ -24,14 +24,11 @@ export default function CustomerLedgerDetailPage({ params }: Props) {
   const router = useRouter();
   const { customerId } = params;
 
-  const { outletScope, getCustomerLedger } = useFinanceStore((s) => ({
-    outletScope: s.outletScope,
-    getCustomerLedger: s.getCustomerLedger,
-  }));
+  const outletScope = useFinanceStore((s) => s.outletScope);
+  const getCustomerLedger = useFinanceStore((s) => s.getCustomerLedger);
 
   // L14: pure selector
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const entries = useMemo(() => getCustomerLedger(outletScope), [outletScope]);
+  const entries = useMemo(() => getCustomerLedger(outletScope), [getCustomerLedger, outletScope]);
   const entry = entries.find((e) => e.customerId === customerId);
 
   if (!entry) {

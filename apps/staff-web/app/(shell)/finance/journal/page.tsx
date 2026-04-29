@@ -25,20 +25,16 @@ import { FinanceStoreHydrator } from '@/src/lib/finance/finance-store-hydrator';
 
 export default function JournalPage() {
   const t = useTranslations('finance.journal');
-  const { period, outletScope, setPeriod, setOutletScope, getJournalEntries } =
-    useFinanceStore((s) => ({
-      period: s.period,
-      outletScope: s.outletScope,
-      setPeriod: s.setPeriod,
-      setOutletScope: s.setOutletScope,
-      getJournalEntries: s.getJournalEntries,
-    }));
+  const period = useFinanceStore((s) => s.period);
+  const outletScope = useFinanceStore((s) => s.outletScope);
+  const setPeriod = useFinanceStore((s) => s.setPeriod);
+  const setOutletScope = useFinanceStore((s) => s.setOutletScope);
+  const getJournalEntries = useFinanceStore((s) => s.getJournalEntries);
 
   const [exportOpen, setExportOpen] = useState(false);
 
   // L14: pure selector
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const entries = useMemo(() => getJournalEntries(period, outletScope), [period, outletScope]);
+  const entries = useMemo(() => getJournalEntries(period, outletScope), [getJournalEntries, period, outletScope]);
 
   const totalDebitPaise = useMemo(
     () => entries.flatMap((e) => e.legs).filter((l) => l.drCr === 'Dr').reduce((s, l) => s + l.amountPaise, 0),

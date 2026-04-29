@@ -25,15 +25,12 @@ export default function GstVinDetailPage({ params }: Props) {
   const t = useTranslations('finance.gst');
   const { vin } = params;
 
-  const { period, outletScope, getMarginReconciliation } = useFinanceStore((s) => ({
-    period: s.period,
-    outletScope: s.outletScope,
-    getMarginReconciliation: s.getMarginReconciliation,
-  }));
+  const period = useFinanceStore((s) => s.period);
+  const outletScope = useFinanceStore((s) => s.outletScope);
+  const getMarginReconciliation = useFinanceStore((s) => s.getMarginReconciliation);
 
   // L14: pure selector
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const rows = useMemo(() => getMarginReconciliation(period, outletScope), [period, outletScope]);
+  const rows = useMemo(() => getMarginReconciliation(period, outletScope), [getMarginReconciliation, period, outletScope]);
   const row = rows.find((r) => r.vin === vin);
 
   if (!row) {

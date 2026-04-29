@@ -32,19 +32,16 @@ interface VendorInvoiceListViewProps {
 
 export function VendorInvoiceListView({ onSelect }: VendorInvoiceListViewProps) {
   const t = useTranslations('finance.vendorInvoices');
-  const { period, outletScope, getVendorInvoiceList } = useFinanceStore((s) => ({
-    period: s.period,
-    outletScope: s.outletScope,
-    getVendorInvoiceList: s.getVendorInvoiceList,
-  }));
+  const period = useFinanceStore((s) => s.period);
+  const outletScope = useFinanceStore((s) => s.outletScope);
+  const getVendorInvoiceList = useFinanceStore((s) => s.getVendorInvoiceList);
 
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
 
   const allInvoices = useMemo(
     () => getVendorInvoiceList(period, outletScope),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [period, outletScope],
+    [getVendorInvoiceList, period, outletScope],
   );
 
   const filtered = useMemo(() => {

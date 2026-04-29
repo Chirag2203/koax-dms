@@ -38,11 +38,9 @@ export function TallyExportDialog({
   const t = useTranslations('finance.journal');
   const { user } = useStaffAuth();
   const { toasts, toast, dismiss } = useToast();
-  const { period, outletScope, exportJournalCSV } = useFinanceStore((s) => ({
-    period: s.period,
-    outletScope: s.outletScope,
-    exportJournalCSV: s.exportJournalCSV,
-  }));
+  const period = useFinanceStore((s) => s.period);
+  const outletScope = useFinanceStore((s) => s.outletScope);
+  const exportJournalCSV = useFinanceStore((s) => s.exportJournalCSV);
 
   const [exporting, setExporting] = useState(false);
   const [lastExport, setLastExport] = useState<{ filename: string; csvByteLength: number } | null>(null);

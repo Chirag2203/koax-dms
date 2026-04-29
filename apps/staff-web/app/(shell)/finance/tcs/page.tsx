@@ -20,18 +20,14 @@ import { FinanceStoreHydrator } from '@/src/lib/finance/finance-store-hydrator';
 
 export default function TcsPage() {
   const t = useTranslations('finance.tcs');
-  const { period, outletScope, setPeriod, setOutletScope, getTcsRegister } =
-    useFinanceStore((s) => ({
-      period: s.period,
-      outletScope: s.outletScope,
-      setPeriod: s.setPeriod,
-      setOutletScope: s.setOutletScope,
-      getTcsRegister: s.getTcsRegister,
-    }));
+  const period = useFinanceStore((s) => s.period);
+  const outletScope = useFinanceStore((s) => s.outletScope);
+  const setPeriod = useFinanceStore((s) => s.setPeriod);
+  const setOutletScope = useFinanceStore((s) => s.setOutletScope);
+  const getTcsRegister = useFinanceStore((s) => s.getTcsRegister);
 
   // L14: pure selector
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const rows = useMemo(() => getTcsRegister(period, outletScope), [period, outletScope]);
+  const rows = useMemo(() => getTcsRegister(period, outletScope), [getTcsRegister, period, outletScope]);
 
   return (
     <>

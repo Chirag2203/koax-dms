@@ -19,18 +19,14 @@ import { useFinanceStore } from '@/src/lib/finance/finance-store';
 
 export default function GstPage() {
   const t = useTranslations('finance.gst');
-  const { period, outletScope, setPeriod, setOutletScope, getMarginReconciliation } =
-    useFinanceStore((s) => ({
-      period: s.period,
-      outletScope: s.outletScope,
-      setPeriod: s.setPeriod,
-      setOutletScope: s.setOutletScope,
-      getMarginReconciliation: s.getMarginReconciliation,
-    }));
+  const period = useFinanceStore((s) => s.period);
+  const outletScope = useFinanceStore((s) => s.outletScope);
+  const setPeriod = useFinanceStore((s) => s.setPeriod);
+  const setOutletScope = useFinanceStore((s) => s.setOutletScope);
+  const getMarginReconciliation = useFinanceStore((s) => s.getMarginReconciliation);
 
   // L14: pure selector
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const rows = useMemo(() => getMarginReconciliation(period, outletScope), [period, outletScope]);
+  const rows = useMemo(() => getMarginReconciliation(period, outletScope), [getMarginReconciliation, period, outletScope]);
 
   return (
     <div className="px-6 py-8 space-y-6">

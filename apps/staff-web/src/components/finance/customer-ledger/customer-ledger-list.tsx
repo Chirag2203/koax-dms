@@ -25,16 +25,13 @@ interface CustomerLedgerListProps {
 
 export function CustomerLedgerList({ onSelect }: CustomerLedgerListProps) {
   const t = useTranslations('finance.customerLedger');
-  const { outletScope, getCustomerLedger } = useFinanceStore((s) => ({
-    outletScope: s.outletScope,
-    getCustomerLedger: s.getCustomerLedger,
-  }));
+  const outletScope = useFinanceStore((s) => s.outletScope);
+  const getCustomerLedger = useFinanceStore((s) => s.getCustomerLedger);
 
   const [agingFilter, setAgingFilter] = useState<AgingFilter>('all');
 
   // L14: pure selector, L18: 3-source
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const entries = useMemo(() => getCustomerLedger(outletScope), [outletScope]);
+  const entries = useMemo(() => getCustomerLedger(outletScope), [getCustomerLedger, outletScope]);
 
   const filtered = useMemo(() => {
     if (agingFilter === 'all') return entries;
