@@ -1226,8 +1226,128 @@ export function ReassignVendorDialog({
 
 ---
 
-## 16. Changelog
+---
+
+## 17. Error handling (locked 2026-04-29)
+
+### Why this section exists
+
+Until 2026-04-29 a single uncaught error in any module crashed the whole
+staff-web shell — sidebar, top bar, and all other modules went blank.
+The Finance module's Zustand object-selector infinite-render bug exposed
+this; a customer using `/dashboard` would see the entire app go white if
+they had previously visited `/finance`. This is unacceptable for a
+multi-module CRM where operators depend on partial functionality even
+when a module is mid-rollout.
+
+### Layered architecture
+
+| Layer | File | Catches | Renders |
+|---|---|---|---|
+| **L1 Global** | `app/global-error.tsx` | Errors that escape L2 + errors in `app/layout.tsx` itself | Standalone HTML page (no provider tree) |
+| **L2 Shell** | `app/(shell)/error.tsx` | Errors in the `(shell)` layout but not caught by a module boundary | Sidebar + top bar preserved; `<ModuleErrorFallback moduleName="this page" />` |
+| **L3 Module** | `app/(shell)/<module>/error.tsx` | Errors anywhere in a single module's route subtree | Sidebar + top bar preserved; `<ModuleErrorFallback moduleName="<DisplayName>" />` |
+| **L4 Component** | Manual class `<ErrorBoundary>` | Specific risky widgets (3D canvas, external embeds) | Inline error chip with retry within the section |
+
+### L1 — Global error boundary
+
+App Router replaces the root layout when this fires, so the file MUST
+render its own `<html>` and `<body>`. No provider tree (no IntlProvider,
+theme, auth, store hydrators). Markup is fully inline-styled to avoid
+depending on the @dms/tokens CSS that might not have loaded.
+
+Body shows: error message (dev only) or digest hash (prod), "Try again"
+button calling `reset()`, and a "Go to dashboard" link.
+
+### L2 — Shell-level error boundary
+
+Catches errors in providers (auth, theme), command palette, top bar.
+Sidebar and top bar are already rendered (the shell layout completed
+before the error). The fallback replaces the main content area only.
+
+Renders `<ModuleErrorFallback moduleName="this page" />` — the user sees
+they can navigate elsewhere via the still-functional sidebar.
+
+### L3 — Module-level error boundaries (THE primary defence)
+
+Every module under `app/(shell)/` MUST have an `error.tsx` at its route
+root. Without one, errors bubble up to L2 and the user loses module
+context.
+
+Canonical template (paste verbatim):
+
+```tsx
+'use client';
+import { ModuleErrorFallback } from '@/src/components/primitives/module-error-fallback';
+
+export default function ModuleError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  return (
+    <ModuleErrorFallback
+      moduleName="<DisplayName>"
+      error={error}
+      reset={reset}
+    />
+  );
+}
+```
+
+`<DisplayName>` matches the sidebar nav label (e.g., `"Custom Builds"`,
+`"Sale Inventory"` — not the slug).
+
+### L4 — In-component class boundary (rare)
+
+Only when a specific widget should fail without affecting the rest of the
+module. Example: 3D visualizer crashing on a missing GLB shouldn't kill
+the Build Job detail page's Overview/Parts/Activity tabs.
+
+Canonical 30-line implementation lives at
+`apps/staff-web/src/components/primitives/error-boundary.tsx` (TODO —
+ship this when the first widget needs it; not in v1 scope).
+
+### Canonical fallback component
+
+`apps/staff-web/src/components/primitives/module-error-fallback.tsx`:
+
+- Card-style border (`rounded-md border border-line bg-bg-surface p-6`)
+- AlertCircle icon (lucide) in a `bg-state-danger/10` rounded badge
+- H1: "Something went wrong in {moduleName}"
+- Body: "The rest of the app is still working..."
+- Error details: full `error.message` in dev; `digest` hash in prod
+- Two CTAs: "Try again" (Button primary) + "Back to dashboard" (Link with
+  canonical secondary recipe)
+
+### Enforcement
+
+`apps/staff-web/src/tests/error-boundaries.test.ts` runs 6 checks on
+every `pnpm test`:
+
+1. Every shell module has `error.tsx`
+2. Every `error.tsx` imports `ModuleErrorFallback`
+3. `(shell)/error.tsx` exists
+4. `global-error.tsx` exists with `<html>` + `<body>`
+5. Every `error.tsx` has `'use client'` as first directive
+6. (Future) ModuleErrorFallback prop `moduleName` is non-empty
+
+CI/test-suite blocks merges that violate any check.
+
+### Telemetry hook (v1 stub, v1.5 wire-up)
+
+`ModuleErrorFallback` calls `console.error('[<module>] module crashed:', error)`
+in a `useEffect`. Per Doc 12 §observability, v1.5 wires this to a Sentry
+or Datadog capture. v1 ships console-only — operators can grab the
+digest hash to share with support.
+
+---
+
+## 18. Changelog
 
 | Date | Change | Author |
 |------|--------|--------|
 | 2026-04-29 | Initial spec authored from codebase audit of 8 shipped modules | SPEC-ARCH-UI-001 |
+| 2026-04-29 | §17 Error handling added — 4-layer boundary architecture, ModuleErrorFallback primitive, error-boundaries.test.ts enforcement (6 checks). Triggered by 2026-04-29 Finance crash that took down the whole shell. | SPEC-ARCH-UI-001 |

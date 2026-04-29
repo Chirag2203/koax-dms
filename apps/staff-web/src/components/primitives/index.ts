@@ -42,3 +42,6 @@ export type { SliderProps } from './slider';
 
 export { Button } from './button';
 export type { ButtonProps, ButtonVariant, ButtonSize } from './button';
+
+export { ModuleErrorFallback } from './module-error-fallback';
+export type { ModuleErrorFallbackProps } from './module-error-fallback';

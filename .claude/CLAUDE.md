@@ -418,6 +418,36 @@ The drift audit is itself a spec-template document. Audits are kept (not deleted
 
 If you cannot tick every box, the work is not production-grade — say "MVP grade" or "demo grade" instead. Words matter.
 
+### 17.0 Error-boundary contract (NON-NEGOTIABLE)
+
+Every shell module MUST have an `app/(shell)/<module>/error.tsx` that
+renders `<ModuleErrorFallback moduleName="..." error={error} reset={reset} />`.
+Without it, an error in one module crashes the whole app shell. Enforced
+by `apps/staff-web/src/tests/error-boundaries.test.ts` (6 checks):
+
+1. Every shell module dir has `error.tsx`
+2. Every `error.tsx` imports + uses `ModuleErrorFallback`
+3. Shell-level `app/(shell)/error.tsx` exists
+4. Global `app/global-error.tsx` exists and renders its own `<html>` + `<body>` (App Router requirement)
+5. Every module `error.tsx` is marked `'use client'`
+
+Scaffolding: when adding a new module under `app/(shell)/<name>/`, the
+FIRST file created MUST be `error.tsx`. Use the canonical template:
+
+```tsx
+'use client';
+import { ModuleErrorFallback } from '@/src/components/primitives/module-error-fallback';
+export default function ModuleError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  return <ModuleErrorFallback moduleName="<DisplayName>" error={error} reset={reset} />;
+}
+```
+
+For widgets that should fail INDEPENDENTLY of the rest of their module
+(e.g., a 3D visualizer, a third-party embed), wrap them in a manual class
+`<ErrorBoundary>` (see SPEC-ARCH-UI-001 §11 L4 for the canonical 30-line
+implementation). Use sparingly — most failures should bubble to the
+module-level boundary.
+
 ### 17.1 First-pass UI compliance — ZERO drift from the first commit
 
 The 2026-04-29 Theme A pass exposed a pattern: even when CLAUDE.md and `SPEC-ARCH-UI-001` are cited in the implementation prompt, sub-agents drift on `text-[NNpx]`, `rounded-lg`, and i18n nesting. To prevent this, **every UI implementation prompt MUST include the following pre-flight block** (copy verbatim into the prompt's "Hard rules" section):
