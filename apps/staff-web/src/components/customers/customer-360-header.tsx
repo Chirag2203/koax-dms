@@ -6,9 +6,10 @@ import { cn } from '@dms/ui';
 import { Gate } from '@/src/components/primitives';
 import { useStaffAuth } from '@/src/providers/staff-auth-provider';
 import { useCustomersStore } from '@/src/lib/customers/customers-store';
+import { useVehiclesStore } from '@/src/lib/vehicles/vehicles-store';
 import { maskedContactFor } from '@dms/vehicles-core';
 import { ROLE_RANK } from '@/src/lib/vehicles/state-machine';
-import type { Customer } from '@dms/types';
+import type { Customer, CustomerLifecycleStage } from '@dms/types';
 import { RightToErasureDialog } from './dialogs/right-to-erasure-dialog';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -17,12 +18,30 @@ export interface Customer360HeaderProps {
   customer: Customer;
 }
 
+// ─── Lifecycle chip inline ─────────────────────────────────────────────────────
+
+const LIFECYCLE_CHIP: Record<CustomerLifecycleStage, string> = {
+  PROSPECT: 'bg-[rgb(var(--state-pending)/0.1)] text-[rgb(var(--state-pending))]',
+  ACTIVE: 'bg-[rgb(var(--state-listed)/0.1)] text-[rgb(var(--state-listed))]',
+  DORMANT: 'bg-[rgb(var(--state-overdue)/0.1)] text-[rgb(var(--state-overdue))]',
+  CHURNED: 'bg-[rgb(var(--state-stale)/0.1)] text-[rgb(var(--state-stale))]',
+};
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function Customer360Header({ customer }: Customer360HeaderProps) {
   const [erasureOpen, setErasureOpen] = useState(false);
   const { user } = useStaffAuth();
   const logAuditExport = useCustomersStore((s) => s.logAuditExport);
+
+  // Quick-stats: count ownerships belonging to this customer
+  const ownershipIdByCustomer = useVehiclesStore((s) => s.ownershipIdByCustomer);
+  const ownerships = useVehiclesStore((s) => s.ownerships);
+  const customerOwnershipIds = ownershipIdByCustomer[customer.id] ?? [];
+  const totalVehicles = customerOwnershipIds.length;
+  const activeVehicles = customerOwnershipIds.filter(
+    (id) => ownerships[id]?.state === 'ACTIVE',
+  ).length;
 
   const viewerRank = ROLE_RANK[user?.role ?? ''] ?? 0;
   const contact = maskedContactFor(customer, viewerRank);
@@ -39,8 +58,10 @@ export function Customer360Header({ customer }: Customer360HeaderProps) {
   return (
     <>
       <div className="mb-6">
-        {/* Breadcrumb */}
+        {/* Breadcrumb — spec §2: Staff › Customers › {name} */}
         <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-sm text-ink-muted mb-4">
+          <a href="/staff" className="hover:text-ink-primary transition-colors">Staff</a>
+          <span aria-hidden="true">›</span>
           <a href="/customers" className="hover:text-ink-primary transition-colors">Customers</a>
           <span aria-hidden="true">›</span>
           <span className={cn(isRedacted && 'italic')}>{customer.name}</span>
@@ -52,9 +73,24 @@ export function Customer360Header({ customer }: Customer360HeaderProps) {
               {isRedacted ? '?' : customer.avatar}
             </div>
             <div>
-              <h1 className={cn('text-[28px] font-semibold leading-[1.25] text-ink-primary', isRedacted && 'text-ink-muted italic')}>
-                {customer.name}
-              </h1>
+              {/* Name + lifecycle chip */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <h1 className={cn('text-[28px] font-semibold leading-[1.25] text-ink-primary', isRedacted && 'text-ink-muted italic')}>
+                  {customer.name}
+                </h1>
+                {!isRedacted && customer.lifecycleStage && (
+                  <span
+                    className={cn(
+                      'inline-flex items-center rounded px-2 py-0.5',
+                      'font-mono text-[10px] uppercase tracking-widest',
+                      LIFECYCLE_CHIP[customer.lifecycleStage],
+                    )}
+                  >
+                    {customer.lifecycleStage}
+                  </span>
+                )}
+              </div>
+
               <div className="flex flex-col gap-0.5 mt-1 text-sm text-ink-muted">
                 {!isRedacted && (
                   <>
@@ -111,6 +147,19 @@ export function Customer360Header({ customer }: Customer360HeaderProps) {
               </button>
             </Gate>
           </div>
+        </div>
+
+        {/* Quick-stats row — spec §7 */}
+        <div className="mt-4 flex items-center gap-6 text-sm text-ink-muted">
+          <span>
+            <span className="font-semibold text-ink-primary">{totalVehicles}</span>
+            {' '}vehicle{totalVehicles !== 1 ? 's' : ''} owned
+          </span>
+          <span aria-hidden="true">·</span>
+          <span>
+            <span className="font-semibold text-ink-primary">{activeVehicles}</span>
+            {' '}active
+          </span>
         </div>
       </div>
 

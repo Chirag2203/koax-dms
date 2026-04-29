@@ -15,7 +15,7 @@ import type { Customer } from '@dms/types';
 
 // ─── Audit event ──────────────────────────────────────────────────────────────
 
-export type CustomerAuditEventKind = 'CREATE' | 'PROFILE_UPDATE' | 'PDF_EXPORT' | 'ERASURE';
+export type CustomerAuditEventKind = 'CREATE' | 'PROFILE_UPDATE' | 'PDF_EXPORT' | 'ERASURE' | 'ASSIGN_VEHICLE';
 
 export interface CustomerAuditEvent {
   id: string;
@@ -49,7 +49,10 @@ export interface CreateCustomerInput {
   phone: string;
   email: string;
   preferredCity?: Customer['preferredCity'];
+  preferredLanguage?: Customer['preferredLanguage'];
   contactConfidential?: boolean;
+  /** ISO timestamp of DPDP consent capture — required when wizard collects inline. L65 */
+  dpdpConsentGivenAt?: string;
 }
 
 export interface CustomersActions {
@@ -75,6 +78,9 @@ export interface CustomersActions {
 
   /** Log an erasure event and redact PII. */
   logErasure(id: string, actor: Actor): void;
+
+  /** Log a vehicle assignment audit event (SPEC-CUSTOMERS-001 §4 ASSIGN_VEHICLE). */
+  logAuditAssignVehicle(id: string, opts: { vin: string }, actor: Actor): void;
 }
 
 export type CustomersStore = CustomersState & CustomersActions;
@@ -140,9 +146,10 @@ export const useCustomersStore = create<CustomersStore>()(
           .join('')
           .toUpperCase(),
         preferredCity: input.preferredCity ?? 'bangalore',
-        preferredLanguage: 'en-IN',
+        preferredLanguage: input.preferredLanguage ?? 'en-IN',
         memberSince: new Date().toISOString().split('T')[0]!,
         contactConfidential: input.contactConfidential ?? false,
+        dpdpConsentGivenAt: input.dpdpConsentGivenAt,
       };
 
       set((state) => {
@@ -183,6 +190,19 @@ export const useCustomersStore = create<CustomersStore>()(
           at: new Date().toISOString(),
           actorId: actor.id,
           target: opts.target,
+        });
+      });
+    },
+
+    logAuditAssignVehicle(id, opts, actor) {
+      set((state) => {
+        state.auditEvents.push({
+          id: nextEventId(),
+          customerId: id,
+          kind: 'ASSIGN_VEHICLE',
+          at: new Date().toISOString(),
+          actorId: actor.id,
+          target: opts.vin,
         });
       });
     },

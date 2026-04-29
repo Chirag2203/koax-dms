@@ -1,8 +1,11 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { AlertTriangle } from 'lucide-react';
 import { cn } from '@dms/ui';
 import type { Customer } from '@dms/types';
+import { useStaffAuth } from '@/src/providers/staff-auth-provider';
+import { ROLE_RANK } from '@/src/lib/vehicles/state-machine';
 import { Customer360Header } from './customer-360-header';
 import { CustomerProfileTab } from './tabs/customer-profile-tab';
 import { CustomerVehiclesTab } from './tabs/customer-vehicles-tab';
@@ -24,6 +27,9 @@ const TABS: { id: C360TabId; label: string }[] = [
   { id: 'consents', label: 'Consents' },
 ];
 
+// R19 rank in the vehicles state-machine ROLE_RANK map (rank 6)
+const R19_RANK = ROLE_RANK['R19'] ?? 6;
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export interface Customer360ViewProps {
@@ -32,14 +38,36 @@ export interface Customer360ViewProps {
 
 export function Customer360View({ customer }: Customer360ViewProps) {
   const [activeTab, setActiveTab] = useState<C360TabId>('profile');
+  const { user } = useStaffAuth();
 
   const handleTabChange = useCallback((id: C360TabId) => {
     setActiveTab(id);
   }, []);
 
+  // Cross-city banner logic — spec §9 S-C-7
+  const viewerRank = ROLE_RANK[user?.role ?? ''] ?? 0;
+  const viewerOutlet = user?.outlet ?? 'all';
+  const customerCity = customer.preferredCity;
+  const isCrossCity =
+    viewerOutlet !== 'all' &&
+    viewerOutlet !== customerCity &&
+    viewerRank < R19_RANK;
+
   return (
-    <div className="mx-auto max-w-[1440px] px-6 pb-12 pt-6">
+    <div className="w-full px-6 pb-12 pt-6">
       <Customer360Header customer={customer} />
+
+      {/* Cross-city read-only banner — spec §9 S-C-7 */}
+      {isCrossCity && (
+        <div className="flex items-start gap-3 p-4 rounded-md bg-[rgb(var(--state-overdue)/0.08)] border border-[rgb(var(--state-overdue)/0.3)] mb-6">
+          <AlertTriangle className="h-4 w-4 text-[rgb(var(--state-overdue))] shrink-0 mt-0.5" aria-hidden="true" />
+          <p className="text-sm text-ink-secondary">
+            You are viewing a customer from{' '}
+            <span className="font-medium capitalize">{customerCity}</span>.
+            Write actions are restricted (R19+ for cross-city writes).
+          </p>
+        </div>
+      )}
 
       {/* Tab bar */}
       <div
