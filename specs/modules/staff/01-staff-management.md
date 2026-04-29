@@ -981,6 +981,16 @@ Flag: `feat_spec_staff_001_management`
 
 ---
 
+### 18.1 Deferred items (tracked, not blockers)
+
+These were flagged after the 2026-04-29 spec-enhancement pass but deferred to v1.1 because they are UX polish, not behavioural gaps. Tracked here so they don't get lost.
+
+| # | Item | Module | Priority | Notes |
+|---|---|---|---|---|
+| DEF-S7-1 | **Onboarding wizard role-select dropdown filtering.** L_S7 establishes the page-level R03+ gate and submit-time hire-tier check (both shipped). The wizard's role `<select>` should ALSO filter visible options per viewer rank as a UX hint — viewer R03 sees only R05–R11; R12+ sees R05–R11 + R12+; R02+ sees all. Currently the dropdown shows all roles to anyone reaching the wizard; the submit-side guard catches violations but the UX leads users into a dead end. **Implementation note:** add a `viewerRank` prop to `wizard-step-role.tsx` that derives from `useStaffAuth().user.role`; filter the options array via `availableRolesForViewer(viewerRank)` helper in `apps/staff-web/src/lib/staff/role-rank.ts`. | staff | P2 (UX polish) | Submit-side guard is the source of truth — this is purely a usability gate to avoid silent rejections at submit time. |
+
+---
+
 ## 19. Dependencies
 
 - `@dms/types` — `StaffProfile`, `SalaryStructure`, `AttendanceRecord`, `LeaveRequest`,

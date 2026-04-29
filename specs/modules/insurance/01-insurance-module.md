@@ -870,6 +870,15 @@ Per Doc 12 §Performance:
 | OQ6 | Commission percentage per provider: are these fixed contractual rates, or do they vary per policy type (comprehensive vs TP only)? Currently modelled as a single `commissionPct` per provider (L15). | Business / BN management | Medium — may need per-policy-type commission slabs |
 | OQ7 | WhatsApp BSP selection (Doc 13): which BSP is contracted — is there a preferred vendor? BSP choice affects template approval timeline and delivery rate. | Business / Tech | Low for spec, high for P3 implementation |
 
+### 20.1 Deferred items (tracked, not blockers)
+
+These were flagged after the 2026-04-29 spec-enhancement pass but deferred to v1.1 because they are UX polish, not behavioural gaps. Tracked here so they don't get lost.
+
+| # | Item | Priority | Notes |
+|---|---|---|---|
+| DEF-INS-1 | **`/insurance/audit` view canonical-pattern polish.** The audit page (`InsuranceAuditView`) shipped functional in P5 but predates the canonical UI pattern (SPEC-ARCH-UI-001). Apply the polish the way `lead-detail-view.tsx` and `provider-catalog-view.tsx` were polished in commit 8 of the 2026-04-29 batch: replace ad-hoc `rounded-lg` boxes with `Card` primitive, switch `text-[NNpx]` to `text-xs/sm`, normalise `rounded-lg` → `rounded-md`, wrap audit-event groups in proper Cards with `dl/dt/dd` field grids. Preserve all behaviour (R12+ read gate, store reads, filtering). Acceptance: audit view passes `grep -RE "text-\[[0-9]" src/components/insurance/insurance-audit-view.tsx` with zero matches. | P2 (UX polish) | Reference: SPEC-ARCH-UI-001 §4 (Card/Field), §6 (typography rules), §7 (radius rules). |
+| DEF-INS-2 | **`InsuranceAuditEvent` kind label completeness.** The audit-view's `KIND_LABEL` map should be moved to a single source of truth in `apps/staff-web/src/lib/insurance/audit-event-labels.ts` (currently inline). New audit kinds added in subsequent PRs (e.g. `followup_outcome_recorded` from the 2026-04-29 pass) must update this single map. Acceptance: 100% of `InsuranceAuditEventKind` enum members have entries in the label map; a unit test verifies the map covers the enum exhaustively. | P3 (housekeeping) | Test pattern: iterate enum, assert each key is in label map. |
+
 ---
 
 ## 21. Acceptance criteria
