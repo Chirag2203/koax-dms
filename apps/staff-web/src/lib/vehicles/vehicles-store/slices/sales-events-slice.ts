@@ -13,7 +13,8 @@
  */
 
 import { validateSalesEventPayload } from '@dms/vehicles-core';
-import type { SalesEvent, SalesEventKind } from '@dms/types';
+import type { SalesEvent, SalesEventKind, StaffRoleCode } from '@dms/types';
+import { StaffRoleCodeEnum } from '@dms/types';
 import type { Actor, SalesEventsActions, VehiclesSlice } from '../types';
 import { makeEventId, now } from '../id-helpers';
 
@@ -73,13 +74,19 @@ export const createSalesEventsSlice: VehiclesSlice<SalesEventsActions> = (set, g
         state.salesEvents[vin] = [];
       }
 
+      // L40: actorRole must be a valid RoleIdEnum value. Cast at the store boundary
+      // with a runtime parse; fall back to 'R01' (super-admin sentinel) only if the
+      // actor.role is missing or invalid — this should never happen in production.
+      const actorRoleParsed = StaffRoleCodeEnum.safeParse(actor.role ?? '');
+      const actorRole: StaffRoleCode = actorRoleParsed.success ? actorRoleParsed.data : 'R01';
+
       const event: SalesEvent = {
         id: makeEventId(),
         vin,
         at: now(),
         kind,
         actorId: actor.id,
-        actorRole: actor.role ?? 'UNKNOWN',
+        actorRole,
         payload: payload as Record<string, unknown>,
         schemaVersion: 'v1',
       };

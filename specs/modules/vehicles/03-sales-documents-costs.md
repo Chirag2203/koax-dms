@@ -616,6 +616,65 @@ Both links are hidden when the vehicle is not currently on sale, ensuring the
 link never 404s. View Sale Details is deliberately ungated because reading
 listing detail is part of the standard staff workflow for R05+ advisors.
 
+### 3.8 Runtime payload validation contract (L28 backfill)
+
+This subsection formalises what is implemented in
+`packages/vehicles-core/src/event-payload-validators.ts`.
+
+#### 3.8.1 Validators shipped
+
+**SalesEvent kinds** — all 7 covered:
+
+| Kind | Required fields | Key constraints |
+|---|---|---|
+| `ACQUIRED` | `acquisitionCost`, `kmAtAcquisition`, `source` | `acquisitionCost ≥ 0`; `source ∈ VehicleTouchSourceEnum` |
+| `LISTED` | `listPrice`, `outletId` | `listPrice > 0`; `outletId ∈ ['BLR-01','MUM-01','CHE-01']` |
+| `PRICE_CHANGED` | `fromPrice`, `toPrice` | `fromPrice ≥ 0`; `toPrice > 0` |
+| `RESERVED` | `dealId`, `depositAmount`, `expiresAt` | `expiresAt` must be ISO 8601 datetime |
+| `RESERVATION_LOST` | `dealId`, `reason` | `reason ∈ ['EXPIRED','CANCELLED','BUYER_WITHDREW']` |
+| `SOLD` | `salesOrderId`, `finalPrice`, `flow`, `tcsCollected`, `sellerSignatures`, `buyerCustomerId` | `flow ∈ ['MARGIN_SCHEME','CONSIGNMENT_COMMISSION']`; `tcsWaived: boolean` (optional); `tcsWaivedReason: string` (optional) |
+| `RETURNED` | `salesOrderId`, `reason` | `reason.length ≥ 1` |
+
+**DocumentAccessEvent kinds** — all 5 covered:
+
+| Kind | Required fields | Notes |
+|---|---|---|
+| `UPLOAD` | `category`, `fileName` | `category ∈ StaffDocumentCategoryEnum ∪ VehicleDocumentTypeEnum` |
+| `UPDATE` | `before`, `after` | Both `z.record(z.unknown())` |
+| `REPLACE` | `previousDocId`, `previousVersion`, `newVersion` | Both version fields `int ≥ 1` |
+| `DELETE` | _(all optional)_ | `reason?`, `blockedByClosedSaleId?` |
+| `DOWNLOAD` | _(all optional)_ | `purpose ∈ ['CUSTOMER_HANDOFF','AUDIT','RTO_FILING','OTHER']` |
+
+#### 3.8.2 Runtime validation contract
+
+```ts
+/**
+ * Throws PayloadValidationError (extends Error, carries .issues: ZodIssue[])
+ * on any payload that fails the per-kind Zod schema.
+ * The translation table and timeline renderer NEVER see malformed data.
+ */
+validateSalesEventPayload(kind: SalesEventKind, payload: unknown): void
+validateDocumentAccessPayload(kind: DocumentAccessKind, payload: unknown): void
+```
+
+`PayloadValidationError` properties:
+- `name: 'PayloadValidationError'`
+- `kind: string` — the event kind that failed
+- `issues: ZodIssue[]` — raw Zod issues for logging
+
+#### 3.8.3 Mandatory call sites (entry-points)
+
+Every write boundary MUST call the validator **before** the store `set()`:
+
+| Call site | Validator call |
+|---|---|
+| `sales-events-slice.emitSalesEvent` | `validateSalesEventPayload(kind, payload)` |
+| `docs-access-emitter.emitDocAccessEvent` | `validateDocumentAccessPayload(kind, payload)` |
+| `VehiclesStoreHydrator` Phase C fixture loader | Both; invalid rows are logged + skipped |
+| MSW handlers (write-path) | Both; returns 422 on invalid payload |
+
+Validators are **NOT** called in read paths (selectors, timeline renderer).
+
 ## 4. Route surface + tab composition
 
 Route `/vehicles/[vin]` unchanged. Three tabs evolve from stubs to real:
@@ -850,3 +909,4 @@ Sign-off blocks the P4 commit; the margin card ships with a "Policy applied" chi
 |---|---|
 | 2026-04-20 | PLAN-VEHICLES-003 drafted. Consolidates addendum + plan-review (Needs Revision → resolved all 5 blockers + 10 concerns + 5 traps + 5 missing ACs + 5 questions into L1–L24). |
 | 2026-04-20 | Spec-reviewer Approve-with-Minor-Fixes applied: 3 blockers + 8 concerns + 6 traps + 5 missing ACs + 3 questions all resolved into L25–L41. Commission GST switched from tax-inclusive to additive (L25). DealStage `EXPIRED` replaced by `CANCELLED + cancellationReason` (L26). Portal `supersededBy` renders as boolean only (L27). Runtime Zod payload validators added as §2.5 (L28). Per-kind-per-key translation table (L29). i18n key existence test (L30). `docs-slice` three-way split (L31). Cross-store snapshot via return value (L32). DocumentAccessEventRow separate renderer (L33). P2 ships the full SoCompleteDialog (L34). TCS boundary strict (L35). `commissionPct: 0` explicit nullish (L36). Lazy expiry in useEffect not selector (L37). Override proof-doc FK integrity (L38). `VehicleMaster.listedAt` added in P2 (L39). `actorRole` uses `RoleIdEnum` (L40). §12 titles reference PLAN-002 renderer (L41). Scenarios S-V3-19..24 added. Finance-reviewer sign-off gate added as §13. Status → **approved**. Ready for phased implementation. |
+| 2026-04-29 | **Compliance fixes** (3 features, production-grade): (1) **L18 TCS waiver UI in SoCompleteDialog** — R12+ gated checkbox + required reason textarea (min 10 chars) + inline validation; payload carries `tcsWaived: true, tcsWaivedReason`; `tcsCollected = 0` when waived; `hasRank` from `@dms/types` used (L7). (2) **L40 `actorRole` tightened** — added `RoleIdEnum` alias (= `StaffRoleCodeEnum`) to `packages/types/src/domain/staff.ts`; `SalesEventSchema.actorRole` and `DocumentAccessEventSchema.actorRole` now use `RoleIdEnum` instead of `z.string()`; store boundary casts with `StaffRoleCodeEnum.safeParse` + R01 fallback (never crashes). (3) **L28 §3.8 spec backfill** — §3.8 added with validator coverage matrix (7 SalesEvent kinds + 5 DocumentAccessEvent kinds all covered), runtime contract, and mandatory call-site table. Validators file already covered all kinds; no additions needed. Tests added: `apps/staff-web/src/tests/tcs-waiver.test.ts` (17 new test cases). |

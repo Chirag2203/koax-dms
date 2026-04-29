@@ -1,13 +1,16 @@
 'use client';
 
 /**
- * SO Complete Dialog — transfer-first sequencing + seller signatures checklist.
+ * SO Complete Dialog — transfer-first sequencing + seller signatures checklist + TCS waiver.
  *
  * Per SPEC-VEHICLES-001 §7.1: transferOwnership is called FIRST.
  * Per PLAN-VEHICLES-003 P2 §9 (L15, L16, L34):
  *   - All current joint owners (sellerCustomerIds) must check a signature box
  *   - R19/R22/R24 may override missing signatures with reason + proof doc IDs
  *   - On success: emitSalesEvent SOLD (with sellerSignatures + optional override)
+ * Per PLAN-VEHICLES-003 L18:
+ *   - R12+ may waive TCS with mandatory reason (min 10 chars)
+ *   - Payload: tcsWaived: true, tcsWaivedReason: <text>; tcsCollected = 0
  */
 
 import { useState } from 'react';
@@ -15,6 +18,8 @@ import { Dialog } from '@/src/components/primitives';
 import { cn } from '@dms/ui';
 import { useVehiclesStore } from '@/src/lib/vehicles/vehicles-store';
 import { useStaffAuth } from '@/src/providers/staff-auth-provider';
+import { hasRank } from '@dms/types';
+import type { StaffRoleCode } from '@dms/types';
 
 // ─── Override roles (R19+) ────────────────────────────────────────────────────
 
@@ -60,8 +65,19 @@ export function SoCompleteDialog({
   const [overrideReason, setOverrideReason] = useState('');
   const [overrideDocIdsRaw, setOverrideDocIdsRaw] = useState('');
 
+  // TCS waiver state (L18)
+  const [tcsWaived, setTcsWaived] = useState(false);
+  const [tcsWaivedReason, setTcsWaivedReason] = useState('');
+  const [tcsWaivedReasonTouched, setTcsWaivedReasonTouched] = useState(false);
+
   const actor = { id: user?.id ?? 'staff-system', name: user?.name ?? 'Staff', role: user?.role ?? 'UNKNOWN' };
   const canOverride = user ? OVERRIDE_ROLES.has(user.role) : false;
+  // L18: TCS waiver is gated at R12+ (Finance Mgr or above). L7: use hasRank.
+  const canWaiveTcs = user ? hasRank(user.role as StaffRoleCode, 'R12') : false;
+  const tcsWaivedReasonValid = tcsWaivedReason.trim().length >= 10;
+  const tcsWaivedReasonError = tcsWaivedReasonTouched && tcsWaived && !tcsWaivedReasonValid
+    ? 'Reason must be at least 10 characters.'
+    : null;
 
   const allSigned = salesOrder.sellerCustomerIds.length === 0 ||
     salesOrder.sellerCustomerIds.every((id) => signedIds.has(id));
@@ -78,8 +94,12 @@ export function SoCompleteDialog({
     overrideReason.trim().length > 0 &&
     overrideProofDocIds.length >= 1;
 
+  // Block submit when TCS waiver checked but reason is too short (L18)
+  const tcsWaiverBlocks = tcsWaived && !tcsWaivedReasonValid;
+
   const canSubmit = status !== 'loading' && status !== 'success' &&
-    (allSigned || overrideValid);
+    (allSigned || overrideValid) &&
+    !tcsWaiverBlocks;
 
   function toggleSignature(customerId: string) {
     setSignedIds((prev) => {
@@ -116,7 +136,11 @@ export function SoCompleteDialog({
 
       // Step 2: emit SOLD SalesEvent (PLAN-VEHICLES-003 L15)
       const finalPrice = salesOrder.amount ?? 0;
-      const tcsCollected = finalPrice > 1_000_000 ? Math.round(finalPrice * 0.01) : 0;
+
+      // L18: when waived, tcsCollected = 0; otherwise compute per L5 / L35
+      // L35: tcsApplicable = salePrice > 1_000_000 (strictly greater than)
+      const tcsApplicable = finalPrice > 1_000_000 && !tcsWaived;
+      const tcsCollected = tcsApplicable ? Math.round(finalPrice * 0.01) : 0;
 
       const sellerSignatures = Array.from(signedIds).map((customerId) => ({
         customerId,
@@ -129,6 +153,7 @@ export function SoCompleteDialog({
         finalPrice,
         flow: 'MARGIN_SCHEME' as const,
         tcsCollected,
+        ...(tcsWaived ? { tcsWaived: true, tcsWaivedReason: tcsWaivedReason.trim() } : {}),
         sellerSignatures,
         buyerCustomerId: salesOrder.buyerId,
       };
@@ -216,6 +241,77 @@ export function SoCompleteDialog({
             </div>
           )}
         </div>
+
+        {/* TCS waiver panel (L18) — visible only for R12+ */}
+        {canWaiveTcs && (
+          <div className="flex flex-col gap-2">
+            <h4 className="text-xs font-semibold text-ink-muted uppercase tracking-widest">
+              TCS (Tax Collected at Source)
+            </h4>
+            <div className="rounded-md border border-line bg-bg-subtle p-4 flex flex-col gap-3">
+              {/* TCS summary line */}
+              <div className="flex justify-between text-sm">
+                <span className="text-ink-secondary">
+                  {salesOrder.amount && salesOrder.amount > 1_000_000
+                    ? `TCS @ 1% = ₹${Math.round(salesOrder.amount * 0.01).toLocaleString('en-IN')}`
+                    : 'TCS not applicable (sale ≤ ₹10L)'}
+                </span>
+              </div>
+
+              {/* Waiver checkbox */}
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={tcsWaived}
+                  onChange={(e) => {
+                    setTcsWaived(e.target.checked);
+                    if (!e.target.checked) {
+                      setTcsWaivedReason('');
+                      setTcsWaivedReasonTouched(false);
+                    }
+                  }}
+                  className="h-4 w-4 rounded border-line accent-accent"
+                />
+                <span className="text-sm text-ink-primary font-medium">
+                  Waive TCS for this sale
+                </span>
+                <span className="text-xs text-ink-muted">(206C(1H) exemption)</span>
+              </label>
+
+              {/* Reason textarea — revealed when checked */}
+              {tcsWaived && (
+                <div className="flex flex-col gap-1.5">
+                  <label className="text-xs font-medium text-ink-muted">
+                    Waiver reason <span className="text-state-danger">*</span>
+                  </label>
+                  <textarea
+                    value={tcsWaivedReason}
+                    onChange={(e) => setTcsWaivedReason(e.target.value)}
+                    onBlur={() => setTcsWaivedReasonTouched(true)}
+                    placeholder="State the exemption basis, e.g. buyer is a Government entity per §206C(1H)"
+                    rows={3}
+                    className={cn(
+                      'w-full rounded-md border bg-bg-canvas px-3 py-2 text-sm text-ink-primary resize-y',
+                      'focus:outline-none focus:ring-2 focus:ring-accent focus:border-accent',
+                      'placeholder:text-ink-muted',
+                      tcsWaivedReasonError
+                        ? 'border-state-danger'
+                        : 'border-line',
+                    )}
+                  />
+                  {tcsWaivedReasonError && (
+                    <p className="text-xs text-state-danger">{tcsWaivedReasonError}</p>
+                  )}
+                  {!tcsWaivedReasonError && tcsWaivedReason.trim().length > 0 && (
+                    <p className="text-xs text-ink-muted">
+                      {tcsWaivedReason.trim().length} chars — min 10 required
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Seller signatures checklist (L15) */}
         {salesOrder.sellerCustomerIds.length > 0 && (

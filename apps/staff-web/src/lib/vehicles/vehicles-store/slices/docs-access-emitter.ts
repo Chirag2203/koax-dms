@@ -14,7 +14,8 @@
  */
 
 import { validateDocumentAccessPayload } from '@dms/vehicles-core';
-import type { DocumentAccessEvent, DocumentAccessKind } from '@dms/types';
+import type { DocumentAccessEvent, DocumentAccessKind, StaffRoleCode } from '@dms/types';
+import { StaffRoleCodeEnum } from '@dms/types';
 import type { Actor } from '../types';
 import type { DocsState } from './docs-slice';
 import { makeEventId, now } from '../id-helpers';
@@ -49,6 +50,10 @@ export function emitDocAccessEvent(
   // L28: validate payload BEFORE writing
   validateDocumentAccessPayload(kind, payload);
 
+  // L40: cast actor.role to RoleIdEnum at the boundary. Falls back to 'R01' if invalid.
+  const roleParsed = StaffRoleCodeEnum.safeParse(actor.role ?? '');
+  const actorRole: StaffRoleCode = roleParsed.success ? roleParsed.data : 'R01';
+
   const event: DocumentAccessEvent = {
     id: makeEventId(),
     docId,
@@ -56,7 +61,7 @@ export function emitDocAccessEvent(
     kind,
     at: now(),
     actorId: actor.id,
-    actorRole: actor.role ?? 'UNKNOWN',
+    actorRole,
     ...(purpose !== undefined ? { purpose } : {}),
     ...(purposeNote !== undefined ? { purposeNote } : {}),
     payload,
