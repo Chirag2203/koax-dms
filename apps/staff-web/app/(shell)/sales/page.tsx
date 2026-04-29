@@ -9,6 +9,10 @@ import { deals as allDeals } from '@dms/mocks/fixtures';
 import type { Deal, DealStage } from '@dms/types';
 import { KanbanColumn } from '@/src/components/sales/kanban-column';
 import { DealListView } from '@/src/components/sales/deal-list-view';
+import { useSalesDealsStore } from '@/src/lib/sales/sales-deals-store';
+import { useVehiclesStore } from '@/src/lib/vehicles/vehicles-store';
+import { deriveSalesEvent } from '@/src/components/sales/derive-sales-event';
+import { useStaffAuth } from '@/src/providers/staff-auth-provider';
 
 // ─── Stage config ─────────────────────────────────────────────────────────────
 
@@ -43,6 +47,7 @@ export default function SalesPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const view = searchParams.get('view') ?? 'kanban';
+  const { user } = useStaffAuth();
 
   // Local optimistic state for deal stages (drag & drop)
   const [dealStages, setDealStages] = useState<Record<string, DealStage>>(() => {
@@ -73,7 +78,32 @@ export default function SalesPage() {
 
   // Drag & drop handler
   const handleMoveDeal = useCallback((dealId: string, toStage: DealStage) => {
+    // Capture prev stage before updating local optimistic state
+    const allCurrentDeals = useSalesDealsStore.getState().deals;
+    const deal = allCurrentDeals[dealId];
+    const prevStage = deal?.stage ?? dealStages[dealId];
+
     setDealStages((prev) => ({ ...prev, [dealId]: toStage }));
+
+    // Emit SalesEvent for VIN-linked deals (PLAN-VEHICLES-003 P2)
+    const vinForEvent = deal?.vehicleVin;
+    if (vinForEvent && prevStage !== undefined) {
+      const updated = useSalesDealsStore.getState().advanceStage(dealId, toStage);
+      const derived = deriveSalesEvent(prevStage, toStage, updated);
+      if (derived && user) {
+        try {
+          useVehiclesStore.getState().emitSalesEvent(
+            vinForEvent,
+            derived.kind,
+            derived.payload,
+            { id: user.id, name: user.name, role: user.role },
+          );
+        } catch {
+          // Swallow validation errors in drag & drop — store optimistic stage only
+        }
+      }
+    }
+
     // Fire-and-forget the API call
     fetch(`/api/staff/sales/deals/${dealId}/move`, {
       method: 'POST',
@@ -88,7 +118,7 @@ export default function SalesPage() {
         return reverted;
       });
     });
-  }, []);
+  }, [user, dealStages]);
 
   // Summary stats
   const activeDeals = filteredDeals.filter((d) =>

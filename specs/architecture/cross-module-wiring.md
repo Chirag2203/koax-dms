@@ -52,6 +52,13 @@ Last verified against commit `f75e4c7`.
 | 8 | Dashboard claims card | `/dashboard` `PendingClaimsCard` → `ClaimReviewPanel` | PLAN-VEHICLES-002 Phase D (`cee5493`) |
 | 9 | Confidentiality masking | `maskedContactFor(customer, viewerRank)` | PLAN-VEHICLES-002 Phase E (`596da8b`) |
 | 10 | Sidebar role switcher | `MOCK_STAFF_PROFILES` → portal'd submenu → `switchRole(code)` | S5 P6 |
+| 11 | Custom Builds new-flow → Customers | `wizard-step-customer.tsx` → `createCustomer()` → `CustomerSchema` (with `dpdpConsentGivenAt`) | SPEC-CUSTOM-BUILDS-001 §32 L65 |
+| 12 | Custom Builds new-flow → Vehicles | `wizard-step-vehicle.tsx` → `upsertVehicle` + `openOwnership` + `appendEvent` (source: `CUSTOM_BUILD_LINKED`) | SPEC-CUSTOM-BUILDS-001 §32 L66, L67 |
+| 13 | Vehicles Sales tab → Inventory new (existing) | `sales-tab.tsx` "Put on Sale" CTA → `/inventory/new?mode=existing&vin=<vin>` (page reads `vin` query param + skips picker) | PLAN-VEHICLES-003 L12 (moved to Sales tab 2026-04-29) |
+| 14 | Insurance Compare → Customers | `compare-view.tsx` customer typeahead → `useCustomersStore.customers` (existing) OR `createCustomer()` (new mode → Save as new lead) | SPEC-INSURANCE-001 §42 L_P1_5 |
+| 15 | Insurance Compare → Vehicles (linked) | `compare-view.tsx` linked-vehicle picker → `useVehiclesStore.ownershipIdByCustomer[customerId]` filtered to `state === 'ACTIVE'` | SPEC-INSURANCE-001 §42 L_P1_5 |
+| 16 | Insurance Compare → New Lead | `compare-view.tsx` "Save as new lead" → sessionStorage `bn-insurance-comparison-handoff` → `/insurance/leads/new?from=compare` | SPEC-INSURANCE-001 §42 L_P1_7 |
+| 17 | Insurance Compare → Existing Lead | `compare-view.tsx` "Attach to existing lead" → `AttachToLeadDialog` → `saveQuote(leadId, q)` per quote → routes to lead detail | SPEC-INSURANCE-001 §42 |
 
 ## Detailed seams
 
@@ -426,6 +433,99 @@ replaces with real session in v2.
 
 ---
 
+### 11. Custom Builds new-flow → Customers
+
+**File:** `apps/staff-web/src/components/custom-builds/new-flow/wizard-step-customer.tsx`
+
+**Call chain:**
+```tsx
+// User clicks "+ Create New Customer" → fills inline form → submits
+const onNewCustomerSubmit = handleSubmit((values) => {
+  const newCust = useCustomersStore.getState().createCustomer(
+    {
+      name: values.name,
+      phone: values.phone,
+      email: values.email,
+      preferredCity: values.preferredCity,
+      preferredLanguage: values.preferredLanguage,
+      dpdpConsentGivenAt: new Date().toISOString(), // DPDP §9
+    },
+    actor,
+  );
+  // Auto-select + flag wizard state
+  onUpdate({ ...data, customerId: newCust.id, customerName: newCust.name, customerCreatedDuringWizard: true });
+});
+```
+
+**DPDP gate:** The `dpdpConsent: z.literal(true)` field is required in the form schema.
+The form rejects submit if the checkbox is not checked. `dpdpConsentGivenAt` is stored as
+an ISO timestamp on the `Customer` record.
+
+**Idempotency:** `createCustomer` deduplicates on `(phone, email)` — submitting the same
+person twice returns the existing record without creating a duplicate. `customerCreatedDuringWizard`
+stays `true` even if an existing record is returned (phone+email match = probably same wizard session).
+
+**Ordering:** customer must be created before advancing to step 2 (vehicle selection).
+This is enforced by wizard step gating (`canProceed`).
+
+**Spec:** `SPEC-CUSTOM-BUILDS-001 §32 L65`
+
+---
+
+### 12. Custom Builds new-flow → Vehicles
+
+**File:** `apps/staff-web/src/components/custom-builds/new-flow/wizard-step-vehicle.tsx`
+
+**Call chain (3-step transaction):**
+```tsx
+const onLinkCarSubmit = handleSubmit((values) => {
+  // safeVin: try strict normalizeVin, fall back trim+upper for legacy demo VINs
+  let vin: string;
+  try { vin = normalizeVin(values.vin); }
+  catch { vin = values.vin.trim().toUpperCase(); }
+
+  const vehiclesStore = useVehiclesStore.getState();
+
+  // Step a: upsert VehicleMaster
+  vehiclesStore.upsertVehicle({
+    vin, make, model, ...,
+    firstTouchSource: 'CUSTOM_BUILD_LINKED',
+    firstTouchOutletId: outletId,
+  }, actor);
+
+  // Step b: open ownership for this customer
+  const ownershipId = vehiclesStore.openOwnership({
+    vin, customerId, source: 'CUSTOM_BUILD_LINKED', kmAtOpen: km, fromAt: now,
+  }, actor);
+
+  // Step c: explicit audit event with wizard provenance
+  vehiclesStore.appendEvent('OPEN', {
+    source: 'CUSTOM_BUILD_LINKED',
+    linkedFromBuildJobWizard: true,
+    kmAtOpen: km,
+    customerId,
+  }, actor, { vin, ownershipId });
+
+  onUpdate({ ...data, vin, vehicleLabel: label, vehicleLinkedDuringWizard: true });
+});
+```
+
+**Filtering:** The vehicle dropdown is filtered via `selectVehiclesByCustomer(state, customerId, { includeGrace: true, now })`
+— only shows this customer's owned VINs. New customers see empty state with "Link a Car" CTA;
+existing customers see their list plus a "Link Another Car" link.
+
+**New `VehicleTouchSource`:** `'CUSTOM_BUILD_LINKED'` added to `VehicleTouchSourceEnum` in
+`packages/types/src/domain/vehicles-aggregate.ts`. No existing exhaustive switches are broken —
+the enum extends additively.
+
+**Partial-failure handling:** if `openOwnership` throws (VIN already has an active owner),
+the error propagates to the UI — the `upsertVehicle` call stays committed (idempotent update
+semantics), ownership is not opened. User sees error via form error state.
+
+**Spec:** `SPEC-CUSTOM-BUILDS-001 §32 L66, L67`
+
+---
+
 ## Other cross-store reads (not seams — same-module internal)
 
 For completeness, these `getState()` calls exist but don't cross modules:
@@ -474,3 +574,4 @@ open-items.
 | Date | Change |
 |---|---|
 | 2026-04-21 | Created. Documents 10 cross-module seams with file:line + flows + ordering + error handling + gotchas. Verified against commit `f75e4c7`. Future seams added here at introduction time. |
+| 2026-04-29 | Added seams 11 + 12: Custom Builds new-flow → Customers (DPDP-gated inline create) and Custom Builds new-flow → Vehicles (CUSTOM_BUILD_LINKED upsert + ownership + audit event). Per SPEC-CUSTOM-BUILDS-001 §32 L65–L68. |

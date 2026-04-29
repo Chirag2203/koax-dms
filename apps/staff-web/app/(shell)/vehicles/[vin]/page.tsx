@@ -3,8 +3,9 @@
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { notFound } from 'next/navigation';
-import { normalizeVin, tryNormalizeVin } from '@dms/vehicles-core';
+import { tryNormalizeVin } from '@dms/vehicles-core';
 import { useVehiclesStore } from '@/src/lib/vehicles/vehicles-store';
+import { useSalesDealsStore } from '@/src/lib/sales/sales-deals-store';
 import { VehicleDetailView } from '@/src/components/vehicles/detail/vehicle-detail-view';
 
 /**
@@ -36,6 +37,28 @@ export default function VehicleDetailPage({ params }: PageProps) {
       router.replace(`/vehicles/${normalizedVin}`);
     }
   }, [rawVin, normalizedVin, router]);
+
+  // Lazy reservation expiry — runs once on mount per VIN (PLAN-VEHICLES-003 L37)
+  useEffect(() => {
+    const deals = useSalesDealsStore.getState().deals;
+    const nowIso = new Date().toISOString();
+    for (const deal of Object.values(deals)) {
+      if (
+        deal.vehicleVin === normalizedVin &&
+        deal.stage === 'reserved' &&
+        deal.reservationExpiresAt &&
+        deal.reservationExpiresAt < nowIso
+      ) {
+        useSalesDealsStore.getState().markReservationExpired(deal.id);
+        useVehiclesStore.getState().emitSalesEvent(
+          normalizedVin,
+          'RESERVATION_LOST',
+          { dealId: deal.id, reason: 'EXPIRED' },
+          { id: 'system', name: 'System', role: 'R24' },
+        );
+      }
+    }
+  }, [normalizedVin]); // runs once on mount per VIN
 
   // Wait for store to hydrate before calling notFound
   if (!hydrated) {

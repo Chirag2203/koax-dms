@@ -13,9 +13,15 @@ import type {
   VehicleOwnership,
   OwnershipClaim,
   OwnershipChangeEvent,
+  SalesEvent,
+  SalesEventKind,
   VehicleTouchSource,
   CloseReason,
   RejectionReason,
+  Document,
+  StaffDocumentMetadata,
+  DocumentAccessEvent,
+  CostLedgerEntry,
 } from '@dms/types';
 
 // ─── Shared types ─────────────────────────────────────────────────────────────
@@ -34,6 +40,21 @@ export interface VehiclesState {
   ownerships: Record<string, VehicleOwnership>; // key: id
   claims: Record<string, OwnershipClaim>;       // key: id
   events: OwnershipChangeEvent[];               // append-only
+  /** SalesEvent append-only log, keyed by VIN. PLAN-VEHICLES-003 P2. */
+  salesEvents: Record<string, SalesEvent[]>;    // key: vin
+  // ── P3: Documents state (PLAN-VEHICLES-003 §3.1, L31) ─────────────────────
+  /** All document entities keyed by docId. Includes superseded + soft-deleted. */
+  documents: Record<string, Document>;
+  /** Staff-only metadata sibling, keyed by docId (L9). */
+  staffMeta: Record<string, StaffDocumentMetadata>;
+  /** Append-only DocumentAccessEvent log (L3, L33). */
+  documentAccessEvents: DocumentAccessEvent[];
+  // ── P4: Runtime cost-ledger entries (SPEC-CUSTOM-BUILDS-001 L9 / L39) ─────
+  /**
+   * Runtime cost-ledger entries keyed by VIN. Written by custom-builds-store
+   * on deliverJob. Merged with fixture entries in VehicleDetailView (L40).
+   */
+  costLedger: Record<string, CostLedgerEntry[]>;
   // Indices maintained on mutation — not persisted
   ownershipIdByVin: Record<string, string[]>;
   claimIdByVin: Record<string, string[]>;
@@ -280,13 +301,67 @@ export interface QueryActions {
   selectAnonymizationDue(state: VehiclesState, now: string): VehicleOwnership[];
 }
 
+// ─── CostLedgerActions (SPEC-CUSTOM-BUILDS-001 P4, L39) ──────────────────────
+
+export interface CostLedgerActions {
+  /**
+   * Append cost-ledger entries for a VIN. Written by custom-builds-store
+   * on deliverJob (L9). Idempotent: entries with a duplicate id are silently
+   * skipped (no double-write on repeated deliverJob calls).
+   *
+   * L39: single owner of the ledger is vehicles-store.
+   */
+  addCostLedgerEntries(vin: string, entries: CostLedgerEntry[]): void;
+
+  /**
+   * Return all runtime cost-ledger entries for a VIN (empty array if none).
+   * Callers merge with fixture entries and dedupe by id (L40).
+   */
+  selectCostLedgerEntries(vin: string): CostLedgerEntry[];
+}
+
+// ─── SalesEventsActions (PLAN-VEHICLES-003 P2) ───────────────────────────────
+
+export interface SalesEventsActions {
+  /**
+   * Validate + append a SalesEvent for the given VIN.
+   * Throws PayloadValidationError on bad payload (L28).
+   * Throws SellerSignaturesIncomplete if SOLD without all signatures and no override.
+   * Side-effect: LISTED sets vehicles[vin].listedAt (L39).
+   */
+  emitSalesEvent(
+    vin: string,
+    kind: SalesEventKind,
+    payload: unknown,
+    actor: Actor,
+  ): void;
+
+  /** Returns all SalesEvents for a VIN (empty array if none). */
+  selectSalesEvents(vin: string): SalesEvent[];
+
+  /**
+   * Bulk-seed SalesEvents from fixtures / hydrator.
+   * Called by VehiclesStoreHydrator after Phase A+B hydration.
+   */
+  hydrateSalesEvents(seed: SalesEvent[]): void;
+}
+
 // ─── Combined store type ──────────────────────────────────────────────────────
+
+// Forward-declare the docs action types imported from slices at store composition time
+// (avoids circular imports — types.ts must remain a leaf file)
+import type { DocsSelectors } from './slices/docs-slice';
+import type { DocsMutations } from './slices/docs-mutations';
 
 export type VehiclesActions = VehicleActions &
   OwnershipActions &
   ClaimActions &
   EventActions &
-  QueryActions;
+  QueryActions &
+  SalesEventsActions &
+  DocsSelectors &
+  DocsMutations &
+  CostLedgerActions;
 
 export type VehiclesStore = VehiclesState & VehiclesActions;
 

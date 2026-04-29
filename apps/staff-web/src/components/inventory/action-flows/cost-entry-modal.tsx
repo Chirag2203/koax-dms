@@ -52,6 +52,10 @@ const CATEGORY_OPTIONS: Array<{ value: z.infer<typeof CostLedgerCategoryEnum>; l
   { value: 'overhead', label: 'Overhead' },
   { value: 'photography', label: 'Photography' },
   { value: 'misc', label: 'Miscellaneous' },
+  // P4 Custom Builds (L17)
+  { value: 'custom-build-parts', label: 'Custom Build — Parts' },
+  { value: 'custom-build-labour', label: 'Custom Build — Labour & GST' },
+  { value: 'custom-build-vendor-fee', label: 'Custom Build — BN Margin' },
 ];
 
 const HIGH_VALUE_THRESHOLD = 1_000_000;

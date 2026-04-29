@@ -119,6 +119,13 @@ function makeEmptyState(): VehiclesState {
     ownerships: {},
     claims: {},
     events: [],
+    salesEvents: {},
+    // P3 docs state (PLAN-VEHICLES-003)
+    documents: {},
+    staffMeta: {},
+    documentAccessEvents: [],
+    // P4 cost-ledger runtime entries (SPEC-CUSTOM-BUILDS-001 L39)
+    costLedger: {},
     ownershipIdByVin: {},
     claimIdByVin: {},
     ownershipIdByCustomer: {},

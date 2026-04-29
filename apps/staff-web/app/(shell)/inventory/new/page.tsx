@@ -30,9 +30,12 @@ export default function NewInventoryPage() {
 
   // URL-driven mode
   const modeParam = searchParams.get('mode') as AddCarMode | null;
+  const vinParam = searchParams.get('vin');
 
-  // For "existing" branch: track the picked VIN in local state
-  const [pickedVin, setPickedVin] = useState<string | null>(null);
+  // For "existing" branch: track the picked VIN in local state.
+  // Pre-fill from `?vin=...` query param when present (e.g. deep-link from
+  // /vehicles/[vin] Sales tab "Put on Sale" CTA per L12).
+  const [pickedVin, setPickedVin] = useState<string | null>(vinParam);
 
   // ── Handlers ──────────────────────────────────────────────────────────────
 

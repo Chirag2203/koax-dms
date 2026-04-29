@@ -20,6 +20,11 @@ import { createOwnershipPiiSlice } from './slices/ownership-pii-slice';
 import { createClaimSlice } from './slices/claim-slice';
 import { createEventSlice } from './slices/event-slice';
 import { createQuerySlice } from './slices/query-slice';
+import { createSalesEventsSlice } from './slices/sales-events-slice';
+import { createDocsSlice } from './slices/docs-slice';
+import { createDocsMutations } from './slices/docs-mutations';
+import { createCostLedgerSlice } from './slices/cost-ledger-slice';
+export type { SalesEventKind } from '@dms/types';
 
 /** Build empty initial state — fixtures are loaded by VehiclesStoreHydrator. */
 function initialState(): VehiclesState {
@@ -28,6 +33,13 @@ function initialState(): VehiclesState {
     ownerships: {},
     claims: {},
     events: [],
+    salesEvents: {},
+    // P3 docs state
+    documents: {},
+    staffMeta: {},
+    documentAccessEvents: [],
+    // P4 cost-ledger runtime entries (SPEC-CUSTOM-BUILDS-001 L39)
+    costLedger: {},
     ownershipIdByVin: {},
     claimIdByVin: {},
     ownershipIdByCustomer: {},
@@ -44,6 +56,10 @@ export const useVehiclesStore = create<VehiclesStore>()(
     ...createClaimSlice(set, get, api),
     ...createEventSlice(set, get, api),
     ...createQuerySlice(set, get, api),
+    ...createSalesEventsSlice(set, get, api),
+    ...createDocsSlice(set, get, api),
+    ...createDocsMutations(set, get, api),
+    ...createCostLedgerSlice(set, get, api),
   })),
 );
 

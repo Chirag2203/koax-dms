@@ -39,8 +39,10 @@ import {
   vehicles as inventoryVehicles,
   jobCards,
   vehicleModuleCustomers,
+  deals as salesDeals,
+  vehicleDocuments,
 } from '@dms/mocks/fixtures';
-import type { JobCard, Vehicle, Customer } from '@dms/types';
+import type { JobCard, Vehicle, Customer, SalesEvent, Deal, Document, StaffDocumentMetadata } from '@dms/types';
 import type { VehicleMaster } from '@dms/types';
 import { useVehiclesStore } from './vehicles-store';
 import { rebuildIndices, indexOwnershipByVin, indexOwnershipByCustomer } from './vehicles-store/index-maintenance';
@@ -393,6 +395,279 @@ export function applyBackfillToState(
   }
 }
 
+// ─── Phase C: SalesEvents derived from inventory + deals fixtures ────────────
+//
+// Sales events MUST come from real cross-module data (inventory + sales deals),
+// not hardcoded seeds. This ensures:
+//   - VINs not in BN inventory (e.g. customer-owned legacy VINs) have no events
+//   - VINs in inventory emit ACQUIRED + LISTED (using Vehicle.listedAt)
+//   - Deals on inventory VINs emit RESERVED / SOLD / RESERVATION_LOST per stage
+//   - "View Sale Details" links always resolve (the VIN is in inventory)
+//
+// Spec reference: PLAN-VEHICLES-003 §3.5 (cross-module derivation).
+
+const CITY_TO_OUTLET: Record<string, 'BLR-01' | 'MUM-01' | 'CHE-01'> = {
+  bangalore: 'BLR-01',
+  mumbai: 'MUM-01',
+  chennai: 'CHE-01',
+};
+
+/** Lowercase kebab-case the customer name for lookup — demo-level mapping. */
+function customerIdFromName(name: string): string {
+  return 'cust-' + name.toLowerCase().trim().replace(/\s+/g, '-');
+}
+
+function buildDerivedSalesEvents(
+  invVehicles: Vehicle[],
+  deals: Deal[],
+): SalesEvent[] {
+  const events: SalesEvent[] = [];
+  const ACQUIRER_ID = 'staff-r10-001';
+  const ACQUIRER_ROLE = 'R10';
+
+  // ── C.1: ACQUIRED + LISTED per inventory vehicle ─────────────────────────
+  for (const v of invVehicles) {
+    const vin = safeVin(v.vin);
+    const listedAt = v.listedAt ?? '2026-03-15T09:00:00.000Z';
+
+    // Acquisition date: deterministically 15–45 days before listedAt
+    const h = hashString(vin);
+    const acquiredAt = offsetDays(listedAt, -(15 + (h % 30)));
+
+    // List price from pricing.exShowroom (authoritative) or fallback to price
+    const listPrice =
+      (v as unknown as { pricing?: { exShowroom?: number } }).pricing?.exShowroom ??
+      v.price ??
+      0;
+    // Acquisition cost: 85% of list price (demo heuristic)
+    const acquisitionCost = Math.round(listPrice * 0.85);
+    const outletId = CITY_TO_OUTLET[v.city] ?? 'BLR-01';
+
+    events.push({
+      id: `se-${vin}-acquired`,
+      vin,
+      at: acquiredAt,
+      kind: 'ACQUIRED',
+      actorId: ACQUIRER_ID,
+      actorRole: ACQUIRER_ROLE,
+      payload: {
+        acquisitionCost,
+        kmAtAcquisition: v.km ?? 0,
+        source: 'BN_CONSIGNMENT',
+      },
+      schemaVersion: 'v1',
+    });
+
+    events.push({
+      id: `se-${vin}-listed`,
+      vin,
+      at: listedAt,
+      kind: 'LISTED',
+      actorId: ACQUIRER_ID,
+      actorRole: ACQUIRER_ROLE,
+      payload: { listPrice, outletId },
+      schemaVersion: 'v1',
+    });
+  }
+
+  // ── C.2: Deal-derived events — RESERVED / SOLD / RESERVATION_LOST ────────
+  // Fixture has many deals per VIN across stages (for Kanban demo). For the
+  // per-VIN sales stream to be coherent, we pick the MOST-ADVANCED deal per
+  // VIN (delivered > sales-order > reserved > lost > earlier stages).
+  const invVinSet = new Set(invVehicles.map((v) => safeVin(v.vin)));
+  const STAGE_RANK: Record<Deal['stage'], number> = {
+    'new-lead': 0,
+    contacted: 1,
+    'test-drive': 2,
+    'on-hold': 2,
+    reserved: 3,
+    'sales-order': 4,
+    delivered: 5,
+    lost: 6,
+  };
+
+  const mostAdvancedPerVin = new Map<string, Deal>();
+  for (const deal of deals) {
+    if (!deal.vehicleVin) continue;
+    const vin = safeVin(deal.vehicleVin);
+    if (!invVinSet.has(vin)) continue;
+    const existing = mostAdvancedPerVin.get(vin);
+    if (!existing || STAGE_RANK[deal.stage] > STAGE_RANK[existing.stage]) {
+      mostAdvancedPerVin.set(vin, deal);
+    }
+  }
+
+  for (const deal of mostAdvancedPerVin.values()) {
+    const vin = safeVin(deal.vehicleVin!);
+
+    const actorId = deal.assignedTo ?? 'staff-r09-001';
+    const actorRole = 'R09';
+    const activityAt = deal.lastActivityAt ?? deal.createdAt;
+
+    // Active deal stages → RESERVED event (reservation was set at some point)
+    if (
+      deal.stage === 'reserved' ||
+      deal.stage === 'sales-order' ||
+      deal.stage === 'delivered'
+    ) {
+      const expiresAt =
+        deal.reservationExpiresAt ?? offsetDays(activityAt, 7);
+      events.push({
+        id: `se-${deal.id}-reserved`,
+        vin,
+        at: activityAt,
+        kind: 'RESERVED',
+        actorId,
+        actorRole,
+        dealId: deal.id,
+        payload: {
+          dealId: deal.id,
+          depositAmount: Math.max(0, Math.round(deal.amount * 0.1)),
+          expiresAt,
+        },
+        schemaVersion: 'v1',
+      });
+    }
+
+    // Delivered deals → SOLD event
+    if (deal.stage === 'delivered') {
+      const finalPrice = deal.amount;
+      events.push({
+        id: `se-${deal.id}-sold`,
+        vin,
+        at: activityAt,
+        kind: 'SOLD',
+        actorId,
+        actorRole,
+        dealId: deal.id,
+        salesOrderId: `so-${deal.id}`,
+        payload: {
+          salesOrderId: `so-${deal.id}`,
+          finalPrice,
+          flow: 'MARGIN_SCHEME',
+          tcsCollected:
+            finalPrice > 1_000_000 ? Math.round(finalPrice * 0.01) : 0,
+          buyerCustomerId: customerIdFromName(deal.customerName),
+          sellerSignatures: [],
+        },
+        schemaVersion: 'v1',
+      });
+    }
+
+    // Lost deals with cancellationReason → RESERVATION_LOST event
+    if (deal.stage === 'lost' && deal.cancellationReason) {
+      const reason: 'EXPIRED' | 'CANCELLED' | 'BUYER_WITHDREW' =
+        deal.cancellationReason === 'EXPIRED'
+          ? 'EXPIRED'
+          : deal.cancellationReason === 'BUYER_WITHDREW'
+            ? 'BUYER_WITHDREW'
+            : 'CANCELLED';
+      events.push({
+        id: `se-${deal.id}-lost`,
+        vin,
+        at: activityAt,
+        kind: 'RESERVATION_LOST',
+        actorId,
+        actorRole,
+        dealId: deal.id,
+        payload: { dealId: deal.id, reason },
+        schemaVersion: 'v1',
+      });
+    }
+  }
+
+  // Sort chronologically so the timeline renders correctly
+  events.sort((a, b) => a.at.localeCompare(b.at));
+  return events;
+}
+
+
+// ─── Phase D: Documents — seed from vehicleDocuments fixture ─────────────────
+//
+// Converts inventory VehicleDocument (staff domain) into portal Document +
+// StaffDocumentMetadata pairs. Each inventory VIN gets at least:
+//   RC (rc), Insurance (insurance), and one PII-heavy doc (noc for even VINs,
+//   form-29-30 for odd VINs) so the demo covers PII-heavy categories.
+//
+// Spec reference: PLAN-VEHICLES-003 §3 hydrator note + spec deliverable #7.
+
+function buildDocumentSeed(
+  invVehicles: Vehicle[],
+): { docs: Document[]; meta: StaffDocumentMetadata[] } {
+  const docs: Document[] = [];
+  const meta: StaffDocumentMetadata[] = [];
+
+  // Map VehicleDocument (inventory fixture) → portal Document
+  for (const vd of vehicleDocuments) {
+    // Derive portal Document type — map inventory types to portal types
+    const portalType = (() => {
+      switch ((vd as unknown as { type: string }).type) {
+        case 'rc': return 'rc' as const;
+        case 'insurance': return 'insurance' as const;
+        case 'appraisal': return 'inspection-report' as const;
+        case 'inspection': return 'inspection-report' as const;
+        default: return 'service-record' as const;
+      }
+    })();
+
+    const docId = vd.id;
+    docs.push({
+      id: docId,
+      vehicleVin: vd.vin,
+      vehicleName: '',    // resolved from vehicles map at display time
+      type: portalType,
+      name: vd.name,
+      uploadedAt: vd.uploadedAt,
+      fileUrl: vd.fileUrl,
+      fileSize: vd.fileSize,
+    });
+
+    meta.push({
+      docId,
+      version: 1,
+      schemaVersion: 'v1',
+    });
+  }
+
+  // Add one PII-heavy demo doc per inventory VIN (ensures coverage for L13 flows)
+  for (let i = 0; i < invVehicles.length; i++) {
+    const inv = invVehicles[i]!;
+    const vin = safeVin(inv.vin);
+    const vinShort = vin.slice(-6);
+    const listedAt = inv.listedAt ?? '2026-01-01T00:00:00.000Z';
+    const uploadedAt = offsetDays(listedAt, -5);
+
+    // Alternate between noc and form-29-30 per VIN
+    const isPiiNoc = i % 2 === 0;
+    const docId = `DOC-PII-${String(i + 1).padStart(3, '0')}-001`;
+
+    docs.push({
+      id: docId,
+      vehicleVin: vin,
+      vehicleName: '',
+      type: 'purchase-agreement' as const, // closest portal type for NOC/form-29-30
+      name: isPiiNoc
+        ? `NOC_Financier_${vinShort}.pdf`
+        : `Form2930_${vinShort}.pdf`,
+      uploadedAt,
+      fileUrl: `/api/staff/inventory/vehicles/${vin}/documents/${isPiiNoc ? 'noc' : 'form-29-30'}`,
+      fileSize: '1.5 MB',
+    });
+
+    // Staff metadata marks this as the PII-heavy staff category
+    meta.push({
+      docId,
+      version: 1,
+      purposeOfCollection: isPiiNoc
+        ? 'NOC obtained for financier clearance prior to sale'
+        : 'Form 29/30 required for RTO transfer',
+      schemaVersion: 'v1',
+    });
+  }
+
+  return { docs, meta };
+}
+
 // ─── Hydrator component ───────────────────────────────────────────────────────
 
 export function VehiclesStoreHydrator() {
@@ -434,6 +709,40 @@ export function VehiclesStoreHydrator() {
         jobCards as JobCard[],
         vehicleModuleCustomers as Customer[],
       );
+
+      // ── Phase C: Derive SalesEvents from inventory + deals (real data) ───
+      const derivedEvents = buildDerivedSalesEvents(
+        inventoryVehicles as Vehicle[],
+        salesDeals as Deal[],
+      );
+      for (const event of derivedEvents) {
+        if (!state.salesEvents[event.vin]) {
+          state.salesEvents[event.vin] = [];
+        }
+        state.salesEvents[event.vin]!.push(event);
+      }
+
+      // L39: VehicleMaster.listedAt set at LISTED emission time
+      for (const event of derivedEvents) {
+        if (event.kind === 'LISTED' && state.vehicles[event.vin]) {
+          if (!state.vehicles[event.vin]!.listedAt) {
+            state.vehicles[event.vin]!.listedAt = event.at;
+          }
+        }
+      }
+
+      // ── Phase D: Seed Documents + StaffDocumentMetadata ──────────────────────
+      const { docs, meta } = buildDocumentSeed(inventoryVehicles as Vehicle[]);
+      for (const doc of docs) {
+        if (!state.documents[doc.id]) {
+          state.documents[doc.id] = structuredClone(doc);
+        }
+      }
+      for (const m of meta) {
+        if (!state.staffMeta[m.docId]) {
+          state.staffMeta[m.docId] = structuredClone(m);
+        }
+      }
     });
   }, []);
 

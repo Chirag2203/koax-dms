@@ -114,6 +114,29 @@ export function NewVehicleIntakeForm({ onCancel }: NewVehicleIntakeFormProps) {
       // Step 5: Create listing (mock-phase)
       console.log('[NewVehicleIntakeForm] createListing', { vin, askingPrice: Number(v.askingPrice), reservePrice: v.reservePrice ? Number(v.reservePrice) : undefined, listingNotes: v.listingNotes, refurbStatus: v.refurbStatus, refurbBudget: v.refurbBudget ? Number(v.refurbBudget) : undefined, customerId });
 
+      // Emit ACQUIRED + LISTED SalesEvents (PLAN-VEHICLES-003 P2)
+      const acquisitionCost = v.reservePrice ? Number(v.reservePrice) : 0;
+      useVehiclesStore.getState().emitSalesEvent(
+        vin,
+        'ACQUIRED',
+        {
+          acquisitionCost,
+          kmAtAcquisition: km,
+          source: 'BN_CONSIGNMENT' as const,
+          consignorCustomerId: customerId,
+        },
+        ACTOR,
+      );
+      useVehiclesStore.getState().emitSalesEvent(
+        vin,
+        'LISTED',
+        {
+          listPrice: Number(v.askingPrice ?? 0),
+          outletId: CITY_TO_OUTLET[v.ownerCity] ?? 'BLR-01',
+        },
+        ACTOR,
+      );
+
       toast('Vehicle listed for sale', 'success');
       setTimeout(() => router.push(`/vehicles/${vin}`), 800);
     } catch (err) {

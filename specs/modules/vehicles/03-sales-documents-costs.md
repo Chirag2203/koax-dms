@@ -35,7 +35,7 @@ R12+ gated Costs tab with TCS handling per Income Tax Act §206C(1F).
 | L9 | **Document schema split**: `Document` (portal-shared) stays unchanged except for one field (`supersededBy`). Staff-only metadata (`supportingSalesOrderId`, `purposeOfCollection`, `version`, `deletedAt`) lives on a new sibling `StaffDocumentMetadata` entity keyed by `docId`. | Reviewer blocker #2 |
 | L10 | **6 new staff document categories**: `tcs-certificate-27d`, `form-29-30`, `noc` (subtype: `financier` \| `rto`), `consignment-agreement`, `cpo-certificate`, `sale-agreement`. | Addendum §1.1-§1.2, user Q-E |
 | L11 | **Lazy reservation expiry** — no background timer. `selectActiveDeals(vin)` filters expired; idempotent `markReservationExpired(dealId)` emits RESERVATION_LOST on first read after expiry. | Reviewer blocker #5 |
-| L12 | **"Put up for sale" CTA rule**: visible iff (no active BN_CONSIGNMENT ownership) AND (≥1 ACTIVE non-dealer ownership). Deep-links to `/inventory/new?mode=existing&vin=<vin>`. | Addendum §1.4 (user Q-D), reviewer cross-spec #1 |
+| L12 | **"Put on sale" CTA rule**: visible iff (no active BN_CONSIGNMENT ownership) AND (≥1 ACTIVE non-dealer ownership) AND (`isCurrentlyOnSale === false`). Deep-links to `/inventory/new?mode=existing&vin=<vin>`. **Surfaced on the Sales tab header (right-side action bar)** alongside View Sale Details / Edit Listing. R10+ gated. The `/inventory/new` page reads the `vin` query param and pre-selects the VIN, skipping the `ExistingVehiclePicker` step. (Originally planned for Costs tab P4 — moved earlier per user request 2026-04-29.) | Addendum §1.4 (user Q-D), reviewer cross-spec #1 |
 | L13 | **Download-purpose required categories**: `rc`, `insurance`, `noc`, `form-29-30`, `tcs-certificate-27d`. `consignment-agreement` + `sale-agreement` excluded (business docs, not PII-heavy). | Addendum §3.3 |
 | L14 | **Closed-sale = SOLD event emitted** for that VIN. Immutable-delete guard triggers on this condition; payment/RC-transfer state not required. | Reviewer concern #5 |
 | L15 | **Joint seller signatures**: each joint holder signs independently via stub checkbox. Stored as `sellerSignatures: { customerId, signedAt, actorId }[]` on SOLD payload. Store-action level guard throws if incomplete (not UI-only). | Reviewer concern #4, trap #5 |
@@ -65,6 +65,10 @@ R12+ gated Costs tab with TCS handling per Income Tax Act §206C(1F).
 | L39 | **`VehicleMaster.listedAt`** added to schema in P2; set at LISTED event emission time. Stale-chip helper reads it. | Spec-review trap #6 |
 | L40 | **`actorRole` uses `RoleIdEnum`** from `@dms/types`, not `z.string()`. Applied to both `SalesEventSchema` and `DocumentAccessEventSchema`. | Spec-review cross-spec #4 |
 | L41 | **§12 titles are source-of-truth** — they reference (not replace) PLAN-VEHICLES-002 renderer strings. The renderer moves behind `timeline-adapter` in P1; the title strings remain identical to the PLAN-002 implementation. | Spec-review cross-spec #1 |
+| L42 | **No hardcoded SalesEvent seeds** — hydrator Phase C derives ALL events from inventory + deals fixtures (§3.5). Inventory VIN → ACQUIRED + LISTED; deals on inventory VINs → RESERVED / SOLD / RESERVATION_LOST per stage. Deals whose VIN is not in inventory are skipped. | P2 implementation feedback |
+| L43 | **`isCurrentlyOnSale` derives from events stream**, not `inventoryVehicleVin` alone (§3.6). Last event ∈ {ACQUIRED, LISTED, PRICE_CHANGED, RESERVED, RESERVATION_LOST} → on sale. SOLD/RETURNED are terminal. ActiveDealCard + stale chip are gated on this bool to prevent stale-reservation displays on sold vehicles. | P2 implementation feedback |
+| L44 | **Sales tab "View Sale Details" + "Edit Listing" actions** (§3.7) link to `/inventory/${inventoryVehicleVin}` and `/edit`. Gated on `isCurrentlyOnSale` so the link never 404s. View = ungated (all staff roles), Edit = R10+. | P2 implementation feedback |
+| L45 | **Inventory fixture coverage**: `inventory.ts:vehicleRefs` is now derived to cover all 28 storefront VINs (10 curated + 18 stub). Stubs auto-generate 3 cost-ledger entries (acquisition `round(exShowroom × 0.85)`, refurb-mechanical, registration-tax) per uncurated VIN; appraisals/timeline/documents builders cycle the curated arrays modulo 10. Closes the `/inventory/[vin]` blank-page bug for all storefront VINs. **Deferred to a follow-up audit pass**: replacing the `0.85` heuristic with a single-source-of-truth selector, fixing the `customerIdFromName` dangling-FK risk, scrubbing the `SALVA2BN8HA198012` ghost VIN from `sales.ts`, and consolidating `vehicleRefs.listedAt` against `vehicles.ts:listedAt`. See `specs/architecture/fixture-coverage-audit.md` §4. | fixture-coverage-audit.md, FIXTURE-COV-001 |
 
 ## 1. Schemas
 
@@ -526,15 +530,104 @@ useEffect(() => {
 
 `markReservationExpired` is idempotent — repeated calls are no-ops once stage is CANCELLED.
 
+### 3.5 Cross-module derivation of SalesEvents (L42 — no hardcoded seeds)
+
+**Decision**: SalesEvents MUST be derived from real cross-module fixture data,
+never hardcoded. Hardcoded seeds caused three breakages in the P2 build:
+
+1. VINs with seeded sales events that weren't in BN inventory → "View Sale
+   Details" link broke (404 on `/inventory/[vin]`)
+2. `VehicleMaster.listedAt` was set on customer-owned VINs that were never
+   actually on the lot → stale-listing chip showed incorrectly
+3. Seed data drifted from the canonical deal/inventory fixtures, creating
+   inconsistencies between the Sales tab and the Sales Kanban
+
+**Derivation rules (VehiclesStoreHydrator Phase C):**
+
+```ts
+function buildDerivedSalesEvents(
+  invVehicles: Vehicle[],
+  deals: Deal[],
+): SalesEvent[]
+```
+
+For every **inventory Vehicle** (`inv.vin` in inventory fixtures):
+- Emit `ACQUIRED` at `listedAt − 15–45 days` (deterministic via VIN hash).
+  Payload: `{ acquisitionCost: round(listPrice × 0.85), kmAtAcquisition: inv.km, source: 'BN_CONSIGNMENT' }`
+- Emit `LISTED` at `inv.listedAt`. Payload: `{ listPrice: inv.pricing.exShowroom, outletId }`
+
+For every **Deal** with `vehicleVin` in inventory:
+- Stage ∈ { 'reserved', 'sales-order', 'delivered' } → emit `RESERVED` at
+  `lastActivityAt`. Payload: `{ dealId, depositAmount: round(amount × 0.1), expiresAt }`
+- Stage === 'delivered' → additionally emit `SOLD`. Payload uses `deal.amount`,
+  `MARGIN_SCHEME` flow, TCS if `amount > 1_000_000`, `buyerCustomerId` derived
+  from `deal.customerName`, `sellerSignatures: []`.
+- Stage === 'lost' with `cancellationReason` → emit `RESERVATION_LOST`.
+  Payload: `{ dealId, reason: EXPIRED | CANCELLED | BUYER_WITHDREW }`
+
+**Filter rule**: `if (!invVinSet.has(vin)) continue;` — deals on VINs not in
+BN inventory are skipped. Ensures the "View Sale Details" link never orphans.
+
+**Sort**: events sorted chronologically by `at` before write.
+
+**Consequences**:
+- VINs not in inventory (customer-owned legacy VINs like Arjun's BMW) have
+  ZERO sales events → Sales tab shows "Not on sale"
+- Sales tab and Sales Kanban share the same source of truth (the `deals`
+  fixture), so adding/moving a deal in the Kanban automatically updates the
+  vehicle's Sales tab on next hydration
+- `VehicleMaster.listedAt` only set when a LISTED event is emitted for a real
+  inventory vehicle (L39 enforcement is preserved)
+
+### 3.6 Current-on-sale derivation + active-deal gating (L43)
+
+**Decision**: The UI's "currently on sale" boolean derives from the sales-events
+stream, not from `vehicle.inventoryVehicleVin` alone:
+
+```ts
+const lastEvent = salesEvents[salesEvents.length - 1];
+const isCurrentlyOnSale = !lastEvent
+  ? Boolean(vehicle.inventoryVehicleVin)
+  : (lastEvent.kind === 'ACQUIRED'
+    || lastEvent.kind === 'LISTED'
+    || lastEvent.kind === 'PRICE_CHANGED'
+    || lastEvent.kind === 'RESERVED'
+    || lastEvent.kind === 'RESERVATION_LOST');
+```
+
+Terminal events (`SOLD`, `RETURNED`) take the vehicle off sale. The
+`ActiveDealCard` is only rendered when `isCurrentlyOnSale === true`, preventing
+a stale "Reserved by X" card from showing alongside a SOLD timeline entry.
+
+The stale-listing chip (§2.4) is also gated on `isCurrentlyOnSale` — a
+SOLD vehicle never displays "On lot 180+ days".
+
+### 3.7 Sales tab cross-module action links (L44)
+
+When `isCurrentlyOnSale === true` AND `vehicle.inventoryVehicleVin` resolves,
+the Sales Summary card surfaces two action buttons:
+
+| Action | URL | Role gate |
+|---|---|---|
+| **View Sale Details** | `/inventory/${vehicle.inventoryVehicleVin}` | None (all staff roles) |
+| **Edit Listing** | `/inventory/${vehicle.inventoryVehicleVin}/edit` | R10+ (`['R10','R19','R22','R24']`) |
+
+Both links are hidden when the vehicle is not currently on sale, ensuring the
+link never 404s. View Sale Details is deliberately ungated because reading
+listing detail is part of the standard staff workflow for R05+ advisors.
+
 ## 4. Route surface + tab composition
 
 Route `/vehicles/[vin]` unchanged. Three tabs evolve from stubs to real:
 
 ### 4.1 SalesTab
 - Renders `buildVehicleTimeline(ownerships, sales)` filtered to `SALES` kinds + ownership entries with `linkedSalesOrderId` (context)
-- Pinned "Active Deal" card at top when stage ≥ RESERVED
-- Stale-listing chip per §2.4 (suppressed if RESERVED)
-- Empty state: "No sales activity for this VIN yet."
+- **Sales Summary card** — mirrors OwnershipTab ledger-card shell (`rounded-md border border-line bg-bg-surface overflow-hidden`). Header shows section title + stale chip (gated on L43). Body shows either `ActiveDealCard` (if `isCurrentlyOnSale` AND there's an active deal) or a compact Status line.
+- **Action links** in summary header per L44: "View Sale Details" (all roles) + "Edit Listing" (R10+ via `Gate`). Hidden when not on sale.
+- **Sales Events section** mirrors OwnershipTab events sub-section. Uses shared `TimelineEntryRow`.
+- Stale-listing chip per §2.4 (suppressed if RESERVED OR not on sale per L43)
+- Empty state: "No sales activity recorded for this VIN yet."
+- **Data source**: SalesEvents derived from inventory + deals fixtures per §3.5; no hardcoded seeds.
 
 ### 4.2 DocumentsTab
 - Category-grouped grid (6 new staff categories + existing portal ones)
@@ -570,7 +663,12 @@ sales/
 └── sales-tab-empty.tsx               ≤60
 
 documents/
-├── documents-tab.tsx                 ≤180
+├── documents-tab.tsx                 ≤180   # actual implementation
+# (sibling) tabs/documents-tab.tsx           # thin re-export wrapper that imports
+#                                            # from documents/documents-tab.tsx — kept
+#                                            # so the parent tab registry can `import
+#                                            # { DocumentsTab } from './documents-tab'`
+#                                            # without reaching into the sub-folder.
 ├── document-category-group.tsx       ≤120
 ├── document-card.tsx                 ≤160
 ├── upload-document-dialog.tsx        ≤260
@@ -642,7 +740,7 @@ Every file ≤ 350 LoC hard cap. Pre-budgets above leave 30–80 LoC headroom ea
 ### P4 (Costs)
 - **S-V3-14** — R09 user navigates to `/vehicles/[vin]` → Costs tab shows `<RankDeniedNotice minRank="R12" />`; R12 user sees full content; R13 user also sees (numeric rank semantic L7)
 - **S-V3-15** — MARGIN_SCHEME VIN: salePrice 12L, acquisition 10L → margin 2L, GST `round(200000 × 18/118) = 30508`, TCS `12000` (₹12L × 1%); loss sale salePrice 11L acquisition 12L → margin 0, GST 0, TCS 11000 (on gross, independent of margin)
-- **S-V3-16** — CONSIGNMENT_COMMISSION VIN: salePrice 15L → commission 225000 (15%), commissionGst `round(225000 × 18/118)`, no acquisition/refurb shown
+- **S-V3-16** — CONSIGNMENT_COMMISSION VIN: salePrice 15L → commission 225000 (15%), commissionGst `round(225000 × 18/100)` = ₹40,500 (additive per L25, NOT margin-scheme tax-inclusive), no acquisition/refurb shown
 - **S-V3-17** — "Put up for sale" CTA: visible on VIN with active Arjun ownership + no active BN_CONSIGNMENT; hidden on VIN currently in BN dealer stock; hidden with revoked empty state on walk-in with all owners revoked
 - **S-V3-18** — Add cost entry R12+ dialog: R09 user → Gate disables button with tooltip; R12 user → dialog opens; submit creates CostLedgerEntry + updates totals
 

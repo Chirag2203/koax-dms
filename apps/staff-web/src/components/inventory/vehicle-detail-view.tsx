@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import {
@@ -18,6 +18,9 @@ import {
   ChevronRight,
   Plus,
   Upload,
+  Wrench,
+  Truck,
+  HardHat,
 } from 'lucide-react';
 import { cn } from '@dms/ui';
 import type { Vehicle } from '@dms/types';
@@ -28,6 +31,7 @@ import type {
   VehicleDocument,
   VehicleDocumentType,
 } from '@dms/types';
+import { useVehiclesStore } from '@/src/lib/vehicles/vehicles-store';
 import {
   StateChip,
   VinBadge,
@@ -134,6 +138,10 @@ const CATEGORY_LABEL: Record<string, string> = {
   overhead: 'Overhead Allocation',
   photography: 'Photography',
   misc: 'Miscellaneous',
+  // P4 Custom Builds (L17)
+  'custom-build-parts': 'Custom Build — Parts',
+  'custom-build-labour': 'Custom Build — Labour & GST',
+  'custom-build-vendor-fee': 'Custom Build — BN Margin',
 };
 
 // Category dot colours
@@ -149,6 +157,10 @@ const CATEGORY_DOT: Record<string, string> = {
   overhead: 'bg-ink-muted',
   photography: 'bg-[rgb(var(--state-cpo))]',
   misc: 'bg-ink-secondary',
+  // P4 Custom Builds (L17)
+  'custom-build-parts': 'bg-[rgb(var(--state-in-refurb))]',
+  'custom-build-labour': 'bg-[rgb(var(--state-reserved))]',
+  'custom-build-vendor-fee': 'bg-accent',
 };
 
 // Timeline event type label + colour
@@ -275,6 +287,33 @@ function OverviewTab({ vehicle }: { vehicle: Vehicle }) {
   );
 }
 
+// ─── Helpers: custom-build entry metadata ─────────────────────────────────────
+
+const CUSTOM_BUILD_CATEGORIES = new Set([
+  'custom-build-parts',
+  'custom-build-labour',
+  'custom-build-vendor-fee',
+]);
+
+/**
+ * Extract build job ID from a cost-ledger entry note.
+ * Note formats (set by deliverJob):
+ *   "Custom build parts: {title}"            → no explicit job ID
+ *   "Vendor labour + GST: {vendorName}"      → no explicit job ID
+ *   "BN margin on build {jobId}"             → parse last word
+ * We also look for the entry ID prefix "CLE-CB-" to identify the job.
+ * Fallback: render a generic "Custom Build" badge with no link.
+ */
+function extractBuildJobId(entry: CostLedgerEntry): string | null {
+  if (!CUSTOM_BUILD_CATEGORIES.has(entry.category)) return null;
+  // "BN margin on build CBJ-xxx" — parse last word
+  if (entry.note) {
+    const m = entry.note.match(/\b(CBJ-[^\s]+)$/);
+    if (m?.[1]) return m[1];
+  }
+  return null;
+}
+
 // ─── Tab: Cost Ledger ─────────────────────────────────────────────────────────
 
 function CostLedgerTab({
@@ -342,9 +381,28 @@ function CostLedgerTab({
                     aria-hidden="true"
                   />
                   <div className="min-w-0">
-                    <span className="block truncate text-[13px] text-ink-primary">
-                      {CATEGORY_LABEL[entry.category] ?? entry.category}
-                    </span>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="truncate text-[13px] text-ink-primary">
+                        {CATEGORY_LABEL[entry.category] ?? entry.category}
+                      </span>
+                      {/* Custom-build link badge (L41) */}
+                      {CUSTOM_BUILD_CATEGORIES.has(entry.category) && (() => {
+                        const jobId = extractBuildJobId(entry);
+                        return jobId ? (
+                          <Link
+                            href={`/custom-builds/${jobId}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="inline-flex items-center rounded px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider bg-accent/10 text-accent border border-accent/20 hover:bg-accent/20 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-accent shrink-0"
+                          >
+                            Build #{jobId}
+                          </Link>
+                        ) : (
+                          <span className="inline-flex items-center rounded px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider bg-accent/10 text-accent border border-accent/20 shrink-0">
+                            Custom Build
+                          </span>
+                        );
+                      })()}
+                    </div>
                     {entry.note && (
                       <span className="block truncate text-[11px] text-ink-muted">
                         {entry.note}
@@ -993,8 +1051,17 @@ export function VehicleDetailView({
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [copied, setCopied] = useState(false);
 
+  // ── Runtime cost-ledger from vehicles-store (L40 merge) ──────────────────
+  const runtimeLedger = useVehiclesStore((s) => s.costLedger[vehicle.vin] ?? []);
+
   // ── Local state (optimistic) ───────────────────────────────────────────────
-  const [costLedger, setCostLedger] = useState<CostLedgerEntry[]>(initialCostLedger);
+  // Merge fixture + runtime entries, deduped by id (L40)
+  const [fixtureEntries, setFixtureEntries] = useState<CostLedgerEntry[]>(initialCostLedger);
+  const costLedger = useMemo<CostLedgerEntry[]>(() => {
+    const seen = new Set(runtimeLedger.map((e) => e.id));
+    const deduped = fixtureEntries.filter((e) => !seen.has(e.id));
+    return [...deduped, ...runtimeLedger];
+  }, [fixtureEntries, runtimeLedger]);
   const [appraisal, setAppraisal] = useState<Appraisal | null>(initialAppraisal);
   const [documents, setDocuments] = useState<VehicleDocument[]>(initialDocuments);
 
@@ -1034,14 +1101,14 @@ export function VehicleDetailView({
     await new Promise<void>((resolve) => setTimeout(resolve, 500));
 
     if (editingEntry) {
-      // Edit
-      setCostLedger((prev) =>
+      // Edit — update in fixture entries
+      setFixtureEntries((prev) =>
         prev.map((e) => (e.id === editingEntry.id ? { ...e, ...data } : e)),
       );
       addTimelineEvent(vehicle.vin, 'cost-added', `Cost entry updated: ${data.category ?? ''}`);
       toast('Cost entry updated', 'success');
     } else {
-      // Add
+      // Add — append to fixture entries
       const newEntry: CostLedgerEntry = {
         id: `CLE-NEW-${Date.now()}`,
         vin: vehicle.vin,
@@ -1052,7 +1119,7 @@ export function VehicleDetailView({
         addedBy: 'current-user',
         addedAt: new Date().toISOString(),
       };
-      setCostLedger((prev) => [...prev, newEntry]);
+      setFixtureEntries((prev) => [...prev, newEntry]);
       addTimelineEvent(vehicle.vin, 'cost-added', `Cost entry added: ${newEntry.category}`);
       toast('Cost entry added', 'success');
     }
@@ -1060,7 +1127,7 @@ export function VehicleDetailView({
 
   const handleDeleteCostEntry = useCallback(async (id: string) => {
     await new Promise<void>((resolve) => setTimeout(resolve, 400));
-    setCostLedger((prev) => prev.filter((e) => e.id !== id));
+    setFixtureEntries((prev) => prev.filter((e) => e.id !== id));
     addTimelineEvent(vehicle.vin, 'cost-added', `Cost entry deleted`);
     toast('Cost entry deleted', 'info');
   }, [vehicle.vin, toast]);
