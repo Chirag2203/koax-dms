@@ -59,6 +59,23 @@ Last verified against commit `f75e4c7`.
 | 15 | Insurance Compare → Vehicles (linked) | `compare-view.tsx` linked-vehicle picker → `useVehiclesStore.ownershipIdByCustomer[customerId]` filtered to `state === 'ACTIVE'` | SPEC-INSURANCE-001 §42 L_P1_5 |
 | 16 | Insurance Compare → New Lead | `compare-view.tsx` "Save as new lead" → sessionStorage `bn-insurance-comparison-handoff` → `/insurance/leads/new?from=compare` | SPEC-INSURANCE-001 §42 L_P1_7 |
 | 17 | Insurance Compare → Existing Lead | `compare-view.tsx` "Attach to existing lead" → `AttachToLeadDialog` → `saveQuote(leadId, q)` per quote → routes to lead detail | SPEC-INSURANCE-001 §42 |
+| 18 | Vehicles → Reports (P&L revenue) | `vehicles-store.salesEvents[].salePrice` (kind='SOLD') → `selectOutletPnL` in `lib/reports/selectors/p-and-l-selectors.ts` | SPEC-REPORTS-001 §19 |
+| 19 | Vehicles → Reports (cost ledger) | `vehicles-store.costLedger[].amount` (category: acquisition/refurb/parts) → `selectOutletPnL` direct cost computation | SPEC-REPORTS-001 §19 |
+| 20 | Vehicles → Reports (inventory aging) | `vehicles-store.vehicles` (listingStatus, listingCreatedAt, outletId) → `selectInventoryAging` histogram | SPEC-REPORTS-001 §19 |
+| 21 | Vehicles → Reports (sales velocity) | `vehicles-store.salesEvents` (kind='SOLD', eventAt, outletId) → `selectSalesVelocity` weekly trend | SPEC-REPORTS-001 §19 |
+| 22 | Service → Reports (SLA) | `service-store.jobCards` (status, receivedAt, deliveredAt, outletId) → `selectServiceSlaMedian` median computation | SPEC-REPORTS-001 §19 |
+| 23 | Insurance → Reports (attachment rate) | `insurance-store.leads` (createdAt, vin) cross-joined with `vehicles-store.salesEvents` → `selectInsuranceAttachmentRate` | SPEC-REPORTS-001 §19 |
+| 24 | Custom Builds → Reports (revenue contribution) | `custom-builds-store.buildJobs` (stage='DELIVERED', quoteTotal, deliveredAt, outletId) → `selectCustomBuildsRevContribution` | SPEC-REPORTS-001 §19 |
+| 25 | Staff → Reports (utilisation + P&L operating cost) | `staff-store.attendancePunches` (hoursWorked) + `staff-store.staffProfiles[].grossSalary` → `selectStaffUtilisation` and operating cost arm of `selectOutletPnL` | SPEC-REPORTS-001 §19 |
+| 26 | Insurance → Notifications (write-through audit) | `whatsapp-slice.ts` post-BSP-success → `notifications-store.recordSent({ module: 'INSURANCE', channel: 'WHATSAPP', ... })` | SPEC-NOTIFICATIONS-001 §8 Seam 26 |
+| 27 | Service Booking → Notifications (write-through audit) | `service-store.ts` `confirmPortalBooking` / `createPortalBooking` / `declinePortalBooking` → `notifications-store.recordSent({ module: 'SERVICE_BOOKING', channel: 'SMS', ... })` replaces `console.log('[DLT STUB] ...')` | SPEC-NOTIFICATIONS-001 §8 Seam 27 |
+| 28 | Custom Builds → Notifications (write-through audit) | `job-slice.ts` stage transitions with customer-facing comms → `notifications-store.recordSent({ module: 'CUSTOM_BUILDS', channel: 'WHATSAPP', ... })` | SPEC-NOTIFICATIONS-001 §8 Seam 28 |
+| 29 | Customers → Notifications (write-through audit) | `customers-store` post-`createCustomer` consent confirmation + post-`withdrawConsent` acknowledgement → `notifications-store.recordSent({ module: 'CUSTOMERS', channel: 'SMS', ... })` | SPEC-NOTIFICATIONS-001 §8 Seam 29 |
+| 34 | Finance GST → Vehicles sales-events selector | `/finance/gst` page → `useVehiclesStore.getState().selectSoldEventsInPeriod(period, scope)` (read-only); per-VIN row composes salePrice + customerPan + gstMargin payload from PLAN-VEHICLES-003 L4 | SPEC-FINANCE-001 §9 Seam 18 / L1 |
+| 35 | Finance GST drill-down → Vehicles cost-ledger selector | `/finance/gst/[vin]` → `useVehiclesStore.getState().selectAllowableRefurbForVin(vin, beforeTimestamp)` (read-only); sums cost-ledger entries with `isAllowableRefurb: true` before the SOLD timestamp | SPEC-FINANCE-001 §9 Seam 19 / L1 |
+| 36 | Finance Customer Ledger → 3-source aggregator | `/finance/customer-ledger/[customerId]` reads `useVehiclesStore` (sales-event invoices), `useServiceStore` (RO invoices), `useCustomBuildsStore` (build job invoices) + mock `customerPayments` fixture; all read-only; interleaved chronological view | SPEC-FINANCE-001 §9 Seam 20 / L18 |
+| 37 | Finance TCS Register → Vehicles sales-events PAN aggregator | `/finance/tcs` → `useVehiclesStore.getState().selectSalesEventsByPan(fy)` (read-only); reads `tcsWaived` + `tcsWaivedReason` from event payloads per PLAN-VEHICLES-003 L18; threshold chip per L21 | SPEC-FINANCE-001 §9 Seam 21 / L2, L3 |
+| 38 | Finance Journal → multi-source voucher composer | `/finance/journal` → composes `JournalEntry[]` via `composeJournalEntries(period, scope)` reading sales events + service ROs + custom-build invoices + paid vendor invoices + payroll runs; pre-export `assertVoucherBalanced` per voucher; idempotent byte-identical CSV per L30 | SPEC-FINANCE-001 §9 Seam 22 / L9, L28, L30 |
 
 ## Detailed seams
 
@@ -569,9 +586,270 @@ open-items.
    flows** are intentional — marks where backend integration plugs in
    for v2. Do not remove without replacing with the real call.
 
+---
+
+### 18–25. Reports — read-only aggregation seams (SPEC-REPORTS-001)
+
+All 8 seams are **read-only selector seams**. The Reports module reads from existing stores; it never mutates them. All seams comply with Core Invariant #1 (UI-layer only) and Invariant #2 (stores stay pure).
+
+**Pattern:** In `apps/staff-web/app/(shell)/reports/page.tsx` (and the `useReportData` custom hook), each store is accessed via the standard Zustand selector at the top of the hook (before any conditional), then passed as a `ReportInputState` object into pure selector functions inside a `useMemo`. No store imports another store. No Zustand subscription from one store to another.
+
+```tsx
+// Canonical pattern — useReportData hook
+const vehicles    = useVehiclesStore(s => s);        // seams 18–21
+const service     = useServiceStore(s => s);         // seam 22
+const insurance   = useInsuranceStore(s => s);       // seam 23
+const customBlds  = useCustomBuildsStore(s => s);    // seam 24
+const staff       = useStaffStore(s => s);           // seam 25
+
+const state: ReportInputState = { vehicles, service, insurance, customBuilds: customBlds, staff };
+
+const pnl = useMemo(
+  () => selectOutletPnL(state, period, scope),
+  [vehicles, service, staff, period, scope]  // explicit deps — no infinite-render risk (L10)
+);
+```
+
+**Failure handling:** If a store hasn't hydrated (`vehicles.hydrated === false`), the selector returns `{ kind: 'count', value: null }`. The page renders `—` in the StatTile and a top-level Info Banner. No cross-store try/catch is needed — selector functions return null-safe values.
+
+**Why read-only is safe:** All KPI values are aggregations (sums, medians, percentages). The Reports module never calls any store action (no `set`, no `immer` mutation). Confirmed by the `// L1:` comment in every selector file.
+
+**Test coverage:** 15 selector unit tests + 1 integration test per SPEC-REPORTS-001 §16.
+
+---
+
+---
+
+### 26. Insurance → Notifications (write-through audit)
+
+**Spec:** `SPEC-NOTIFICATIONS-001 §8 Seam 26`
+
+**File (to be modified):** `apps/staff-web/src/lib/insurance/insurance-store/slices/whatsapp-slice.ts`
+
+**Call chain:** After `sendTemplateMessage` receives a `messageId` from the BSP (mock path: always returns), add:
+```ts
+try {
+  useNotificationsStore.getState().recordSent({
+    templateId,
+    channel: 'WHATSAPP',
+    module: 'INSURANCE',
+    recipient: { customerId: recipientId },
+    variables,
+    consentSnapshot: /* read from customers-store consent log for purpose WHATSAPP_MARKETING */,
+    sourceEntityId: leadId,
+    sourceEntityType: 'INSURANCE_LEAD',
+  });
+} catch { /* L17: best-effort; log gap does not block insurance dispatch */ }
+```
+
+**Ordering guarantee:** `recordSent` is called AFTER the BSP call succeeds. A `recordSent` failure does NOT roll back the BSP send.
+
+**Pre-condition for go-live:** The insurance WhatsApp template fixtures must have matching `NotificationTemplate` records in the notifications store with `status: 'APPROVED'` and the same `dltTemplateId`.
+
+**Belt-and-braces in v1:** Both the insurance slice's own L13 guard AND `notifications-store.recordSent`'s L1 guard run in v1. In v1.1, the insurance slice guard is removed and `recordSent` is the single enforcement point.
+
+---
+
+### 27. Service Booking → Notifications (write-through audit)
+
+**Spec:** `SPEC-NOTIFICATIONS-001 §8 Seam 27`
+
+**File (to be modified):** `apps/staff-web/src/lib/service/service-store.ts` (lines ~1281, ~1312, ~1349)
+
+**Pre-existing stubs (to be replaced):**
+```ts
+// BEFORE (v1 stub):
+console.log('[DLT STUB] notifyBookingCreated', { templateId: 'DLT_SVC_BOOKING_CREATED', ... });
+
+// AFTER (seam wired):
+try {
+  useNotificationsStore.getState().recordSent({
+    templateId: 'DLT_SVC_BOOKING_CREATED',
+    channel: 'SMS',
+    module: 'SERVICE_BOOKING',
+    recipient: { customerId: sessionCustomerId },
+    variables: { job_no: jc.jobNo, outlet: jc.outlet ?? '', date: jc.scheduledDate ?? '' },
+    consentSnapshot: /* customers-store consent snapshot for SERVICE_REMINDER */,
+    sourceEntityId: jc.id,
+    sourceEntityType: 'JOB_CARD',
+  });
+} catch { /* L17 */ }
+```
+
+Same pattern for `DLT_SVC_BOOKING_CONFIRMED` and `DLT_SVC_BOOKING_DECLINED`.
+
+**Pre-condition:** Three SMS template fixtures (`DLT_SVC_BOOKING_CREATED`, `DLT_SVC_BOOKING_CONFIRMED`, `DLT_SVC_BOOKING_DECLINED`) seeded in notifications store with `status: 'APPROVED'` and mock DLT IDs.
+
+**Why service-store can have cross-store calls here:** The call is inside the `set()` immer callback's post-transition block, which executes synchronously. Per Core Invariant #2, slice actions must stay pure — this `recordSent` call MUST be moved to the UI-layer caller (`confirmPortalBooking`, etc.) in the component, NOT kept inside the immer `set` block. The slice fires the `console.log` from inside `set` today (a known anti-pattern). Migration to UI-layer call is required when wiring this seam.
+
+---
+
+### 28. Custom Builds → Notifications (write-through audit)
+
+**Spec:** `SPEC-NOTIFICATIONS-001 §8 Seam 28`
+
+**File (to be modified):** `apps/staff-web/src/components/custom-builds/` — the component that calls `advanceStage`, not the slice itself (per Core Invariant #2).
+
+**Trigger:** Stage transitions where a customer-facing notification is appropriate:
+- `ENQUIRY → APPROVED` — "Your custom build has been approved"
+- `PRODUCTION → READY_FOR_DELIVERY` — "Your build is ready for delivery"
+
+**Call chain (component layer):**
+```ts
+// After advanceStage(jobId, next, actor) succeeds:
+try {
+  useNotificationsStore.getState().recordSent({
+    templateId: 'DLT_CB_STAGE_UPDATE',
+    channel: 'WHATSAPP',
+    module: 'CUSTOM_BUILDS',
+    recipient: { customerId: job.customerId },
+    variables: {
+      job_title: job.title,
+      stage: next,
+      advisor_name: actor.name,
+    },
+    consentSnapshot: /* customers-store consent snapshot for DATA_PROCESSING */,
+    sourceEntityId: job.id,
+    sourceEntityType: 'BUILD_JOB',
+  });
+} catch { /* L17 */ }
+```
+
+**Ordering:** `advanceStage` succeeds first; notification is best-effort side effect.
+
+**Note:** Only specific stage transitions trigger a notification — not every `advanceStage` call. The triggering stages (`APPROVED`, `READY_FOR_DELIVERY`) are enumerated in the fixture template `DLT_CB_STAGE_UPDATE`'s `variables[].example`.
+
+---
+
+### 29. Customers → Notifications (write-through audit)
+
+**Spec:** `SPEC-NOTIFICATIONS-001 §8 Seam 29`
+
+**File (to be modified):** `apps/staff-web/src/components/customers/` — component layer calling `createCustomer` and `withdrawConsent`.
+
+**Triggers:**
+1. `createCustomer(payload, actor)` success → send `DLT_CUST_CONSENT_CONFIRMED` SMS to confirm DPDP data-processing consent was captured
+2. `withdrawConsent(consentId, reason, actor)` success → send `DLT_CUST_CONSENT_WITHDRAWN` SMS to acknowledge the withdrawal
+
+**Call chain:**
+```ts
+// After createCustomer succeeds:
+try {
+  useNotificationsStore.getState().recordSent({
+    templateId: 'DLT_CUST_CONSENT_CONFIRMED',
+    channel: 'SMS',
+    module: 'CUSTOMERS',
+    recipient: { customerId: newCustomer.id },
+    variables: { customer_name: newCustomer.name.split(' ')[0] },
+    consentSnapshot: { purpose: 'DATA_PROCESSING', capturedAt: now, capturedBy: actor.id, source: 'STAFF_FORM' },
+    sourceEntityId: newCustomer.id,
+    sourceEntityType: 'CUSTOMER',
+  });
+} catch { /* L17 */ }
+```
+
+**DPDP significance:** The `DLT_CUST_CONSENT_CONFIRMED` notification is itself a DPDP-mandated notice — the data fiduciary (BN Automobiles) must inform the data principal (customer) of the processing and their rights at the time of first contact. Per Doc 03 §10. This notification's dispatch record serves as evidence of that notice in a DSR.
+
+---
+
+---
+
+### 30. Settings → Staff (outlet manager reference)
+
+**Source:** `apps/staff-web/src/components/settings/outlets/outlet-edit-form.tsx` — manager dropdown
+**Target:** `apps/staff-web/src/lib/staff/staff-store.ts`
+
+**Contract:**
+```tsx
+// UI-layer only — settings-store does NOT import staff-store
+const eligibleManagers = useStaffStore(s =>
+  Object.values(s.profiles).filter(
+    p => p.outlet === outletId && hasRank(p.role, 'R03')
+  )
+);
+// Passed as prop to OutletEditForm; form managerId Zod schema validates against this list
+```
+
+**Failure handling:** If no R03+ staff exists for the outlet, the dropdown renders empty with hint: "No eligible managers — assign a staff member to this outlet at R03 or above first." Save is blocked.
+
+**Per SPEC-SETTINGS-001 L3.**
+
+---
+
+### 31. Settings outlet deactivation → Consuming modules (inactive-outlet guard)
+
+**Source:** `apps/staff-web/src/lib/settings/settings-store.ts` — `deactivateOutlet(id)`
+**Target:** `service-booking-store`, `sales-store`, `custom-builds-store` — new entity creation actions
+
+**Contract:**
+```tsx
+// Pattern enforced at the top of each consuming module's create action
+const outletActive = useSettingsStore.getState().outlets[outletId]?.active ?? true;
+if (!outletActive) {
+  throw new OutletInactiveError(
+    `Outlet ${outletId} is inactive. New ${entityType} cannot be created.`
+  );
+}
+```
+
+**Cross-module invariant:** Consuming modules must add this guard before the deactivate feature ships. `OutletInactiveError` bubbles to the UI as an inline form error: "This outlet is currently inactive. Contact your Org Admin to reactivate it."
+
+**Per SPEC-SETTINGS-001 L9.**
+
+---
+
+### 32. Feature flags registry → All flag-gated features
+
+**Source:** `apps/staff-web/src/lib/feature-flags/registry.ts` — canonical registry (SPEC-SETTINGS-001 L12)
+**Target:** Every module that checks a feature flag (e.g., `insurance/insurance-store/slices/ai-call-slice.ts` checking `feat_insurance_ai_calling`)
+
+**Contract:**
+```ts
+export function getFlag(key: string): boolean | string {
+  // 1. Check settings-store in-memory override (R02+ toggle in v1)
+  const override = useSettingsStore.getState().flags[key];
+  if (override !== undefined) return override.value;
+  // 2. Fall back to registry default
+  return FEATURE_FLAG_REGISTRY[key]?.defaultValue ?? false;
+}
+```
+
+**Migration note:** `ai-call-slice.ts` currently checks a hardcoded constant. It must be updated to call `getFlag('feat_insurance_ai_calling')`. The constant becomes the `defaultValue` in the registry entry.
+
+**Per SPEC-SETTINGS-001 L6 and L12.**
+
+---
+
+### 33. Settings RBAC matrix view → Doc 14 action registry
+
+**Source:** `apps/staff-web/src/lib/settings/rbac-matrix.ts` — static constant hand-maintained from Doc 14
+**Target:** `/settings/rbac` route — matrix renderer
+
+**Contract:**
+```ts
+// rbac-matrix.ts — derived from Doc 14 §§4-26; update on every Doc 14 change
+export const RBAC_MATRIX: RbacMatrixRow[] = [
+  // { domain, action, notes, cells: { R01: 'allow', R02: 'allow', ... } }
+]
+```
+
+**Drift gate:** Any change to Doc 14 must be reflected in `rbac-matrix.ts`. The Settings spec drift check must compare `RBAC_MATRIX` row count and domain grouping against Doc 14 section headings.
+
+**Read-only invariant:** Nothing writes to `rbac-matrix.ts` at runtime. RBAC edit workflow (v2) will replace this static constant with a mutable config.
+
+**Per SPEC-SETTINGS-001 L4 and L17.**
+
+---
+
 ## Changelog
 
 | Date | Change |
 |---|---|
 | 2026-04-21 | Created. Documents 10 cross-module seams with file:line + flows + ordering + error handling + gotchas. Verified against commit `f75e4c7`. Future seams added here at introduction time. |
 | 2026-04-29 | Added seams 11 + 12: Custom Builds new-flow → Customers (DPDP-gated inline create) and Custom Builds new-flow → Vehicles (CUSTOM_BUILD_LINKED upsert + ownership + audit event). Per SPEC-CUSTOM-BUILDS-001 §32 L65–L68. |
+| 2026-04-29 | Added seams 13: Vehicles Sales tab → Inventory new (existing). Per PLAN-VEHICLES-003 L12. |
+| 2026-04-29 | Added seams 14–17: Insurance Compare → Customers, Insurance Compare → Vehicles, Insurance Compare → New Lead, Insurance Compare → Existing Lead. Per SPEC-INSURANCE-001 §42. |
+| 2026-04-29 | Added seams 18–25: Reports module — 8 read-only aggregation seams from vehicles/service/insurance/custom-builds/staff stores into `lib/reports/selectors/`. Per SPEC-REPORTS-001 §19. All seams are read-only; no store mutation from Reports. |
+| 2026-04-29 | Added seams 26–29: Notifications module — write-through audit seams from Insurance, Service Booking, Custom Builds, and Customers into `notifications-store.recordSent`. Per SPEC-NOTIFICATIONS-001 §8. All seams are best-effort (try/catch at call site — L17); a log gap does not block the originating module's dispatch. |
+| 2026-04-29 | Added seams 30–33: Settings module — outlet manager reference (→ staff-store), outlet deactivation guard (→ service/sales/custom-builds), feature flags registry (→ all flag-gated features), RBAC matrix constant (→ Doc 14 action registry). Per SPEC-SETTINGS-001 L3, L9, L12, L17. |
+| 2026-04-29 | Added seams 34–38: Finance module (SPEC-FINANCE-001) — GST reconciliation reads sales-events + cost-ledger; TCS register reads sales-events grouped by PAN (with `tcsWaived` from PLAN-VEHICLES-003 L18); Customer ledger composes vehicles + service + custom-builds + payments; Journal preview composes all monetary modules + asserts double-entry balance per L28 + idempotent byte-identical CSV per L30. All seams are READ-ONLY — Finance never mutates upstream stores per SPEC-FINANCE-001 L14. |
