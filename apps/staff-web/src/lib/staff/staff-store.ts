@@ -66,7 +66,9 @@ export type StaffProfileAuditEventKind =
   | 'exit-initiated'
   | 'exit-cancelled'
   | 'fnf-finalized'
-  | 'onboarded';
+  | 'onboarded'
+  /** L12 / L23 — 7-year post-exit PII anonymization (Doc 06 §17, DPDP) */
+  | 'staff-anonymized';
 
 // ─── Exit state (SPEC-STAFF-001 S8, L11, L19, L23) ───────────────────────────
 
@@ -111,6 +113,10 @@ export interface StaffExitState {
   fnf?: FnFPayload;
   /** 7 years from lastWorkingDay per Doc 06 §17, DPDP */
   anonymizationScheduledFor: string;
+  /** Set by anonymization sweep when PII has been replaced (L12, L23) */
+  anonymizedAt?: string;
+  /** Actor who ran the anonymization sweep */
+  anonymizedBy?: string;
 }
 
 export interface StaffProfileAuditEvent {

@@ -2,12 +2,15 @@
 
 /**
  * /staff/leaves — Admin Leaves view
+ * SPEC-STAFF-001 §8.6 — Leaves admin
  *
- * Manager view: see all leaves where the viewer is the approver (reportsTo === viewer.id)
- * R12+ view: see all leaves outlet-scoped
- * R02+ view: see all leaves across outlets
- *
- * Approve / reject inline. Filter by status, type, staff, outlet, date range.
+ * Scope toggle: mine (R09+) / outlet (R10+) / all-outlets (R02+)
+ * Filter chips: type (CL/SL/EL/CompOff), status (pending/approved/rejected/cancelled), date range
+ * Inline approve/reject: R09+ for own team; R10+ for outlet; R02+ cross-outlet
+ * Reject requires reason (RejectDialog, min 10 chars per §8.6 AC)
+ * Approval cascade: CompOff deducted from comp-off balance on approve
+ * Stats strip: pending count, this-month approved, overdue (pending > 3 days), rejected
+ * Cross-outlet view (R02+): shows outlet column, sortable
  */
 
 import { useState, useMemo } from 'react';
@@ -20,6 +23,8 @@ import {
   Search,
   Filter as FilterIcon,
   ChevronRight,
+  ArrowUpDown,
+  Clock,
 } from 'lucide-react';
 import type { StaffRoleCode, LeaveApplication, LeaveType } from '@dms/types';
 import { hasRank } from '@dms/types';
@@ -76,7 +81,12 @@ function RejectDialog({
 
   function handleReject() {
     if (!reason.trim()) {
-      setError('Rejection reason is required');
+      setError('Rejection reason is required.');
+      return;
+    }
+    // §8.6 AC: reason must be at least 10 characters
+    if (reason.trim().length < 10) {
+      setError('Reason must be at least 10 characters.');
       return;
     }
     const result = rejectLeave(leaveId, reason.trim(), actor);
@@ -101,10 +111,17 @@ function RejectDialog({
           onChange={(e) => setReason(e.target.value)}
           rows={3}
           autoFocus
-          placeholder="Reason for rejection"
+          placeholder="Reason for rejection (min 10 characters)"
           className="w-full px-3 py-2 rounded-md border border-line bg-bg-canvas text-sm text-ink-primary focus:outline-none focus:ring-2 focus:ring-accent resize-none"
+          aria-describedby="reject-reason-hint"
         />
-        {error && <p className="mt-3 text-[12px] text-state-danger">{error}</p>}
+        <p
+          id="reject-reason-hint"
+          className={`mt-1 text-[11px] ${reason.trim().length >= 10 ? 'text-success' : 'text-ink-muted'}`}
+        >
+          {reason.trim().length} / 10 characters minimum
+        </p>
+        {error && <p className="mt-1 text-[12px] text-state-danger">{error}</p>}
         <div className="mt-4 flex items-center justify-end gap-2">
           <button
             type="button"
@@ -141,6 +158,7 @@ export default function StaffLeavesPage() {
   const [search, setSearch] = useState('');
   const [scope, setScope] = useState<'mine' | 'outlet' | 'all'>('mine');
   const [rejectFor, setRejectFor] = useState<string | null>(null);
+  const [outletSort, setOutletSort] = useState<'asc' | 'desc' | null>(null);
 
   const userRole = user?.role as StaffRoleCode | undefined;
   const userOutlet = user?.outlet;
@@ -178,8 +196,18 @@ export default function StaffLeavesPage() {
       });
     }
 
+    // Outlet column sort (R02+ cross-outlet view only)
+    if (scope === 'all' && outletSort) {
+      leaves = [...leaves].sort((a, b) => {
+        const outA = allStaff[a.staffId]?.outlet ?? '';
+        const outB = allStaff[b.staffId]?.outlet ?? '';
+        return outletSort === 'asc' ? outA.localeCompare(outB) : outB.localeCompare(outA);
+      });
+      return leaves;
+    }
+
     return leaves.sort((a, b) => b.appliedAt.localeCompare(a.appliedAt));
-  }, [allLeaves, allStaff, user, userRole, userOutlet, scope, statusFilter, typeFilter, search]);
+  }, [allLeaves, allStaff, user, userRole, userOutlet, scope, statusFilter, typeFilter, search, outletSort]);
 
   // Stats for the top strip
   const stats = useMemo(() => {
@@ -189,11 +217,22 @@ export default function StaffLeavesPage() {
       if (scope === 'outlet') return allStaff[l.staffId]?.outlet === userOutlet;
       return true;
     });
+    const now = Date.now();
+    const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
+    const thisMonthStart = new Date();
+    thisMonthStart.setDate(1);
+    thisMonthStart.setHours(0, 0, 0, 0);
     return {
       pending: inScope.filter((l) => l.status === 'pending').length,
-      approved: inScope.filter((l) => l.status === 'approved').length,
+      // Overdue: pending AND appliedAt > 3 days ago (§8.6 AC)
+      overdue: inScope.filter(
+        (l) => l.status === 'pending' && now - new Date(l.appliedAt).getTime() > THREE_DAYS_MS,
+      ).length,
+      // This-month approved
+      approvedThisMonth: inScope.filter(
+        (l) => l.status === 'approved' && new Date(l.appliedAt) >= thisMonthStart,
+      ).length,
       rejected: inScope.filter((l) => l.status === 'rejected').length,
-      cancelled: inScope.filter((l) => l.status === 'cancelled').length,
     };
   }, [allLeaves, allStaff, scope, user?.id, userOutlet]);
 
@@ -283,31 +322,53 @@ export default function StaffLeavesPage() {
         </div>
       </div>
 
-      {/* Stats strip */}
+      {/* Stats strip — pending, overdue, this-month approved, rejected (§8.6) */}
       <div className="grid grid-cols-4 gap-3 px-6 py-3 border-b border-line flex-shrink-0">
-        {(
-          [
-            { k: 'pending' as const, l: 'Pending', cls: 'text-warning' },
-            { k: 'approved' as const, l: 'Approved', cls: 'text-success' },
-            { k: 'rejected' as const, l: 'Rejected', cls: 'text-state-danger' },
-            { k: 'cancelled' as const, l: 'Cancelled', cls: 'text-ink-muted' },
-          ]
-        ).map((s) => (
-          <button
-            key={s.k}
-            type="button"
-            onClick={() => setStatusFilter(statusFilter === s.k ? 'all' : s.k)}
-            aria-pressed={statusFilter === s.k}
-            className={`text-left rounded-lg border p-3 transition-colors ${
-              statusFilter === s.k
-                ? 'border-accent bg-accent/5'
-                : 'border-line bg-bg-surface hover:bg-bg-subtle'
-            }`}
-          >
-            <p className="text-[10px] uppercase tracking-wider text-ink-muted">{s.l}</p>
-            <p className={`text-[22px] font-bold tabular-nums ${s.cls}`}>{stats[s.k]}</p>
-          </button>
-        ))}
+        <button
+          type="button"
+          onClick={() => setStatusFilter(statusFilter === 'pending' ? 'all' : 'pending')}
+          aria-pressed={statusFilter === 'pending'}
+          className={`text-left rounded-lg border p-3 transition-colors ${
+            statusFilter === 'pending' ? 'border-accent bg-accent/5' : 'border-line bg-bg-surface hover:bg-bg-subtle'
+          }`}
+        >
+          <p className="text-[10px] uppercase tracking-wider text-ink-muted">Pending</p>
+          <p className="text-[22px] font-bold tabular-nums text-warning">{stats.pending}</p>
+        </button>
+
+        {/* Overdue tile: pending > 3 days — non-interactive filter, just informational */}
+        <div
+          className={`text-left rounded-lg border p-3 ${
+            stats.overdue > 0 ? 'border-state-danger/40 bg-state-danger/5' : 'border-line bg-bg-surface'
+          }`}
+          aria-label={`${stats.overdue} overdue pending requests`}
+        >
+          <div className="flex items-center gap-1 mb-1">
+            <Clock size={10} className={stats.overdue > 0 ? 'text-state-danger' : 'text-ink-muted'} aria-hidden="true" />
+            <p className="text-[10px] uppercase tracking-wider text-ink-muted">Overdue</p>
+          </div>
+          <p className={`text-[22px] font-bold tabular-nums ${stats.overdue > 0 ? 'text-state-danger' : 'text-ink-muted'}`}>
+            {stats.overdue}
+          </p>
+          <p className="text-[10px] text-ink-muted mt-0.5">Pending &gt; 3 days</p>
+        </div>
+
+        <div className="text-left rounded-lg border p-3 border-line bg-bg-surface">
+          <p className="text-[10px] uppercase tracking-wider text-ink-muted">Approved (month)</p>
+          <p className="text-[22px] font-bold tabular-nums text-success">{stats.approvedThisMonth}</p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setStatusFilter(statusFilter === 'rejected' ? 'all' : 'rejected')}
+          aria-pressed={statusFilter === 'rejected'}
+          className={`text-left rounded-lg border p-3 transition-colors ${
+            statusFilter === 'rejected' ? 'border-accent bg-accent/5' : 'border-line bg-bg-surface hover:bg-bg-subtle'
+          }`}
+        >
+          <p className="text-[10px] uppercase tracking-wider text-ink-muted">Rejected</p>
+          <p className="text-[22px] font-bold tabular-nums text-state-danger">{stats.rejected}</p>
+        </button>
       </div>
 
       {/* Filter row */}
@@ -382,6 +443,26 @@ export default function StaffLeavesPage() {
                   <th className="text-left px-4 py-2.5 text-[11px] uppercase tracking-wider text-ink-muted font-medium">
                     Staff
                   </th>
+                  {/* Outlet column — R02+ cross-outlet view, sortable (§8.6) */}
+                  {scope === 'all' && (
+                    <th className="text-left px-4 py-2.5 text-[11px] uppercase tracking-wider text-ink-muted font-medium">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setOutletSort((s) => (s === 'asc' ? 'desc' : s === 'desc' ? null : 'asc'))
+                        }
+                        className="inline-flex items-center gap-1 hover:text-ink-primary transition-colors"
+                        aria-label={`Sort by outlet — currently ${outletSort ?? 'unsorted'}`}
+                      >
+                        Outlet
+                        <ArrowUpDown
+                          size={10}
+                          className={outletSort ? 'text-accent' : 'text-ink-muted'}
+                          aria-hidden="true"
+                        />
+                      </button>
+                    </th>
+                  )}
                   <th className="text-left px-4 py-2.5 text-[11px] uppercase tracking-wider text-ink-muted font-medium">
                     Type
                   </th>
@@ -415,10 +496,16 @@ export default function StaffLeavesPage() {
                         </Link>
                         {subj && (
                           <p className="text-[11px] text-ink-muted capitalize mt-0.5">
-                            {subj.outlet} · {subj.role}
+                            {subj.role}
                           </p>
                         )}
                       </td>
+                      {/* Outlet cell — cross-outlet view only */}
+                      {scope === 'all' && (
+                        <td className="px-4 py-2.5 capitalize text-ink-secondary text-[12px]">
+                          {subj?.outlet ?? '—'}
+                        </td>
+                      )}
                       <td className="px-4 py-2.5 font-medium text-ink-primary">{l.type}</td>
                       <td className="px-4 py-2.5 text-ink-secondary">
                         <span className="block">{formatDate(l.fromDate)}</span>

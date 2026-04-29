@@ -65,6 +65,8 @@ imports from this fixture. The `StaffProfile` Zod schema in `@dms/types` is the 
 | L29 | **Salary updates: R22+ gate at slice level.** `updateSalary(staffId, newStructure, actor)` requires `hasRank(actor.role, 'R22')`. Append-only `salaryHistory` on StaffProfile. Emits `salary-change` to `profileAuditLog` (L25). `selectPayslip(staffId, month, year)` is a pure selector — no store mutation. | Doc 14, L8; shipped 2026-04-29 |
 | L30 | **Attendance webhook auth: HMAC-SHA256 + ±5min replay window + ±60s dedup + per-device secrets + 24h rotation grace.** Route handler at `apps/staff-web/app/api/webhooks/fingerprint/route.ts`. Mock device secrets seeded in store `deviceSecrets`. (L17 reaffirmed for production wiring.) | L17, Security S1; shipped 2026-04-29 |
 | L31 | **Daily punch classification: late if first punch-in > 9:30 AM; half-day if total hours < 4.** Half-day takes priority over late (< 4h regardless of punch-in time). Both thresholds hardcoded for v1; configurable via outlet settings in v1.5. `classifyDay` in `attendance-math.ts`. | L30; shipped 2026-04-29 |
+| L_S7 | **Onboarding gate: page-level R03+, with submit-time hire-tier check.** `/staff/new` is reachable by any viewer with `hasRank(viewer.role, 'R03')` (Outlet Manager and above). At submit time, the onboarding action re-validates that the SELECTED target role's hire-tier ≤ viewer rank: any viewer can onboard R05–R11; only R02+ can onboard R12+ roles (Manager-tier). The role select dropdown filters available options per viewer rank as a UX hint, but the submit-side guard is authoritative. Resolves the 2026-04-29 audit divergence where code was over-gating to R12+ at the page level. | Doc 14 §R03; S7 AC; shipped 2026-04-29 |
+| L_S8_ANON | **Anonymization sweep is a manual admin action in v1, server-side cron in production.** `/staff` shows R02+ "Run anonymization sweep" button → `runAnonymizationSweepDryRun()` previews the affected count → confirmation dialog with type-to-confirm `ANONYMIZE` → `runAnonymizationSweep(actor)` mutates due records (status FNF_FINALIZED + anonymizationScheduledFor ≤ now + anonymizedAt null). PII fields replaced with `'ANONYMIZED_USER'`/`'anon@example.invalid'`/`'0000000000'`/`'0000'`. Emits `staff-anonymized` profile-audit event. v1 ships UI trigger; v1.5 wires a server cron (Doc 12 §observability). | DPDP §13, Doc 06 §retention; L23; shipped 2026-04-29 |
 
 ---
 
@@ -656,6 +658,61 @@ Submit creates `StaffProfile`, adds to canonical fixture, emits `STAFF_ONBOARDED
 - Reduced-motion: chart animations suppressed via `prefers-reduced-motion`.
 - Focus rings per `@dms/tokens` focus token.
 
+### 8.6 `/staff/leaves` — Global leaves admin (shipped 2026-04-29)
+
+**Audience:** R09+ (own team), R10+ (outlet), R02+ (cross-outlet).
+
+**Purpose:** Single admin surface for approving / rejecting / filtering leave applications across the org. Per-employee leaves remain on `/staff/[id]?tab=leaves`; this is the cross-employee aggregation view.
+
+**Header bar**
+- Title "Leaves admin" + total-pending badge
+- Scope toggle (segmented control): **Mine** (default for R09 viewing own team) · **Outlet** (R10+) · **All outlets** (R02+). Disabled options are hidden — never rendered greyed.
+- Search input (debounced 200ms): name / leave-id
+
+**Stats strip** (4 tiles, filterable when clicked)
+1. **Pending** — count of `status === 'pending'` in current scope
+2. **Approved this month** — `status === 'approved' AND approvedAt within current calendar month`
+3. **Rejected this month** — same window, status rejected
+4. **Overdue** — `status === 'pending' AND age > 3 days`. Tile color shifts to amber when count > 0; click filters to overdue-only.
+
+**Filter chips row**
+- Type: `CL` / `SL` / `EL` / `CompOff` (multi-select)
+- Status: `pending` / `approved` / `rejected` / `cancelled` (multi-select)
+- Date range: from / to (applies to `appliedAt`)
+- Outlet (R02+ only): BLR / MUM / CHE / All
+
+**Table columns** (sortable per column)
+| Col | Sort key | Notes |
+|---|---|---|
+| Staff | name | Avatar + name + role badge; link to `/staff/[id]?tab=leaves` |
+| Outlet | outletId | Hidden when scope === 'mine' or scope === 'outlet' |
+| Type | type | CL / SL / EL / CompOff chip |
+| Dates | fromDate | "12 May" or "12–14 May" range; days count next to it |
+| Reason | — | Truncated to 60 chars; full text on hover via title attr |
+| Applied | appliedAt | Relative time ("2d ago"); raw ISO on hover |
+| Status | status | Chip — pending = amber pulse, approved = green, rejected = red, cancelled = grey |
+| Actions | — | Approve + Reject buttons inline (R-rank + scope gated); Cancel button for own pending only |
+
+**Actions**
+- **Approve** (`R09+` for own team / `R10+` for outlet / `R02+` cross-outlet): one-click; toast on success. For Comp-Off type, the action also debits the staff's `compOffBalance`.
+- **Reject**: opens `RejectLeaveDialog` with reason textarea (min **10 chars** validated client + store). Toast on success.
+- **Cancel** (own pending only): one-click; AlertDialog confirmation; reverts `compOffBalance` if Comp-Off.
+
+**Empty states**
+- No pending in scope: "All caught up — no pending leave applications."
+- Filter returns no rows: "No leaves match these filters." + "Clear filters" link.
+- Loading: 6 skeleton rows.
+
+**RBAC summary**
+- View own team: R09+ (scope=mine, automatic)
+- View outlet: R10+ (scope=outlet)
+- View all-outlets: R02+ (scope=all)
+- Approve/reject across team boundary: requires the matching scope
+- Reject reason: enforced min 10 chars at both UI form and `rejectLeave` store guard (defence in depth)
+- Comp-Off balance cascade: deducted on approve, restored on cancel — never on reject (rejected leaves never debit balance)
+
+**Cross-references:** §4 S5 (leave application story), §6.3 (LeaveRequest state machine), §11 audit-trail kinds (`leave-applied` / `leave-approved` / `leave-rejected` / `leave-cancelled`).
+
 ---
 
 ## 9. Notifications
@@ -1075,6 +1132,7 @@ On confirm: calls `updateReportsTo` → cycle detection → `REPORTS_TO_CHANGED`
 | 2026-04-28 | 0.2 | orchestrator | Review fixes applied (B1–B5 + payroll audit items). L16–L23 added. Status REMAINS draft pending tax-counsel sign-off on PT slabs (OQ-PT-1) and Doc 14 verification of role-transition chain (OQ-ROLE-1). |
 | 2026-04-29 | 0.3 | orchestrator | L24–L26 added. §22 (implementation status), §23 (onboarding wizard UX), §24 (profile audit trail schema), §25 (org chart layout spec) added. Filter bar polish shipped. Onboarding wizard (5-step) shipped. Profile audit trail on StaffStore shipped. Org chart with cycle detection shipped. Status remains draft pending OQ-PT-1 + OQ-ROLE-1. |
 | 2026-04-29 | 0.4 | orchestrator | L27–L31 added. §26 (Salary tab UX) and §27 (Attendance tab UX) added. P2 (Salary tab) and P3 (Attendance tab) shipped with PT unverified banner. SalaryStructure + AttendancePunch schemas in `@dms/types`. `payroll-math.ts` + `attendance-math.ts` helpers. `updateSalary` (R22+ gate) + `addAttendancePunch` (R12+ override gate) store actions. Fingerprint webhook stub (`/api/webhooks/fingerprint/route.ts`) with HMAC-SHA256 + ±5min replay + ±60s dedup. Mock salary fixtures (MOCK_SALARY_STRUCTURES) + 3-month attendance fixtures (MOCK_ATTENDANCE_PUNCHES). 14+ new tests added. §22 implementation status updated. |
+| 2026-04-29 | 0.5 | orchestrator | **S7/S8 polish + leaves admin spec.** L_S7 added: onboarding gate is **R03+** at the page level, with a per-role hire-tier check at submit time (R12+ roles require R02+ to onboard). Resolves the prior R12-vs-R03 divergence — code now matches spec. New §8.6 documents `/staff/leaves` global admin route fully (scope toggle mine/outlet/all, filter chips by type+status+date-range, inline approve/reject with min-10-char reason on reject, Comp-Off balance cascade, stats strip with overdue tile for pending > 3 days, R02+ cross-outlet sortable column). S8 anonymization scheduler shipped: `runAnonymizationSweep(actor)` + `runAnonymizationSweepDryRun()` in `apps/staff-web/src/lib/staff/anonymization-scheduler.ts`. PII fields anonymized: name/email/phone/panLast4/aadhaarLast4/addressLine1/2 → `'ANONYMIZED_USER'` etc. New audit event kind `staff-anonymized`. R02+ admin "Run anonymization sweep" button on `/staff` with type-to-confirm `ANONYMIZE`. 20 new tests under `apps/staff-web/src/tests/staff-s7-s8-items.test.ts`. |
 
 ---
 

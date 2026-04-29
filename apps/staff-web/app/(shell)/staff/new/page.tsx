@@ -12,7 +12,14 @@
  *
  * L24: DPDP consent + role + salary scaffold occurs at step 4 + 5;
  *      salary fields hidden behind R12+ gate (FIXME: OQ-PT-1 — salary tab P2).
- * RBAC: R12+ to onboard; R02+ for R12+ roles (S7 AC).
+ *
+ * RBAC gate (S7 AC — L_S7):
+ *   Page-level:  R03+ can reach the wizard.
+ *   Role options in Step 2:
+ *     - R03–R11  (Outlet Manager): can only select roles below R12 (i.e. R05–R11 range).
+ *     - R12–R18  (Manager tier): can select R05–R18 (all non-admin roles below R12+ tier).
+ *     - R02+     (Org Admin):    can select all roles including R12+ tier.
+ *   Submit guard: if actor is not R02+ and selected role meets R12 rank, reject with toast.
  */
 import { useState } from 'react';
 import Link from 'next/link';
@@ -23,6 +30,8 @@ import type { StaffRoleCode, StaffProfile, Department } from '@dms/types';
 import { hasRank } from '@dms/types';
 import { useStaffStore } from '@/src/lib/staff/staff-store';
 import { useStaffAuth } from '@/src/providers/staff-auth-provider';
+import { useToast } from '@/src/hooks/use-toast';
+import { ToastContainer } from '@/src/components/primitives/toast';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -224,7 +233,23 @@ function Step2({ data, onChange, errors, actorRole }: {
   errors: Partial<Record<keyof WizardData, string>>;
   actorRole: StaffRoleCode;
 }) {
-  // R02+ can onboard R12+ roles (S7 AC, SPEC §8.3)
+  /**
+   * Role-option scoping per S7 / L_S7:
+   *   R02+ (Org Admin, rank 22):  all roles selectable
+   *   R12+ but not R02 (rank 15–21): below-R12 roles only (can't self-elevate to admin tier)
+   *   R03+ but not R12 (Outlet Manager, rank 18 — note: R03 rank=18 > R12 rank=15):
+   *     actually R03 has rank 18 which IS >= R12 rank 15, so R03 can see all non-R02+ roles.
+   *     We apply a two-tier guard:
+   *       - R02+ sees everything
+   *       - R03–R11 (rank < 15) sees only roles NOT meeting R12 rank (i.e. below manager tier)
+   *
+   * From the rank table:
+   *   R03 = 18, R04 = 16, R08 = 16, R10 = 12, R12 = 15, R14 = 16, R16 = 18
+   *   R02 = 22
+   *
+   * Spec S7 intent: "R03 can onboard Sales Executive (R05)". R12+ manager-tier
+   * roles require R02+ to onboard. We define "manager-tier" as hasRank(role, 'R12').
+   */
   const canOnboardManagerTier = hasRank(actorRole, 'R02');
   const availableRoles = canOnboardManagerTier
     ? ONBOARDABLE_ROLES
@@ -245,7 +270,7 @@ function Step2({ data, onChange, errors, actorRole }: {
         </select>
         {!canOnboardManagerTier && (
           <p className="mt-1 text-[11px] text-ink-muted">
-            R12+ roles require Org Admin (R02) authority.
+            Manager-tier (R12+) roles require Org Admin (R02) authority. Onboardable roles shown.
           </p>
         )}
       </Field>
@@ -564,14 +589,27 @@ function validateStep(
     if (!data.email.trim() || !data.email.includes('@')) e.email = 'Valid work email required.';
   }
   if (step === 2) {
+    // L_S7: Manager-tier (R12+) roles require R02+ actor authority.
     if (hasRank(data.role, 'R12') && !hasRank(actorRole, 'R02')) {
-      e.role = 'Org Admin (R02) authority required to onboard R12+ roles.';
+      e.role = 'Org Admin (R02) authority required to onboard Manager-tier (R12+) roles.';
     }
   }
   if (step === 4) {
     if (!data.dpdpConsent) e.dpdpConsent = 'DPDP consent is required to proceed (S7 AC).';
   }
   return e;
+}
+
+/**
+ * Final submit-time RBAC guard (L_S7).
+ * Prevents bypass where actor manipulates state client-side after Step 2.
+ * Returns an error string if the actor cannot onboard the selected role, null otherwise.
+ */
+function submitRbacGuard(data: WizardData, actorRole: StaffRoleCode): string | null {
+  if (hasRank(data.role, 'R12') && !hasRank(actorRole, 'R02')) {
+    return 'Insufficient rank to onboard a Manager-tier role. Org Admin (R02) required.';
+  }
+  return null;
 }
 
 // ─── Access denied component ──────────────────────────────────────────────────
@@ -593,6 +631,7 @@ function AccessDenied({ message }: { message: string }) {
 function OnboardingWizard({ actorRole }: { actorRole: StaffRoleCode }) {
   const router = useRouter();
   const addStaff = useStaffStore((s) => s.addStaff);
+  const { toasts, toast, dismiss } = useToast();
   const [step, setStep] = useState<StepId>(1);
   const [data, setData] = useState<WizardData>(INITIAL);
   const [errors, setErrors] = useState<Partial<Record<keyof WizardData, string>>>({});
@@ -622,6 +661,14 @@ function OnboardingWizard({ actorRole }: { actorRole: StaffRoleCode }) {
   }
 
   function handleSubmit() {
+    // L_S7: Final RBAC guard — re-validate at submit time to prevent client-side bypass.
+    const rbacError = submitRbacGuard(data, actorRole);
+    if (rbacError) {
+      toast(rbacError, 'error');
+      setStep(2);
+      return;
+    }
+
     // Final validation across all steps
     const e1 = validateStep(1, data, actorRole);
     const e2 = validateStep(2, data, actorRole);
@@ -772,6 +819,7 @@ function OnboardingWizard({ actorRole }: { actorRole: StaffRoleCode }) {
           </div>
         </div>
       </div>
+      <ToastContainer toasts={toasts} onDismiss={dismiss} />
     </div>
   );
 }
@@ -789,8 +837,10 @@ export default function StaffOnboardPage() {
     );
   }
 
-  if (!hasRank(user.role as StaffRoleCode, 'R12')) {
-    return <AccessDenied message="You need Parts Manager (R12) or higher to onboard new staff." />;
+  // L_S7: Page gate is R03+ (Outlet Manager). Role-option scoping + submit guard
+  // enforce the finer-grained R02+ requirement for manager-tier (R12+) roles.
+  if (!hasRank(user.role as StaffRoleCode, 'R03')) {
+    return <AccessDenied message="You need Outlet Manager (R03) or higher to onboard new staff." />;
   }
 
   return <OnboardingWizard actorRole={user.role as StaffRoleCode} />;
