@@ -42,12 +42,13 @@ import {
   deals as salesDeals,
   vehicleDocuments,
 } from '@dms/mocks/fixtures';
-import type { JobCard, Vehicle, Customer, SalesEvent, Deal, Document, StaffDocumentMetadata } from '@dms/types';
+import type { JobCard, Vehicle, Customer, SalesEvent, Deal, Document, StaffDocumentMetadata, CostLedgerEntry } from '@dms/types';
 import type { VehicleMaster } from '@dms/types';
 import { useVehiclesStore } from './vehicles-store';
 import { rebuildIndices, indexOwnershipByVin, indexOwnershipByCustomer } from './vehicles-store/index-maintenance';
 import { makeOwnershipId, makeEventId } from './vehicles-store/id-helpers';
 import type { VehiclesState } from './vehicles-store/types';
+import { computeMarginAndGst } from '@/src/lib/finance/math/gst-margin';
 
 // ─── Safe VIN canonicalization for fixture backfill ───────────────────────────
 //
@@ -420,8 +421,10 @@ function customerIdFromName(name: string): string {
 function buildDerivedSalesEvents(
   invVehicles: Vehicle[],
   deals: Deal[],
-): SalesEvent[] {
+): { events: SalesEvent[]; costLedgerEntries: Record<string, CostLedgerEntry[]> } {
   const events: SalesEvent[] = [];
+  // L24 (PLAN-VEHICLES-003): cost-ledger entries seeded alongside SOLD events
+  const costLedgerEntries: Record<string, CostLedgerEntry[]> = {};
   const ACQUIRER_ID = 'staff-r10-001';
   const ACQUIRER_ROLE = 'R10';
 
@@ -529,9 +532,49 @@ function buildDerivedSalesEvents(
       });
     }
 
-    // Delivered deals → SOLD event
+    // Delivered deals → SOLD event + cost-ledger entries
     if (deal.stage === 'delivered') {
       const finalPrice = deal.amount;
+
+      // L24 (PLAN-VEHICLES-003): seed acquisition + refurb cost-ledger entries
+      // Realistic heuristic: acquisition 75%, refurb 8% of sale price
+      const acquisitionCost = Math.round(finalPrice * 0.75);
+      const refurbCost = Math.round(finalPrice * 0.08);
+
+      // Compute gstMargin for the SOLD payload (SPEC-FINANCE-001 L1/L10)
+      const { gstPaise } = computeMarginAndGst({
+        salePricePaise: finalPrice * 100,
+        acquisitionCostPaise: acquisitionCost * 100,
+        allowableRefurbPaise: refurbCost * 100,
+      });
+      // Store in rupees — SOLD payload uses rupees throughout
+      const gstMargin = gstPaise / 100;
+
+      // Seed cost-ledger entries for this VIN (idempotent at store level via id uniqueness)
+      const vinEntries: CostLedgerEntry[] = [
+        {
+          id: `cle-${deal.id}-acq`,
+          vin,
+          category: 'acquisition',
+          date: activityAt.slice(0, 10),
+          amount: acquisitionCost,
+          note: 'Initial acquisition',
+          addedBy: actorId,
+          addedAt: activityAt,
+        },
+        {
+          id: `cle-${deal.id}-refurb`,
+          vin,
+          category: 'refurb-mechanical',
+          date: activityAt.slice(0, 10),
+          amount: refurbCost,
+          note: 'Pre-sale refurbishment',
+          addedBy: actorId,
+          addedAt: activityAt,
+        },
+      ];
+      costLedgerEntries[vin] = [...(costLedgerEntries[vin] ?? []), ...vinEntries];
+
       events.push({
         id: `se-${deal.id}-sold`,
         vin,
@@ -547,7 +590,10 @@ function buildDerivedSalesEvents(
           flow: 'MARGIN_SCHEME',
           tcsCollected:
             finalPrice > 1_000_000 ? Math.round(finalPrice * 0.01) : 0,
+          gstMargin,
           buyerCustomerId: customerIdFromName(deal.customerName),
+          // buyerName included so margin-reconciliation selector can display it
+          buyerName: deal.customerName,
           sellerSignatures: [],
         },
         schemaVersion: 'v1',
@@ -578,7 +624,7 @@ function buildDerivedSalesEvents(
 
   // Sort chronologically so the timeline renders correctly
   events.sort((a, b) => a.at.localeCompare(b.at));
-  return events;
+  return { events, costLedgerEntries };
 }
 
 
@@ -711,7 +757,7 @@ export function VehiclesStoreHydrator() {
       );
 
       // ── Phase C: Derive SalesEvents from inventory + deals (real data) ───
-      const derivedEvents = buildDerivedSalesEvents(
+      const { events: derivedEvents, costLedgerEntries } = buildDerivedSalesEvents(
         inventoryVehicles as Vehicle[],
         salesDeals as Deal[],
       );
@@ -720,6 +766,16 @@ export function VehiclesStoreHydrator() {
           state.salesEvents[event.vin] = [];
         }
         state.salesEvents[event.vin]!.push(event);
+      }
+
+      // L24 (PLAN-VEHICLES-003): seed per-VIN cost-ledger entries for delivered deals
+      for (const [vin, entries] of Object.entries(costLedgerEntries)) {
+        const existing = state.costLedger[vin] ?? [];
+        const existingIds = new Set(existing.map((e) => e.id));
+        const newEntries = entries.filter((e) => !existingIds.has(e.id));
+        if (newEntries.length > 0) {
+          state.costLedger[vin] = [...existing, ...newEntries];
+        }
       }
 
       // L39: VehicleMaster.listedAt set at LISTED emission time
