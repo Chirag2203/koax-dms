@@ -234,3 +234,92 @@ body::-webkit-scrollbar-button {
     display: none;
   }
 }
+
+/* ─── Org chart — horizontal tree layout (SPEC-STAFF-001 §8.4) ───────────── */
+
+@layer components {
+  /* Root list: centred, no padding/list bullets */
+  .org-tree {
+    display: flex;
+    justify-content: center;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Children container: flex row, padding-top creates space for connector lines */
+  .org-tree-children {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 1.5rem 0 0 0; /* 24px space above children for connectors */
+    position: relative;
+  }
+
+  /* Vertical line from parent card down to children's top */
+  .org-tree-children::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 1px;
+    height: 1.5rem;
+    background-color: rgb(var(--line));
+  }
+
+  /* Each node */
+  .org-tree-node {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 0.75rem 0; /* 24px top space for connector */
+    position: relative;
+  }
+
+  /* T-junction connector above each node (skipped for only-child + root) */
+  .org-tree-node::before,
+  .org-tree-node::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 1.5rem;
+    border-top: 1px solid rgb(var(--line));
+  }
+  .org-tree-node::before { left: 0; right: 50%; }
+  .org-tree-node::after  { left: 50%; right: 0;  }
+
+  /* First child: hide its left half (no sibling to the left) */
+  .org-tree-node:first-child::before { border-top: 0; }
+  /* Last child: hide its right half (no sibling to the right) */
+  .org-tree-node:last-child::after  { border-top: 0; }
+
+  /* Vertical stub from connector down to card */
+  .org-tree-node::before {
+    border-left: 0;
+  }
+  .org-tree-node:first-child:last-child::before,
+  .org-tree-node:first-child:last-child::after {
+    /* only-child: hide both halves; vertical line already drawn by parent's ::before */
+    border-top: 0;
+  }
+
+  /* The vertical drop from connector to the card top */
+  .org-tree-node-stub {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 1px;
+    height: 1.5rem;
+    background-color: rgb(var(--line));
+  }
+
+  /* Root nodes (first wrapper) — no top padding/connector */
+  .org-tree > .org-tree-node {
+    padding-top: 0;
+  }
+  .org-tree > .org-tree-node::before,
+  .org-tree > .org-tree-node::after {
+    display: none;
+  }
+}

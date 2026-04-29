@@ -1,18 +1,23 @@
 'use client';
 
 /**
- * OrgChart — CSS grid tree layout, no external lib.
+ * OrgChart — horizontal tree layout (top-down, parent → children below).
  * SPEC-STAFF-001 §8.4, L26
  *
  * L26: Org chart is data-driven from StaffProfile.reportsTo field.
- *      Renders as CSS grid tree. Cycle detection — broken chain = root.
+ *      Renders as a classic horizontal org chart with connector lines.
+ *      Cycle detection — broken chain = root.
  *      Click node → detail panel slide-over.
+ *      Click chevron → collapse/expand subtree.
  *
  * Layout strategy:
  *   1. Build adjacency list from staff array (children[managerId] = [staffId, ...])
  *   2. Detect roots (reportsTo === null or broken chain after cycle detection)
- *   3. Render recursively with indented nested divs
- *   4. Collapsed subtrees on click
+ *   3. Render as nested <ul> with `.org-tree` / `.org-tree-children` /
+ *      `.org-tree-node` classes (defined in app/globals.css). Connector lines
+ *      are drawn via CSS pseudo-elements (T-junction above each node + vertical
+ *      drop from parent).
+ *   4. Horizontally-scrollable wrapper — wide org charts overflow right.
  *
  * R02+ re-org: updateReportsTo action on store. FIXME: OQ-ROLE-1
  */
@@ -103,80 +108,87 @@ function OrgTreeNode({
   const isSelected = selectedId === profile.id;
 
   return (
-    <div>
-      <div className="flex items-center gap-2 py-1">
-        {/* Expand/collapse */}
-        <button
-          type="button"
-          onClick={() => setCollapsed((v) => !v)}
-          disabled={!hasChildren}
-          aria-label={
-            hasChildren
-              ? collapsed
-                ? `Expand ${profile.name}'s team`
-                : `Collapse ${profile.name}'s team`
-              : undefined
-          }
-          className={cn(
-            'w-4 h-4 flex items-center justify-center text-ink-muted flex-shrink-0',
-            hasChildren
-              ? 'hover:text-ink-primary cursor-pointer focus-visible:outline-none'
-              : 'opacity-0 cursor-default pointer-events-none',
-          )}
-        >
-          {hasChildren && (
-            collapsed
-              ? <ChevronRight size={12} aria-hidden="true" />
-              : <ChevronDown size={12} aria-hidden="true" />
-          )}
-        </button>
-
-        {/* Node card */}
+    <li className="org-tree-node">
+      {/* Card — clickable */}
+      <div className="relative inline-flex items-stretch">
         <button
           type="button"
           onClick={() => onSelect(profile.id)}
           aria-label={`Select ${profile.name}`}
           aria-pressed={isSelected}
           className={cn(
-            'flex items-center gap-2.5 px-3 py-2 rounded-lg border transition-colors duration-100 text-left',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2',
+            'flex items-center gap-2.5 px-3 py-2 rounded-md border transition-colors duration-100 text-left min-w-[200px]',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg-canvas',
             isSelected
               ? 'bg-accent/10 border-accent/30'
-              : 'bg-bg-surface border-line hover:border-accent/20 hover:bg-bg-hover',
+              : 'bg-bg-surface border-line hover:border-accent/30 hover:bg-bg-subtle',
           )}
         >
           <span
-            className="w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center font-mono text-[11px] font-semibold text-accent uppercase flex-shrink-0"
+            className="w-9 h-9 rounded-full bg-accent/20 flex items-center justify-center font-mono text-xs font-semibold text-accent uppercase flex-shrink-0"
             aria-hidden="true"
           >
             {profile.avatar}
           </span>
-          <div className="min-w-0">
-            <p className="text-[13px] font-medium text-ink-primary leading-tight truncate max-w-[160px]">
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-medium text-ink-primary leading-tight truncate max-w-[160px]">
               {profile.name}
             </p>
-            <p className="text-[11px] text-ink-secondary truncate max-w-[160px]">
+            <p className="text-xs text-ink-secondary truncate max-w-[160px]">
               <span className="font-mono">{profile.role}</span>
               {' — '}
               {profile.roleName}
             </p>
           </div>
           <span
-            className={cn('w-2 h-2 rounded-full flex-shrink-0 ml-1', STATUS_DOT[profile.status] ?? 'bg-ink-muted')}
+            className={cn(
+              'w-2 h-2 rounded-full flex-shrink-0 ml-1',
+              STATUS_DOT[profile.status] ?? 'bg-ink-muted',
+            )}
             aria-label={`Status: ${profile.status}`}
           />
         </button>
 
+        {/* Collapse/expand chevron — sits OUTSIDE the card, below it */}
         {hasChildren && (
-          <span className="text-[10px] font-mono text-ink-muted">
-            {node.children.length} direct
-          </span>
+          <button
+            type="button"
+            onClick={() => setCollapsed((v) => !v)}
+            aria-label={
+              collapsed
+                ? `Expand ${profile.name}'s team (${node.children.length} direct reports)`
+                : `Collapse ${profile.name}'s team (${node.children.length} direct reports)`
+            }
+            title={collapsed ? `Show ${node.children.length} direct reports` : 'Collapse'}
+            className={cn(
+              'absolute left-1/2 -translate-x-1/2 -bottom-3 z-10',
+              'flex items-center justify-center w-6 h-6 rounded-full border transition-colors duration-100',
+              'bg-bg-surface border-line text-ink-muted hover:text-ink-primary hover:border-accent/30',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg-canvas',
+            )}
+          >
+            {collapsed ? (
+              <ChevronRight size={12} aria-hidden="true" />
+            ) : (
+              <ChevronDown size={12} aria-hidden="true" />
+            )}
+            <span className="sr-only">
+              {collapsed ? 'Expand' : 'Collapse'} {node.children.length} direct
+            </span>
+          </button>
         )}
       </div>
 
-      {/* Children (indented) */}
-      {!collapsed && hasChildren && (
-        <div className="ml-8 border-l border-line pl-3 space-y-0">
+      {/* Direct-reports count chip below card (visible when expanded) */}
+      {hasChildren && !collapsed && (
+        <span className="mt-3 text-xs font-mono text-ink-muted">
+          {node.children.length} direct
+        </span>
+      )}
+
+      {/* Children — horizontal flex row, connector lines via .org-tree-children CSS */}
+      {hasChildren && !collapsed && (
+        <ul className="org-tree-children">
           {node.children.map((child) => (
             <OrgTreeNode
               key={child.profile.id}
@@ -185,9 +197,9 @@ function OrgTreeNode({
               onSelect={onSelect}
             />
           ))}
-        </div>
+        </ul>
       )}
-    </div>
+    </li>
   );
 }
 
@@ -422,30 +434,39 @@ export function OrgChart({ staff, viewerRole }: OrgChartProps) {
 
   return (
     <div className="flex h-full overflow-hidden">
-      {/* Tree panel */}
-      <div className="flex-1 overflow-auto px-6 py-4">
-        <div className="flex items-center gap-2 mb-4">
+      {/* Tree panel — horizontally scrollable for wide org charts */}
+      <div className="flex-1 overflow-auto">
+        {/* Header */}
+        <div className="px-6 pt-4 pb-2 flex items-center gap-2 sticky top-0 bg-bg-canvas z-10 border-b border-line">
           <GitBranch size={16} className="text-ink-muted" aria-hidden="true" />
-          <h2 className="text-[14px] font-semibold text-ink-primary">Organisation Chart</h2>
-          <span className="font-mono text-[11px] text-accent bg-accent/10 px-1.5 py-0.5 rounded">
+          <h2 className="text-sm font-semibold text-ink-primary">Organisation Chart</h2>
+          <span className="font-mono text-xs text-accent bg-accent/10 px-1.5 py-0.5 rounded">
             {staff.length}
           </span>
+          {tree.length > 1 && (
+            <span className="ml-2 text-xs text-ink-muted">
+              {tree.length} root nodes (broken-chain or multiple top-of-org)
+            </span>
+          )}
         </div>
 
-        {tree.length === 0 ? (
-          <p className="text-[13px] text-ink-muted">No root nodes found.</p>
-        ) : (
-          <div className="space-y-1">
-            {tree.map((node) => (
-              <OrgTreeNode
-                key={node.profile.id}
-                node={node}
-                selectedId={selectedId}
-                onSelect={setSelectedId}
-              />
-            ))}
-          </div>
-        )}
+        {/* Tree content — centered, padded, supports horizontal scroll for wide trees */}
+        <div className="px-6 py-8 min-w-fit">
+          {tree.length === 0 ? (
+            <p className="text-sm text-ink-muted">No root nodes found.</p>
+          ) : (
+            <ul className="org-tree">
+              {tree.map((node) => (
+                <OrgTreeNode
+                  key={node.profile.id}
+                  node={node}
+                  selectedId={selectedId}
+                  onSelect={setSelectedId}
+                />
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
 
       {/* Detail panel (slide-over) */}
