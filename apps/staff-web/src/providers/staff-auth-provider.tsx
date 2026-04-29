@@ -7,165 +7,42 @@ import {
   useEffect,
   useState,
 } from 'react';
+import type { StaffProfile } from '@dms/types';
+import { MOCK_STAFF_PROFILES } from '@dms/mocks/fixtures';
 
-// Local type until @dms/types exposes StaffUser
-export interface StaffUser {
-  id: string;
-  name: string;
-  email: string;
-  /** 2-letter initials */
-  avatar: string;
-  /** e.g. 'R05', 'R10' */
-  role: string;
-  /** e.g. "Sales Manager" */
-  roleName: string;
-  outlet: 'bangalore' | 'mumbai' | 'chennai' | 'all';
-  permissions: string[];
-}
+// ─── Re-export canonical profiles (SPEC-STAFF-001 §L3 / §16.1) ───────────────
+// Canonical list lives in @dms/mocks. staff-auth-provider re-exports so existing
+// consumers (sidebar role-switcher, etc.) do not need import-path changes.
+export { MOCK_STAFF_PROFILES } from '@dms/mocks/fixtures';
+
+// ─── StaffUser: backwards-compat type ────────────────────────────────────────
+// StaffProfile is the canonical type. StaffUser is kept as an alias so older
+// consumers (sidebar, hooks) compile without changes.
+export type StaffUser = Pick<
+  StaffProfile,
+  'id' | 'name' | 'email' | 'avatar' | 'role' | 'roleName' | 'outlet' | 'permissions'
+>;
 
 const STORAGE_KEY = 'bn-staff-user-v2';
 
-// 8 hardcoded staff profiles for dev role-switching (Doc 14 — 24 roles).
-// Exported so the sidebar role switcher (PLAN-PARTS-007 §3) can list them
-// without duplicating the fixture data.
-export const MOCK_STAFF_PROFILES: StaffUser[] = [
-  {
-    id: 'staff-r05-001',
-    name: 'Rahul Kumar',
-    email: 'rahul.kumar@bnautomobiles.in',
-    avatar: 'RK',
-    role: 'R05',
-    roleName: 'Sales Associate',
-    outlet: 'bangalore',
-    permissions: ['inventory.read', 'sales.read', 'customers.read'],
-  },
-  {
-    id: 'staff-r09-001',
-    name: 'Priya Sharma',
-    email: 'priya.sharma@bnautomobiles.in',
-    avatar: 'PS',
-    role: 'R09',
-    roleName: 'Service Advisor',
-    outlet: 'bangalore',
-    permissions: ['service.read', 'service.write', 'customers.read', 'parts.read'],
-  },
-  {
-    id: 'staff-r10-001',
-    name: 'Arjun Mehta',
-    email: 'arjun.mehta@bnautomobiles.in',
-    avatar: 'AM',
-    role: 'R10',
-    roleName: 'Sales Manager',
-    outlet: 'mumbai',
-    permissions: [
-      'inventory.read',
-      'inventory.write',
-      'sales.read',
-      'sales.write',
-      'customers.read',
-      'customers.write',
-      'reports.read',
-    ],
-  },
-  {
-    id: 'staff-r12-001',
-    name: 'Vikram Singh',
-    email: 'vikram.singh@bnautomobiles.in',
-    avatar: 'VS',
-    role: 'R12',
-    roleName: 'Parts Manager',
-    outlet: 'chennai',
-    permissions: ['parts.read', 'parts.write', 'inventory.read', 'reports.read'],
-  },
-  {
-    id: 'staff-r16-001',
-    name: 'Anita Desai',
-    email: 'anita.desai@bnautomobiles.in',
-    avatar: 'AD',
-    role: 'R16',
-    roleName: 'Finance Controller',
-    outlet: 'bangalore',
-    permissions: [
-      'finance.read',
-      'finance.write',
-      'reports.read',
-      'reports.finance',
-      'customers.read',
-    ],
-  },
-  {
-    id: 'staff-r19-001',
-    name: 'Sunita Reddy',
-    email: 'sunita.reddy@bnautomobiles.in',
-    avatar: 'SR',
-    role: 'R19',
-    roleName: 'General Manager',
-    outlet: 'mumbai',
-    permissions: [
-      'inventory.read',
-      'inventory.write',
-      'sales.read',
-      'sales.write',
-      'service.read',
-      'service.write',
-      'parts.read',
-      'parts.write',
-      'finance.read',
-      'customers.read',
-      'customers.write',
-      'reports.read',
-      'reports.all',
-    ],
-  },
-  {
-    id: 'staff-r22-001',
-    name: 'Karan Shah',
-    email: 'karan.shah@bnautomobiles.in',
-    avatar: 'KS',
-    role: 'R22',
-    roleName: 'CFO',
-    outlet: 'all',
-    permissions: [
-      'finance.read',
-      'finance.write',
-      'finance.approve',
-      'reports.read',
-      'reports.all',
-      'reports.finance',
-      'inventory.read',
-      'sales.read',
-      'customers.read',
-    ],
-  },
-  {
-    id: 'staff-r24-001',
-    name: 'Meera Iyer',
-    email: 'meera.iyer@bnautomobiles.in',
-    avatar: 'MI',
-    role: 'R24',
-    roleName: 'CEO',
-    outlet: 'all',
-    permissions: ['*'],
-  },
-];
-
-// Default mock user on first load — R24 Meera Iyer, CEO (pan-India, all permissions)
-const DEFAULT_STAFF_USER = MOCK_STAFF_PROFILES[7] as StaffUser;
+// Default mock user on first load — last profile is CEO (pan-India, all permissions)
+const DEFAULT_STAFF_USER: StaffProfile =
+  MOCK_STAFF_PROFILES[MOCK_STAFF_PROFILES.length - 1] as StaffProfile;
 
 interface StaffAuthContextValue {
-  user: StaffUser | null;
+  user: StaffProfile | null;
   isAuthenticated: boolean;
   isLoading: boolean;
   signIn: (email: string) => Promise<void>;
   signOut: () => void;
-  /** Dev tool — cycles through 8 hardcoded staff profiles */
+  /** Dev tool — cycles through hardcoded staff profiles */
   switchRole: (roleCode: string) => void;
 }
 
 const StaffAuthContext = createContext<StaffAuthContextValue | null>(null);
 
 export function StaffAuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<StaffUser | null>(null);
+  const [user, setUser] = useState<StaffProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Hydrate from localStorage on mount; seed default user if absent
@@ -173,14 +50,12 @@ export function StaffAuthProvider({ children }: { children: ReactNode }) {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        setUser(JSON.parse(stored) as StaffUser);
+        setUser(JSON.parse(stored) as StaffProfile);
       } else {
-        // Seed default mock user
         localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_STAFF_USER));
         setUser(DEFAULT_STAFF_USER);
       }
     } catch {
-      // ignore parse errors — fall back to default
       setUser(DEFAULT_STAFF_USER);
     } finally {
       setIsLoading(false);
@@ -188,10 +63,9 @@ export function StaffAuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signIn = useCallback(async (email: string) => {
-    // Mock sign-in: find profile by email or fall back to default
     await new Promise<void>((resolve) => setTimeout(resolve, 800));
     const match = MOCK_STAFF_PROFILES.find((p) => p.email === email);
-    const staffUser: StaffUser = match
+    const staffUser: StaffProfile = match
       ? { ...match }
       : { ...DEFAULT_STAFF_USER, email };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(staffUser));
