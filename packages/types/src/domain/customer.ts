@@ -1,6 +1,37 @@
 import { z } from 'zod';
 import { CityEnum } from './vehicle';
 
+// ─── Consent types (SPEC-CUSTOMERS-001 §3 + GAP-3/GAP-10) ────────────────────
+
+export const ConsentPurposeEnum = z.enum([
+  'WHATSAPP_MARKETING',
+  'EMAIL_MARKETING',
+  'SERVICE_REMINDER',
+  'DATA_PROCESSING',
+  'INSURANCE_MARKETING',
+]);
+export type ConsentPurpose = z.infer<typeof ConsentPurposeEnum>;
+
+export const ConsentSourceEnum = z.enum(['PORTAL_SIGNUP', 'STAFF_FORM', 'IMPORT']);
+export type ConsentSource = z.infer<typeof ConsentSourceEnum>;
+
+export const ConsentEntrySchema = z.object({
+  id: z.string(),
+  customerId: z.string(),
+  purpose: ConsentPurposeEnum,
+  /** ISO 8601 timestamp when consent was captured */
+  capturedAt: z.string().datetime(),
+  capturedBy: z.string(),
+  capturedByName: z.string(),
+  source: ConsentSourceEnum,
+  /** ISO 8601 timestamp — present when consent was revoked */
+  revokedAt: z.string().datetime().optional(),
+  revokedBy: z.string().optional(),
+  revokedByName: z.string().optional(),
+  revocationReason: z.string().optional(),
+});
+export type ConsentEntry = z.infer<typeof ConsentEntrySchema>;
+
 // ─── Customer lifecycle enums (SPEC-CUSTOMERS-001 §4) ────────────────────────
 
 export const CustomerLifecycleStageEnum = z.enum(['PROSPECT', 'ACTIVE', 'DORMANT', 'CHURNED']);
@@ -50,5 +81,18 @@ export const CustomerSchema = z.object({
    * SPEC-CUSTOMERS-001 §4 + CLAUDE §9.
    */
   aadhaarLast4: z.string().length(4).optional(),
+  /**
+   * Referral source — GAP-8.
+   * Either a customer id (string starting with 'cust-'), or a fixed channel:
+   * 'event' | 'website' | 'walk-in'.
+   */
+  referredBy: z
+    .union([z.string(), z.literal('event'), z.literal('website'), z.literal('walk-in')])
+    .optional(),
+  /**
+   * Denormalized display name when referredBy is a customer id.
+   * Not stored for channel strings.
+   */
+  referredByName: z.string().optional(),
 });
 export type Customer = z.infer<typeof CustomerSchema>;

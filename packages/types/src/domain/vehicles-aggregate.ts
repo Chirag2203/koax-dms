@@ -9,6 +9,7 @@
  */
 
 import { z } from 'zod';
+import { RoleIdEnum } from './staff';
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
@@ -229,7 +230,7 @@ export type SalesEventKind = z.infer<typeof SalesEventKindEnum>;
 /**
  * Envelope schema — payload uses z.record(z.unknown()) for forward-compat.
  * Per-kind validation is done at write boundaries via event-payload-validators.ts.
- * actorRole: z.string() — TODO(L40): tighten to RoleIdEnum when added to @dms/types.
+ * actorRole: RoleIdEnum — tightened per L40.
  */
 export const SalesEventSchema = z.object({
   id: z.string(),
@@ -237,7 +238,7 @@ export const SalesEventSchema = z.object({
   at: z.string().datetime(),
   kind: SalesEventKindEnum,
   actorId: z.string(),
-  actorRole: z.string(), // TODO(L40): tighten to RoleIdEnum when added
+  actorRole: RoleIdEnum, // L40: tightened from z.string() to RoleIdEnum
   dealId: z.string().optional(),
   salesOrderId: z.string().optional(),
   payload: z.record(z.unknown()).optional(),

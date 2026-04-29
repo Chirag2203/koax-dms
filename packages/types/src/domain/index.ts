@@ -34,6 +34,8 @@ export {
   QuoteCardPropsSchema,
   AudienceFilterSchema,
   AICallLogSchema,
+  ManualFollowupOutcomeEnum,
+  ManualCallRecordSchema,
   LeadSourceEnum as InsuranceLeadSourceEnum,
 } from './insurance';
 export type {
@@ -54,6 +56,8 @@ export type {
   QuoteCardProps,
   AudienceFilter,
   AICallLog,
+  ManualFollowupOutcome,
+  ManualCallRecord,
   LeadSource as InsuranceLeadSource,
   InsuranceAuditEvent,
   InsuranceAuditEventKind,

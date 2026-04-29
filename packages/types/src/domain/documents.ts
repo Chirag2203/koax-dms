@@ -9,6 +9,7 @@
  */
 
 import { z } from 'zod';
+import { RoleIdEnum } from './staff';
 
 // ─── DocumentAccessKindEnum ───────────────────────────────────────────────────
 
@@ -27,7 +28,7 @@ export type DocumentAccessKind = z.infer<typeof DocumentAccessKindEnum>;
  * Append-only access log for every document operation.
  * Renamed from DocumentAuditEvent per L3 (addendum §3).
  * Retention: 7yr; actor + purpose anonymized after TTL (L6).
- * actorRole: z.string() — TODO(L40): tighten to RoleIdEnum when added to @dms/types.
+ * actorRole: RoleIdEnum — tightened per L40.
  */
 export const DocumentAccessEventSchema = z.object({
   id: z.string(),
@@ -37,7 +38,7 @@ export const DocumentAccessEventSchema = z.object({
   kind: DocumentAccessKindEnum,
   at: z.string().datetime(),
   actorId: z.string(),
-  actorRole: z.string(), // TODO(L40): tighten to RoleIdEnum when added
+  actorRole: RoleIdEnum, // L40: tightened from z.string() to RoleIdEnum
   purpose: z.enum(['CUSTOMER_HANDOFF', 'AUDIT', 'RTO_FILING', 'OTHER']).optional(),
   purposeNote: z.string().optional(),
   payload: z.record(z.unknown()).optional(),

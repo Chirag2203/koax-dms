@@ -52,6 +52,16 @@ export {
 export {
   mockCustomer,
   custBnDealer,
+  custArjunMehta,
+  custPriyaMehta,
+  custVikramSingh,
+  custMeeraIyer,
+  custRahulKumar,
+  custRohanDesai,
+  custNehaKapoor,
+  custSunitaReddy,
+  custKaranShah,
+  custPoojaDesai,
   vehicleModuleCustomers,
 } from './customer';
 export { vehicleMasters } from './vehicles.fixtures';
@@ -71,3 +81,4 @@ export {
 export { MOCK_ATTENDANCE_PUNCHES, getAttendancePunches } from './staff-attendance';
 export { MOCK_SALARY_STRUCTURES } from './staff-salaries';
 export { MOCK_LEAVE_BALANCES, MOCK_LEAVE_APPLICATIONS } from './staff-leaves';
+export { consentLogEntries, getConsentsForCustomer } from './consent-log';

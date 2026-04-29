@@ -94,6 +94,32 @@ export const InsuranceLeadStageEnum = z.enum([
 ]);
 export type InsuranceLeadStage = z.infer<typeof InsuranceLeadStageEnum>;
 
+// ─── Manual followup outcome (§5.7) ──────────────────────────────────────────
+
+export const ManualFollowupOutcomeEnum = z.enum([
+  'COMPLETED_QUOTE_SHARED',
+  'COMPLETED_NOT_INTERESTED',
+  'COMPLETED_FOLLOW_LATER',
+  'SKIPPED_NO_REACH',
+  'SKIPPED_OTHER',
+]);
+export type ManualFollowupOutcome = z.infer<typeof ManualFollowupOutcomeEnum>;
+
+/** Appended to lead.callLog when a follow-up step is manually completed or skipped */
+export const ManualCallRecordSchema = z.object({
+  callId: z.string(),
+  leadId: z.string(),
+  kind: z.literal('MANUAL_OUTCOME'),
+  stepIndex: z.number().int(),
+  outcome: ManualFollowupOutcomeEnum,
+  notes: z.string().min(10),                     // required, min 10 chars
+  nextActionAt: z.string().datetime().optional(), // only for COMPLETED_FOLLOW_LATER
+  actorId: z.string(),
+  actorRole: z.string(),
+  recordedAt: z.string().datetime(),
+});
+export type ManualCallRecord = z.infer<typeof ManualCallRecordSchema>;
+
 // ─── Followup sequence ────────────────────────────────────────────────────────
 
 export const FollowupSequenceStateSchema = z.object({
@@ -333,6 +359,8 @@ export const InsuranceAuditEventKindEnum = z.enum([
   'template_submitted_dlt',
   'template_approved',
   'commission_reconciled',
+  // §5.7 — manual followup outcome recorded by staff (R09+)
+  'followup_outcome_recorded',
 ]);
 export type InsuranceAuditEventKind = z.infer<typeof InsuranceAuditEventKindEnum>;
 

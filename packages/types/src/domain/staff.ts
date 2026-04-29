@@ -10,6 +10,14 @@ export const StaffRoleCodeEnum = z.enum([
 ]);
 export type StaffRoleCode = z.infer<typeof StaffRoleCodeEnum>;
 
+/**
+ * Canonical role-id enum alias used by event schemas (L40).
+ * `RoleIdEnum` === `StaffRoleCodeEnum`; exported separately so event schemas
+ * can import a semantically-clear name without depending on the full Staff domain.
+ */
+export const RoleIdEnum = StaffRoleCodeEnum;
+export type RoleId = StaffRoleCode;
+
 // ─── Role rank helper (L4 / PLAN-VEHICLES-003 L7) ─────────────────────────────
 // Mirrors vehicles state-machine.ts meetsMinRole pattern exactly.
 // HIGHER number = MORE senior.  R24 CEO = rank 24 (most senior).

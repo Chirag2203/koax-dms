@@ -72,6 +72,9 @@ export const custArjunMehta: Customer = {
   lifecycleStage: 'ACTIVE',
   segment: 'PREMIER',
   aadhaarLast4: '4567',
+  // Referred by Vikram Singh (PLAN-VEHICLES-002 — referral chain demo)
+  referredBy: 'cust-vikram-singh',
+  referredByName: 'Vikram Singh',
 };
 
 export const custPriyaMehta: Customer = {
@@ -88,6 +91,8 @@ export const custPriyaMehta: Customer = {
   lifecycleStage: 'ACTIVE',
   segment: 'PREMIER',
   aadhaarLast4: '8901',
+  // Referred via a physical event
+  referredBy: 'event',
 };
 
 // VIN-B owners
@@ -118,6 +123,8 @@ export const custMeeraIyer: Customer = {
   memberSince: '2024-02-01',
   pan: 'FFFPI2345F',
   contactConfidential: false,
+  // Referred by website
+  referredBy: 'website',
 };
 
 export const custRahulKumar: Customer = {
@@ -130,6 +137,9 @@ export const custRahulKumar: Customer = {
   preferredLanguage: 'en-IN',
   memberSince: '2025-01-01',
   contactConfidential: false,
+  // Referred by Vikram Singh
+  referredBy: 'cust-vikram-singh',
+  referredByName: 'Vikram Singh',
 };
 
 // VIN-C owners
@@ -177,6 +187,8 @@ export const custPoojaDesai: Customer = {
   contactConfidential: false,
   lifecycleStage: 'PROSPECT',
   segment: 'STANDARD',
+  // Walk-in — came in without referral
+  referredBy: 'walk-in',
 };
 
 // ─── Service-module customers (FIXTURE AUDIT 2026-04-20 — PLAN-VEHICLES-002 §1.5) ─
