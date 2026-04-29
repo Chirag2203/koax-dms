@@ -1,0 +1,4 @@
+voucherDate,voucherType,voucherNumber,ledgerName,drCr,amount,narration,costCenter,gstinParty,hsnSac,gstRate,gstAmount
+2026-04-14,Sales,VR-2026-04-00001,Receivable — Vehicle Sale (BLR),Dr,8500000.00,"Sale of BMW 5 Series WBY2Z21090VX45678 — Margin Scheme",BLR,29ABCDE1234F1Z5,8703,18,268475.00
+2026-04-14,Sales,VR-2026-04-00001,Sales A/c — Pre-owned (BLR),Cr,8231525.00,"Sale of BMW 5 Series WBY2Z21090VX45678 — Margin Scheme",BLR,29ABCDE1234F1Z5,8703,18,268475.00
+2026-04-14,Sales,VR-2026-04-00001,Output GST 18% (Margin) — BLR,Cr,268475.00,"Sale of BMW 5 Series WBY2Z21090VX45678 — Margin Scheme",BLR,29ABCDE1234F1Z5,8703,18,268475.00

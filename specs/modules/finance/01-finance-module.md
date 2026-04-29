@@ -1,7 +1,7 @@
 ---
 spec_id: SPEC-FINANCE-001
 domain: finance
-status: approved
+status: shipped
 risk_level: high
 pii_sensitivity: medium
 version: 1.0
@@ -1328,3 +1328,4 @@ Audit lives in `specs/architecture/drift-audits/<date>-finance.md` per CLAUDE.md
 | Date | Version | Author | Change |
 |---|---|---|---|
 | 2026-04-29 | 1.0 | orchestrator | Initial spec — A2 of Theme A roadmap. 30 locked decisions, 20 scenarios, 6 entities, 5 P1 capabilities, 14 deferred items, 5 cross-module seams (18–22). Approved at draft time per §12 (all OQ resolved). |
+| 2026-04-29 | 1.0 | orchestrator | Status: approved → shipped. All 20 scenarios implemented and test-green (1203 passing, 0 failing). Types, math layer, Tally CSV, finance store, fixtures, all UI components, 9 route pages, i18n keys, 51 unit + integration tests shipped. TypeCheck clean (exit 0). |

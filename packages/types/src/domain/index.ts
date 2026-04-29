@@ -1,5 +1,6 @@
 export * from './vehicle';
 export * from './outlet';
+export * from './finance';
 export * from './article';
 export * from './service-type';
 export * from './customer';
@@ -14,8 +15,10 @@ export * from './vehicles-aggregate';
 export * from './documents';
 export * from './service-booking';
 export * from './custom-builds';
+export * from './notifications';
 // Insurance has its own LeadSource/LeadSourceEnum that conflicts with sales' identically-named exports.
 // Re-export everything except the conflicting names; insurance consumers should import from '@dms/types/domain/insurance' if they need them.
+export * from './settings';
 export {
   InsuranceProviderSchema,
   InsuranceQuoteSchema,
