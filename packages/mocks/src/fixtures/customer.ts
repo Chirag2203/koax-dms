@@ -69,6 +69,9 @@ export const custArjunMehta: Customer = {
   memberSince: '2023-04-01',
   pan: 'CCCPM9012C',
   contactConfidential: false,
+  lifecycleStage: 'ACTIVE',
+  segment: 'PREMIER',
+  aadhaarLast4: '4567',
 };
 
 export const custPriyaMehta: Customer = {
@@ -82,6 +85,9 @@ export const custPriyaMehta: Customer = {
   memberSince: '2023-04-01',
   pan: 'DDDPM3456D',
   contactConfidential: false,
+  lifecycleStage: 'ACTIVE',
+  segment: 'PREMIER',
+  aadhaarLast4: '8901',
 };
 
 // VIN-B owners
@@ -96,6 +102,9 @@ export const custVikramSingh: Customer = {
   memberSince: '2020-06-01',
   pan: 'EEEPS7890E',
   contactConfidential: false,
+  lifecycleStage: 'ACTIVE',
+  segment: 'ULTRA_HNW',
+  aadhaarLast4: '6789',
 };
 
 export const custMeeraIyer: Customer = {
@@ -135,6 +144,8 @@ export const custSunitaReddy: Customer = {
   memberSince: '2019-07-01',
   pan: 'GGGPR6789G',
   contactConfidential: false,
+  lifecycleStage: 'DORMANT',
+  segment: 'STANDARD',
 };
 
 export const custKaranShah: Customer = {
@@ -149,6 +160,9 @@ export const custKaranShah: Customer = {
   pan: 'HHHPS0123H',
   // High-net-worth Porsche owner — PII masked for staff below R19 (PLAN-VEHICLES-002 §A)
   contactConfidential: true,
+  lifecycleStage: 'ACTIVE',
+  segment: 'ULTRA_HNW',
+  aadhaarLast4: '2345',
 };
 
 export const custPoojaDesai: Customer = {
@@ -161,6 +175,8 @@ export const custPoojaDesai: Customer = {
   preferredLanguage: 'en-IN',
   memberSince: '2026-01-01',
   contactConfidential: false,
+  lifecycleStage: 'PROSPECT',
+  segment: 'STANDARD',
 };
 
 // ─── Service-module customers (FIXTURE AUDIT 2026-04-20 — PLAN-VEHICLES-002 §1.5) ─

@@ -33,6 +33,16 @@ export {
   vehicleDocuments,
 } from './fixtures/inventory';
 
+export {
+  insuranceProviders,
+  insuranceLeads,
+  issuedPolicies,
+  whatsAppTemplates,
+  whatsAppCampaigns,
+  aiCallLogs,
+  insuranceOptOuts,
+} from './fixtures/insurance';
+
 // ─── Handlers ─────────────────────────────────────────────────────────────────
 export { handlers } from './handlers';
 export { vehicleHandlers } from './handlers/vehicles';

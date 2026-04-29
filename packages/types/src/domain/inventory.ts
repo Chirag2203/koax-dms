@@ -14,6 +14,12 @@ export const CostLedgerCategoryEnum = z.enum([
   'overhead',
   'photography',
   'misc',
+  // P4 — Custom Builds write-back (SPEC-CUSTOM-BUILDS-001 L9 / L17)
+  'custom-build-parts',
+  'custom-build-labour',
+  'custom-build-vendor-fee',
+  // §38 L95 — visualizer customization aggregate (paint + wheels + tint + exhaust + suspension + hood + wing + decals)
+  'custom-build-customizations',
 ]);
 export type CostLedgerCategory = z.infer<typeof CostLedgerCategoryEnum>;
 

@@ -17,6 +17,8 @@ export const VehicleTouchSourceEnum = z.enum([
   'BN_CONSIGNMENT',
   'SERVICE_ONLY_WALKIN',
   'LEGACY_IMPORT',
+  /** Vehicle linked to a customer during Custom Build enquiry wizard. L67 */
+  'CUSTOM_BUILD_LINKED',
 ]);
 export type VehicleTouchSource = z.infer<typeof VehicleTouchSourceEnum>;
 
@@ -194,7 +196,7 @@ export type OwnershipChangeEvent = z.infer<typeof OwnershipChangeEventSchema>;
  * PLAN-VEHICLES-003 §1.1 / §12.
  */
 export type OwnershipEventPayloads = {
-  OPEN: { source: VehicleTouchSource; kmAtOpen: number; isJoint?: boolean; jointWithCustomerId?: string; consignorCustomerId?: string };
+  OPEN: { source: VehicleTouchSource; kmAtOpen: number; isJoint?: boolean; jointWithCustomerId?: string; consignorCustomerId?: string; linkedFromBuildJobWizard?: boolean; customerId?: string };
   CLOSE: { closeReason: CloseReason; kmAtClose?: number; graceUntilAt?: string };
   TRANSFER: { buyerCustomerId: string; kmAtClose?: number; closeReason?: CloseReason };
   CLAIM_SUBMIT: { claimantCustomerId: string; autoMatchHit: boolean };

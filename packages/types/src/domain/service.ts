@@ -3,6 +3,7 @@ import { z } from 'zod';
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
 export const JobCardStatusEnum = z.enum([
+  'AWAITING_CONFIRMATION', // portal-originated bookings only — pre-RECEIVED
   'RECEIVED',
   'DIAGNOSED',
   'IN_PROGRESS',
@@ -168,6 +169,20 @@ export const JobCardSchema = z.object({
   inspectionId: z.string().optional(),
   warrantyClaimId: z.string().optional(),
   attachments: z.array(z.string()),
+  // Portal booking fields (SPEC-CUSTOMER-PORTAL-002 §5.2)
+  source: z.enum(['STAFF', 'CUSTOMER_PORTAL']).optional(),   // default: STAFF
+  serviceTypeId: z.string().optional(),                       // references service-types fixture id
+  scheduledDate: z.string().optional(),                       // YYYY-MM-DD
+  scheduledSlot: z.enum(['MORNING', 'AFTERNOON']).optional(),
+  pickupMode: z.enum(['WORKSHOP_DROP', 'HOME_PICKUP']).optional(),
+  pickupAddress: z.object({
+    line1: z.string(),
+    line2: z.string().optional(),
+    city: z.string(),
+    pinCode: z.string(),
+  }).optional(),
+  concerns: z.string().optional(),
+  declineReason: z.string().optional(),
 });
 
 export type JobCard = z.infer<typeof JobCardSchema>;

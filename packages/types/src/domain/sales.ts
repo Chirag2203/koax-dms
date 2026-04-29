@@ -60,6 +60,12 @@ export const DealSchema = z.object({
     'INVENTORY_SOLD',
     'MANUAL_CANCEL',
   ]).optional(),
+  /**
+   * ISO datetime string — when the reservation expires.
+   * Set on advanceStage to 'reserved'. Used by lazy expiry useEffect (L37).
+   * PLAN-VEHICLES-003 P2.
+   */
+  reservationExpiresAt: z.string().datetime().optional(),
 });
 
 export type DealStage = z.infer<typeof DealStageEnum>;

@@ -1,3 +1,10 @@
+/**
+ * Staff fixture — SPEC-STAFF-001 §L3
+ *
+ * staffUsers is derived from the canonical 24-profile list in staff-profiles.ts.
+ * All other modules should import MOCK_STAFF_PROFILES directly from staff-profiles.ts
+ * or via the @dms/mocks/fixtures barrel.
+ */
 import type {
   StaffUser,
   CommandPaletteItem,
@@ -5,186 +12,23 @@ import type {
   DashboardStat,
 } from '@dms/types';
 import { vehicles } from './vehicles';
+import { MOCK_STAFF_PROFILES } from './staff-profiles';
 
-// ─── Staff Users (8 profiles covering key roles — Doc 14) ─────────────────────
+// ─── Re-export canonical profiles (SPEC-STAFF-001 §L3) ───────────────────────
+export { MOCK_STAFF_PROFILES } from './staff-profiles';
 
-export const staffUsers: StaffUser[] = [
-  {
-    id: 'staff-r05-001',
-    name: 'Rahul Kumar',
-    email: 'rahul.kumar@bnautomobiles.in',
-    avatar: 'RK',
-    role: 'R05',
-    roleName: 'Sales Associate',
-    outlet: 'bangalore',
-    permissions: [
-      'inventory.read',
-      'sales.read',
-      'customers.read',
-      'leads.read',
-      'leads.write',
-    ],
-  },
-  {
-    id: 'staff-r09-001',
-    name: 'Priya Sharma',
-    email: 'priya.sharma@bnautomobiles.in',
-    avatar: 'PS',
-    role: 'R09',
-    roleName: 'Service Advisor',
-    outlet: 'bangalore',
-    permissions: [
-      'service.read',
-      'service.write',
-      'customers.read',
-      'parts.read',
-      'job-cards.read',
-      'job-cards.write',
-    ],
-  },
-  {
-    id: 'staff-r10-001',
-    name: 'Arjun Mehta',
-    email: 'arjun.mehta@bnautomobiles.in',
-    avatar: 'AM',
-    role: 'R10',
-    roleName: 'Sales Manager',
-    outlet: 'mumbai',
-    permissions: [
-      'inventory.read',
-      'inventory.write',
-      'sales.read',
-      'sales.write',
-      'customers.read',
-      'customers.write',
-      'reports.read',
-    ],
-  },
-  {
-    id: 'staff-r12-001',
-    name: 'Vikram Singh',
-    email: 'vikram.singh@bnautomobiles.in',
-    avatar: 'VS',
-    role: 'R12',
-    roleName: 'Parts Manager',
-    outlet: 'chennai',
-    permissions: [
-      'parts.read',
-      'parts.write',
-      'inventory.read',
-      'reports.read',
-      'grn.read',
-      'grn.write',
-    ],
-  },
-  {
-    id: 'staff-r13-001',
-    name: 'Harish Naidu',
-    email: 'harish.naidu@bnautomobiles.in',
-    avatar: 'HN',
-    role: 'R13',
-    roleName: 'Parts Counter',
-    outlet: 'bangalore',
-    permissions: [
-      'parts.read',
-      'parts.write',
-      'grn.read',
-      'grn.write',
-    ],
-  },
-  {
-    id: 'staff-r03-001',
-    name: 'Neha Kapoor',
-    email: 'neha.kapoor@bnautomobiles.in',
-    avatar: 'NK',
-    role: 'R03',
-    roleName: 'Outlet Manager',
-    outlet: 'mumbai',
-    permissions: [
-      'inventory.read',
-      'inventory.write',
-      'sales.read',
-      'sales.write',
-      'service.read',
-      'service.write',
-      'parts.read',
-      'parts.write',
-      'reports.read',
-      'customers.read',
-    ],
-  },
-  {
-    id: 'staff-r16-001',
-    name: 'Anita Desai',
-    email: 'anita.desai@bnautomobiles.in',
-    avatar: 'AD',
-    role: 'R16',
-    roleName: 'Finance Controller',
-    outlet: 'bangalore',
-    permissions: [
-      'finance.read',
-      'finance.write',
-      'reports.read',
-      'reports.finance',
-      'customers.read',
-      'invoices.approve',
-    ],
-  },
-  {
-    id: 'staff-r19-001',
-    name: 'Sunita Reddy',
-    email: 'sunita.reddy@bnautomobiles.in',
-    avatar: 'SR',
-    role: 'R19',
-    roleName: 'General Manager',
-    outlet: 'mumbai',
-    permissions: [
-      'inventory.read',
-      'inventory.write',
-      'sales.read',
-      'sales.write',
-      'service.read',
-      'service.write',
-      'parts.read',
-      'parts.write',
-      'finance.read',
-      'customers.read',
-      'customers.write',
-      'reports.read',
-      'reports.all',
-    ],
-  },
-  {
-    id: 'staff-r22-001',
-    name: 'Karan Shah',
-    email: 'karan.shah@bnautomobiles.in',
-    avatar: 'KS',
-    role: 'R22',
-    roleName: 'CFO',
-    outlet: 'all',
-    permissions: [
-      'finance.read',
-      'finance.write',
-      'finance.approve',
-      'reports.read',
-      'reports.all',
-      'reports.finance',
-      'inventory.read',
-      'sales.read',
-      'customers.read',
-    ],
-  },
-  {
-    id: 'staff-r24-001',
-    name: 'Meera Iyer',
-    email: 'meera.iyer@bnautomobiles.in',
-    avatar: 'MI',
-    role: 'R24',
-    roleName: 'CEO',
-    outlet: 'all',
-    permissions: ['*'],
-  },
-];
+// ─── staffUsers — StaffUser view of the canonical 24-profile list ─────────────
+// StaffProfile is a superset of StaffUser; this pick satisfies legacy consumers.
+export const staffUsers: StaffUser[] = MOCK_STAFF_PROFILES.map((p) => ({
+  id: p.id,
+  name: p.name,
+  email: p.email,
+  avatar: p.avatar,
+  role: p.role,
+  roleName: p.roleName,
+  outlet: p.outlet,
+  permissions: p.permissions,
+}));
 
 // ─── Command Palette Items (~50) ──────────────────────────────────────────────
 
@@ -460,7 +304,6 @@ export const commandPaletteItems: CommandPaletteItem[] = [
 // ─── Staff Notifications (12) ─────────────────────────────────────────────────
 
 export const staffNotifications: StaffNotification[] = [
-  // Inventory (3)
   {
     id: 'notif-inv-001',
     type: 'inventory',
@@ -483,13 +326,11 @@ export const staffNotifications: StaffNotification[] = [
     id: 'notif-inv-003',
     type: 'inventory',
     title: 'Price Drop Alert',
-    body: 'Competitor BBT Autohaus dropped their 992 Carrera listing by ₹3L. Review pricing for WP0AB2A91MS247831.',
+    body: 'Competitor BBT Autohaus dropped their 992 Carrera listing by ₹3L.',
     createdAt: '2026-04-16T11:00:00.000Z',
     isRead: true,
     href: '/inventory/WP0AB2A91MS247831',
   },
-
-  // Sales (3)
   {
     id: 'notif-sales-001',
     type: 'sales',
@@ -517,13 +358,11 @@ export const staffNotifications: StaffNotification[] = [
     isRead: true,
     href: '/sales/deals/2026-001',
   },
-
-  // Service (3)
   {
     id: 'notif-svc-001',
     type: 'service',
     title: 'Job Card Ready for QC',
-    body: 'JC-2026-0221 (Porsche 911 Annual Service) has been completed by the technician and awaits QC.',
+    body: 'JC-2026-0221 (Porsche 911 Annual Service) has been completed and awaits QC.',
     createdAt: '2026-04-17T11:30:00.000Z',
     isRead: false,
     href: '/service/job-cards/JC-2026-0221',
@@ -532,7 +371,7 @@ export const staffNotifications: StaffNotification[] = [
     id: 'notif-svc-002',
     type: 'service',
     title: 'Warranty Claim Approved',
-    body: 'Warranty claim #WC-2026-014 for Audi Q8 gearbox has been approved by Audi India. Parts ETA: 3 working days.',
+    body: 'Warranty claim #WC-2026-014 for Audi Q8 gearbox has been approved. Parts ETA: 3 working days.',
     createdAt: '2026-04-16T09:00:00.000Z',
     isRead: true,
     href: '/service/warranty/WC-2026-014',
@@ -541,18 +380,16 @@ export const staffNotifications: StaffNotification[] = [
     id: 'notif-svc-003',
     type: 'service',
     title: 'VHC Completed',
-    body: 'Vehicle Health Check for Mercedes-Benz GLE (JC-2026-0223) completed. Customer report ready to send.',
+    body: 'Vehicle Health Check for Mercedes-Benz GLE (JC-2026-0223) completed.',
     createdAt: '2026-04-15T14:45:00.000Z',
     isRead: true,
     href: '/service/job-cards/JC-2026-0223',
   },
-
-  // System (3)
   {
     id: 'notif-sys-001',
     type: 'system',
     title: 'PTO Request Approved',
-    body: 'Your leave request for 21–22 Apr 2026 has been approved by Sunita Reddy.',
+    body: 'Your leave request for 21-22 Apr 2026 has been approved by Sunita Reddy.',
     createdAt: '2026-04-16T17:00:00.000Z',
     isRead: false,
   },
@@ -560,7 +397,7 @@ export const staffNotifications: StaffNotification[] = [
     id: 'notif-sys-002',
     type: 'system',
     title: 'Scheduled Maintenance Tonight',
-    body: 'DMS will be under maintenance from 02:00–03:30 on 18 Apr 2026. Please save all work before 01:50.',
+    body: 'DMS will be under maintenance from 02:00-03:30 on 18 Apr 2026.',
     createdAt: '2026-04-17T07:00:00.000Z',
     isRead: false,
   },
@@ -568,7 +405,7 @@ export const staffNotifications: StaffNotification[] = [
     id: 'notif-sys-003',
     type: 'system',
     title: 'New Announcement',
-    body: 'Q1 FY2026-27 review meeting scheduled for 25 Apr at 10:00 AM. All managers please confirm attendance.',
+    body: 'Q1 FY2026-27 review meeting scheduled for 25 Apr at 10:00 AM.',
     createdAt: '2026-04-15T09:00:00.000Z',
     isRead: true,
   },
@@ -589,7 +426,7 @@ export const dashboardStats: DashboardStat[] = [
     id: 'stat-open-deals',
     label: 'Open Deals',
     value: '17',
-    subtitle: '\u20b94.2 Cr pipeline',
+    subtitle: '₹4.2 Cr pipeline',
   },
   {
     id: 'stat-active-job-cards',
@@ -600,8 +437,8 @@ export const dashboardStats: DashboardStat[] = [
   {
     id: 'stat-revenue-mtd',
     label: 'Revenue MTD',
-    value: '\u20b92,38,50,000',
-    delta: 'vs \u20b92,10,00,000 target',
+    value: '₹2,38,50,000',
+    delta: 'vs ₹2,10,00,000 target',
     deltaType: 'up',
   },
 ];

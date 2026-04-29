@@ -16,9 +16,12 @@
  */
 
 import { z } from 'zod';
-import { VehicleTouchSourceEnum, SalesEventKindEnum } from '@dms/types';
+import { VehicleTouchSourceEnum, SalesEventKindEnum, VehicleDocumentTypeEnum } from '@dms/types';
 import { DocumentAccessKindEnum, StaffDocumentCategoryEnum } from '@dms/types';
 import type { SalesEventKind, DocumentAccessKind } from '@dms/types';
+
+// All valid category values: staff-specific + portal-visible document types
+const allDocumentCategoryEnum = z.union([StaffDocumentCategoryEnum, VehicleDocumentTypeEnum, z.string()]);
 
 // ─── PayloadValidationError ───────────────────────────────────────────────────
 
@@ -108,7 +111,8 @@ export const SalesEventPayloadValidators: Record<SalesEventKind, z.ZodTypeAny> =
  */
 export const DocumentAccessPayloadValidators: Record<DocumentAccessKind, z.ZodTypeAny> = {
   UPLOAD: z.object({
-    category: StaffDocumentCategoryEnum,
+    // Accepts both staff-only categories (L10) and portal-visible doc types
+    category: allDocumentCategoryEnum,
     subtype: z.enum(['financier', 'rto']).optional(),
     fileName: z.string(),
     expiresAt: z.string().datetime().optional(),

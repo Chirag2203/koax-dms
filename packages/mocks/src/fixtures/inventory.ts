@@ -4,6 +4,7 @@ import type {
   VehicleTimelineEvent,
   VehicleDocument,
 } from '@dms/types';
+import { vehicles as storefrontVehicles } from './vehicles';
 
 /**
  * Inventory fixtures for BN Automobiles — Phase S2b.
@@ -33,7 +34,8 @@ interface VehicleRef {
   listedAt: string; // ISO timestamp, used to derive relative dates
 }
 
-const vehicleRefs: VehicleRef[] = [
+// Curated VINs (10) — full hand-authored cost ledger below
+const curatedVehicleRefs: VehicleRef[] = [
   { vin: 'WP0AB2A91MS247831', exShowroom: 12800000, listedAt: '2026-03-28T08:00:00.000Z' },
   { vin: 'WP0ZZZ97ZNS112045', exShowroom: 14500000, listedAt: '2026-03-15T09:30:00.000Z' },
   { vin: 'WP1ZZZ9YZPS034789', exShowroom: 15800000, listedAt: '2026-04-01T10:00:00.000Z' },
@@ -44,6 +46,20 @@ const vehicleRefs: VehicleRef[] = [
   { vin: 'WDC1930561A456789', exShowroom: 10200000, listedAt: '2026-03-18T10:00:00.000Z' },
   { vin: 'WDD1900761A789012', exShowroom: 21500000, listedAt: '2026-03-30T08:00:00.000Z' },
   { vin: 'WDC2229601A234567', exShowroom: 15600000, listedAt: '2026-04-02T07:30:00.000Z' },
+];
+
+// All 28 inventory VINs — derived from storefront vehicles fixture (single source).
+// Uncurated VINs (18) get stub data so /inventory/[vin] never blanks. PLAN-VEHICLES-003 L45.
+const curatedVinSet = new Set(curatedVehicleRefs.map((r) => r.vin));
+const vehicleRefs: VehicleRef[] = [
+  ...curatedVehicleRefs,
+  ...storefrontVehicles
+    .filter((v) => !curatedVinSet.has(v.vin))
+    .map<VehicleRef>((v) => ({
+      vin: v.vin,
+      exShowroom: v.pricing?.exShowroom ?? v.price ?? 0,
+      listedAt: v.listedAt ?? '2026-03-15T09:00:00.000Z',
+    })),
 ];
 
 /** Subtract `days` from a given ISO date string and return an ISO string. */
@@ -577,6 +593,48 @@ export const costLedgerEntries: CostLedgerEntry[] = [
   },
 ];
 
+// Auto-generate stub cost ledger entries for uncurated VINs (PLAN-VEHICLES-003 L45).
+// Each gets 3 stub entries: acquisition, refurb-mechanical, registration-tax.
+const uncuratedRefs = vehicleRefs.filter((r) => !curatedVinSet.has(r.vin));
+for (const ref of uncuratedRefs) {
+  const acq = Math.round(ref.exShowroom * 0.85);
+  const refurb = Math.round(ref.exShowroom * 0.025);
+  const reg = Math.round(ref.exShowroom * 0.012);
+  const idSlug = ref.vin.slice(-6);
+  costLedgerEntries.push(
+    {
+      id: `CLE-STUB-${idSlug}-1`,
+      vin: ref.vin,
+      category: 'acquisition',
+      date: daysBeforeListing(ref.listedAt, 75).split('T')[0]!,
+      amount: acq,
+      note: 'Acquisition — auto-generated stub (curate via inventory.ts for full detail)',
+      addedBy: 'R10-arjun-mehta',
+      addedAt: daysBeforeListing(ref.listedAt, 74),
+    },
+    {
+      id: `CLE-STUB-${idSlug}-2`,
+      vin: ref.vin,
+      category: 'refurb-mechanical',
+      date: daysBeforeListing(ref.listedAt, 60).split('T')[0]!,
+      amount: refurb,
+      note: 'Refurb — auto-generated stub',
+      addedBy: 'R10-arjun-mehta',
+      addedAt: daysBeforeListing(ref.listedAt, 59),
+    },
+    {
+      id: `CLE-STUB-${idSlug}-3`,
+      vin: ref.vin,
+      category: 'registration-tax',
+      date: daysBeforeListing(ref.listedAt, 70).split('T')[0]!,
+      amount: reg,
+      note: 'RTO transfer — auto-generated stub',
+      addedBy: 'R10-arjun-mehta',
+      addedAt: daysBeforeListing(ref.listedAt, 69),
+    },
+  );
+}
+
 // ─── Appraisals ───────────────────────────────────────────────────────────────
 
 // Grade distribution: A (30%), A- (30%), B+ (20%), B (15%), B- (5%)
@@ -603,15 +661,17 @@ export const appraisals: Appraisal[] = vehicleRefs.map((ref, index) => {
     'Average presentation; multiple stone chips, interior showing age on dash.',
   ];
 
+  // Cycle through curated arrays for VINs beyond the original 10
+  const i = index % 10;
   return {
     id: `APR-${String(index + 1).padStart(3, '0')}`,
     vin: ref.vin,
-    grade: grades[index]!,
-    pointsCompleted: points[index]!,
+    grade: grades[i]!,
+    pointsCompleted: points[i]!,
     pointsTotal: 210,
-    inspectorName: inspectors[index]!,
+    inspectorName: inspectors[i]!,
     inspectionDate: daysBeforeListing(ref.listedAt, 35 + (index % 10)).split('T')[0]!,
-    notes: notes[index],
+    notes: notes[i],
   };
 });
 
