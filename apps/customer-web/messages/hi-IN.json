@@ -79,10 +79,37 @@
       "account": "खाता",
       "vehicles": "गाड़ियाँ",
       "bookings": "बुकिंग",
+      "service": "सर्विस",
+      "builds": "बिल्ड",
       "documents": "दस्तावेज़",
       "preferences": "प्राथमिकताएँ",
       "signOut": "साइन आउट",
       "myAccount": "मेरा खाता"
+    },
+    "builds": {
+      "list": {
+        "title": "कस्टम बिल्ड",
+        "subtitle": "आपके सक्रिय और पूर्ण बिल्ड जॉब।",
+        "empty": "अभी तक कोई बिल्ड जॉब नहीं।",
+        "emptyCta": "बिल्ड शुरू करने के लिए विशेषज्ञ से बात करें",
+        "stageLabel": "चरण",
+        "estimateLabel": "अनुमान",
+        "lastUpdated": "{days}दिन पहले अपडेट",
+        "viewDetail": "विवरण देखें"
+      },
+      "detail": {
+        "backToBuilds": "बिल्ड पर वापस",
+        "tabOverview": "अवलोकन",
+        "tabConfiguration": "कॉन्फ़िगरेशन",
+        "tabCosts": "लागत सारांश",
+        "tabActivity": "गतिविधि",
+        "noConfig": "अभी तक कोई कॉन्फ़िगरेशन नहीं।",
+        "noActivity": "अभी तक कोई गतिविधि नहीं।",
+        "noCustomizations": "कोई कस्टमाइज़ेशन नहीं।",
+        "totalLabel": "अनुमानित कुल",
+        "customizationSubtotal": "कस्टमाइज़ेशन उप-कुल",
+        "partsLabel": "पुर्जे और श्रम"
+      }
     },
     "auth": {
       "signIn": "साइन इन",

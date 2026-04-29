@@ -11,6 +11,7 @@ import { StateChip, SlideInPanel } from '@/src/components/primitives';
 import { Dialog } from '@/src/components/primitives/dialog';
 import type { StateChipStatus } from '@/src/components/primitives';
 import type { Bay, JobCard, Appointment } from '@dms/types';
+import { serviceTypes as serviceTypesFixture } from '@dms/mocks/fixtures';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -37,21 +38,21 @@ const ADVISOR_NAMES: Record<string, string> = {
   'staff-r09-003': 'Deepa Nair',
 };
 
+// Service type labels — resolved from fixture (single source of truth per spec §6)
 const SERVICE_TYPE_LABELS: Record<string, string> = {
-  'annual-service': 'Annual Service',
+  ...Object.fromEntries(serviceTypesFixture.map((st) => [st.id, st.name])),
+  // Legacy labels for JCs that predate the fixture-aligned IDs
   'mechanical-repair': 'Mechanical Repair',
-  'aesthetic-detailing': 'Detailing',
-  'pre-purchase-inspection': 'Pre-Purchase PPI',
   'brake-service': 'Brake Service',
   'electrical-diagnostic': 'Electrical Diag.',
   'body-shop': 'Body Shop',
-  'accessory-installation': 'Accessories',
   'wheel-alignment': 'Wheel Alignment',
 };
 
 // ─── Status maps ──────────────────────────────────────────────────────────────
 
 const JC_STATUS_TO_CHIP: Record<string, StateChipStatus> = {
+  AWAITING_CONFIRMATION: 'svc-awaiting-confirmation',
   RECEIVED: 'svc-received',
   DIAGNOSED: 'svc-diagnosed',
   IN_PROGRESS: 'svc-in-progress',
@@ -435,6 +436,127 @@ function BayCard({ bay, jobCard, linkedAppointment, toast }: BayCardProps) {
   );
 }
 
+// ─── Awaiting Confirmation card ───────────────────────────────────────────────
+
+interface AwaitingConfirmationCardProps {
+  jc: JobCard;
+  toast: ToastFn;
+}
+
+function AwaitingConfirmationCard({ jc, toast }: AwaitingConfirmationCardProps) {
+  const { user } = useStaffAuth();
+  const confirmPortalBooking = useServiceStore((s) => s.confirmPortalBooking);
+  const declinePortalBooking = useServiceStore((s) => s.declinePortalBooking);
+
+  const [showDeclineDialog, setShowDeclineDialog] = useState(false);
+  const [declineReason, setDeclineReason] = useState('');
+
+  const actor = { id: user?.id ?? 'unknown', name: user?.name ?? 'Unknown' };
+
+  function handleConfirm() {
+    confirmPortalBooking(jc.id, actor);
+    toast(`${jc.jobNo} confirmed — moved to Received`, 'success');
+  }
+
+  function handleDecline() {
+    if (!declineReason.trim()) return;
+    declinePortalBooking(jc.id, declineReason.trim(), actor);
+    toast(`${jc.jobNo} declined`, 'warning');
+    setShowDeclineDialog(false);
+    setDeclineReason('');
+  }
+
+  const serviceLabel = jc.serviceTypeId
+    ? (SERVICE_TYPE_LABELS[jc.serviceTypeId] ?? jc.serviceTypeId)
+    : '—';
+
+  return (
+    <>
+      <div className="rounded-md border border-amber-200 bg-amber-50/50 p-3 space-y-2">
+        <div className="flex items-center justify-between gap-1">
+          <span className="font-mono text-[11px] font-semibold text-ink-primary tracking-wide">
+            {jc.jobNo}
+          </span>
+          <StateChip status="svc-awaiting-confirmation" />
+        </div>
+        <p className="font-mono text-[11px] text-ink-muted">{maskVin(jc.vin)}</p>
+        <p className="text-[12px] text-ink-secondary">{serviceLabel}</p>
+        {jc.scheduledDate && (
+          <p className="font-mono text-[10px] text-ink-muted">
+            {jc.scheduledDate} · {jc.scheduledSlot === 'MORNING' ? '09:00–12:00' : '13:00–17:00'}
+          </p>
+        )}
+        <div className="flex gap-2 pt-1">
+          <button
+            type="button"
+            onClick={handleConfirm}
+            className={cn(
+              'flex-1 h-7 rounded-md bg-green-600 text-white text-[11px] font-medium',
+              'hover:bg-green-700 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600',
+            )}
+          >
+            Confirm
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowDeclineDialog(true)}
+            className={cn(
+              'flex-1 h-7 rounded-md border border-red-300 text-red-600 text-[11px] font-medium',
+              'hover:bg-red-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500',
+            )}
+          >
+            Decline
+          </button>
+        </div>
+      </div>
+
+      {/* Decline dialog */}
+      <Dialog
+        open={showDeclineDialog}
+        onClose={() => { setShowDeclineDialog(false); setDeclineReason(''); }}
+        title={`Decline booking — ${jc.jobNo}`}
+        size="sm"
+        footer={
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={handleDecline}
+              disabled={!declineReason.trim()}
+              className="h-9 px-4 rounded-md bg-red-600 text-white text-sm font-medium hover:bg-red-700 transition-colors disabled:opacity-50"
+            >
+              Decline booking
+            </button>
+            <button
+              type="button"
+              onClick={() => { setShowDeclineDialog(false); setDeclineReason(''); }}
+              className="h-9 px-4 rounded-md border border-line text-sm font-medium text-ink-secondary hover:bg-bg-subtle transition-colors"
+            >
+              Cancel
+            </button>
+          </div>
+        }
+      >
+        <div className="space-y-3">
+          <p className="text-[13px] text-ink-secondary">
+            The customer will be notified with your reason. Please be clear and helpful.
+          </p>
+          <label className="block text-[12px] font-medium text-ink-secondary" htmlFor="decline-reason">
+            Reason for declining *
+          </label>
+          <textarea
+            id="decline-reason"
+            rows={3}
+            placeholder="e.g. No available slots on this date — please rebook for next week."
+            value={declineReason}
+            onChange={(e) => setDeclineReason(e.target.value)}
+            className="w-full border border-line rounded-md px-3 py-2 text-sm text-ink-primary bg-bg-surface resize-none focus:outline-none focus:ring-1 focus:ring-accent"
+          />
+        </div>
+      </Dialog>
+    </>
+  );
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export function BayBoardTab() {
@@ -477,6 +599,12 @@ export function BayBoardTab() {
     (jc) => jc.status === 'READY_FOR_DELIVERY',
   ).length;
 
+  // SPEC-CUSTOMER-PORTAL-002 §5.1 — portal bookings awaiting SA confirmation
+  const awaitingConfirmationJcs = useMemo(
+    () => jobCards.filter((jc) => jc.status === 'AWAITING_CONFIRMATION'),
+    [jobCards],
+  );
+
   // Appointments within next 48h and in active status
   const upcomingAppointments = useMemo(() => {
     const now = Date.now();
@@ -503,7 +631,7 @@ export function BayBoardTab() {
       <div className="px-6 py-5 space-y-6">
 
         {/* ── KPI strip ──────────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <StatCard
             label="Bays Occupied"
             value={`${baysOccupied}/${baysTotal}`}
@@ -526,7 +654,35 @@ export function BayBoardTab() {
             value={String(upcomingAppointments.length)}
             meta="Scheduled + Confirmed"
           />
+          {/* SPEC-CUSTOMER-PORTAL-002 §5.1 */}
+          <StatCard
+            label="Awaiting Confirmation"
+            value={String(awaitingConfirmationJcs.length)}
+            meta={awaitingConfirmationJcs.length > 0 ? 'Portal bookings — action needed' : 'No pending portal bookings'}
+          />
         </div>
+
+        {/* ── Awaiting Confirmation swim lane ────────────────────────────────── */}
+        {awaitingConfirmationJcs.length > 0 && (
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <h2 className="text-[18px] font-semibold leading-[1.4] text-ink-primary">
+                Awaiting Confirmation
+              </h2>
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-mono text-[10px] uppercase tracking-widest font-semibold">
+                {awaitingConfirmationJcs.length} portal {awaitingConfirmationJcs.length === 1 ? 'booking' : 'bookings'}
+              </span>
+            </div>
+            <p className="text-[12px] text-ink-muted mb-3">
+              These bookings were submitted by customers via the portal. Confirm to move to Received, or Decline with a reason.
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {awaitingConfirmationJcs.map((jc) => (
+                <AwaitingConfirmationCard key={jc.id} jc={jc} toast={toast} />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* ── Bay grid ───────────────────────────────────────────────────────── */}
         <div>

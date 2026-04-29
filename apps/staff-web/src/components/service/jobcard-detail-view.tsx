@@ -133,6 +133,7 @@ function isOverdue(isoDate: string): boolean {
 // ─── Status → chip ────────────────────────────────────────────────────────────
 
 const STATUS_TO_CHIP: Record<JobCardStatus, StateChipStatus> = {
+  AWAITING_CONFIRMATION: 'svc-awaiting-confirmation', // SPEC-CUSTOMER-PORTAL-002
   RECEIVED: 'svc-received',
   DIAGNOSED: 'svc-diagnosed',
   IN_PROGRESS: 'svc-in-progress',

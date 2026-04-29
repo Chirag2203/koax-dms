@@ -36,6 +36,7 @@ const REASON_REQUIRED: JobCardStatus[] = [
 // ─── Status labels ────────────────────────────────────────────────────────────
 
 const STATUS_LABEL: Record<JobCardStatus, string> = {
+  AWAITING_CONFIRMATION: 'Awaiting Confirmation',  // SPEC-CUSTOMER-PORTAL-002
   RECEIVED: 'Received',
   DIAGNOSED: 'Diagnosed',
   IN_PROGRESS: 'In Progress',
@@ -49,6 +50,7 @@ const STATUS_LABEL: Record<JobCardStatus, string> = {
 };
 
 const STATUS_TO_CHIP: Record<JobCardStatus, StateChipStatus> = {
+  AWAITING_CONFIRMATION: 'svc-awaiting-confirmation', // SPEC-CUSTOMER-PORTAL-002
   RECEIVED: 'svc-received',
   DIAGNOSED: 'svc-diagnosed',
   IN_PROGRESS: 'svc-in-progress',

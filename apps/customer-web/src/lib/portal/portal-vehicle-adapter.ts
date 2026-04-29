@@ -21,7 +21,7 @@
 
 import { effectiveState, isCpoEligible } from '@dms/vehicles-core';
 import type { CpoBadge, EffectiveState } from '@dms/vehicles-core';
-import type { VehicleMaster, VehicleOwnership, JobCard, WarrantyClaim } from '@dms/types';
+import type { VehicleMaster, VehicleOwnership, JobCard, WarrantyClaim, Document } from '@dms/types';
 
 // ─── View model types (portal-specific, not @dms/vehicles-core) ──────────────
 
@@ -304,4 +304,69 @@ export function selectVisibleVehicles(
       );
     })
     .filter((v): v is OwnedVehicleView => v !== null);
+}
+
+// ─── Portal document adapter (L27) ───────────────────────────────────────────
+
+/**
+ * PortalDocumentView — the shape exposed to customer-web.
+ *
+ * L27: supersededBy (string id on staff side) becomes isReplaced (boolean) here.
+ * The portal customer NEVER sees the id of a replacement document.
+ * Staff-web keeps the id for linking.
+ *
+ * Spec reference: PLAN-VEHICLES-003 §1.3, L27
+ */
+export interface PortalDocumentView {
+  id: string;
+  vehicleVin: string;
+  vehicleName: string;
+  type: Document['type'];
+  name: string;
+  uploadedAt: string;
+  expiresAt?: string;
+  fileUrl: string;
+  fileSize: string;
+  /** L27: boolean-only. Staff id never exposed to portal. */
+  isReplaced: boolean;
+}
+
+/**
+ * Converts a staff Document into a PortalDocumentView.
+ *
+ * Strips: supersededBy id → isReplaced boolean (L27).
+ * Strips: no staffMeta fields (version, supportingSalesOrderId, purposeOfCollection, deletedAt).
+ *
+ * @param doc    Raw Document from vehicles store (contains supersededBy id)
+ * @returns      Portal-safe view with isReplaced boolean only
+ */
+export function toPortalDocumentView(doc: Document): PortalDocumentView {
+  return {
+    id: doc.id,
+    vehicleVin: doc.vehicleVin,
+    vehicleName: doc.vehicleName,
+    type: doc.type,
+    name: doc.name,
+    uploadedAt: doc.uploadedAt,
+    ...(doc.expiresAt ? { expiresAt: doc.expiresAt } : {}),
+    fileUrl: doc.fileUrl,
+    fileSize: doc.fileSize,
+    // L27: id → boolean transformation (portal boundary)
+    isReplaced: Boolean(doc.supersededBy),
+  };
+}
+
+/**
+ * Filters + adapts documents for a specific VIN to portal view.
+ * Only returns non-deleted, non-superseded documents (active versions only).
+ * Soft-deleted docs (staffMeta.deletedAt) must be filtered upstream before calling this.
+ *
+ * @param docs     Active (non-deleted) documents for the VIN
+ * @returns        Portal document views, newest first
+ */
+export function buildPortalDocumentViews(docs: Document[]): PortalDocumentView[] {
+  return docs
+    .filter((d) => !d.supersededBy)  // only show current (non-replaced) versions
+    .map(toPortalDocumentView)
+    .sort((a, b) => b.uploadedAt.localeCompare(a.uploadedAt));
 }

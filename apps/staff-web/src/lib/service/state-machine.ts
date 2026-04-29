@@ -19,6 +19,10 @@ import type { JobCardStatus } from '@dms/types';
  * handles the auto-advance after emitting the `reopened` event).
  */
 export const TRANSITIONS: Record<JobCardStatus, JobCardStatus[]> = {
+  // SPEC-CUSTOMER-PORTAL-002 §5.3 — portal pre-state:
+  // SA confirms (→ RECEIVED) or declines (→ CANCELLED).
+  // Customer can also self-cancel (→ CANCELLED) while in this state (L5 path-specific override).
+  AWAITING_CONFIRMATION: ['RECEIVED', 'CANCELLED'],
   RECEIVED: ['DIAGNOSED', 'CANCELLED'],
   DIAGNOSED: ['IN_PROGRESS', 'WAITING_PARTS', 'CANCELLED'],
   IN_PROGRESS: ['WAITING_PARTS', 'ADDITIONAL_WORK_APPROVAL', 'QC', 'CANCELLED'],
@@ -57,6 +61,12 @@ export function canTransition(from: JobCardStatus, to: JobCardStatus): boolean {
  *   - REOPENED   — only R19+ can reopen a delivered card for rework
  */
 export const ROLE_GATES: Record<JobCardStatus, string[]> = {
+  // SPEC-CUSTOMER-PORTAL-002 §5.3 + L5:
+  // Created by portal (R20); transitions by R09/R03/R01 (confirm/decline).
+  // Customer self-cancel (→ CANCELLED) is enforced at the store action level
+  // via createBookingFromPortal / cancelPortalBooking — NOT by this global gate.
+  // The CANCELLED gate below remains unchanged (R19/R22/R24 for non-portal paths).
+  AWAITING_CONFIRMATION: [],
   RECEIVED: [],
   DIAGNOSED: ['R09', 'R11', 'R12', 'R19', 'R22', 'R24'],
   IN_PROGRESS: ['R09', 'R11', 'R12', 'R19', 'R22', 'R24'],
@@ -77,4 +87,20 @@ export function canEnterStatus(status: JobCardStatus, roleCode: string): boolean
   const gates = ROLE_GATES[status];
   if (gates.length === 0) return true;
   return gates.includes(roleCode);
+}
+
+/**
+ * Path-specific role override per SPEC-CUSTOMER-PORTAL-002 §5.3 locked decision L5.
+ *
+ * The AWAITING_CONFIRMATION → CANCELLED transition is permitted for:
+ *   - R09 (Service Advisor), R03 (Outlet Manager), R01 (Admin) — SA decline
+ *   - R20 (Customer Portal user) — customer self-cancel of their own pending booking
+ *
+ * This does NOT widen the global CANCELLED gate (which stays R19/R22/R24).
+ * Only applies when fromStatus === 'AWAITING_CONFIRMATION'.
+ */
+export const AWAITING_CONFIRMATION_CANCEL_ROLES = ['R09', 'R03', 'R01', 'R20'] as const;
+
+export function canCancelAwaitingConfirmation(roleCode: string): boolean {
+  return (AWAITING_CONFIRMATION_CANCEL_ROLES as readonly string[]).includes(roleCode);
 }

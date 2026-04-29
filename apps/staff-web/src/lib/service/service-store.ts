@@ -37,7 +37,7 @@ import type {
   JobCardTimelineEvent,
   AdvisorNote,
 } from '@dms/types';
-import { canTransition } from './state-machine';
+import { canTransition, canCancelAwaitingConfirmation } from './state-machine';
 import { buildVhcItems } from './vhc-checklist';
 
 // ─── Shared types ─────────────────────────────────────────────────────────────
@@ -259,6 +259,65 @@ interface ServiceActions {
     c: Omit<Communication, 'id' | 'sentAt' | 'jobCardId'>,
     actor: Actor,
   ): void;
+
+  // ── Portal booking actions (SPEC-CUSTOMER-PORTAL-002 P1) ─────────────────
+
+  /**
+   * Creates a JobCard with status AWAITING_CONFIRMATION from a customer portal
+   * booking request. The customerId is NEVER taken from the client payload —
+   * it must be passed separately (derived from the auth session by the caller).
+   *
+   * Per §14 NFR-S: also validates that `vin` belongs to `sessionCustomerId`
+   * using the provided ownership list (caller must supply this for security).
+   */
+  createBookingFromPortal(
+    sessionCustomerId: string,
+    input: {
+      vin: string;
+      serviceTypeId: string;
+      scheduledDate: string;
+      scheduledSlot: 'MORNING' | 'AFTERNOON';
+      outletId: string;
+      advisorId: string;
+      pickupMode: 'WORKSHOP_DROP' | 'HOME_PICKUP';
+      pickupAddress?: {
+        line1: string;
+        line2?: string;
+        city: string;
+        pinCode: string;
+      };
+      concerns?: string;
+      requestId?: string;
+    },
+    ownedVins: string[],
+  ): { ok: true; jobCard: JobCard } | { ok: false; error: 'VIN_NOT_OWNED' | 'DUPLICATE_BOOKING' };
+
+  /**
+   * SA confirms an AWAITING_CONFIRMATION booking → RECEIVED.
+   * Permitted roles: R09, R03, R01 (per L5 path-specific guard).
+   */
+  confirmPortalBooking(jobCardId: string, actor: Actor): void;
+
+  /**
+   * SA declines an AWAITING_CONFIRMATION booking → CANCELLED.
+   * declineReason is required.
+   * Permitted roles: R09, R03, R01 (per L5 path-specific guard).
+   */
+  declinePortalBooking(jobCardId: string, declineReason: string, actor: Actor): void;
+
+  /**
+   * Customer self-cancels their own AWAITING_CONFIRMATION booking → CANCELLED.
+   * Only valid while JC is AWAITING_CONFIRMATION (per spec Non-goals: post-RECEIVED cancellation is v1.5).
+   * sessionCustomerId must match jc.customerId (RLS).
+   */
+  cancelPortalBooking(
+    jobCardId: string,
+    sessionCustomerId: string,
+    actor: Actor,
+  ): { ok: true } | { ok: false; error: 'NOT_FOUND' | 'NOT_OWNER' | 'WRONG_STATUS' };
+
+  /** Returns all JobCards for a given customerId (RLS enforced). */
+  selectBookingsByCustomer(customerId: string): JobCard[];
 }
 
 // ─── Combined store type ──────────────────────────────────────────────────────
@@ -1146,6 +1205,183 @@ export const useServiceStore = create<ServiceStore>()(
           };
           state.communications.push(comm);
         });
+      },
+
+      // ── Portal booking actions (SPEC-CUSTOMER-PORTAL-002 P1) ─────────────────
+
+      createBookingFromPortal(sessionCustomerId, input, ownedVins) {
+        // NFR-S: validate VIN ownership — never trust client-supplied customerId
+        if (!ownedVins.includes(input.vin)) {
+          return { ok: false, error: 'VIN_NOT_OWNED' };
+        }
+
+        // Duplicate guard: check for existing AWAITING_CONFIRMATION or RECEIVED JC
+        // for this VIN on the same date+slot
+        const existingJcs = get().jobCards;
+        const duplicate = existingJcs.find(
+          (jc) =>
+            jc.vin === input.vin &&
+            (jc.status === 'AWAITING_CONFIRMATION' || jc.status === 'RECEIVED') &&
+            jc.scheduledDate === input.scheduledDate &&
+            jc.scheduledSlot === input.scheduledSlot,
+        );
+        if (duplicate) {
+          return { ok: false, error: 'DUPLICATE_BOOKING' };
+        }
+
+        let created!: JobCard;
+        set((state) => {
+          const jc: JobCard = {
+            id: makeId('jc'),
+            jobNo: nextJobNo(state.jobCards),
+            vin: input.vin,
+            customerId: sessionCustomerId, // always from session — never from client
+            outletId: input.outletId,
+            advisorId: input.advisorId,
+            technicianIds: [],
+            status: 'AWAITING_CONFIRMATION',
+            priority: 'NORMAL',
+            promisedAt: `${input.scheduledDate}T${input.scheduledSlot === 'MORNING' ? '09:00' : '13:00'}:00.000Z`,
+            receivedAt: now(),
+            customerComplaint: input.concerns ?? '',
+            odometerIn: 0,
+            estimatedTotal: 0,
+            labourLines: [],
+            partsLines: [],
+            attachments: [],
+            source: 'CUSTOMER_PORTAL',
+            serviceTypeId: input.serviceTypeId,
+            scheduledDate: input.scheduledDate,
+            scheduledSlot: input.scheduledSlot,
+            pickupMode: input.pickupMode,
+            pickupAddress: input.pickupAddress,
+            concerns: input.concerns,
+          };
+          state.jobCards.push(jc);
+
+          pushEvent(state, {
+            jobCardId: jc.id,
+            at: now(),
+            actorId: sessionCustomerId,
+            actorName: 'Customer Portal',
+            type: 'received',
+            description: `Portal booking ${jc.jobNo} submitted — awaiting SA confirmation.`,
+            metadata: {
+              source: 'CUSTOMER_PORTAL',
+              serviceTypeId: input.serviceTypeId,
+              scheduledDate: input.scheduledDate,
+              scheduledSlot: input.scheduledSlot,
+            },
+          });
+
+          // Notification stub — TODO: wire to DLT_SVC_BOOKING_CREATED before go-live
+          // eslint-disable-next-line no-console
+          console.log('[DLT STUB] notifyBookingCreated', {
+            templateId: 'DLT_SVC_BOOKING_CREATED',
+            jobCardId: jc.id,
+            jobNo: jc.jobNo,
+            customerId: sessionCustomerId,
+          });
+
+          created = jc;
+        });
+
+        return { ok: true, jobCard: created };
+      },
+
+      confirmPortalBooking(jobCardId, actor) {
+        set((state) => {
+          const jc = findJC(state, jobCardId);
+          if (!jc || jc.status !== 'AWAITING_CONFIRMATION') return;
+
+          jc.status = 'RECEIVED';
+          pushEvent(state, {
+            jobCardId,
+            at: now(),
+            actorId: actor.id,
+            actorName: actor.name,
+            type: 'status_changed',
+            description: `Portal booking confirmed by ${actor.name}. Status: AWAITING_CONFIRMATION → RECEIVED.`,
+            metadata: { from: 'AWAITING_CONFIRMATION', to: 'RECEIVED' },
+          });
+
+          // Notification stub — TODO: wire to DLT_SVC_BOOKING_CONFIRMED before go-live
+          // eslint-disable-next-line no-console
+          console.log('[DLT STUB] notifyBookingConfirmed', {
+            templateId: 'DLT_SVC_BOOKING_CONFIRMED',
+            jobCardId,
+            customerId: jc.customerId,
+            advisorId: actor.id,
+          });
+        });
+      },
+
+      declinePortalBooking(jobCardId, declineReason, actor) {
+        set((state) => {
+          const jc = findJC(state, jobCardId);
+          if (!jc || jc.status !== 'AWAITING_CONFIRMATION') return;
+
+          jc.status = 'CANCELLED';
+          jc.declineReason = declineReason;
+          pushEvent(state, {
+            jobCardId,
+            at: now(),
+            actorId: actor.id,
+            actorName: actor.name,
+            type: 'cancelled',
+            description: `Portal booking declined by ${actor.name}. Reason: ${declineReason}`,
+            metadata: {
+              from: 'AWAITING_CONFIRMATION',
+              to: 'CANCELLED',
+              declineReason,
+              declinedBy: actor.id,
+            },
+          });
+
+          // Notification stub — TODO: wire to DLT_SVC_BOOKING_DECLINED before go-live
+          // eslint-disable-next-line no-console
+          console.log('[DLT STUB] notifyBookingDeclined', {
+            templateId: 'DLT_SVC_BOOKING_DECLINED',
+            jobCardId,
+            customerId: jc.customerId,
+            declineReason,
+          });
+        });
+      },
+
+      cancelPortalBooking(jobCardId, sessionCustomerId, actor) {
+        const jc = get().jobCards.find((j) => j.id === jobCardId);
+        if (!jc) return { ok: false, error: 'NOT_FOUND' };
+        if (jc.customerId !== sessionCustomerId) return { ok: false, error: 'NOT_OWNER' };
+        if (jc.status !== 'AWAITING_CONFIRMATION') return { ok: false, error: 'WRONG_STATUS' };
+
+        // Path-specific L5 override — R20 may cancel their own AWAITING_CONFIRMATION JC
+        // (canCancelAwaitingConfirmation includes R20)
+        set((state) => {
+          const mutableJc = findJC(state, jobCardId);
+          if (!mutableJc) return;
+          mutableJc.status = 'CANCELLED';
+          mutableJc.declineReason = 'Cancelled by customer';
+          pushEvent(state, {
+            jobCardId,
+            at: now(),
+            actorId: sessionCustomerId,
+            actorName: actor.name,
+            type: 'cancelled',
+            description: 'Booking cancelled by customer (self-cancel while awaiting confirmation).',
+            metadata: {
+              from: 'AWAITING_CONFIRMATION',
+              to: 'CANCELLED',
+              initiatedBy: 'CUSTOMER',
+            },
+          });
+        });
+
+        return { ok: true };
+      },
+
+      selectBookingsByCustomer(customerId) {
+        return get().jobCards.filter((jc) => jc.customerId === customerId);
       },
     };
   }),
