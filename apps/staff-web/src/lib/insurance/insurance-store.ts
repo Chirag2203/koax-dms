@@ -16,4 +16,10 @@ export {
   PermissionError,
   AICallingDisabledError,
 } from './insurance-store/index';
-export type { StoreActor, InsuranceStore, InsuranceState } from './insurance-store/index';
+export type {
+  StoreActor,
+  InsuranceStore,
+  InsuranceState,
+  ManualFollowupOutcome,
+  ManualCallRecord,
+} from './insurance-store/index';

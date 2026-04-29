@@ -7,17 +7,26 @@
  * Sortable by stage, days-to-expiry (default desc), last-activity, premium.
  * Row click → /insurance/leads/[id].
  *
- * Spec reference: SPEC-INSURANCE-001 §35, L_P2_3
+ * §5.7 Feature 2: Overdue followups banner above the table.
+ *   - Shows count of leads with overdue nextDueAt (not closed).
+ *   - Clickable → sets ?overdue=1 URL param to filter to overdue-only.
+ *   - "Mark all as not-reached" bulk action (R10+) → calls bulkMarkOverdueNotReached.
+ *
+ * Spec reference: SPEC-INSURANCE-001 §35, §5.7, L_P2_3
  */
 
 'use client';
 
 import { useState, useMemo, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
-import { ArrowUpDown, Copy, Check } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { ArrowUpDown, Copy, Check, AlertTriangle, X } from 'lucide-react';
 import { cn } from '@dms/ui';
 import type { InsuranceLead, InsuranceLeadStage } from '@dms/types';
 import { useCustomersStore } from '@/src/lib/customers/customers-store';
+import { useInsuranceStore } from '@/src/lib/insurance/insurance-store';
+import { Gate } from '@/src/components/primitives/gate';
+import { AlertDialog } from '@/src/components/primitives/dialog';
+import { useStaffAuth } from '@/src/hooks/use-staff-auth';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -149,6 +158,132 @@ function VinCopyBadge({ vin }: { vin: string }) {
   );
 }
 
+// ─── Overdue helpers ──────────────────────────────────────────────────────────
+
+const CLOSED_STAGES: InsuranceLeadStage[] = ['closed-won', 'closed-lost'];
+
+function isOverdueLead(lead: InsuranceLead): boolean {
+  if (CLOSED_STAGES.includes(lead.stage)) return false;
+  const { nextDueAt, paused, completedAt } = lead.followupSequenceState;
+  if (paused || completedAt) return false;
+  if (!nextDueAt) return false;
+  return nextDueAt < new Date().toISOString();
+}
+
+// ─── OverdueBanner ────────────────────────────────────────────────────────────
+
+interface OverdueBannerProps {
+  overdueLeads: InsuranceLead[];
+  onFilterOverdue: () => void;
+  onClearFilter: () => void;
+  isFiltered: boolean;
+}
+
+function OverdueBanner({
+  overdueLeads,
+  onFilterOverdue,
+  onClearFilter,
+  isFiltered,
+}: OverdueBannerProps) {
+  const bulkMarkOverdueNotReached = useInsuranceStore((s) => s.bulkMarkOverdueNotReached);
+  const { user } = useStaffAuth();
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [marking, setMarking] = useState(false);
+
+  const count = overdueLeads.length;
+
+  // Hidden when no overdue leads
+  if (count === 0) return null;
+
+  const actor = user
+    ? { id: user.id, name: user.name, role: user.role }
+    : { id: 'unknown', name: 'Unknown', role: 'R09' };
+
+  function handleBulkMark() {
+    setMarking(true);
+    try {
+      bulkMarkOverdueNotReached(
+        overdueLeads.map((l) => l.leadId),
+        actor,
+      );
+    } finally {
+      setMarking(false);
+      setConfirmOpen(false);
+    }
+  }
+
+  return (
+    <>
+      <div
+        role="alert"
+        aria-live="polite"
+        className={cn(
+          'flex items-center gap-3 px-4 py-3 rounded-md border',
+          'bg-state-danger/6 border-state-danger/25',
+          'mb-4',
+        )}
+      >
+        <AlertTriangle
+          size={15}
+          className="text-state-danger shrink-0"
+          aria-hidden="true"
+        />
+
+        <div className="flex-1 min-w-0">
+          <button
+            type="button"
+            onClick={isFiltered ? onClearFilter : onFilterOverdue}
+            className="text-[13px] font-medium text-state-danger hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+          >
+            {count} lead{count !== 1 ? 's' : ''} {count !== 1 ? 'have' : 'has'} overdue follow-ups
+            {isFiltered ? ' — Click to clear filter' : ' — Click to view'}
+          </button>
+        </div>
+
+        {/* R10+ bulk action */}
+        <Gate role="R10" fallback="hide">
+          <button
+            type="button"
+            onClick={() => setConfirmOpen(true)}
+            disabled={marking}
+            className={cn(
+              'shrink-0 h-8 px-3 text-[12px] font-medium rounded-md border border-state-danger/30',
+              'bg-state-danger/8 text-state-danger hover:bg-state-danger/15 transition-colors',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent',
+              'disabled:opacity-40 disabled:cursor-not-allowed',
+            )}
+          >
+            {marking ? 'Marking…' : 'Mark all as not-reached'}
+          </button>
+        </Gate>
+
+        {isFiltered && (
+          <button
+            type="button"
+            onClick={onClearFilter}
+            aria-label="Clear overdue filter"
+            className="shrink-0 p-1 rounded hover:bg-state-danger/10 text-state-danger transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+          >
+            <X size={14} aria-hidden="true" />
+          </button>
+        )}
+      </div>
+
+      {/* Bulk mark confirmation */}
+      <AlertDialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        title="Mark all overdue leads as not-reached?"
+        description={`This will record a "Skipped — Could not reach" outcome for the current step on ${count} overdue lead${count !== 1 ? 's' : ''}. This cannot be undone.`}
+        confirmLabel={`Mark ${count} lead${count !== 1 ? 's' : ''}`}
+        cancelLabel="Cancel"
+        destructive
+        onConfirm={handleBulkMark}
+      />
+    </>
+  );
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export interface LeadListViewProps {
@@ -158,7 +293,35 @@ export interface LeadListViewProps {
 
 export function LeadListView({ leads, vehicleMap }: LeadListViewProps) {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const customers = useCustomersStore((s) => s.customers);
+
+  // §5.7: overdue filter from URL param
+  const overdueParam = searchParams.get('overdue');
+  const isOverdueFiltered = overdueParam === '1';
+
+  function handleFilterOverdue() {
+    const params = new URLSearchParams(window.location.search);
+    params.set('overdue', '1');
+    router.push(`?${params.toString()}`, { scroll: false });
+  }
+
+  function handleClearFilter() {
+    const params = new URLSearchParams(window.location.search);
+    params.delete('overdue');
+    router.push(params.size > 0 ? `?${params.toString()}` : window.location.pathname, {
+      scroll: false,
+    });
+  }
+
+  // Compute overdue leads (all leads, not just currently displayed)
+  const overdueLeads = useMemo(() => leads.filter(isOverdueLead), [leads]);
+
+  // Apply filter if active
+  const filteredLeads = useMemo(() => {
+    if (!isOverdueFiltered) return leads;
+    return leads.filter(isOverdueLead);
+  }, [leads, isOverdueFiltered]);
 
   // Memoized lookup: customerId → { name, phone }. Falls back to slug if not in store.
   const customerById = useMemo(() => {
@@ -204,6 +367,8 @@ export function LeadListView({ leads, vehicleMap }: LeadListViewProps) {
     );
   }
 
+  const sorted = sortLeads(filteredLeads, sortKey, sortDir);
+
   if (leads.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -213,9 +378,25 @@ export function LeadListView({ leads, vehicleMap }: LeadListViewProps) {
     );
   }
 
-  const sorted = sortLeads(leads, sortKey, sortDir);
-
   return (
+    <div>
+      {/* §5.7 Feature 2: Overdue followups banner */}
+      <OverdueBanner
+        overdueLeads={overdueLeads}
+        onFilterOverdue={handleFilterOverdue}
+        onClearFilter={handleClearFilter}
+        isFiltered={isOverdueFiltered}
+      />
+
+      {/* Overdue-only empty state */}
+      {isOverdueFiltered && sorted.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <p className="text-[15px] font-medium text-ink-primary">No overdue leads</p>
+          <p className="text-[13px] text-ink-muted mt-1">
+            All follow-ups are up to date.
+          </p>
+        </div>
+      ) : (
     <div className="overflow-y-auto scrollbar-thin-dark rounded-lg border border-line">
       <table className="w-full text-left" role="table">
         <thead className="bg-bg-subtle border-b border-line sticky top-0 z-10">
@@ -340,6 +521,8 @@ export function LeadListView({ leads, vehicleMap }: LeadListViewProps) {
           })}
         </tbody>
       </table>
+    </div>
+      )}
     </div>
   );
 }

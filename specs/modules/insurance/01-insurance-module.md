@@ -1500,4 +1500,39 @@ Single source of truth for what's shipped vs planned. Update this section every 
 
 ---
 
-*Spec version: 2.3 — 2026-04-29. Status: approved.*
+---
+
+## Changelog — v2.4 (2026-04-29)
+
+### Features implemented
+
+**Feature 1 — ManualCallOutcomeDialog (§5.7)**
+- New component: `apps/staff-web/src/components/insurance/dialogs/manual-call-outcome-dialog.tsx`
+- New type: `ManualFollowupOutcomeEnum` + `ManualCallRecordSchema` added to `packages/types/src/domain/insurance.ts`
+- New store action: `recordFollowupOutcome(leadId, stepIndex, outcome, notes, actor, nextActionAt?)` in `lead-slice.ts`
+  - Updates `lead.followupSequenceState.currentStepIndex` and `lastOutcome`
+  - Appends `ManualCallRecord` to store `manualCallLog`
+  - Emits new audit event kind `followup_outcome_recorded`
+  - Validates: notes ≥ 10 chars; `nextActionAt` required for `COMPLETED_FOLLOW_LATER`; R09+ gate
+- New audit event kind `followup_outcome_recorded` added to `InsuranceAuditEventKindEnum`
+- `LeadDetailView` updated: `FollowupSequencePanel` inline component added showing current step + "Mark done" / "Skip" buttons (R09+ gated); both open `ManualCallOutcomeDialog`
+- Destructive SKIPPED_* outcomes show a secondary `AlertDialog` confirmation before submitting
+
+**Feature 2 — Overdue Followups banner on `/insurance/leads` (§5.7)**
+- `LeadListView` updated:
+  - `OverdueBanner` component: renders count of leads with `nextDueAt < now` (not closed, not paused). Hidden when count = 0.
+  - Clickable banner → sets `?overdue=1` URL param to filter table to overdue-only
+  - "Mark all as not-reached" bulk action (R10+ gated) → `AlertDialog` confirmation → `bulkMarkOverdueNotReached`
+- New store action: `bulkMarkOverdueNotReached(leadIds, actor)` — R10+ gated; batch calls `recordFollowupOutcome` with `SKIPPED_NO_REACH` for each lead
+- `tickFollowups` fixed to skip `closed-won` / `closed-lost` leads
+- `InsuranceState.manualCallLog: ManualCallRecord[]` added to store state
+
+**Feature 3 — 5 analytics events (§11)**
+- New helper: `apps/staff-web/src/lib/insurance/analytics.ts`
+  - `trackInsuranceEvent` typed wrapper over existing `src/lib/analytics.ts` `track()`
+  - Five events: `insurance_lead_created`, `insurance_quote_generated`, `insurance_quote_shared`, `insurance_lead_closed_won`, `insurance_lead_closed_lost`
+- Wired in `lead-slice.ts`: `createLead` → `insurance_lead_created`; `closeLead(won)` → `insurance_lead_closed_won`; `closeLead(lost)` → `insurance_lead_closed_lost`
+- Wired in `quote-slice.ts`: `saveQuote` → `insurance_quote_generated`; `generateShareToken` → `insurance_quote_shared`
+- New test file: `apps/staff-web/src/tests/insurance-analytics.test.ts` — 155 total tests passing (9 test files)
+
+*Spec version: 2.4 — 2026-04-29. Status: approved.*

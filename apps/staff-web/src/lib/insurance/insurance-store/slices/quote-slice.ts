@@ -12,6 +12,7 @@ import type { InsuranceQuote } from '@dms/types';
 import { buildQuotes, sortQuotes } from '../../comparison';
 import type { InsuranceSlice, QuoteActions, VehicleInput, CustomerInput, StoreActor } from '../types';
 import { R12RequiredError } from '../types';
+import { trackInsuranceEvent } from '@/src/lib/insurance/analytics';
 
 // Role rank map for R12 gate
 const ROLE_RANK: Record<string, number> = {
@@ -47,6 +48,15 @@ export const createQuoteSlice: InsuranceSlice<QuoteActions> = (set, get) => ({
       lead.quotes.push(saved);
       lead.stage = 'quoted';
       lead.updatedAt = now;
+    });
+
+    // §11: analytics event — quote generated
+    trackInsuranceEvent('insurance_quote_generated', {
+      leadId,
+      quoteId: saved.quoteId,
+      providerId: saved.providerId,
+      totalPremium: saved.totalPremium,
+      actorId: 'system', // saveQuote does not take an actor param; system-level
     });
 
     return saved;
@@ -105,6 +115,19 @@ export const createQuoteSlice: InsuranceSlice<QuoteActions> = (set, get) => ({
         }
       }
     });
+
+    // §11: analytics event — quote shared
+    // Find the lead for this quote to populate leadId in the event
+    const leadForQuote = get().leads.find((l) => l.quotes.some((q) => q.quoteId === quoteId));
+    if (leadForQuote) {
+      trackInsuranceEvent('insurance_quote_shared', {
+        leadId: leadForQuote.leadId,
+        quoteId,
+        shareToken: token,
+        shareTokenExpiresAt: expiresAt,
+        actorId: 'system',
+      });
+    }
 
     return { token, expiresAt };
   },

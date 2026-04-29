@@ -27,6 +27,7 @@ import { useVehiclesStore } from '@/src/lib/vehicles/vehicles-store';
 import { Gate } from '@/src/components/primitives/gate';
 import { QuoteCard } from './quote-card';
 import { ClosePolicyDialog } from './dialogs/close-policy-dialog';
+import { ManualCallOutcomeDialog } from './dialogs/manual-call-outcome-dialog';
 import {
   BuildWhatsAppDialog,
   BuildAiCallDialog,
@@ -42,9 +43,13 @@ import {
   Sparkles,
   Pencil,
   X,
+  CheckCircle2,
+  SkipForward,
+  Clock,
 } from 'lucide-react';
 import Link from 'next/link';
-import type { InsuranceLead, InsuranceLeadStage } from '@dms/types';
+import type { InsuranceLead, InsuranceLeadStage, ManualFollowupOutcome } from '@dms/types';
+import type { DialogMode } from './dialogs/manual-call-outcome-dialog';
 
 const STAGE_COLORS: Record<string, string> = {
   'due-soon': 'bg-warning/15 text-warning',
@@ -272,6 +277,126 @@ function Field({ label, value }: { label: string; value: React.ReactNode }) {
   );
 }
 
+// ─── FollowupSequencePanel ────────────────────────────────────────────────────
+
+/**
+ * Renders the current follow-up step with "Mark as done" / "Skip" affordances
+ * (§5.7). Shows step index, next due date, and last outcome if any.
+ */
+function FollowupSequencePanel({
+  lead,
+  onMarkDone,
+  onSkip,
+}: {
+  lead: InsuranceLead;
+  onMarkDone: (stepIndex: number) => void;
+  onSkip: (stepIndex: number) => void;
+}) {
+  const seq = lead.followupSequenceState;
+  const stepIndex = seq.currentStepIndex;
+  const isOverdue = seq.nextDueAt ? seq.nextDueAt < new Date().toISOString() : false;
+  const isPaused = seq.paused;
+  const isComplete = !!seq.completedAt;
+
+  return (
+    <div className="rounded-md border border-line bg-bg-surface p-5">
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-sm font-semibold text-ink-primary flex items-center gap-2">
+          <Clock size={14} className="text-ink-muted" aria-hidden="true" />
+          Follow-up Sequence
+        </h2>
+        {isComplete && (
+          <span className="text-xs text-success bg-success/10 px-2 py-0.5 rounded-full font-medium">
+            Sequence complete
+          </span>
+        )}
+        {isPaused && !isComplete && (
+          <span className="text-xs text-warning bg-warning/10 px-2 py-0.5 rounded-full font-medium">
+            Paused
+          </span>
+        )}
+      </div>
+
+      {isComplete ? (
+        <p className="text-sm text-ink-muted">
+          Completed{seq.completedAt ? ` on ${new Date(seq.completedAt).toLocaleDateString('en-IN')}` : ''}.
+        </p>
+      ) : (
+        <div className="space-y-3">
+          {/* Current step row */}
+          <div
+            className={`flex items-start justify-between gap-4 p-3 rounded-md border ${
+              isOverdue ? 'border-state-danger/40 bg-state-danger/5' : 'border-line bg-bg-subtle'
+            }`}
+          >
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold text-ink-primary">
+                  Step {stepIndex + 1}
+                </span>
+                {isOverdue && (
+                  <span className="text-[10px] font-medium text-state-danger bg-state-danger/10 px-1.5 py-0.5 rounded-full">
+                    Overdue
+                  </span>
+                )}
+              </div>
+              {seq.nextDueAt && (
+                <p className="text-[11px] text-ink-muted mt-0.5">
+                  Due:{' '}
+                  <span className={isOverdue ? 'text-state-danger font-medium' : 'text-ink-secondary'}>
+                    {new Date(seq.nextDueAt).toLocaleDateString('en-IN', {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric',
+                    })}
+                  </span>
+                </p>
+              )}
+              {seq.lastOutcome && (
+                <p className="text-[11px] text-ink-muted mt-0.5">
+                  Last outcome:{' '}
+                  <span className="text-ink-secondary capitalize">
+                    {seq.lastOutcome.replace(/_/g, ' ').toLowerCase()}
+                  </span>
+                </p>
+              )}
+              {!seq.nextDueAt && !seq.lastOutcome && (
+                <p className="text-[11px] text-ink-muted mt-0.5">
+                  No due date set for this step.
+                </p>
+              )}
+            </div>
+
+            {/* Action buttons — R09+ gated */}
+            <Gate role="R09" fallback="hide">
+              <div className="flex items-center gap-2 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => onMarkDone(stepIndex)}
+                  className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-line bg-bg-surface text-[12px] font-medium text-success hover:bg-success/8 hover:border-success/40 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  aria-label={`Mark step ${stepIndex + 1} as done`}
+                >
+                  <CheckCircle2 size={13} aria-hidden="true" />
+                  Mark done
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onSkip(stepIndex)}
+                  className="inline-flex items-center gap-1.5 h-8 px-3 rounded-md border border-line bg-bg-surface text-[12px] font-medium text-ink-muted hover:bg-state-danger/8 hover:border-state-danger/30 hover:text-state-danger transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                  aria-label={`Skip step ${stepIndex + 1}`}
+                >
+                  <SkipForward size={13} aria-hidden="true" />
+                  Skip
+                </button>
+              </div>
+            </Gate>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatDate(iso?: string): string {
@@ -316,6 +441,10 @@ export function LeadDetailView({ leadId }: Props) {
   const [editOpen, setEditOpen] = useState(false);
   const [whatsAppOpen, setWhatsAppOpen] = useState(false);
   const [aiCallOpen, setAiCallOpen] = useState(false);
+  // §5.7 — manual followup outcome dialog state
+  const [followupDialogOpen, setFollowupDialogOpen] = useState(false);
+  const [followupDialogMode, setFollowupDialogMode] = useState<DialogMode>('mark-done');
+  const [followupStepIndex, setFollowupStepIndex] = useState(0);
 
   const lead = useMemo(
     () => allLeads.find((l) => l.leadId === leadId),
@@ -605,6 +734,23 @@ export function LeadDetailView({ leadId }: Props) {
             )}
           </div>
 
+          {/* ── Follow-up sequence (§5.7) ─────────────────────────── */}
+          {lead.stage !== 'closed-won' && lead.stage !== 'closed-lost' && (
+            <FollowupSequencePanel
+              lead={lead}
+              onMarkDone={(stepIdx) => {
+                setFollowupStepIndex(stepIdx);
+                setFollowupDialogMode('mark-done');
+                setFollowupDialogOpen(true);
+              }}
+              onSkip={(stepIdx) => {
+                setFollowupStepIndex(stepIdx);
+                setFollowupDialogMode('skip');
+                setFollowupDialogOpen(true);
+              }}
+            />
+          )}
+
           {/* ── Policy info ──────────────────────────────────────────── */}
           {lead.issuedPolicyId && (
             <div className="rounded-md border border-success/30 bg-success/5 p-4">
@@ -667,6 +813,26 @@ export function LeadDetailView({ leadId }: Props) {
         onClose={() => setAiCallOpen(false)}
         context={contactContext}
       />
+
+      {/* §5.7 — Manual call outcome dialog */}
+      <Gate role="R09" fallback="hide">
+        <ManualCallOutcomeDialog
+          open={followupDialogOpen}
+          onClose={() => setFollowupDialogOpen(false)}
+          leadId={leadId}
+          stepIndex={followupStepIndex}
+          mode={followupDialogMode}
+          actor={actor}
+          onSuccess={(outcome: ManualFollowupOutcome) => {
+            toast(
+              outcome.startsWith('SKIPPED')
+                ? 'Step skipped and outcome recorded.'
+                : 'Step marked as done.',
+              'success',
+            );
+          }}
+        />
+      </Gate>
 
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
     </Gate>

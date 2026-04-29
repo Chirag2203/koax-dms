@@ -21,9 +21,11 @@ import type {
   AudienceFilter,
   InsuranceAuditEvent,
   InsuranceAuditEventKind,
+  ManualFollowupOutcome,
+  ManualCallRecord,
 } from '@dms/types';
 
-export type { InsuranceAuditEvent, InsuranceAuditEventKind };
+export type { InsuranceAuditEvent, InsuranceAuditEventKind, ManualFollowupOutcome, ManualCallRecord };
 
 // ─── Shared types ─────────────────────────────────────────────────────────────
 
@@ -79,6 +81,8 @@ export interface InsuranceState {
   templates: WhatsAppTemplate[];
   campaigns: WhatsAppCampaign[];
   callLogs: AICallLog[];
+  // §5.7: manual call outcome records (follow-up steps marked done/skipped)
+  manualCallLog: ManualCallRecord[];
   optOuts: Set<string>;
   // P4: feature flag — OFF by default (OQ4 + OQ5 prerequisites not met)
   featAiCallingEnabled: boolean;
@@ -99,6 +103,17 @@ export interface LeadActions {
   // P4: followup config
   updateFollowupConfig(leadId: string, config: FollowupConfig): InsuranceLead;
   tickFollowups(now: Date): { overdue: string[] };
+  // §5.7: record manual outcome for a follow-up step (mark done / skip)
+  recordFollowupOutcome(
+    leadId: string,
+    stepIndex: number,
+    outcome: ManualFollowupOutcome,
+    notes: string,
+    actor: StoreActor,
+    nextActionAt?: string,
+  ): ManualCallRecord;
+  // §5.7 Feature 2: bulk mark overdue leads as not-reached (R10+)
+  bulkMarkOverdueNotReached(leadIds: string[], actor: StoreActor): ManualCallRecord[];
   // General lead-field update (priority, advisor, marketing consent, odometer, NCB, source)
   updateLead(
     leadId: string,

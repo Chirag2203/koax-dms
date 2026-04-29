@@ -44,6 +44,8 @@ function initialState(): InsuranceState {
     templates: structuredClone(fixtureTemplates),
     campaigns: structuredClone(fixtureCampaigns),
     callLogs: structuredClone(fixtureCallLogs),
+    // §5.7: manual call outcome log — empty on init
+    manualCallLog: [],
     optOuts: new Set(fixtureOptOuts),
     // P4 L_P4_1: OFF by default — OQ4 + OQ5 prerequisites not met
     featAiCallingEnabled: false,
@@ -66,7 +68,7 @@ export const useInsuranceStore = create<InsuranceStore>()(
 
 // ─── Public re-exports ────────────────────────────────────────────────────────
 
-export type { StoreActor, InsuranceStore, InsuranceState, InsuranceAuditEvent, InsuranceAuditEventKind } from './types';
+export type { StoreActor, InsuranceStore, InsuranceState, InsuranceAuditEvent, InsuranceAuditEventKind, ManualFollowupOutcome, ManualCallRecord } from './types';
 export { VINNotFoundError, R12RequiredError, TemplateNotApprovedError, PermissionError, AICallingDisabledError } from './types';
 
 export function useInsuranceStoreSelector<T>(selector: (s: InsuranceStore) => T): T {

@@ -22,17 +22,18 @@ import type { InsuranceAuditEventKind } from '@dms/types';
 
 function kindLabel(kind: InsuranceAuditEventKind): string {
   const map: Record<InsuranceAuditEventKind, string> = {
-    lead_created:            'Lead Created',
-    lead_closed_won:         'Lead Won',
-    lead_closed_lost:        'Lead Lost',
-    lead_stage_advanced:     'Stage Advanced',
-    quote_saved:             'Quote Saved',
-    quote_shared:            'Quote Shared',
-    campaign_sent:           'Campaign Sent',
-    ai_call_dispatched:      'AI Call Dispatched',
-    template_submitted_dlt:  'Template → DLT',
-    template_approved:       'Template Approved',
-    commission_reconciled:   'Commission Reconciled',
+    lead_created:               'Lead Created',
+    lead_closed_won:            'Lead Won',
+    lead_closed_lost:           'Lead Lost',
+    lead_stage_advanced:        'Stage Advanced',
+    quote_saved:                'Quote Saved',
+    quote_shared:               'Quote Shared',
+    campaign_sent:              'Campaign Sent',
+    ai_call_dispatched:         'AI Call Dispatched',
+    template_submitted_dlt:     'Template → DLT',
+    template_approved:          'Template Approved',
+    commission_reconciled:      'Commission Reconciled',
+    followup_outcome_recorded:  'Follow-up Outcome Recorded',
   };
   return map[kind] ?? kind;
 }

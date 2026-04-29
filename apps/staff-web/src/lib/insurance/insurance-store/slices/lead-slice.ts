@@ -12,13 +12,14 @@
  * Spec reference: SPEC-INSURANCE-001 §6, §4, §31
  */
 
-import type { InsuranceLead, FollowupConfig } from '@dms/types';
+import type { InsuranceLead, FollowupConfig, ManualCallRecord } from '@dms/types';
 import { vehicles, issuedPolicies as fixturePolicies } from '@dms/mocks/fixtures';
 import type {
   InsuranceSlice, LeadActions, CreateLeadParams, CloseLeadMeta,
-  StoreActor, RenewalLeadParams,
+  StoreActor, RenewalLeadParams, ManualFollowupOutcome,
 } from '../types';
-import { VINNotFoundError } from '../types';
+import { VINNotFoundError, PermissionError } from '../types';
+import { trackInsuranceEvent } from '@/src/lib/insurance/analytics';
 
 // Role rank for stage gate checks
 const ROLE_RANK: Record<string, number> = {
@@ -87,6 +88,15 @@ export const createLeadSlice: InsuranceSlice<LeadActions> = (set, get) => ({
       actorId: params.assignedAdvisorId,
       actorRole: 'R09',
       description: `Lead created for VIN ${params.vin} (customer: ${params.customerId})`,
+    });
+
+    // §11: analytics event
+    trackInsuranceEvent('insurance_lead_created', {
+      leadId,
+      vin: params.vin,
+      customerId: params.customerId,
+      outlet: params.outlet,
+      actorId: params.assignedAdvisorId,
     });
 
     return lead;
@@ -255,6 +265,22 @@ export const createLeadSlice: InsuranceSlice<LeadActions> = (set, get) => ({
       metadata: { reason, ...meta },
     });
 
+    // §11: analytics events
+    if (reason === 'won') {
+      trackInsuranceEvent('insurance_lead_closed_won', {
+        leadId,
+        actorId: actor.id,
+        policyNumber: meta.policyNumber,
+        quoteId: meta.quoteId,
+      });
+    } else {
+      trackInsuranceEvent('insurance_lead_closed_lost', {
+        leadId,
+        actorId: actor.id,
+        reason,
+      });
+    }
+
     return get().leads.find((l) => l.leadId === leadId)!;
   },
 
@@ -311,6 +337,7 @@ export const createLeadSlice: InsuranceSlice<LeadActions> = (set, get) => ({
 
   /**
    * Tick followup sequences: find leads where nextDueAt <= now.
+   * Skips closed leads (closed-won / closed-lost), paused, and completed sequences.
    * Returns list of overdue leadIds for banner display.
    */
   tickFollowups(now: Date): { overdue: string[] } {
@@ -318,6 +345,9 @@ export const createLeadSlice: InsuranceSlice<LeadActions> = (set, get) => ({
     const nowIso = now.toISOString();
 
     for (const lead of get().leads) {
+      // Closed leads are not eligible for followup
+      if (lead.stage === 'closed-won' || lead.stage === 'closed-lost') continue;
+
       const seq = lead.followupSequenceState;
       if (seq.paused || seq.completedAt) continue;
       if (!seq.nextDueAt) continue;
@@ -327,5 +357,118 @@ export const createLeadSlice: InsuranceSlice<LeadActions> = (set, get) => ({
     }
 
     return { overdue };
+  },
+
+  /**
+   * §5.7: Record a manual outcome for a follow-up step (mark done / skip).
+   *
+   * Gate: R09+ (enforced by UI Gate; action trusts actor role for audit).
+   * - Updates lead.followupSequenceState.currentStepIndex and lastOutcome.
+   * - Appends a ManualCallRecord to state.manualCallLog.
+   * - Emits InsuranceAuditEvent of kind 'followup_outcome_recorded'.
+   *
+   * SKIPPED_* outcomes advance the step without marking sequence complete.
+   * COMPLETED_FOLLOW_LATER stores nextActionAt on the sequence state.
+   */
+  recordFollowupOutcome(
+    leadId: string,
+    stepIndex: number,
+    outcome: ManualFollowupOutcome,
+    notes: string,
+    actor: StoreActor,
+    nextActionAt?: string,
+  ): ManualCallRecord {
+    if (rank(actor.role) < 9) {
+      throw new PermissionError('recordFollowupOutcome', 'R09', actor.role);
+    }
+
+    const lead = get().leads.find((l) => l.leadId === leadId);
+    if (!lead) throw new Error(`Lead not found: ${leadId}`);
+    if (notes.length < 10) {
+      throw new Error('Notes must be at least 10 characters.');
+    }
+    if (outcome === 'COMPLETED_FOLLOW_LATER' && !nextActionAt) {
+      throw new Error('nextActionAt is required when outcome is COMPLETED_FOLLOW_LATER.');
+    }
+
+    const now = new Date().toISOString();
+    const callId = `mcr-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+
+    const record: ManualCallRecord = {
+      callId,
+      leadId,
+      kind: 'MANUAL_OUTCOME',
+      stepIndex,
+      outcome,
+      notes,
+      nextActionAt: outcome === 'COMPLETED_FOLLOW_LATER' ? nextActionAt : undefined,
+      actorId: actor.id,
+      actorRole: actor.role,
+      recordedAt: now,
+    };
+
+    set((state) => {
+      const l = state.leads.find((x) => x.leadId === leadId);
+      if (!l) return;
+
+      // Advance step index
+      l.followupSequenceState.currentStepIndex = stepIndex + 1;
+      l.followupSequenceState.lastOutcome = outcome;
+
+      // For COMPLETED_FOLLOW_LATER, set next due date
+      if (outcome === 'COMPLETED_FOLLOW_LATER' && nextActionAt) {
+        l.followupSequenceState.nextDueAt = nextActionAt;
+      } else {
+        // Clear nextDueAt until next step is scheduled
+        l.followupSequenceState.nextDueAt = undefined;
+      }
+
+      l.updatedAt = now;
+
+      state.manualCallLog.push(record);
+    });
+
+    // Audit event
+    get().appendAuditEvent({
+      kind: 'followup_outcome_recorded',
+      entityId: leadId,
+      entityType: 'lead',
+      actorId: actor.id,
+      actorRole: actor.role,
+      description: `Follow-up step ${stepIndex} recorded: ${outcome}`,
+      metadata: { stepIndex, outcome, nextActionAt },
+    });
+
+    return record;
+  },
+
+  /**
+   * §5.7 Feature 2: Bulk mark overdue leads as not-reached (R10+).
+   * Creates a SKIPPED_NO_REACH ManualCallRecord for each lead's current step.
+   */
+  bulkMarkOverdueNotReached(leadIds: string[], actor: StoreActor): ManualCallRecord[] {
+    if (rank(actor.role) < 10) {
+      throw new PermissionError('bulkMarkOverdueNotReached', 'R10', actor.role);
+    }
+
+    const records: ManualCallRecord[] = [];
+    for (const leadId of leadIds) {
+      const lead = get().leads.find((l) => l.leadId === leadId);
+      if (!lead) continue;
+
+      try {
+        const record = get().recordFollowupOutcome(
+          leadId,
+          lead.followupSequenceState.currentStepIndex,
+          'SKIPPED_NO_REACH',
+          'Bulk marked as not reached via overdue banner action.',
+          actor,
+        );
+        records.push(record);
+      } catch {
+        // Skip leads that fail individually; do not abort the whole batch
+      }
+    }
+    return records;
   },
 });
