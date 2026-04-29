@@ -82,3 +82,10 @@ export { MOCK_ATTENDANCE_PUNCHES, getAttendancePunches } from './staff-attendanc
 export { MOCK_SALARY_STRUCTURES } from './staff-salaries';
 export { MOCK_LEAVE_BALANCES, MOCK_LEAVE_APPLICATIONS } from './staff-leaves';
 export { consentLogEntries, getConsentsForCustomer } from './consent-log';
+export { MOCK_OUTLET_CONFIGS } from './settings-outlets';
+export { MOCK_INTEGRATION_CREDENTIALS } from './settings-integrations';
+export {
+  notificationTemplates,
+  notificationDispatches,
+  notificationAuditEvents,
+} from './notifications';

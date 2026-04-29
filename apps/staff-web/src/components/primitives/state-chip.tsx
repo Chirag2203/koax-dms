@@ -86,7 +86,21 @@ export type StateChipStatus =
   | 'claim-pending'
   | 'claim-auto-approved'
   | 'claim-approved'
-  | 'claim-rejected';
+  | 'claim-rejected'
+  // ── Notifications: Dispatch statuses (SPEC-NOTIFICATIONS-001) ────────────────
+  | 'notif-queued'
+  | 'notif-sent'
+  | 'notif-delivered'
+  | 'notif-read'
+  | 'notif-failed'
+  | 'notif-opted-out'
+  | 'notif-cancelled'
+  // ── Notifications: DLT Template statuses ─────────────────────────────────────
+  | 'dlt-draft'
+  | 'dlt-pending'
+  | 'dlt-approved'
+  | 'dlt-rejected'
+  | 'dlt-deprecated';
 
 export interface StateChipProps {
   status: StateChipStatus;
@@ -472,6 +486,68 @@ const STATUS_CONFIG: Record<
     label: 'Rejected',
     dot: 'bg-[rgb(var(--state-overdue))]',
     chip: 'bg-[rgb(var(--state-overdue)/0.1)] text-[rgb(var(--state-overdue))]',
+  },
+  // ── Notifications: Dispatch statuses ──────────────────────────────────────
+  'notif-queued': {
+    label: 'Queued',
+    dot: 'bg-[rgb(var(--state-pending))]',
+    chip: 'bg-[rgb(var(--state-pending)/0.1)] text-[rgb(var(--state-pending))]',
+  },
+  'notif-sent': {
+    label: 'Sent',
+    dot: 'bg-[rgb(var(--state-stale))]',
+    chip: 'bg-[rgb(var(--state-stale)/0.1)] text-[rgb(var(--state-stale))]',
+  },
+  'notif-delivered': {
+    label: 'Delivered',
+    dot: 'bg-[rgb(var(--state-listed))]',
+    chip: 'bg-[rgb(var(--state-listed)/0.1)] text-[rgb(var(--state-listed))]',
+  },
+  'notif-read': {
+    label: 'Read',
+    dot: 'bg-[rgb(var(--state-cpo))]',
+    chip: 'bg-[rgb(var(--state-cpo)/0.1)] text-[rgb(var(--state-cpo))]',
+  },
+  'notif-failed': {
+    label: 'Failed',
+    dot: 'bg-[rgb(var(--state-overdue))]',
+    chip: 'bg-[rgb(var(--state-overdue)/0.1)] text-[rgb(var(--state-overdue))]',
+  },
+  'notif-opted-out': {
+    label: 'Opted-out',
+    dot: 'bg-[rgb(var(--state-reserved))]',
+    chip: 'bg-[rgb(var(--state-reserved)/0.1)] text-[rgb(var(--state-reserved))]',
+  },
+  'notif-cancelled': {
+    label: 'Cancelled',
+    dot: 'bg-[rgb(var(--state-stale))]',
+    chip: 'bg-[rgb(var(--state-stale)/0.1)] text-[rgb(var(--state-stale))]',
+  },
+  // ── Notifications: DLT Template statuses ──────────────────────────────────
+  'dlt-draft': {
+    label: 'Draft',
+    dot: 'bg-[rgb(var(--state-stale))]',
+    chip: 'bg-[rgb(var(--state-stale)/0.1)] text-[rgb(var(--state-stale))]',
+  },
+  'dlt-pending': {
+    label: 'Pending DLT',
+    dot: 'bg-[rgb(var(--state-pending))]',
+    chip: 'bg-[rgb(var(--state-pending)/0.1)] text-[rgb(var(--state-pending))]',
+  },
+  'dlt-approved': {
+    label: 'Approved',
+    dot: 'bg-[rgb(var(--state-listed))]',
+    chip: 'bg-[rgb(var(--state-listed)/0.1)] text-[rgb(var(--state-listed))]',
+  },
+  'dlt-rejected': {
+    label: 'Rejected',
+    dot: 'bg-[rgb(var(--state-overdue))]',
+    chip: 'bg-[rgb(var(--state-overdue)/0.1)] text-[rgb(var(--state-overdue))]',
+  },
+  'dlt-deprecated': {
+    label: 'Deprecated',
+    dot: 'bg-[rgb(var(--state-stale))]',
+    chip: 'bg-[rgb(var(--state-stale)/0.1)] text-[rgb(var(--state-stale))]',
   },
 };
 

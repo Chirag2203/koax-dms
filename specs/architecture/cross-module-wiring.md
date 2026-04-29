@@ -680,7 +680,7 @@ Same pattern for `DLT_SVC_BOOKING_CONFIRMED` and `DLT_SVC_BOOKING_DECLINED`.
 
 **Pre-condition:** Three SMS template fixtures (`DLT_SVC_BOOKING_CREATED`, `DLT_SVC_BOOKING_CONFIRMED`, `DLT_SVC_BOOKING_DECLINED`) seeded in notifications store with `status: 'APPROVED'` and mock DLT IDs.
 
-**Why service-store can have cross-store calls here:** The call is inside the `set()` immer callback's post-transition block, which executes synchronously. Per Core Invariant #2, slice actions must stay pure — this `recordSent` call MUST be moved to the UI-layer caller (`confirmPortalBooking`, etc.) in the component, NOT kept inside the immer `set` block. The slice fires the `console.log` from inside `set` today (a known anti-pattern). Migration to UI-layer call is required when wiring this seam.
+**Implementation note (2026-04-29):** `recordSent` calls are placed AFTER the `set()` block completes, following the same pattern as `trackServiceBookingConfirmedByStaff` (which is also called from inside the store action post-set). Each call is wrapped in a try/catch per L17 so notifications never block the booking flow. The `console.log('[DLT STUB]...')` anti-pattern inside `set()` has been removed. `useNotificationsStore` imported at top of `service-store.ts`.
 
 ---
 

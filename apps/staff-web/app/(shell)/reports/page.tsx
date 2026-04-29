@@ -1,12 +1,19 @@
+/**
+ * /reports — Reports & Analytics hub page.
+ *
+ * Replaces the "Coming soon" stub with the full KPI hub.
+ * Gate: R10+ (enforced in ReportsHubView).
+ *
+ * Spec reference: SPEC-REPORTS-001 §9.1, §20 P1
+ */
+
+import type { Metadata } from 'next';
+import { ReportsHubView } from '@/src/components/reports/reports-hub-view';
+
+export const metadata: Metadata = {
+  title: 'Reports & Analytics — BN Automobiles DMS',
+};
+
 export default function ReportsPage() {
-  return (
-    <div className="flex min-h-full items-center justify-center bg-bg-canvas px-6 py-24">
-      <div className="text-center">
-        <h1 className="text-[28px] font-semibold leading-[1.25] text-ink-primary">
-          Reports
-        </h1>
-        <p className="mt-2 text-sm text-ink-muted">Coming soon</p>
-      </div>
-    </div>
-  );
+  return <ReportsHubView />;
 }

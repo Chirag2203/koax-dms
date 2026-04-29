@@ -43,6 +43,8 @@ import {
   trackServiceBookingConfirmedByStaff,
   trackServiceBookingDeclinedByStaff,
 } from '../analytics';
+// Seam 27 — SPEC-NOTIFICATIONS-001: import at top; getState() used at call time to avoid circular-init
+import { useNotificationsStore } from '../notifications/notifications-store';
 
 // ─── Shared types ─────────────────────────────────────────────────────────────
 
@@ -1278,17 +1280,33 @@ export const useServiceStore = create<ServiceStore>()(
             },
           });
 
-          // Notification stub — TODO: wire to DLT_SVC_BOOKING_CREATED before go-live
-          // eslint-disable-next-line no-console
-          console.log('[DLT STUB] notifyBookingCreated', {
-            templateId: 'DLT_SVC_BOOKING_CREATED',
-            jobCardId: jc.id,
-            jobNo: jc.jobNo,
-            customerId: sessionCustomerId,
-          });
-
           created = jc;
         });
+
+        // Seam 27 — SPEC-NOTIFICATIONS-001 L17: best-effort try/catch; never block booking flow
+        try {
+          useNotificationsStore.getState().recordSent({
+            templateId: 'DLT_SVC_BOOKING_CREATED',
+            channel: 'SMS',
+            module: 'SERVICE_BOOKING',
+            recipient: { customerId: sessionCustomerId },
+            variables: {
+              job_no: created.jobNo,
+              outlet: created.outletId,
+              date: created.scheduledDate ?? '',
+            },
+            consentSnapshot: {
+              purpose: 'SERVICE_REMINDER',
+              capturedAt: created.receivedAt,
+              capturedBy: 'PORTAL_SIGNUP',
+              source: 'PORTAL_SIGNUP',
+            },
+            sourceEntityId: created.id,
+            sourceEntityType: 'JOB_CARD',
+          });
+        } catch {
+          // L17: notification failure never blocks the booking action
+        }
 
         return { ok: true, jobCard: created };
       },
@@ -1309,19 +1327,39 @@ export const useServiceStore = create<ServiceStore>()(
             metadata: { from: 'AWAITING_CONFIRMATION', to: 'RECEIVED' },
           });
 
-          // Notification stub — TODO: wire to DLT_SVC_BOOKING_CONFIRMED before go-live
-          // eslint-disable-next-line no-console
-          console.log('[DLT STUB] notifyBookingConfirmed', {
-            templateId: 'DLT_SVC_BOOKING_CONFIRMED',
-            jobCardId,
-            customerId: jc.customerId,
-            advisorId: actor.id,
-          });
         });
 
         // §11 — service_booking_confirmed_by_staff: JC-P2 succeeded (emitted outside
         // the immer set callback so it fires only once and does not block the mutation)
         trackServiceBookingConfirmedByStaff({ jobCardId, advisorId: actor.id });
+
+        // Seam 27 — SPEC-NOTIFICATIONS-001 L17: best-effort; never block confirm flow
+        try {
+          const jc = get().jobCards.find((j) => j.id === jobCardId);
+          if (jc?.customerId) {
+            useNotificationsStore.getState().recordSent({
+              templateId: 'DLT_SVC_BOOKING_CONFIRMED',
+              channel: 'SMS',
+              module: 'SERVICE_BOOKING',
+              recipient: { customerId: jc.customerId },
+              variables: {
+                job_no: jc.jobNo,
+                outlet: jc.outletId,
+                date: jc.scheduledDate ?? '',
+              },
+              consentSnapshot: {
+                purpose: 'SERVICE_REMINDER',
+                capturedAt: jc.receivedAt,
+                capturedBy: actor.id,
+                source: 'STAFF_FORM',
+              },
+              sourceEntityId: jobCardId,
+              sourceEntityType: 'JOB_CARD',
+            });
+          }
+        } catch {
+          // L17: notification failure never blocks the confirm action
+        }
       },
 
       declinePortalBooking(jobCardId, declineReason, actor) {
@@ -1346,18 +1384,37 @@ export const useServiceStore = create<ServiceStore>()(
             },
           });
 
-          // Notification stub — TODO: wire to DLT_SVC_BOOKING_DECLINED before go-live
-          // eslint-disable-next-line no-console
-          console.log('[DLT STUB] notifyBookingDeclined', {
-            templateId: 'DLT_SVC_BOOKING_DECLINED',
-            jobCardId,
-            customerId: jc.customerId,
-            declineReason,
-          });
         });
 
         // §11 — service_booking_declined_by_staff: JC-P3 succeeded
         trackServiceBookingDeclinedByStaff({ jobCardId, declineReason });
+
+        // Seam 27 — SPEC-NOTIFICATIONS-001 L17: best-effort; never block decline flow
+        try {
+          const jc = get().jobCards.find((j) => j.id === jobCardId);
+          if (jc?.customerId) {
+            useNotificationsStore.getState().recordSent({
+              templateId: 'DLT_SVC_BOOKING_DECLINED',
+              channel: 'SMS',
+              module: 'SERVICE_BOOKING',
+              recipient: { customerId: jc.customerId },
+              variables: {
+                job_no: jc.jobNo,
+                outlet: jc.outletId,
+              },
+              consentSnapshot: {
+                purpose: 'SERVICE_REMINDER',
+                capturedAt: jc.receivedAt,
+                capturedBy: actor.id,
+                source: 'STAFF_FORM',
+              },
+              sourceEntityId: jobCardId,
+              sourceEntityType: 'JOB_CARD',
+            });
+          }
+        } catch {
+          // L17: notification failure never blocks the decline action
+        }
       },
 
       cancelPortalBooking(jobCardId, sessionCustomerId, actor) {
