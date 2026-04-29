@@ -4,18 +4,26 @@
  * Customers store — minimal Zustand store following parts-store pattern.
  *
  * Seeded from @dms/mocks/fixtures on first mount by CustomersStoreHydrator.
- * Provides customer lookup, profile updates, and audit logging for P2.
+ * Provides customer lookup, profile updates, consent log, and audit logging.
  *
  * Spec reference: SPEC-CUSTOMERS-001 §3 (store shape)
+ * GAP-3 / GAP-10: real consent log + DPDP withdrawal flow
  */
 
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import type { Customer } from '@dms/types';
+import type { Customer, ConsentEntry } from '@dms/types';
 
 // ─── Audit event ──────────────────────────────────────────────────────────────
 
-export type CustomerAuditEventKind = 'CREATE' | 'PROFILE_UPDATE' | 'PDF_EXPORT' | 'ERASURE' | 'ASSIGN_VEHICLE';
+export type CustomerAuditEventKind =
+  | 'CREATE'
+  | 'PROFILE_UPDATE'
+  | 'PDF_EXPORT'
+  | 'ERASURE'
+  | 'ASSIGN_VEHICLE'
+  | 'CONSENT_WITHDRAWN'
+  | 'CONSENT_CAPTURED';
 
 export interface CustomerAuditEvent {
   id: string;
@@ -31,6 +39,8 @@ export interface CustomerAuditEvent {
 export interface CustomersState {
   customers: Record<string, Customer>;
   auditEvents: CustomerAuditEvent[];
+  /** Map of consentId → ConsentEntry — seeded from consent-log fixture. */
+  consents: Record<string, ConsentEntry>;
   hydrated: boolean;
 }
 
@@ -59,6 +69,9 @@ export interface CustomersActions {
   /** Upsert a batch of customers (called by hydrator). */
   hydrateCustomers(customers: Customer[]): void;
 
+  /** Seed consent log entries (called by hydrator). */
+  hydrateConsents(entries: ConsentEntry[]): void;
+
   /**
    * Create a new customer.
    * Idempotency: if phone + email match an existing customer, returns the existing one.
@@ -81,6 +94,19 @@ export interface CustomersActions {
 
   /** Log a vehicle assignment audit event (SPEC-CUSTOMERS-001 §4 ASSIGN_VEHICLE). */
   logAuditAssignVehicle(id: string, opts: { vin: string }, actor: Actor): void;
+
+  /**
+   * Withdraw (revoke) an active consent entry — GAP-10 DPDP withdrawal flow.
+   * Sets revokedAt / revokedBy / revocationReason and emits CONSENT_WITHDRAWN audit event.
+   * Throws if the consent does not exist or is already revoked.
+   */
+  withdrawConsent(consentId: string, reason: string, actor: Actor): void;
+
+  /**
+   * Capture a new consent entry — GAP-3.
+   * Emits CONSENT_CAPTURED audit event.
+   */
+  captureConsent(entry: Omit<ConsentEntry, 'id'>, actor: Actor): ConsentEntry;
 }
 
 export type CustomersStore = CustomersState & CustomersActions;
@@ -115,6 +141,7 @@ export const useCustomersStore = create<CustomersStore>()(
   immer((set, get) => ({
     customers: {},
     auditEvents: [],
+    consents: {},
     hydrated: false,
 
     hydrateCustomers(customers) {
@@ -124,6 +151,14 @@ export const useCustomersStore = create<CustomersStore>()(
           state.customers[c.id] = c;
         }
         state.hydrated = true;
+      });
+    },
+
+    hydrateConsents(entries) {
+      set((state) => {
+        for (const entry of entries) {
+          state.consents[entry.id] = entry;
+        }
       });
     },
 
@@ -224,6 +259,52 @@ export const useCustomersStore = create<CustomersStore>()(
           actorId: actor.id,
         });
       });
+    },
+
+    withdrawConsent(consentId, reason, actor) {
+      const existing = get().consents[consentId];
+      if (!existing) {
+        throw new Error(`Consent ${consentId} not found`);
+      }
+      if (existing.revokedAt) {
+        throw new Error(`Consent ${consentId} is already revoked`);
+      }
+      const now = new Date().toISOString();
+      set((state) => {
+        const entry = state.consents[consentId];
+        if (!entry) return;
+        entry.revokedAt = now;
+        entry.revokedBy = actor.id;
+        entry.revokedByName = actor.name;
+        entry.revocationReason = reason;
+        state.auditEvents.push({
+          id: nextEventId(),
+          customerId: entry.customerId,
+          kind: 'CONSENT_WITHDRAWN',
+          at: now,
+          actorId: actor.id,
+          target: `${entry.purpose}:${consentId}`,
+        });
+      });
+    },
+
+    captureConsent(entryWithoutId, actor) {
+      const newEntry: ConsentEntry = {
+        ...entryWithoutId,
+        id: `consent-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      };
+      set((state) => {
+        state.consents[newEntry.id] = newEntry;
+        state.auditEvents.push({
+          id: nextEventId(),
+          customerId: newEntry.customerId,
+          kind: 'CONSENT_CAPTURED',
+          at: new Date().toISOString(),
+          actorId: actor.id,
+          target: newEntry.purpose,
+        });
+      });
+      return newEntry;
     },
   })),
 );

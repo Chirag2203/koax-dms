@@ -7,6 +7,8 @@ import { cn } from '@dms/ui';
 export type CustomersFilter = {
   search: string;
   city: string;
+  /** GAP-8 referral source filter: 'event' | 'website' | 'walk-in' | '' (all) */
+  referralSource: string;
 };
 
 export interface CustomersFiltersProps {
@@ -45,6 +47,26 @@ export function CustomersFilters({ filters, onChange }: CustomersFiltersProps) {
           <option value="bangalore">Bangalore</option>
           <option value="mumbai">Mumbai</option>
           <option value="chennai">Chennai</option>
+        </select>
+      </div>
+
+      {/* GAP-8: Referral source filter */}
+      <div className="flex items-center gap-1.5">
+        <label className="text-xs text-ink-muted whitespace-nowrap">Referral</label>
+        <select
+          value={filters.referralSource}
+          onChange={(e) => onChange({ referralSource: e.target.value })}
+          aria-label="Filter by referral source"
+          className={cn(
+            'h-8 rounded border border-line bg-bg-canvas px-2',
+            'text-xs text-ink-primary focus:outline-none focus:ring-1 focus:ring-accent',
+          )}
+        >
+          <option value="">All sources</option>
+          <option value="event">Event</option>
+          <option value="website">Website</option>
+          <option value="walk-in">Walk-in</option>
+          <option value="cust-">Customer referral</option>
         </select>
       </div>
     </div>

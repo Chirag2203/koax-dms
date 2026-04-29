@@ -63,10 +63,39 @@ No new store. `/customers/[id]` page composes reads from:
 **New actions required** in existing stores:
 
 - `customers-store.updateCustomerProfile(id, patch, actor)` — for inline profile edits
-- `customers-store.logAuditExport(customerId, { target: 'C360_PDF' }, actor)` — separate from vehicles ownership events; emits a new `CustomerAuditEvent` schema (add to `packages/types/src/domain/customers.ts`). Kind `DOCUMENT_EXPORT`, `ERASURE`, `ASSIGN_VEHICLE`.
+- `customers-store.createCustomer(payload, actor)` — Add Customer flow (S-C-13). Idempotent via phone+email match; throws `CustomerAlreadyExistsError` on duplicate. On success emits `CREATE` audit event AND captures DPDP `DATA_PROCESSING` consent into consent-log.
+- `customers-store.logAuditExport(customerId, { target: 'C360_PDF' }, actor)` — separate from vehicles ownership events; emits a `CustomerAuditEvent` (kinds: `CREATE`, `PROFILE_UPDATE`, `DOCUMENT_EXPORT`, `ERASURE`, `ASSIGN_VEHICLE`, `CONSENT_WITHDRAWN`).
 - `customers-store.logErasure(customerId, actor)` — companion to §5.3
-- `customers-store.captureConsent(id, consent, actor)` — **deferred to v2** (scaffolded stub, not wired in P2 UI — per open item §11.1)
-- **No new actions** in vehicles-store; existing `openOwnership`, `manualRevoke`, `forceRevoke`, `transferOwnership` cover all C360 use cases
+- `customers-store.withdrawConsent(consentId, reason, actor)` — DPDP §6 partial withdrawal (S-C-10, S-C-14). Sets `revokedAt`/`revokedBy`/`revocationReason` on the `ConsentEntry`; emits `CONSENT_WITHDRAWN` audit event. Reason min 4 chars validated at the dialog and re-validated at the store boundary.
+- `customers-store.captureConsent(id, consent, actor)` — wired in P3 (was deferred to v2 in earlier draft; now active for the Add Customer flow's DPDP capture).
+- **No new actions** in vehicles-store; existing `openOwnership`, `manualRevoke`, `forceRevoke`, `transferOwnership` cover all C360 use cases.
+
+### 4.1 New entity types
+
+`ConsentEntry` (`packages/types/src/domain/customer.ts`):
+
+```ts
+ConsentPurpose = 'WHATSAPP_MARKETING' | 'EMAIL_MARKETING' | 'SERVICE_REMINDER' | 'DATA_PROCESSING' | 'INSURANCE_MARKETING';
+ConsentSource = 'PORTAL_SIGNUP' | 'STAFF_FORM' | 'IMPORT';
+
+ConsentEntry = {
+  id, customerId, purpose, capturedAt (ISO),
+  capturedBy (staff id), capturedByName, source,
+  revokedAt?, revokedBy?, revokedByName?, revocationReason?
+}
+```
+
+Fixture: `packages/mocks/src/fixtures/consent-log.ts` — entries for 5 named customers (4 purposes each, mix of active + revoked).
+
+### 4.2 New CustomerSchema fields
+
+| Field | Type | Purpose |
+|---|---|---|
+| `lifecycleStage` | enum `'PROSPECT' \| 'ACTIVE' \| 'DORMANT' \| 'CHURNED'` (optional) | CRM lifecycle state. Rendered as Profile chip + index filter. |
+| `segment` | enum `'STANDARD' \| 'PREMIER' \| 'ULTRA_HNW'` (optional) | Spend tier. Rendered as Profile chip. |
+| `aadhaarLast4` | `z.string().length(4).optional()` | Last 4 digits only — Doc 13 §Aadhaar (sub-KUA, never store full). |
+| `referredBy` | `z.string().optional()` | Customer-id of referrer OR `'event'`/`'website'`/`'walk-in'`. |
+| `referredByName` | `z.string().optional()` | Denormalized referrer name when `referredBy` is a customer-id. |
 
 ## 5. Key flows
 
@@ -190,6 +219,14 @@ All files ≤350 LoC; most are tightly sized.
 - **S-C-6** — Role gate: switch to R05 → "Right to Erasure" button not rendered (Gate hides)
 - **S-C-7** — Cross-city: R09 at BLR-01 opens `/customers/cust-karan-shah` (CHE-01) → profile shows but "same city only" banner limits write actions
 - **S-C-8** — Audit PDF: export → hidden iframe renders → print dialog opens → event logged
+- **S-C-9** — Lifecycle/Segment chips: Profile tab renders `lifecycleStage` chip (PROSPECT/ACTIVE/DORMANT/CHURNED) and `segment` chip (STANDARD/PREMIER/ULTRA_HNW) using existing state-* tokens (no new colors).
+- **S-C-10** — Consent log read + revoke: Consents tab renders 4 purpose rows (`WHATSAPP_MARKETING`, `EMAIL_MARKETING`, `SERVICE_REMINDER`, `DATA_PROCESSING`, `INSURANCE_MARKETING`) with active/revoked status + captured-by + source; R09+ "Withdraw" button opens AlertDialog with reason textarea (min 4 chars) → calls `withdrawConsent` → revokedAt/revokedBy/revocationReason set → `CONSENT_WITHDRAWN` audit event emitted. Cross-module sync: when purpose is `WHATSAPP_MARKETING` and customer has insurance opt-out, indicator badge renders.
+- **S-C-11** — Aadhaar last-4 row: Profile tab Identity card renders `XXXX-XXXX-{last4}` when `aadhaarLast4` present, masked icon otherwise. R02+ / R23 only per Doc 14.
+- **S-C-12** — Inline profile edit: R09+ sees pencil icons on `name`, `email`, `phone`. Click → inline edit field → save calls `updateCustomerProfile` → toast on success. R05 sees read-only grid. PAN/aadhaar/city/language are read-only (identity-immutable per Doc 13).
+- **S-C-13** — Add Customer flow: R09+ clicks "Add Customer" on `/customers` index → `NewCustomerDialog` opens with name/phone (+91 E.164)/email/preferredCity/DPDP consent checkbox → on submit calls `createCustomer` (idempotency via phone+email) AND captures `DATA_PROCESSING` consent into consent-log → toast → navigate to `/customers/{id}`. R05 does not see the button.
+- **S-C-14** — DPDP partial consent withdrawal: customer logs WhatsApp opt-out via portal → backend writes consent revocation row with purpose `WHATSAPP_MARKETING` → C360 Consents tab reflects revoked state → insurance audience builders exclude customer at next `sendTemplateMessage` boundary (per SPEC-INSURANCE-001 L14).
+- **S-C-15** — Referral attribution: Profile tab "Referral source" row renders. If `referredBy` is a customer-id, links to `/customers/{id}` with `referredByName`. If `referredBy` is `'event'` / `'website'` / `'walk-in'`, renders as a plain badge. Index page filter `?referralSource=` narrows the list.
+- **S-C-16** — Confidentiality toggle audit: R19 toggles `contactConfidential` on cust-karan-shah → `PROFILE_UPDATE` audit event emitted with field-level diff → audit log shows the change with actor and timestamp.
 - **S-Typecheck** — `pnpm -F staff-web typecheck` exits 0
 
 ## 10. Acceptance criteria
@@ -214,3 +251,4 @@ My defaults: #1 read-only in P2 + add `captureConsent` action scaffold for v2. #
 |------|--------|
 | 2026-04-20 | SPEC-CUSTOMERS-001 drafted. Composes SPEC-VEHICLES-001. Status → approved. |
 | 2026-04-20 | PLAN-VEHICLES-002 Phase A: added `contactConfidential: boolean` field to `CustomerSchema` (default `false`); added `maskedContactFor(customer, viewerRank): ContactView` helper in `@dms/vehicles-core` — staff below R19 (rank 4) see masked phone/email/address when flag is true. `cust-karan-shah` is the sole demo fixture with `contactConfidential: true`. |
+| 2026-04-29 | **v1.1 — C360 enhancements pass.** Added `lifecycleStage`, `segment`, `aadhaarLast4`, `referredBy`, `referredByName` fields to `CustomerSchema` (all optional). New `ConsentEntry` type + `consent-log.ts` fixture. New store actions `createCustomer`, `withdrawConsent`. New audit event kinds `CREATE`, `ASSIGN_VEHICLE`, `CONSENT_WITHDRAWN`. Profile tab gains lifecycle/segment chips + Aadhaar row + inline edit. C360 header gains "Staff › Customers" breadcrumb prefix + lifecycle chip + quick-stats row. Cross-city read-only banner (S-C-7) implemented. `ManualRevokeDialog` now uses Dialog + reason textarea (min 4 chars). `ManualOwnershipAssignDialog` detects existing ACTIVE owner → routes to `transferOwnership`. New scenarios S-C-9 through S-C-16. Real PDF export (`print-c360-pdf.ts`) replaces alert() stub. Consents tab is no longer a stub. |

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Lock } from 'lucide-react';
 import { cn } from '@dms/ui';
 import { Gate } from '@/src/components/primitives';
@@ -144,6 +145,28 @@ export function CustomerProfileTab({ customer }: CustomerProfileTabProps) {
                   <Lock className="h-3 w-3 text-ink-muted" aria-hidden="true" />
                   <span className="text-ink-muted">Not on file</span>
                 </>
+              )}
+            </dd>
+          </div>
+
+          {/* Referral source — GAP-8 */}
+          <div>
+            <dt className="text-xs text-ink-muted uppercase tracking-wider">Referral Source</dt>
+            <dd className="text-sm text-ink-primary mt-0.5">
+              {customer.referredBy ? (
+                customer.referredBy.startsWith('cust-') ? (
+                  // Customer referrer — render as link
+                  <Link
+                    href={`/customers/${customer.referredBy}`}
+                    className="text-accent underline-offset-2 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded"
+                  >
+                    {customer.referredByName ?? customer.referredBy}
+                  </Link>
+                ) : (
+                  <span className="capitalize">{customer.referredBy.replace('-', ' ')}</span>
+                )
+              ) : (
+                '—'
               )}
             </dd>
           </div>

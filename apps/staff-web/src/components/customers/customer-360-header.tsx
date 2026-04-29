@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { Download, Trash2, Lock } from 'lucide-react';
 import { cn } from '@dms/ui';
 import { Gate } from '@/src/components/primitives';
@@ -9,6 +9,9 @@ import { useCustomersStore } from '@/src/lib/customers/customers-store';
 import { useVehiclesStore } from '@/src/lib/vehicles/vehicles-store';
 import { maskedContactFor } from '@dms/vehicles-core';
 import { ROLE_RANK } from '@/src/lib/vehicles/state-machine';
+import { printC360Pdf } from '@/src/lib/customers/print-c360-pdf';
+import { useToast } from '@/src/hooks/use-toast';
+import { ToastContainer } from '@/src/components/primitives';
 import type { Customer, CustomerLifecycleStage } from '@dms/types';
 import { RightToErasureDialog } from './dialogs/right-to-erasure-dialog';
 
@@ -33,6 +36,8 @@ export function Customer360Header({ customer }: Customer360HeaderProps) {
   const [erasureOpen, setErasureOpen] = useState(false);
   const { user } = useStaffAuth();
   const logAuditExport = useCustomersStore((s) => s.logAuditExport);
+  const consents = useCustomersStore((s) => s.consents);
+  const { toasts, toast, dismiss } = useToast();
 
   // Quick-stats: count ownerships belonging to this customer
   const ownershipIdByCustomer = useVehiclesStore((s) => s.ownershipIdByCustomer);
@@ -46,12 +51,48 @@ export function Customer360Header({ customer }: Customer360HeaderProps) {
   const viewerRank = ROLE_RANK[user?.role ?? ''] ?? 0;
   const contact = maskedContactFor(customer, viewerRank);
 
-  function handleExport() {
+  const handleExport = useCallback(() => {
     if (!user) return;
-    logAuditExport(customer.id, { target: 'C360_PDF' }, { id: user.id, name: user.name });
-    // In P2: just log the intent; actual PDF generation ships in P5
-    alert('PDF export logged. Generation ships in P5.');
-  }
+    const actor = { id: user.id, name: user.name, role: user.role ?? '' };
+
+    // Build VIN rows from ownerships
+    const vinRows = customerOwnershipIds.map((id) => {
+      const o = ownerships[id];
+      return o ? { vin: o.vin, state: o.state, kmAtOpen: o.kmAtOpen } : null;
+    }).filter((r): r is NonNullable<typeof r> => r !== null);
+
+    // Build consent summary
+    const consentSummary = Object.values(consents)
+      .filter((e) => e.customerId === customer.id)
+      .map((e) => ({
+        purpose: e.purpose,
+        active: !e.revokedAt,
+        capturedAt: e.capturedAt,
+      }));
+
+    // Log the audit event first (even if print is blocked)
+    logAuditExport(customer.id, { target: 'C360_PDF' }, actor);
+
+    printC360Pdf(
+      {
+        customerName: customer.name,
+        customerPhone: contact.phone || '—',
+        customerId: customer.id,
+        preferredCity: customer.preferredCity,
+        memberSince: customer.memberSince,
+        lifecycleStage: customer.lifecycleStage,
+        segment: customer.segment,
+        vinRows,
+        consentSummary,
+        actorName: actor.name,
+        actorRole: actor.role,
+      },
+      () => {
+        // Popup blocked
+        toast('Allow popups for PDF export', 'warning');
+      },
+    );
+  }, [user, customer, customerOwnershipIds, ownerships, consents, logAuditExport, contact.phone, toast]);
 
   const isRedacted = customer.name === '[Redacted]';
 
@@ -168,6 +209,9 @@ export function Customer360Header({ customer }: Customer360HeaderProps) {
         customer={customer}
         onClose={() => setErasureOpen(false)}
       />
+
+      {/* Toast for popup-blocker warning */}
+      <ToastContainer toasts={toasts} onDismiss={dismiss} />
     </>
   );
 }
