@@ -36,3 +36,6 @@ export type { ToastContainerProps } from './toast';
 
 export { OwnershipBadge } from './ownership-badge';
 export type { OwnershipBadgeProps } from './ownership-badge';
+
+export { Slider } from './slider';
+export type { SliderProps } from './slider';

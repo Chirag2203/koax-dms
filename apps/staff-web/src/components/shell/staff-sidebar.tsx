@@ -18,12 +18,15 @@ import {
   Receipt,
   Settings,
   Shield,
+  ShieldCheck,
   Users,
+  UserCheck,
   Wrench,
   ChevronDown,
   Check,
   Moon,
   Sun,
+  Paintbrush,
 } from 'lucide-react';
 
 // Providers created by Agent B — will resolve at compile time
@@ -65,6 +68,9 @@ const NAV_GROUPS: NavGroup[] = [
     label: 'Operations',
     items: [
       { key: 'customers', href: '/customers', icon: Users },
+      { key: 'customBuilds', href: '/custom-builds', icon: Paintbrush },
+      { key: 'staff', href: '/staff', icon: UserCheck },
+      { key: 'insurance', href: '/insurance', icon: ShieldCheck },
       { key: 'finance', href: '/finance', icon: IndianRupee },
       { key: 'reports', href: '/reports', icon: BarChart3 },
     ],

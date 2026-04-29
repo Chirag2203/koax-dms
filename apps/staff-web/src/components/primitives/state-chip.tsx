@@ -13,6 +13,7 @@ export type StateChipStatus =
   | 'cpo'
   | 'pending'
   // ── Service: Job Card statuses ───────────────────────────────────────────────
+  | 'svc-awaiting-confirmation'
   | 'svc-received'
   | 'svc-diagnosed'
   | 'svc-in-progress'
@@ -146,6 +147,11 @@ const STATUS_CONFIG: Record<
     chip: 'bg-[rgb(var(--state-pending)/0.1)] text-[rgb(var(--state-pending))]',
   },
   // ── Service: Job Card statuses ─────────────────────────────────────────────
+  'svc-awaiting-confirmation': {
+    label: 'Awaiting Confirmation',
+    dot: 'bg-amber-500',
+    chip: 'bg-amber-50 text-amber-700',
+  },
   'svc-received': {
     label: 'Received',
     dot: 'bg-[rgb(var(--state-pending))]',

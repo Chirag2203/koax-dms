@@ -5,7 +5,7 @@ export default function AuditPage() {
         <h1 className="text-[28px] font-semibold leading-[1.25] text-ink-primary">
           Audit Log
         </h1>
-        <p className="mt-2 text-sm text-ink-muted">Coming in Phase S10</p>
+        <p className="mt-2 text-sm text-ink-muted">Coming soon</p>
       </div>
     </div>
   );

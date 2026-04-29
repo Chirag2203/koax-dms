@@ -5,7 +5,7 @@ export default function FinancePage() {
         <h1 className="text-[28px] font-semibold leading-[1.25] text-ink-primary">
           Finance
         </h1>
-        <p className="mt-2 text-sm text-ink-muted">Coming in Phase S7</p>
+        <p className="mt-2 text-sm text-ink-muted">Coming soon</p>
       </div>
     </div>
   );

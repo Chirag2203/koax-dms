@@ -5,7 +5,7 @@ export default function NotificationsPage() {
         <h1 className="text-[28px] font-semibold leading-[1.25] text-ink-primary">
           Notifications
         </h1>
-        <p className="mt-2 text-sm text-ink-muted">Coming in Phase S11</p>
+        <p className="mt-2 text-sm text-ink-muted">Coming soon</p>
       </div>
     </div>
   );

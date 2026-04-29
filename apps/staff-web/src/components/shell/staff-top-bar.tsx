@@ -34,6 +34,9 @@ const ROUTE_LABELS: Record<string, string> = {
   audit: 'Audit Log',
   new: 'New',
   edit: 'Edit',
+  'custom-builds': 'Custom Builds',
+  vendors: 'Vendors',
+  preview: 'Preview',
 };
 
 function deriveFromPathname(pathname: string): Breadcrumb[] {

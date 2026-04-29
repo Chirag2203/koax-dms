@@ -23,6 +23,7 @@ const SOURCE_ICON: Record<VehicleTouchSource, React.ElementType> = {
   BN_CONSIGNMENT: Handshake,
   SERVICE_ONLY_WALKIN: Wrench,
   LEGACY_IMPORT: Upload,
+  CUSTOM_BUILD_LINKED: Car,
 };
 
 const EFFECTIVE_STATE_TO_CHIP: Record<EffectiveState, StateChipStatus> = {
