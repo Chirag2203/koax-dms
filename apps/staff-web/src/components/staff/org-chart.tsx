@@ -21,9 +21,18 @@
  *
  * R02+ re-org: updateReportsTo action on store. FIXME: OQ-ROLE-1
  */
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useCallback, useEffect } from 'react';
 import Link from 'next/link';
-import { ChevronRight, ChevronDown, Users, GitBranch } from 'lucide-react';
+import {
+  ChevronRight,
+  ChevronDown,
+  Users,
+  GitBranch,
+  ZoomIn,
+  ZoomOut,
+  Maximize2,
+  Hand,
+} from 'lucide-react';
 import { cn } from '@dms/ui';
 import type { StaffProfile, StaffRoleCode } from '@dms/types';
 import { hasRank } from '@dms/types';
@@ -414,30 +423,124 @@ function ReOrgDialog({
 
 // ─── Main OrgChart component ──────────────────────────────────────────────────
 
+// ─── Zoom + pan constants ─────────────────────────────────────────────────────
+
+const ZOOM_MIN = 0.4;
+const ZOOM_MAX = 1.6;
+const ZOOM_STEP = 0.1;
+const DRAG_THRESHOLD_PX = 5; // suppress click if drag distance exceeds this
+
 export function OrgChart({ staff, viewerRole }: OrgChartProps) {
   const { user } = useStaffAuth();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [reOrgTarget, setReOrgTarget] = useState<StaffProfile | null>(null);
 
+  // Zoom + pan state
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isPanning, setIsPanning] = useState(false);
+  const dragStateRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    startPanX: number;
+    startPanY: number;
+    distance: number;
+  } | null>(null);
+  const viewportRef = useRef<HTMLDivElement | null>(null);
+
   const canReOrg = hasRank(viewerRole, 'R02');
   const tree = useMemo(() => buildTree(staff), [staff]);
   const selectedProfile = selectedId ? staff.find((s) => s.id === selectedId) ?? null : null;
+
+  // ── Zoom controls ─────────────────────────────────────────────────────────
+
+  const zoomIn = useCallback(() => {
+    setZoom((z) => Math.min(ZOOM_MAX, +(z + ZOOM_STEP).toFixed(2)));
+  }, []);
+  const zoomOut = useCallback(() => {
+    setZoom((z) => Math.max(ZOOM_MIN, +(z - ZOOM_STEP).toFixed(2)));
+  }, []);
+  const resetView = useCallback(() => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  }, []);
+
+  // Mouse-wheel zoom (Ctrl/Cmd + wheel zooms; bare wheel scrolls)
+  useEffect(() => {
+    const el = viewportRef.current;
+    if (!el) return;
+    function handleWheel(e: WheelEvent) {
+      if (!(e.ctrlKey || e.metaKey)) return;
+      e.preventDefault();
+      const direction = e.deltaY < 0 ? 1 : -1;
+      setZoom((z) => {
+        const next = +(z + direction * ZOOM_STEP).toFixed(2);
+        return Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, next));
+      });
+    }
+    el.addEventListener('wheel', handleWheel, { passive: false });
+    return () => el.removeEventListener('wheel', handleWheel);
+  }, []);
+
+  // ── Pan (drag) handlers — pointer events for cross-input ──────────────────
+
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      // Only start panning on primary button + on the viewport background, NOT on a card/button
+      const target = e.target as HTMLElement;
+      // If user clicked on an interactive element (card button, chevron, etc.) skip pan
+      if (target.closest('button, a, input, select, textarea, [role="button"]')) {
+        return;
+      }
+      e.currentTarget.setPointerCapture(e.pointerId);
+      dragStateRef.current = {
+        pointerId: e.pointerId,
+        startX: e.clientX,
+        startY: e.clientY,
+        startPanX: pan.x,
+        startPanY: pan.y,
+        distance: 0,
+      };
+      setIsPanning(true);
+    },
+    [pan.x, pan.y],
+  );
+
+  const handlePointerMove = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    const drag = dragStateRef.current;
+    if (!drag || drag.pointerId !== e.pointerId) return;
+    const dx = e.clientX - drag.startX;
+    const dy = e.clientY - drag.startY;
+    drag.distance = Math.max(drag.distance, Math.hypot(dx, dy));
+    setPan({ x: drag.startPanX + dx, y: drag.startPanY + dy });
+  }, []);
+
+  const handlePointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    const drag = dragStateRef.current;
+    if (!drag || drag.pointerId !== e.pointerId) return;
+    e.currentTarget.releasePointerCapture(e.pointerId);
+    dragStateRef.current = null;
+    setIsPanning(false);
+  }, []);
+
+  // ── Empty state ───────────────────────────────────────────────────────────
 
   if (staff.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-64 gap-3">
         <Users size={32} className="text-ink-muted opacity-40" aria-hidden="true" />
-        <p className="text-[14px] text-ink-muted">No staff to display.</p>
+        <p className="text-sm text-ink-muted">No staff to display.</p>
       </div>
     );
   }
 
   return (
     <div className="flex h-full overflow-hidden">
-      {/* Tree panel — horizontally scrollable for wide org charts */}
-      <div className="flex-1 overflow-auto">
+      {/* Tree panel */}
+      <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="px-6 pt-4 pb-2 flex items-center gap-2 sticky top-0 bg-bg-canvas z-10 border-b border-line">
+        <div className="px-6 pt-4 pb-2 flex items-center gap-2 bg-bg-canvas z-10 border-b border-line flex-shrink-0">
           <GitBranch size={16} className="text-ink-muted" aria-hidden="true" />
           <h2 className="text-sm font-semibold text-ink-primary">Organisation Chart</h2>
           <span className="font-mono text-xs text-accent bg-accent/10 px-1.5 py-0.5 rounded">
@@ -448,24 +551,99 @@ export function OrgChart({ staff, viewerRole }: OrgChartProps) {
               {tree.length} root nodes (broken-chain or multiple top-of-org)
             </span>
           )}
+
+          {/* Zoom controls — top-right of header */}
+          <div className="ml-auto flex items-center gap-1">
+            <button
+              type="button"
+              onClick={zoomOut}
+              disabled={zoom <= ZOOM_MIN}
+              aria-label="Zoom out"
+              title="Zoom out (Ctrl/⌘ + scroll)"
+              className="flex items-center justify-center w-8 h-8 rounded-md border border-line bg-bg-surface text-ink-secondary hover:text-ink-primary hover:bg-bg-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg-canvas"
+            >
+              <ZoomOut size={14} aria-hidden="true" />
+            </button>
+            <span
+              className="font-mono text-xs text-ink-secondary tabular-nums w-12 text-center"
+              aria-live="polite"
+              aria-label={`Zoom level ${Math.round(zoom * 100)} percent`}
+            >
+              {Math.round(zoom * 100)}%
+            </span>
+            <button
+              type="button"
+              onClick={zoomIn}
+              disabled={zoom >= ZOOM_MAX}
+              aria-label="Zoom in"
+              title="Zoom in (Ctrl/⌘ + scroll)"
+              className="flex items-center justify-center w-8 h-8 rounded-md border border-line bg-bg-surface text-ink-secondary hover:text-ink-primary hover:bg-bg-subtle disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg-canvas"
+            >
+              <ZoomIn size={14} aria-hidden="true" />
+            </button>
+            <button
+              type="button"
+              onClick={resetView}
+              aria-label="Reset zoom and pan"
+              title="Reset to 100% (centred)"
+              className="ml-1 flex items-center justify-center h-8 px-2.5 gap-1 rounded-md border border-line bg-bg-surface text-ink-secondary hover:text-ink-primary hover:bg-bg-subtle text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg-canvas"
+            >
+              <Maximize2 size={12} aria-hidden="true" />
+              Reset
+            </button>
+          </div>
         </div>
 
-        {/* Tree content — centered, padded, supports horizontal scroll for wide trees */}
-        <div className="px-6 py-8 min-w-fit">
-          {tree.length === 0 ? (
-            <p className="text-sm text-ink-muted">No root nodes found.</p>
-          ) : (
-            <ul className="org-tree">
-              {tree.map((node) => (
-                <OrgTreeNode
-                  key={node.profile.id}
-                  node={node}
-                  selectedId={selectedId}
-                  onSelect={setSelectedId}
-                />
-              ))}
-            </ul>
+        {/* Hint strip */}
+        <div className="px-6 py-1.5 flex items-center gap-2 text-xs text-ink-muted border-b border-line bg-bg-subtle flex-shrink-0">
+          <Hand size={12} aria-hidden="true" className="opacity-60" />
+          <span>
+            Drag to pan · Ctrl/⌘ + scroll to zoom · click a card for details
+          </span>
+        </div>
+
+        {/* Viewport — pannable, contains zoomed tree */}
+        <div
+          ref={viewportRef}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+          className={cn(
+            'flex-1 overflow-hidden relative select-none',
+            isPanning ? 'cursor-grabbing' : 'cursor-grab',
           )}
+          aria-label="Org chart viewport — draggable"
+        >
+          {/* Transform layer — applies zoom + pan */}
+          <div
+            style={{
+              transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+              transformOrigin: '50% 0%',
+              transition: isPanning ? 'none' : 'transform 80ms ease-out',
+            }}
+            className="px-6 py-8 min-w-fit inline-block w-full"
+          >
+            {tree.length === 0 ? (
+              <p className="text-sm text-ink-muted">No root nodes found.</p>
+            ) : (
+              <ul className="org-tree">
+                {tree.map((node) => (
+                  <OrgTreeNode
+                    key={node.profile.id}
+                    node={node}
+                    selectedId={selectedId}
+                    onSelect={(id) => {
+                      // Suppress click if the user was actually panning
+                      const drag = dragStateRef.current;
+                      if (drag && drag.distance > DRAG_THRESHOLD_PX) return;
+                      setSelectedId(id);
+                    }}
+                  />
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
       </div>
 

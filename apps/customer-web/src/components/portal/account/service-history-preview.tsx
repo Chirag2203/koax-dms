@@ -43,7 +43,7 @@ function LedgerRow({ record }: { record: ServiceRecord }) {
   return (
     <tr className="group hover:bg-bg-hover transition-colors">
       {/* Date column */}
-      <td className="px-0 py-5 pr-8 align-top whitespace-nowrap">
+      <td className="px-6 py-5 align-top whitespace-nowrap">
         <span
           className="font-mono text-sm text-ink-muted block"
           title={fullDate}
@@ -53,7 +53,7 @@ function LedgerRow({ record }: { record: ServiceRecord }) {
       </td>
 
       {/* Vehicle + operation */}
-      <td className="py-5 pr-8 align-top">
+      <td className="px-6 py-5 align-top">
         <span className="font-display text-lg italic text-ink-primary block leading-snug mb-0.5">
           {record.vehicleName}
         </span>
@@ -64,7 +64,7 @@ function LedgerRow({ record }: { record: ServiceRecord }) {
       </td>
 
       {/* Status */}
-      <td className="py-5 pr-8 align-top whitespace-nowrap hidden md:table-cell">
+      <td className="px-6 py-5 align-top whitespace-nowrap hidden md:table-cell">
         <span className="flex items-center gap-2">
           <span
             className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${
@@ -89,7 +89,7 @@ function LedgerRow({ record }: { record: ServiceRecord }) {
       </td>
 
       {/* Cost + link */}
-      <td className="py-5 align-top text-right">
+      <td className="px-6 py-5 align-top text-right">
         <div className="flex flex-col items-end gap-2">
           <PriceDisplay amount={record.cost} size="sm" />
           {record.invoiceUrl ? (
@@ -158,21 +158,21 @@ export function ServiceHistoryPreview({ records }: ServiceHistoryPreviewProps) {
             <table className="w-full text-left border-collapse">
               <thead className="bg-bg-subtle border-b border-line">
                 <tr>
-                  <th className="px-0 py-3 pr-8 font-mono text-[10px] uppercase tracking-widest text-ink-muted">
+                  <th className="px-6 py-3 font-mono text-[10px] uppercase tracking-widest text-ink-muted text-left">
                     {t('serviceHistory.colDate')}
                   </th>
-                  <th className="py-3 pr-8 font-mono text-[10px] uppercase tracking-widest text-ink-muted">
+                  <th className="px-6 py-3 font-mono text-[10px] uppercase tracking-widest text-ink-muted text-left">
                     {t('serviceHistory.colVehicleOp')}
                   </th>
-                  <th className="py-3 pr-8 font-mono text-[10px] uppercase tracking-widest text-ink-muted hidden md:table-cell">
+                  <th className="px-6 py-3 font-mono text-[10px] uppercase tracking-widest text-ink-muted hidden md:table-cell text-left">
                     {t('serviceHistory.colStatus')}
                   </th>
-                  <th className="py-3 font-mono text-[10px] uppercase tracking-widest text-ink-muted text-right">
+                  <th className="px-6 py-3 font-mono text-[10px] uppercase tracking-widest text-ink-muted text-right">
                     {t('serviceHistory.colCost')}
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-line px-8">
+              <tbody className="divide-y divide-line">
                 {recent.map((r) => (
                   <LedgerRow key={r.id} record={r} />
                 ))}
