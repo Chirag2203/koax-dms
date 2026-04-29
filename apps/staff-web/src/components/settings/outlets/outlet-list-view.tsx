@@ -23,7 +23,7 @@ function StatusChip({ active }: { active: boolean }) {
     <span
       aria-label={`Status: ${active ? 'Active' : 'Inactive'}`}
       className={[
-        'inline-flex items-center gap-1.5 rounded px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest',
+        'inline-flex items-center gap-1.5 rounded px-2 py-0.5 font-mono text-xs uppercase tracking-widest',
         active
           ? 'bg-[rgb(var(--state-listed)/0.1)] text-[rgb(var(--state-listed))]'
           : 'bg-[rgb(var(--state-stale)/0.1)] text-[rgb(var(--state-stale))]',
@@ -55,7 +55,7 @@ function OutletRow({
   return (
     <tr className="border-b border-line hover:bg-bg-hover transition-colors">
       <td className="px-4 py-3">
-        <span className="font-mono text-[11px] font-semibold text-accent uppercase tracking-widest bg-bg-subtle px-2 py-0.5 rounded-md border border-line">
+        <span className="font-mono text-xs font-semibold text-accent uppercase tracking-widest bg-bg-subtle px-2 py-0.5 rounded-md border border-line">
           {outlet.code}
         </span>
       </td>
@@ -77,17 +77,17 @@ function OutletRow({
       </td>
       <td className="px-4 py-3">
         <div className="flex items-center gap-2">
+          {/* Both buttons use the canonical secondary variant — visual parity */}
           <Link
             href={`/settings/outlets/${outlet.id.replace('outlet-', '')}`}
-            className="h-8 px-3 rounded-md border border-line bg-bg-canvas text-xs font-medium text-ink-secondary hover:text-ink-primary hover:border-ink-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="inline-flex items-center justify-center h-8 px-3 rounded-md bg-bg-surface text-ink-primary border border-line hover:bg-bg-subtle text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg-canvas"
           >
             View
           </Link>
-          {/* R02+ only edit button */}
           {canEdit && (
             <Link
               href={`/settings/outlets/${outlet.id.replace('outlet-', '')}?edit=1`}
-              className="h-8 px-3 rounded-md bg-accent text-white text-xs font-medium hover:bg-accent/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+              className="inline-flex items-center justify-center h-8 px-3 rounded-md bg-accent text-white border border-accent hover:bg-accent/90 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg-canvas"
             >
               Edit
             </Link>

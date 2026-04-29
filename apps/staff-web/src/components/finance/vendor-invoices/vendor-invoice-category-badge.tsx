@@ -47,7 +47,7 @@ export function VendorInvoiceCategoryBadge({
       {showEligibility && (
         <span
           className={[
-            'rounded px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-widest',
+            'rounded px-1.5 py-0.5 font-mono text-xs uppercase tracking-widest',
             eligible
               ? 'bg-[rgb(var(--state-listed)/0.08)] text-[rgb(var(--state-listed))]'
               : 'bg-bg-subtle text-ink-muted border border-line',

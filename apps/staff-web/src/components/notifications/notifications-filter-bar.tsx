@@ -196,7 +196,7 @@ export function NotificationsFilterBar() {
 
 function ActiveChip({ label, onRemove }: { label: string; onRemove: () => void }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded px-2 py-0.5 bg-accent/10 text-accent font-mono text-[10px] uppercase tracking-widest">
+    <span className="inline-flex items-center gap-1 rounded px-2 py-0.5 bg-accent/10 text-accent font-mono text-xs uppercase tracking-widest">
       {label}
       <button
         type="button"

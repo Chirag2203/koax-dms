@@ -47,7 +47,7 @@ export function ModuleBadge({ module }: ModuleBadgeProps) {
 
   return (
     <span
-      className={`inline-flex items-center rounded-md px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest ${config.chip}`}
+      className={`inline-flex items-center rounded-md px-2 py-0.5 font-mono text-xs uppercase tracking-widest ${config.chip}`}
     >
       {config.label}
     </span>

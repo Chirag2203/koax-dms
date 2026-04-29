@@ -53,7 +53,7 @@ function SectionCard({
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-semibold text-ink-primary">{title}</h3>
               {badge && (
-                <span className="font-mono text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-bg-subtle text-ink-muted border border-line">
+                <span className="font-mono text-xs uppercase tracking-wider px-1.5 py-0.5 rounded bg-bg-subtle text-ink-muted border border-line">
                   {badge}
                 </span>
               )}
@@ -78,7 +78,7 @@ function SectionCard({
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-semibold text-ink-primary">{title}</h3>
             {badge && (
-              <span className="font-mono text-[10px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-accent/10 text-accent border border-accent/20">
+              <span className="font-mono text-xs uppercase tracking-wider px-1.5 py-0.5 rounded bg-accent/10 text-accent border border-accent/20">
                 {badge}
               </span>
             )}

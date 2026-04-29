@@ -73,7 +73,7 @@ export function TemplateVersionChain({ current, allTemplates }: TemplateVersionC
             aria-current={t.id === current.id ? 'page' : undefined}
           >
             <span className="font-mono truncate max-w-[8ch]">{t.id.slice(-6)}</span>
-            <span className="text-[10px] opacity-70">
+            <span className="text-xs opacity-70">
               {DLT_STATUS_LABEL[t.status] ?? t.status}
             </span>
           </Link>

@@ -113,7 +113,7 @@ export function JournalPreview({ entries }: JournalPreviewProps) {
                   </td>
                   <td className="px-3 py-2 text-xs text-ink-secondary">
                     {legIdx === 0 ? (
-                      <span className="rounded px-1.5 py-0.5 bg-bg-subtle border border-line font-mono text-[9px] uppercase tracking-wider text-ink-muted">
+                      <span className="rounded px-1.5 py-0.5 bg-bg-subtle border border-line font-mono text-xs uppercase tracking-wider text-ink-muted">
                         {entry.voucherType}
                       </span>
                     ) : ''}
@@ -125,7 +125,7 @@ export function JournalPreview({ entries }: JournalPreviewProps) {
                   <td className="px-3 py-2">
                     <span
                       className={[
-                        'font-mono text-[10px] font-medium',
+                        'font-mono text-xs font-medium',
                         leg.drCr === 'Dr' ? 'text-ink-primary' : 'text-[rgb(var(--state-listed))]',
                       ].join(' ')}
                     >

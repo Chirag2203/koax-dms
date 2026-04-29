@@ -4,6 +4,12 @@ import { useKeyboardShortcuts } from '@/src/hooks/use-keyboard-shortcuts';
 import { CustomersStoreHydrator } from '@/src/lib/customers/customers-store-hydrator';
 import { VehiclesStoreHydrator } from '@/src/lib/vehicles/vehicles-store-hydrator';
 import { StaffStoreHydrator } from '@/src/lib/staff/staff-store-hydrator';
+import { CustomBuildsStoreHydrator } from '@/src/lib/custom-builds/custom-builds-store-hydrator';
+import { InsuranceStoreHydrator } from '@/src/lib/insurance/insurance-store-hydrator';
+import { ServiceStoreHydrator } from '@/src/lib/service/service-store-hydrator';
+import { FinanceStoreHydrator } from '@/src/lib/finance/finance-store-hydrator';
+import { NotificationsStoreHydrator } from '@/src/lib/notifications/notifications-store-hydrator';
+import { SettingsStoreHydrator } from '@/src/lib/settings/settings-store-hydrator';
 import { CommandPalette } from './command-palette';
 import { StaffSidebar } from './staff-sidebar';
 import { StaffTopBar } from './staff-top-bar';
@@ -27,10 +33,19 @@ export function AppShell({ children }: AppShellProps) {
         </main>
       </div>
 
-      {/* Global hydrators */}
+      {/* Global hydrators — all module stores hydrate eagerly so cross-module
+          readers (Reports, Finance, etc.) always have fresh data. Each
+          hydrator is idempotent (useRef guard) so this is safe to combine
+          with module-route layouts that also mount them. */}
       <CustomersStoreHydrator />
       <VehiclesStoreHydrator />
       <StaffStoreHydrator />
+      <CustomBuildsStoreHydrator />
+      <InsuranceStoreHydrator />
+      <ServiceStoreHydrator />
+      <FinanceStoreHydrator />
+      <NotificationsStoreHydrator />
+      <SettingsStoreHydrator />
 
       {/* Command palette — portals into document.body */}
       <CommandPalette />

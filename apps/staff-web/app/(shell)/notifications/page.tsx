@@ -42,10 +42,10 @@ export default async function NotificationsPage({
   return (
     <>
       <NotificationsStoreHydrator />
-      <div className="space-y-6">
+      <div className="px-6 py-8 space-y-6">
         <div>
-          <h1 className="text-lg font-semibold text-ink-primary">Notifications</h1>
-          <p className="text-xs text-ink-muted mt-0.5">
+          <h1 className="text-2xl font-semibold text-ink-primary">Notifications</h1>
+          <p className="text-sm text-ink-muted mt-1">
             Central dispatch log for all outbound communications
           </p>
         </div>

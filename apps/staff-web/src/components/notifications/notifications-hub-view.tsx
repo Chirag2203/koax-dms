@@ -96,9 +96,12 @@ export function NotificationsHubView({ filters }: NotificationsHubViewProps) {
 
   // ─── Paginated result ─────────────────────────────────────────────────────
 
+  // L_HUB_RERENDER: include `dispatches` in deps so the page re-computes
+  // after the store hydrator seeds fixtures. Zustand's `get()` returns
+  // fresh state, but useMemo only re-runs on dep change.
   const result = useMemo(
     () => selectDispatchPage(filters.page ?? 1, filters),
-    [selectDispatchPage, filters],
+    [selectDispatchPage, filters, dispatches],
   );
 
   return (

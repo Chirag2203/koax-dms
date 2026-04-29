@@ -119,7 +119,7 @@ export function CustomerLedgerDetail({ entry, onBack }: CustomerLedgerDetailProp
                       {new Date(row.issuedAt).toLocaleDateString('en-IN')}
                     </td>
                     <td className="py-2.5 pr-4">
-                      <span className="rounded px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-widest bg-bg-subtle border border-line text-ink-muted">
+                      <span className="rounded px-1.5 py-0.5 font-mono text-xs uppercase tracking-widest bg-bg-subtle border border-line text-ink-muted">
                         {SOURCE_LABELS[row.sourceModule] ?? row.sourceModule}
                       </span>
                     </td>

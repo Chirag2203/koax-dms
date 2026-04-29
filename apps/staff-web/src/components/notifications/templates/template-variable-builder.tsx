@@ -47,9 +47,9 @@ export function TemplateVariableBuilder({
       {/* Header row */}
       {variables.length > 0 && (
         <div className="grid grid-cols-[1fr_1fr_auto_auto] gap-2 px-1">
-          <span className="text-[10px] text-ink-muted uppercase tracking-wider">Name</span>
-          <span className="text-[10px] text-ink-muted uppercase tracking-wider">Example</span>
-          <span className="text-[10px] text-ink-muted uppercase tracking-wider">Required</span>
+          <span className="text-xs text-ink-muted uppercase tracking-wider">Name</span>
+          <span className="text-xs text-ink-muted uppercase tracking-wider">Example</span>
+          <span className="text-xs text-ink-muted uppercase tracking-wider">Required</span>
           <span className="sr-only">Remove</span>
         </div>
       )}

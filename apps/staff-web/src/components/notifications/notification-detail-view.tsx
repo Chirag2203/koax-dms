@@ -134,7 +134,7 @@ export function NotificationDetailView({ dispatchId }: NotificationDetailViewPro
               <dd className="grid grid-cols-2 md:grid-cols-4 gap-2">
                 {Object.entries(dispatch.variables).map(([key, val]) => (
                   <div key={key} className="rounded-md border border-line bg-bg-subtle px-2 py-1.5">
-                    <span className="block text-[10px] text-ink-muted font-mono uppercase">{key}</span>
+                    <span className="block text-xs text-ink-muted font-mono uppercase">{key}</span>
                     <span className="text-xs text-ink-primary">{val}</span>
                   </div>
                 ))}

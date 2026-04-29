@@ -218,8 +218,9 @@ Before marking anything "done":
    - Naming: `<feature-or-file>.test.ts`. No `*.spec.ts` (reserve for Playwright).
 10. Reviewer agent signed off on the diff.
 11. **Typecheck clean** — `pnpm -F <app> typecheck` exits 0 on every changed app. Pre-existing errors in unchanged files are NOT a free pass; the orchestrator MUST decide between (a) "in-scope: fix it now," (b) "out-of-scope: log to `.claude/known-issues.md` with owner + ETA." Unlogged failures block merge.
-12. **No `text-[NNpx]` in new code.** Use `text-xs/sm/base/lg/xl/2xl`. Approved exceptions are documented in `SPEC-ARCH-UI-001` §6 — anything else is a reject.
-13. **No `rounded-lg` / `rounded-xl` in new code** unless the element is a full-page hero modal or the primitive `Dialog`/`AlertDialog` itself. Default is `rounded-md`.
+12. **No `text-[NNpx]` in new code.** Use `text-xs/sm/base/lg/xl/2xl`. Approved exceptions are documented in `SPEC-ARCH-UI-001` §6 — anything else is a reject. **Enforced by `apps/staff-web/src/tests/ui-canon-drift.test.ts` — new files outside the 2026-04-29 baseline that introduce `text-[NNpx]` will fail the test suite.**
+13. **No `rounded-lg` / `rounded-xl` in new code** unless the element is a full-page hero modal or the primitive `Dialog`/`AlertDialog` itself. Default is `rounded-md`. Enforced by the same drift test.
+13a. **i18n top-level namespace existence** is enforced by the drift test. New module pages calling `useTranslations('<module>.…')` MUST add `<module>` as a top-level key in `messages/en-IN.json` AND `messages/hi-IN.json`. Nesting under another module's key (e.g. accidentally putting `finance.*` under `staff.*`) is a regression that the test catches.
 14. **Spec-drift check** — confirm code still matches every L-tag in the spec. If a locked decision is no longer being honored, either fix the code OR follow the supersession protocol in §14. Drift without a [SUPERSEDED] tag is a regression.
 15. **Every CTA wired to a real action** (store call, toast, navigation, dialog open). Silent no-ops are auto-rejected. If a behavior is genuinely deferred, render an explicit `info`-toast or "coming in vN.N" notice — never a silent click.
 
@@ -416,6 +417,37 @@ The drift audit is itself a spec-template document. Audits are kept (not deleted
 - [ ] Spec is bumped + changelog updated if behavior changed
 
 If you cannot tick every box, the work is not production-grade — say "MVP grade" or "demo grade" instead. Words matter.
+
+### 17.1 First-pass UI compliance — ZERO drift from the first commit
+
+The 2026-04-29 Theme A pass exposed a pattern: even when CLAUDE.md and `SPEC-ARCH-UI-001` are cited in the implementation prompt, sub-agents drift on `text-[NNpx]`, `rounded-lg`, and i18n nesting. To prevent this, **every UI implementation prompt MUST include the following pre-flight block** (copy verbatim into the prompt's "Hard rules" section):
+
+```
+PRE-FLIGHT UI CHECKLIST (run BEFORE writing any JSX)
+
+1. Open `D:/dms/dms/apps/staff-web/src/components/custom-builds/shared/detail-card.tsx`
+   and import Card + Field from there. Do NOT redefine locally.
+2. Use ONLY these text-size classes:
+   text-xs / text-sm / text-base / text-lg / text-xl / text-2xl
+   FORBIDDEN: text-[NNpx], text-[NNrem]. The drift test will reject.
+3. Use ONLY rounded-md (and rounded-full for circular elements).
+   FORBIDDEN: rounded-lg, rounded-xl, rounded-2xl, rounded-3xl outside the
+   Dialog/AlertDialog primitive itself.
+4. Use the Gate primitive for RBAC: <Gate role={['Rxx']} fallback="hide">…</Gate>.
+   FORBIDDEN: inline `{hasRank(...) && <button>…}` patterns in JSX.
+5. i18n keys go to messages/en-IN.json AND hi-IN.json AT THE ROOT of the JSON
+   (not nested under another module). New module 'foo' creates a top-level
+   "foo": { ... } object.
+6. AFTER writing code, BEFORE returning: run
+   `pnpm -F staff-web exec vitest run src/tests/ui-canon-drift.test.ts`
+   Test must pass. If it fails, fix the violations — do NOT add your file
+   to the baseline.
+
+These rules are enforced by ui-canon-drift.test.ts. CI/test-suite blocks merges
+with violations.
+```
+
+Including this block in every UI prompt is the difference between "first-pass clean" and "audit-and-fix-later."
 
 ---
 

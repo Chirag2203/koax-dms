@@ -206,6 +206,31 @@ The orchestrator should:
 
 ---
 
+## Theme E — "UI canon migration" (drift cleanup)
+
+Older modules pre-date `SPEC-ARCH-UI-001` and use ad-hoc Tailwind classes (`text-[NNpx]`, `rounded-lg`, etc.). They are **grandfathered** by the drift test (`apps/staff-web/src/tests/ui-canon-drift.test.ts`) as of 2026-04-29 — new violations are blocked but existing ones don't fail. This theme is the planned migration to clean them up so the entire codebase matches the canon.
+
+**Why this theme:** Visual consistency across the app. Today Theme A modules look canonical; older modules don't. A user navigating from `/finance` (clean) to `/insurance` (legacy) sees subtle differences in chip sizes, card radii, and spacing.
+
+| # | Item | What | Where | Effort |
+|---|---|---|---|---|
+| E1 | Insurance UI canon migration | Replace `text-[NNpx]` (392 instances) + `rounded-lg/xl` (36 instances) with canonical scale. Migrate any remaining local Card/Field redefinitions to import from `custom-builds/shared/detail-card`. Inline `hasRank` → `Gate`. Remove from drift baseline. | `apps/staff-web/src/components/insurance/*` | ~1 day |
+| E2 | Custom Builds UI canon migration | 317 text + 52 radius violations (visualizer is heavy with arbitrary sizes for dimensional UI). Audit which are genuine approved exceptions (3D control labels, etc.) and which are casual drift. | `apps/staff-web/src/components/custom-builds/*` | ~1.5 days |
+| E3 | Service module UI canon migration | 400 text + 1 radius violations (largest module, long tail of dialog/form fields). Likely has many approved chip exceptions. | `apps/staff-web/src/components/service/*` | ~1.5 days |
+| E4 | Staff module UI canon migration | 203 text + 52 radius violations. Salary/attendance tabs are dense. | `apps/staff-web/src/components/staff/*` | ~1 day |
+| E5 | Parts + Vehicles + Sales + Customers + Dashboard + Inventory + Primitives migration | Smaller modules — bundle into one pass. ~75 text + 6 radius violations total. | `apps/staff-web/src/components/{parts,vehicles,sales,customers,dashboard,inventory,primitives}/*` | ~1 day |
+
+**Total Theme E:** ~6 days agent-time = ~3 hours orchestration. Independent of A/B/C/D — can run anytime; recommended after Theme C (CX polish) since both are visual passes.
+
+**Migration recipe per module** (re-usable across E1–E5):
+1. `grep -RE "text-\[[0-9]" apps/staff-web/src/components/<module>/` to enumerate
+2. For each violation: replace per the canonical scale table in CLAUDE.md §10 #12
+3. Document approved exceptions inline (`// SPEC-ARCH-UI-001 §6.2: chip text size`)
+4. After migration, prune the file from the drift-test baseline (the "stale entries" warning will list it)
+5. Run the drift test — must show fewer baseline entries
+
+---
+
 ## Out-of-scope (explicitly deferred)
 
 These were considered but explicitly deferred because they don't move the needle as much as the themes above:

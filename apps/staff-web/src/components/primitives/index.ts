@@ -39,3 +39,6 @@ export type { OwnershipBadgeProps } from './ownership-badge';
 
 export { Slider } from './slider';
 export type { SliderProps } from './slider';
+
+export { Button } from './button';
+export type { ButtonProps, ButtonVariant, ButtonSize } from './button';

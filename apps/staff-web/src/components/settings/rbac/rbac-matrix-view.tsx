@@ -15,9 +15,9 @@ import { Search, Download, CheckCircle2, MinusCircle, HelpCircle, Users, User } 
 import { cn } from '@dms/ui';
 import { useSettingsStore } from '@/src/lib/settings/settings-store';
 import { useStaffAuth } from '@/src/hooks/use-staff-auth';
-import { hasRank } from '@dms/types';
 import { useToast } from '@/src/hooks/use-toast';
 import { ToastContainer } from '@/src/components/primitives/toast';
+import { Gate } from '@/src/components/primitives/gate';
 import {
   RBAC_MATRIX_ROWS,
   RBAC_ROLE_COLUMNS,
@@ -162,7 +162,7 @@ export function RbacMatrixView() {
             <p className="text-sm text-ink-muted mt-1">{t('rbac.subtitle')}</p>
           </div>
           {/* Export — R12+ */}
-          {user && hasRank(user.role, 'R12') && (
+          <Gate role="R12" fallback="hide">
             <button
               type="button"
               onClick={handleExportCsv}
@@ -171,7 +171,7 @@ export function RbacMatrixView() {
               <Download className="h-4 w-4" aria-hidden="true" />
               {t('rbac.exportCsv')}
             </button>
-          )}
+          </Gate>
         </div>
 
         {/* L4: Read-only banner */}
@@ -203,7 +203,7 @@ export function RbacMatrixView() {
                 onClick={() => toggleDomain(domain)}
                 aria-pressed={activeDomains.has(domain)}
                 className={cn(
-                  'h-7 px-2.5 rounded text-[11px] font-medium border transition-colors',
+                  'h-7 px-2.5 rounded text-xs font-medium border transition-colors',
                   activeDomains.has(domain)
                     ? 'bg-accent/10 border-accent/30 text-accent'
                     : 'bg-bg-subtle border-line text-ink-muted hover:text-ink-primary hover:border-ink-secondary',
@@ -229,7 +229,7 @@ export function RbacMatrixView() {
                   {RBAC_ROLE_COLUMNS.map((role) => (
                     <th
                       key={role}
-                      className="px-1 py-3 text-[10px] font-semibold text-ink-muted text-center min-w-[36px]"
+                      className="px-1 py-3 text-xs font-semibold text-ink-muted text-center min-w-[36px]"
                       title={ROLE_DISPLAY_NAMES[role]}
                     >
                       {role}
@@ -237,11 +237,11 @@ export function RbacMatrixView() {
                   ))}
                 </tr>
                 <tr>
-                  <td className="sticky left-0 bg-bg-subtle px-4 py-1 text-[10px] text-ink-muted border-r border-line">
+                  <td className="sticky left-0 bg-bg-subtle px-4 py-1 text-xs text-ink-muted border-r border-line">
                     R20/R21 are external (customer/consignor) — managed on customer-web
                   </td>
                   {RBAC_ROLE_COLUMNS.map((role) => (
-                    <td key={role} className="px-1 py-1 text-[10px] text-ink-muted text-center truncate max-w-[36px]" title={ROLE_DISPLAY_NAMES[role]}>
+                    <td key={role} className="px-1 py-1 text-xs text-ink-muted text-center truncate max-w-[36px]" title={ROLE_DISPLAY_NAMES[role]}>
                     </td>
                   ))}
                 </tr>
@@ -274,7 +274,7 @@ export function RbacMatrixView() {
                             {row.action.name}
                           </span>
                           {row.action.sensitive && (
-                            <span className="ml-2 font-mono text-[10px] text-[rgb(var(--state-pending))] uppercase tracking-wider">
+                            <span className="ml-2 font-mono text-xs text-[rgb(var(--state-pending))] uppercase tracking-wider">
                               sensitive
                             </span>
                           )}

@@ -169,7 +169,7 @@ export function VendorInvoiceDetailView({ invoice, onBack }: VendorInvoiceDetail
                     <XCircle size={12} aria-hidden="true" />
                     {t('itcNotEligible')}
                     {invoice.inputCreditEligibilityReason && (
-                      <span className="ml-1 text-[10px] text-ink-muted">({invoice.inputCreditEligibilityReason})</span>
+                      <span className="ml-1 text-xs text-ink-muted">({invoice.inputCreditEligibilityReason})</span>
                     )}
                   </span>
                 )
@@ -206,7 +206,7 @@ export function VendorInvoiceDetailView({ invoice, onBack }: VendorInvoiceDetail
                       <p className="text-sm text-ink-primary">{line.description}</p>
                       {/* L23: per-line ITC eligibility */}
                       {!line.inputCreditEligible && (
-                        <p className="text-[10px] text-ink-muted mt-0.5">{t('itcNotEligible')}</p>
+                        <p className="text-xs text-ink-muted mt-0.5">{t('itcNotEligible')}</p>
                       )}
                     </td>
                     <td className="py-2.5 pr-4">

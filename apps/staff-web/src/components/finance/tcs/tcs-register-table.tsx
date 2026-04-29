@@ -98,7 +98,7 @@ export function TcsRegisterTable({ rows }: TcsRegisterTableProps) {
           >
             {t2.label}
             {t2.count != null && t2.count > 0 && (
-              <span className="ml-1.5 font-mono text-[11px] px-1.5 py-0.5 rounded-full bg-accent/15 text-accent">
+              <span className="ml-1.5 font-mono text-xs px-1.5 py-0.5 rounded-full bg-accent/15 text-accent">
                 {t2.count}
               </span>
             )}

@@ -195,7 +195,7 @@ function VendorInvoiceRow({ invoice, onSelect }: VendorInvoiceRowProps) {
       <td className="px-4 py-3">
         <p className="text-sm text-ink-primary">{invoice.vendorName}</p>
         {/* L13: vendorGstin shown in full (public business data) */}
-        <GstinDisplay gstin={invoice.vendorGstin} className="text-[10px] mt-0.5" />
+        <GstinDisplay gstin={invoice.vendorGstin} className="text-xs mt-0.5" />
       </td>
       <td className="px-4 py-3">
         {/* L17 + L23 */}
@@ -212,12 +212,12 @@ function VendorInvoiceRow({ invoice, onSelect }: VendorInvoiceRowProps) {
           <VendorInvoiceStatusChip status={invoice.status} />
           {/* L7: aging badge for overdue */}
           {isOverdue && (
-            <span className="block text-[10px] text-[rgb(var(--state-overdue))] font-medium">
+            <span className="block text-xs text-[rgb(var(--state-overdue))] font-medium">
               {t('overdue')}
             </span>
           )}
           {invoice.status === 'disputed' && invoice.disputeReason && (
-            <p className="text-[10px] text-ink-muted max-w-[160px] truncate" title={invoice.disputeReason}>
+            <p className="text-xs text-ink-muted max-w-[160px] truncate" title={invoice.disputeReason}>
               {invoice.disputeReason}
             </p>
           )}
@@ -226,7 +226,7 @@ function VendorInvoiceRow({ invoice, onSelect }: VendorInvoiceRowProps) {
       <td className="px-4 py-3 text-xs text-ink-secondary">
         {new Date(invoice.raisedAt).toLocaleDateString('en-IN')}
         {invoice.dueAt && (
-          <p className={['text-[10px]', isOverdue ? 'text-[rgb(var(--state-overdue))]' : 'text-ink-muted'].join(' ')}>
+          <p className={['text-xs', isOverdue ? 'text-[rgb(var(--state-overdue))]' : 'text-ink-muted'].join(' ')}>
             {t('due')} {new Date(invoice.dueAt).toLocaleDateString('en-IN')}
           </p>
         )}

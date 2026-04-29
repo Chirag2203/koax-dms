@@ -44,7 +44,7 @@ export function ChannelBadge({ channel }: ChannelBadgeProps) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest ${config.chip}`}
+      className={`inline-flex items-center gap-1.5 rounded px-2 py-0.5 font-mono text-xs uppercase tracking-widest ${config.chip}`}
       aria-label={`Channel: ${config.label}`}
     >
       <span

@@ -30,7 +30,7 @@ function StatusChip({ active }: { active: boolean }) {
     <span
       aria-label={`Status: ${active ? 'Active' : 'Inactive'}`}
       className={[
-        'inline-flex items-center gap-1.5 rounded px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest',
+        'inline-flex items-center gap-1.5 rounded px-2 py-0.5 font-mono text-xs uppercase tracking-widest',
         active
           ? 'bg-[rgb(var(--state-listed)/0.1)] text-[rgb(var(--state-listed))]'
           : 'bg-[rgb(var(--state-stale)/0.1)] text-[rgb(var(--state-stale))]',
@@ -114,7 +114,7 @@ export function OutletDetailView({ outletId, defaultEdit = false }: OutletDetail
         <div className="flex items-start justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <span className="font-mono text-[11px] font-semibold text-accent uppercase tracking-widest bg-bg-subtle px-2 py-0.5 rounded-md border border-line">
+              <span className="font-mono text-xs font-semibold text-accent uppercase tracking-widest bg-bg-subtle px-2 py-0.5 rounded-md border border-line">
                 {outlet.code}
               </span>
               <h1 className="text-xl font-semibold text-ink-primary">{outlet.name}</h1>

@@ -92,7 +92,7 @@ export function NotificationsDispatchRow({ dispatch }: NotificationsDispatchRowP
       <td className="px-4 py-3">
         <StateChip status={statusToChip(dispatch.status)} />
         {dispatch.retryCount > 0 && (
-          <span className="ml-1 text-[10px] text-ink-muted font-mono">
+          <span className="ml-1 text-xs text-ink-muted font-mono">
             {dispatch.retryCount}× retry
           </span>
         )}

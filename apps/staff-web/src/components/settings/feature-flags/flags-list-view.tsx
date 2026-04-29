@@ -112,7 +112,7 @@ export function FlagsListView() {
                         {isBoolValue ? (
                           <span
                             className={[
-                              'inline-flex items-center gap-1 rounded px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest',
+                              'inline-flex items-center gap-1 rounded px-2 py-0.5 font-mono text-xs uppercase tracking-widest',
                               boolValue
                                 ? 'bg-[rgb(var(--state-listed)/0.1)] text-[rgb(var(--state-listed))]'
                                 : 'bg-[rgb(var(--state-stale)/0.1)] text-[rgb(var(--state-stale))]',
@@ -131,7 +131,7 @@ export function FlagsListView() {
                         {flag.owningSpec}
                       </td>
                       <td className="px-4 py-3">
-                        <span className="font-mono text-[10px] text-ink-muted uppercase">{flag.scope}</span>
+                        <span className="font-mono text-xs text-ink-muted uppercase">{flag.scope}</span>
                       </td>
                       <td className="px-4 py-3 text-xs text-ink-secondary max-w-xs">{flag.description}</td>
                       <td className="px-4 py-3 text-xs text-ink-muted">

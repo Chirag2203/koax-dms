@@ -190,7 +190,7 @@ export function EditOutletDialog({ outlet, open, onClose }: EditOutletDialogProp
                 <label className={LABEL_CLASS}>{t('outlets.edit.fields.code')}</label>
                 <div className="h-10 w-full bg-bg-subtle/50 border border-line rounded-md px-3 flex items-center">
                   <span className="font-mono text-sm text-ink-muted">{outlet.code}</span>
-                  <span className="ml-2 text-[10px] text-ink-muted">{t('outlets.edit.codeImmutable')}</span>
+                  <span className="ml-2 text-xs text-ink-muted">{t('outlets.edit.codeImmutable')}</span>
                 </div>
               </div>
               <div>

@@ -33,7 +33,7 @@ function StatusBadge({ status }: { status: IntegrationStatus }) {
   };
   const { label, classes } = config[status];
   return (
-    <span aria-label={`Status: ${label}`} className={`inline-flex items-center gap-1.5 rounded px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest ${classes}`}>
+    <span aria-label={`Status: ${label}`} className={`inline-flex items-center gap-1.5 rounded px-2 py-0.5 font-mono text-xs uppercase tracking-widest ${classes}`}>
       <span className="inline-block h-1.5 w-1.5 rounded-full bg-current" aria-hidden="true" />
       {label}
     </span>

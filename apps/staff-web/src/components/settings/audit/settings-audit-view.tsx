@@ -14,9 +14,9 @@ import { Download, ChevronDown, ChevronUp } from 'lucide-react';
 import { useSettingsStore } from '@/src/lib/settings/settings-store';
 import { useStaffStore } from '@/src/lib/staff/staff-store';
 import { useStaffAuth } from '@/src/hooks/use-staff-auth';
-import { hasRank } from '@dms/types';
 import { useToast } from '@/src/hooks/use-toast';
 import { ToastContainer } from '@/src/components/primitives/toast';
+import { Gate } from '@/src/components/primitives/gate';
 import type { SettingsAuditEvent, SettingsAuditEventKind } from '@dms/types';
 
 const EVENT_KIND_OPTIONS: SettingsAuditEventKind[] = [
@@ -44,7 +44,7 @@ function EventKindBadge({ kind }: { kind: SettingsAuditEventKind }) {
     'rbac-matrix-exported': 'bg-bg-subtle text-ink-muted',
   };
   return (
-    <span className={`inline-flex items-center rounded px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest ${colorMap[kind] ?? 'bg-bg-subtle text-ink-muted'}`}>
+    <span className={`inline-flex items-center rounded px-2 py-0.5 font-mono text-xs uppercase tracking-widest ${colorMap[kind] ?? 'bg-bg-subtle text-ink-muted'}`}>
       {kind}
     </span>
   );
@@ -83,7 +83,7 @@ function AuditRow({ event }: { event: SettingsAuditEvent }) {
         </td>
         <td className="px-4 py-3 text-sm text-ink-secondary whitespace-nowrap">
           {actorName}
-          <span className="ml-1 font-mono text-[10px] text-ink-muted">{event.actorRole}</span>
+          <span className="ml-1 font-mono text-xs text-ink-muted">{event.actorRole}</span>
         </td>
         <td className="px-4 py-3">
           <EventKindBadge kind={event.kind} />
@@ -117,7 +117,7 @@ function AuditRow({ event }: { event: SettingsAuditEvent }) {
         <tr className="bg-bg-subtle border-b border-line">
           <td colSpan={6} className="px-6 py-3">
             <div className="space-y-1">
-              <div className="grid grid-cols-3 gap-2 text-[10px] text-ink-muted uppercase tracking-wider mb-2">
+              <div className="grid grid-cols-3 gap-2 text-xs text-ink-muted uppercase tracking-wider mb-2">
                 <span>Field</span>
                 <span>Before</span>
                 <span>After</span>
@@ -214,7 +214,7 @@ export function SettingsAuditView() {
             <h1 className="text-xl font-semibold text-ink-primary">{t('audit.title')}</h1>
             <p className="text-sm text-ink-muted mt-1">{t('audit.subtitle')}</p>
           </div>
-          {user && hasRank(user.role, 'R12') && (
+          <Gate role="R12" fallback="hide">
             <button
               type="button"
               onClick={handleExport}
@@ -223,7 +223,7 @@ export function SettingsAuditView() {
               <Download className="h-4 w-4" aria-hidden="true" />
               {t('audit.exportCsv')}
             </button>
-          )}
+          </Gate>
         </div>
 
         {/* Filters */}
