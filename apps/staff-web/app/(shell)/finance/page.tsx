@@ -3,17 +3,18 @@
  *
  * L8: R10 and below = no finance access. Gate at sidebar level.
  * L27: Outlet scope + period controls on this page.
+ *
+ * Note: static metadata used because the app has no `i18n/request.ts`
+ * server-side config; `getTranslations` from next-intl/server would crash.
  */
 
-import { useTranslations } from 'next-intl';
-import { getTranslations } from 'next-intl/server';
+import type { Metadata } from 'next';
 import { FinanceHubView } from '@/src/components/finance/finance-hub-view';
 import { FinanceStoreHydrator } from '@/src/lib/finance/finance-store-hydrator';
 
-export async function generateMetadata() {
-  const t = await getTranslations('finance.hub');
-  return { title: t('pageTitle') };
-}
+export const metadata: Metadata = {
+  title: 'Finance — BN Automobiles DMS',
+};
 
 export default function FinancePage() {
   return (

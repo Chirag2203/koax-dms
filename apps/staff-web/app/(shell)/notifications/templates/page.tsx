@@ -12,7 +12,7 @@ export default function NotificationTemplatesPage() {
   return (
     <>
       <NotificationsStoreHydrator />
-      <div className="space-y-4">
+      <div className="px-6 py-8 space-y-6">
         <div className="flex items-center gap-2">
           <Link
             href="/notifications"

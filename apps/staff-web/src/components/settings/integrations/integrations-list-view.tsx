@@ -19,6 +19,7 @@ import type { IntegrationProvider, IntegrationStatus } from '@dms/types';
 import { useToast } from '@/src/hooks/use-toast';
 import { ToastContainer } from '@/src/components/primitives/toast';
 import { AlertDialog } from '@/src/components/primitives/dialog';
+import { Button } from '@/src/components/primitives/button';
 import { useState } from 'react';
 
 // ─── Status badge ─────────────────────────────────────────────────────────────
@@ -117,9 +118,10 @@ function IntegrationCard({ provider }: { provider: IntegrationProvider }) {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap">
+          {/* All three buttons use the canonical Button primitive — visual parity */}
           <Link
             href={`/settings/integrations/${provider}`}
-            className="h-8 px-3 rounded-md text-xs font-medium border border-line bg-bg-canvas text-ink-secondary hover:text-ink-primary hover:border-ink-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="inline-flex items-center justify-center h-8 px-3 rounded-md bg-bg-surface text-ink-primary border border-line hover:bg-bg-subtle text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg-canvas"
           >
             {t('integrations.viewDetails')}
           </Link>
@@ -127,27 +129,32 @@ function IntegrationCard({ provider }: { provider: IntegrationProvider }) {
           {canManage && (
             <>
               {/* L11: Test connection stub */}
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={handleTest}
                 disabled={testing}
-                className="h-8 px-3 rounded-md text-xs font-medium border border-line bg-bg-canvas text-ink-secondary hover:text-ink-primary transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                leadingIcon={
+                  testing ? (
+                    <span
+                      className="inline-block h-3 w-3 rounded-full border-2 border-ink-muted border-t-accent animate-spin"
+                      aria-hidden="true"
+                    />
+                  ) : undefined
+                }
               >
-                {testing && (
-                  <span className="inline-block h-3 w-3 rounded-full border-2 border-ink-muted border-t-accent animate-spin" aria-hidden="true" />
-                )}
                 {testing ? t('integrations.testing') : t('integrations.testConnection')}
-              </button>
+              </Button>
 
               {/* L16: Disconnect with type-to-confirm */}
               {cred.status === 'connected' && (
-                <button
-                  type="button"
+                <Button
+                  variant="danger"
+                  size="sm"
                   onClick={() => setDisconnectOpen(true)}
-                  className="h-8 px-3 rounded-md text-xs font-medium border border-state-danger/40 text-state-danger hover:bg-state-danger/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-state-danger"
                 >
                   {t('integrations.disconnect')}
-                </button>
+                </Button>
               )}
             </>
           )}
