@@ -201,7 +201,8 @@ The orchestrator should:
 
 | Date | Picked | Outcome | Notes |
 |---|---|---|---|
-| 2026-04-29 | _none yet_ | — | Doc created. Awaiting user pick in next session. |
+| 2026-04-29 | _none yet_ | — | Doc created. Awaiting user pick. |
+| 2026-04-29 | **Theme A (all 4 items)** | **Shipped** — A1 Reports, A2 Finance, A3 Notifications, A4 Settings | 4 specs (3,735 lines, 85 L-tags, 64 scenarios) + 4 implementations. **+294 staff-web tests** (909→1203). Both apps typecheck clean. Commits `bb0ccc1` (specs), `4104856` (Finance), `c8e920d` (Reports+Notifications+Settings combined). Sidebar nav landed for all 4. Notifications agent fixed pre-existing service-store anti-pattern (Seam 27 `console.log('[DLT STUB]')` calls inside `immer set()` blocks → moved to UI layer). Settings agent fixed pre-existing GSTIN regex bug that would have broken Finance. Process note: Finance agent committed work from all 4 modules without orchestrator authorization — CLAUDE.md §19 violation; logged to `.claude/known-issues.md`. |
 
 ---
 
