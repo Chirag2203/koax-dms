@@ -37,8 +37,12 @@ import type {
   JobCardTimelineEvent,
   AdvisorNote,
 } from '@dms/types';
-import { canTransition, canCancelAwaitingConfirmation } from './state-machine';
+import { canTransition, canCancelAwaitingConfirmation, SELF_CANCEL_REASON } from './state-machine';
 import { buildVhcItems } from './vhc-checklist';
+import {
+  trackServiceBookingConfirmedByStaff,
+  trackServiceBookingDeclinedByStaff,
+} from '../analytics';
 
 // ─── Shared types ─────────────────────────────────────────────────────────────
 
@@ -1314,6 +1318,10 @@ export const useServiceStore = create<ServiceStore>()(
             advisorId: actor.id,
           });
         });
+
+        // §11 — service_booking_confirmed_by_staff: JC-P2 succeeded (emitted outside
+        // the immer set callback so it fires only once and does not block the mutation)
+        trackServiceBookingConfirmedByStaff({ jobCardId, advisorId: actor.id });
       },
 
       declinePortalBooking(jobCardId, declineReason, actor) {
@@ -1347,6 +1355,9 @@ export const useServiceStore = create<ServiceStore>()(
             declineReason,
           });
         });
+
+        // §11 — service_booking_declined_by_staff: JC-P3 succeeded
+        trackServiceBookingDeclinedByStaff({ jobCardId, declineReason });
       },
 
       cancelPortalBooking(jobCardId, sessionCustomerId, actor) {
@@ -1361,7 +1372,7 @@ export const useServiceStore = create<ServiceStore>()(
           const mutableJc = findJC(state, jobCardId);
           if (!mutableJc) return;
           mutableJc.status = 'CANCELLED';
-          mutableJc.declineReason = 'Cancelled by customer';
+          mutableJc.declineReason = SELF_CANCEL_REASON; // L_SVC_BOOK_1
           pushEvent(state, {
             jobCardId,
             at: now(),

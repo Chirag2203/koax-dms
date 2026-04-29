@@ -10,6 +10,28 @@
 
 import type { JobCardStatus } from '@dms/types';
 
+// ─── Locked decision L_SVC_BOOK_1 — self-cancel discriminator ────────────────
+
+/**
+ * L_SVC_BOOK_1: Self-cancel discriminator string (SPEC-CUSTOMER-PORTAL-002 §0).
+ *
+ * When a customer cancels an AWAITING_CONFIRMATION booking via the portal (S3),
+ * the JobCard's `declineReason` is set to this exact string (case-sensitive).
+ *
+ * Both `ServiceBookingsPage` (list) and `ServiceBookingDetailPage` (detail) use
+ * strict string equality against this constant to discriminate customer self-cancel
+ * from SA-decline. UI components MUST import this constant — never inline the
+ * literal string.
+ *
+ * Future API implementations of `POST /api/service/bookings/[id]/cancel` MUST
+ * set this exact value. Any change to this string is a breaking change requiring
+ * a migration across all JC records that carry the old value.
+ *
+ * See also: SPEC-CUSTOMER-PORTAL-002 §6 (JC-P3 transition), §8.1 (detail page),
+ *           §15 (failure modes).
+ */
+export const SELF_CANCEL_REASON = 'Cancelled by customer' as const;
+
 // ─── Transition table (authoritative) ────────────────────────────────────────
 
 /**

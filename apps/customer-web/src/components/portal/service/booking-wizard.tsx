@@ -25,6 +25,10 @@ import { usePortalServiceStore } from '@/src/lib/service/service-booking-service
 import { usePortalAuth } from '@/src/providers/portal-auth-provider';
 import { usePortalVehiclesStore } from '@/src/lib/vehicles/vehicles-client-store';
 import {
+  trackServiceBookingStepCompleted,
+  trackServiceBookingSubmitted,
+} from '@/src/lib/analytics';
+import {
   StepVehicle,
   StepService,
   StepDateTime,
@@ -197,15 +201,34 @@ export function ServiceBookingWizard({ ownedVehicleViews, serviceTypes }: Servic
 
   async function handleNext() {
     if (currentStep < 5) {
+      // §11 — service_booking_step_completed: fired when advancing from this step
+      trackServiceBookingStepCompleted({
+        step: currentStep,
+        ...(currentStep >= 2 && formData.selectedServiceTypeId
+          ? { serviceTypeId: formData.selectedServiceTypeId }
+          : {}),
+      });
       store.nextStep();
     } else {
-      // Submit
+      // Submit — §11 event emitted after successful POST (inspected via submitResult)
+      const prevResult = store.submitResult;
       await store.submitBooking(
         customerId,
         ownedVins,
         serviceTypeNameMap,
         createBookingFromPortal,
       );
+      // Read post-submit state to check success
+      const nextResult = useServiceBookingStore.getState().submitResult;
+      if (!prevResult && nextResult) {
+        // §11 — service_booking_submitted: JC-P1 succeeded
+        trackServiceBookingSubmitted({
+          jobCardId: nextResult.jobCardId,
+          serviceTypeId: formData.selectedServiceTypeId ?? '',
+          pickupMode: formData.pickupMode,
+          outletId: formData.outletId,
+        });
+      }
     }
   }
 

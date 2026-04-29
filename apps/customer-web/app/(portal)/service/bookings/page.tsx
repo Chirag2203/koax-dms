@@ -23,6 +23,7 @@ import { CalendarDays, AlertCircle } from 'lucide-react';
 import { cn } from '@dms/ui';
 import { usePortalAuth } from '@/src/providers/portal-auth-provider';
 import { usePortalServiceStore } from '@/src/lib/service/service-booking-service-bridge';
+import { SELF_CANCEL_REASON } from '@/src/lib/service/service-booking-store';
 import { serviceTypes } from '@dms/mocks/fixtures';
 import type { JobCard } from '@dms/types';
 
@@ -47,7 +48,7 @@ function StatusBadge({ booking }: { booking: JobCard }) {
   }
 
   if (booking.status === 'CANCELLED') {
-    const isCustomerCancel = booking.declineReason === 'Cancelled by customer';
+    const isCustomerCancel = booking.declineReason === SELF_CANCEL_REASON; // L_SVC_BOOK_1
     return (
       <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-red-50 border border-red-200 text-red-600 font-mono text-[10px] uppercase tracking-widest">
         <span className="h-1.5 w-1.5 rounded-full bg-red-400 shrink-0" />

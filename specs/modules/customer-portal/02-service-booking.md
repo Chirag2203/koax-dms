@@ -7,9 +7,9 @@ risk_level: low
 pii_sensitivity: medium
 flags: [customer-service-booking]
 owners: [orchestrator]
-version: 0.1
+version: 1.1
 created: 2026-04-28
-last_updated: 2026-04-28
+last_updated: 2026-04-29
 supersedes: null
 related_specs:
   - SPEC-SERVICE-001
@@ -29,6 +29,38 @@ depends_on:
 ---
 
 # SPEC-CUSTOMER-PORTAL-002 — Customer Service Booking
+
+## 0. Locked decisions
+
+Locked decisions are implementation contracts that cannot be changed without a migration. Any future implementer who deviates from a locked decision creates a breaking change. L-tags are referenced throughout this spec to point back to the source of truth.
+
+| Tag | Title | Decision |
+|-----|-------|----------|
+| L5 | Role override for `AWAITING_CONFIRMATION → CANCELLED` | See §5.3 (inline) |
+| L_SVC_BOOK_1 | Self-cancel discriminator | See below |
+
+### L_SVC_BOOK_1 — Self-cancel discriminator (locked 2026-04-29)
+
+When a customer cancels an `AWAITING_CONFIRMATION` booking via the portal (S3), the JobCard's `declineReason` field is set to the literal string **`'Cancelled by customer'`** (case-sensitive, no trailing whitespace).
+
+This exact string is used by both the list page (`ServiceBookingsPage`) and the detail page (`ServiceBookingDetailPage`) to discriminate customer self-cancel from SA-decline in any `CANCELLED` JobCard. The discrimination logic is:
+
+```ts
+const isCustomerCancel = jobCard.declineReason === SELF_CANCEL_REASON;
+// where SELF_CANCEL_REASON is imported from a shared constant — never inlined
+```
+
+**Rules:**
+
+1. The canonical source of the constant is `apps/staff-web/src/lib/service/state-machine.ts` (exported as `SELF_CANCEL_REASON`).
+2. `apps/customer-web/src/lib/service/service-booking-store.ts` re-exports it for portal-surface consumers.
+3. All UI components import from one of these two paths — **never inline the literal string**.
+4. Future API implementations of `POST /api/service/bookings/[id]/cancel` MUST set `declineReason = 'Cancelled by customer'` (exact match) when processing a customer self-cancel request.
+5. Any change to this string value is a **breaking change** requiring a migration of all existing JC records carrying the old discriminator value, plus coordinated UI updates across both apps.
+
+Cross-references: §6 (JC-P3 row), §8.1 (detail page note), §15 (failure modes).
+
+---
 
 ## 1. Problem statement
 
@@ -221,7 +253,7 @@ Per Doc 11 §7 (Service Booking SM). The existing machine covers `Requested → 
 |----|---------|------|----|---------|-------|--------------|
 | JC-P1 | JobCard | — | AWAITING_CONFIRMATION | Customer submits booking request | Authenticated R20; valid VIN owned by customer | Create JC row; `source: CUSTOMER_PORTAL`; log notification stub |
 | JC-P2 | JobCard | AWAITING_CONFIRMATION | RECEIVED | SA clicks Confirm | R09/R03/R01; slot available | Append `received` timeline event; log `DLT_SVC_BOOKING_CONFIRMED` stub |
-| JC-P3 | JobCard | AWAITING_CONFIRMATION | CANCELLED | SA clicks Decline + reason | R09/R03/R01; reason non-empty | Append `cancelled` timeline event; set `declineReason`; log decline notification stub |
+| JC-P3 | JobCard | AWAITING_CONFIRMATION | CANCELLED | SA clicks Decline + reason | R09/R03/R01; reason non-empty | Append `cancelled` timeline event; set `declineReason`; log decline notification stub. **Customer self-cancel (S3):** same transition, `declineReason` set to `SELF_CANCEL_REASON` constant — see **L_SVC_BOOK_1** (§0). |
 
 Doc 11 §19 rule: every transition is audit-logged. Transitions JC-P1 through JC-P3 append `JobCardTimelineEvent` rows per existing pattern in service-store.
 
@@ -282,7 +314,7 @@ All in v1 are **server actions** calling the in-memory service-store. Route hand
 | `/(portal)/service/bookings` | `ServiceBookingsPage` | Booking list (cards, self-cancel for `AWAITING_CONFIRMATION`) | P1 (shipped) |
 | `/(portal)/service/bookings/[id]` | `ServiceBookingDetailPage` | Status tracker — vertical JC timeline, "Your vehicle is ready" banner at `READY_FOR_DELIVERY`, customer-visible event filtering (B4) | **P2 (deferred)** — list page currently shows a "coming soon" note on the detail link |
 
-**Implementation note (2026-04-29):** The detail/status-tracker page was originally scoped for P1 but ships in P2. The list page (`ServiceBookingsPage`) discriminates self-cancelled vs. SA-declined bookings by checking `declineReason === 'Cancelled by customer'` — future API implementations of `GET /api/service/bookings/[id]` must preserve this convention.
+**Implementation note (2026-04-29):** The detail/status-tracker page was originally scoped for P1 but ships in P2. The list page (`ServiceBookingsPage`) discriminates self-cancelled vs. SA-declined bookings using the `SELF_CANCEL_REASON` constant (see **L_SVC_BOOK_1**, §0) — never hardcode the literal string in UI components. Future API implementations of `GET /api/service/bookings/[id]` must preserve this discriminator value.
 
 ### 8.2 Booking wizard steps
 
@@ -409,6 +441,7 @@ Per Doc 12 baseline. Feature-specific targets:
 | F6 | Notification stub throws (DLT log write fails) | Error caught; non-blocking | Log to error monitoring; JC creation still succeeds | Booking confirmed; notification delivery attempted separately |
 | F7 | Customer has 0 owned vehicles | Portal renders empty state at wizard step 1 | Prompt to claim a vehicle | "Add a vehicle to your garage to book a service." |
 | F8 | `service-types` fixture unreachable (MSW off) | API returns 503 | Service card grid shows error state with retry button | "Could not load service options. Please refresh." |
+| F9 | Self-cancel discriminator string drifts (future implementer changes the literal without migration) | Test suite fails — `SELF_CANCEL_REASON` assertion in `analytics-service-booking.test.ts` catches it | Update constant + migrate existing CANCELLED records | N/A (internal data integrity issue). See **L_SVC_BOOK_1** (§0). |
 
 ## 16. Migration & rollout
 
@@ -518,3 +551,4 @@ Files changed (estimated):
 |------|---------|--------|--------|
 | 2026-04-28 | 0.1 | orchestrator | Initial draft |
 | 2026-04-28 | 0.2 | orchestrator | Review fixes applied (B1–B5). Status → approved. B1: pii_sensitivity low→medium + §13 reasoning updated. B2: customerId removed from ServiceBookingRequestSchema + enforcement note added. B3: locked decision L5 added for AWAITING_CONFIRMATION→CANCELLED role override. B4: §7.3 restricted to customer-visible timeline event kinds only; S4 AC updated. B5: cancellation policy clarified in Non-goals; self-cancel of AWAITING_CONFIRMATION added to S3 AC. |
+| 2026-04-29 | 1.1 | orchestrator | Two production hardening items. (1) §11 analytics events implemented: 5-event schema wired — `service_booking_started` on wizard mount, `service_booking_step_completed` on each advance, `service_booking_submitted` after JC-P1 succeeds, `service_booking_confirmed_by_staff` / `service_booking_declined_by_staff` in staff service-store actions. Analytics helpers at `apps/customer-web/src/lib/analytics.ts` and `apps/staff-web/src/lib/analytics.ts` (v1: console.debug + window.__bn_analytics push). (2) Self-cancel discriminator promoted to locked decision: §0 L_SVC_BOOK_1 added; `SELF_CANCEL_REASON = 'Cancelled by customer'` constant extracted to `apps/staff-web/src/lib/service/state-machine.ts`, re-exported from `apps/customer-web/src/lib/service/service-booking-store.ts`; all magic-string literals in `service-booking-service-bridge.ts`, `service-store.ts`, and `bookings/page.tsx` replaced with the constant. L_SVC_BOOK_1 cross-referenced from §6 (JC-P3), §8.1 (detail note), §15 (F9 failure mode). 2 new test files: `analytics-service-booking.test.ts` (customer-web, 14 tests) and `analytics-service-booking-staff.test.ts` (staff-web, 6 tests). |

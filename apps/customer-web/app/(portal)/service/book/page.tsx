@@ -14,6 +14,7 @@ import * as React from 'react';
 import { useTranslations } from 'next-intl';
 import { usePortalAuth } from '@/src/providers/portal-auth-provider';
 import { usePortalVehiclesStore } from '@/src/lib/vehicles/vehicles-client-store';
+import { trackServiceBookingStarted } from '@/src/lib/analytics';
 import {
   selectVisibleVehicles,
 } from '@/src/lib/portal/portal-vehicle-adapter';
@@ -44,6 +45,12 @@ export default function ServiceBookPage() {
   React.useEffect(() => {
     store.hydrate();
   }, [store]);
+
+  // §11 — service_booking_started: wizard opened (fires once on mount)
+  React.useEffect(() => {
+    trackServiceBookingStarted({ customerId, source: 'portal' });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const now = new Date().toISOString();
 

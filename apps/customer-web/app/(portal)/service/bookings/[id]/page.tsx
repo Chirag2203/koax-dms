@@ -30,6 +30,7 @@ import {
 import { cn } from '@dms/ui';
 import { usePortalAuth } from '@/src/providers/portal-auth-provider';
 import { usePortalServiceStore } from '@/src/lib/service/service-booking-service-bridge';
+import { SELF_CANCEL_REASON } from '@/src/lib/service/service-booking-store';
 import { serviceTypes, outlets, timelineEvents, MOCK_STAFF_PROFILES, vehicleMasters } from '@dms/mocks/fixtures';
 import type { JobCard, JobCardTimelineEvent } from '@dms/types';
 
@@ -194,7 +195,7 @@ function CancelledState({
   booking: JobCard;
   t: ReturnType<typeof useTranslations<'portal.serviceBooking.detail'>>;
 }) {
-  const isCustomerCancel = booking.declineReason === 'Cancelled by customer';
+  const isCustomerCancel = booking.declineReason === SELF_CANCEL_REASON; // L_SVC_BOOK_1
 
   return (
     <div className="py-16 text-center border border-dashed border-[var(--color-line)]">

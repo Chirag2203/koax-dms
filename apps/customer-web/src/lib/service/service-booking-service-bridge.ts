@@ -23,6 +23,7 @@ import {
   jobCards as fixtureJobCards,
   timelineEvents as fixtureTimelineEvents,
 } from '@dms/mocks/fixtures';
+import { SELF_CANCEL_REASON } from './service-booking-store';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -168,7 +169,7 @@ export const usePortalServiceStore = create<PortalServiceStore>()(
         const mutableJc = state.jobCards.find((j) => j.id === jobCardId);
         if (!mutableJc) return;
         mutableJc.status = 'CANCELLED';
-        mutableJc.declineReason = 'Cancelled by customer';
+        mutableJc.declineReason = SELF_CANCEL_REASON; // L_SVC_BOOK_1
       });
 
       return { ok: true };

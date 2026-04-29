@@ -21,6 +21,13 @@ import { immer } from 'zustand/middleware/immer';
 import type { JobCard } from '@dms/types';
 import type { ServiceBookingRequest } from '@dms/types';
 
+// ─── Re-export locked discriminator constant (L_SVC_BOOK_1) ──────────────────
+// Source of truth lives in apps/staff-web/src/lib/service/state-machine.ts.
+// Customer-web re-exports it here so portal components can import from a single,
+// surface-appropriate path without a cross-app dependency.
+// See SPEC-CUSTOMER-PORTAL-002 §0 locked decision L_SVC_BOOK_1.
+export const SELF_CANCEL_REASON = 'Cancelled by customer' as const;
+
 // ─── Wizard step types ────────────────────────────────────────────────────────
 
 export type WizardStep = 1 | 2 | 3 | 4 | 5;
@@ -312,7 +319,7 @@ export const useServiceBookingStore = create<ServiceBookingStore>()(
           const booking = state.bookings.find((b) => b.id === jobCardId);
           if (booking) {
             booking.status = 'CANCELLED';
-            booking.declineReason = 'Cancelled by customer';
+            booking.declineReason = SELF_CANCEL_REASON; // L_SVC_BOOK_1
           }
         });
       }
