@@ -43,7 +43,10 @@ const OUTLET_OPTIONS = [
   { id: 'chennai', label: 'Chennai' },
 ];
 
-const LISTED_STATUSES = new Set(['LISTED', 'listed', 'CPO', 'cpo']);
+// Vehicle statuses that customers can book a test drive on. Sourced from
+// the @dms/types Vehicle status enum: only 'published' (actively listed)
+// vehicles are bookable. 'reserved' and 'sold' are excluded.
+const BOOKABLE_STATUSES = new Set(['published']);
 
 // ─── Step indicator ───────────────────────────────────────────────────────────
 
@@ -89,7 +92,7 @@ function StepVehicle({
   onSelect: (vin: string) => void;
 }) {
   const t = useTranslations('portal.testDrive');
-  const listedVehicles = allVehicles.filter((v) => LISTED_STATUSES.has(v.status ?? '')).slice(0, 10);
+  const listedVehicles = allVehicles.filter((v) => BOOKABLE_STATUSES.has(v.status ?? '')).slice(0, 12);
 
   return (
     <div>
