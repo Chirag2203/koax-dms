@@ -11,7 +11,6 @@ import {
   Boxes,
   Camera,
   Car,
-  Filter,
   IndianRupee,
   LayoutDashboard,
   LogOut,
@@ -72,7 +71,8 @@ const NAV_GROUPS: NavGroup[] = [
     label: 'Operations',
     items: [
       { key: 'customers', href: '/customers', icon: Users },
-      { key: 'leads', href: '/leads', icon: Filter },
+      // Lead management is unified into the Sales module per 2026-04-30
+      // user direction. Use /sales for the lead lifecycle (Kanban + capture).
       { key: 'testDrives', href: '/test-drives', icon: Car },
       { key: 'customBuilds', href: '/custom-builds', icon: Paintbrush },
       { key: 'staff', href: '/staff', icon: UserCheck },

@@ -45,6 +45,27 @@ interface SalesDealsActions {
   }): Deal;
 
   /**
+   * Create a lead deal from a service-upgrade trigger (B4 service-to-sale loop).
+   * Always creates a NEW deal at stage 'new-lead' with microStatus marker
+   * 'service-upgrade'. Idempotency: if an open deal already exists for the
+   * same (customerName, vehicleVin) pair, returns the existing one without
+   * mutating it (the SA will see the same lead they would otherwise duplicate).
+   *
+   * Replaces the dynamic require() of the deprecated leads-store. Per user
+   * direction: leads functionality lives entirely inside the sales module.
+   */
+  createLeadFromService(input: {
+    customerId: string;
+    customerName: string;
+    customerPhone: string;
+    vehicleVin: string;
+    vehicleName: string;
+    outletId: string;
+    city: string;
+    sourceJobCardId: string;
+  }): Deal;
+
+  /**
    * Advance a deal to the given stage.
    * Optionally sets reservationExpiresAt + cancellationReason.
    * Returns the updated Deal.
@@ -102,11 +123,16 @@ const NON_UPSERTABLE_STAGES: ReadonlySet<DealStage> = new Set([
 
 const EARLY_STAGES: ReadonlySet<DealStage> = new Set(['new-lead', 'contacted']);
 
-// ─── ID counter for upsertDealFromTestDrive ───────────────────────────────────
+// ─── ID counters for cross-module deal creation ───────────────────────────────
 
 let _dealSeq = 1000;
 function nextDealId(): string {
   return `td-${String(++_dealSeq)}`;
+}
+
+let _serviceLeadSeq = 2000;
+function nextServiceLeadId(): string {
+  return `srv-lead-${String(++_serviceLeadSeq)}`;
 }
 
 // ─── Store ────────────────────────────────────────────────────────────────────
@@ -157,6 +183,43 @@ export const useSalesDealsStore = create<SalesDealsStore>()((set, get) => ({
       priority: 'medium',
       city: input.city,
       outlet: input.outletId,
+      createdAt: now,
+      lastActivityAt: now,
+      daysInStage: 0,
+    };
+
+    set((state) => ({
+      deals: { ...state.deals, [newDeal.id]: newDeal },
+    }));
+    return newDeal;
+  },
+
+  createLeadFromService(input) {
+    const now = new Date().toISOString();
+
+    // Idempotency: if an open deal already covers (customerName, vehicleVin),
+    // return it. SA shouldn't see two cards for the same prospect.
+    const existing = Object.values(get().deals).find(
+      (d) =>
+        d.customerName === input.customerName &&
+        d.vehicleVin === input.vehicleVin &&
+        !NON_UPSERTABLE_STAGES.has(d.stage),
+    );
+    if (existing) return existing;
+
+    const newDeal: Deal = {
+      id: nextServiceLeadId(),
+      customerName: input.customerName,
+      customerPhone: input.customerPhone,
+      vehicleVin: input.vehicleVin,
+      vehicleName: input.vehicleName,
+      amount: 0,
+      stage: 'new-lead',
+      source: 'walk-in',
+      priority: 'medium',
+      city: input.city,
+      outlet: input.outletId,
+      microStatus: `service-upgrade:${input.sourceJobCardId}`,
       createdAt: now,
       lastActivityAt: now,
       daysInStage: 0,

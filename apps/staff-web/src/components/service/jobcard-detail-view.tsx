@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useServiceStore } from '@/src/lib/service/service-store';
 import { useCustomersStore } from '@/src/lib/customers/customers-store';
 import { useVehiclesStore } from '@/src/lib/vehicles/vehicles-store';
+import { useSalesDealsStore } from '@/src/lib/sales/sales-deals-store';
 import { isUpgradeReady } from '@/src/lib/service-to-sale/upgrade-eligibility';
 import type { VehicleRecall } from '@/src/lib/service-to-sale/upgrade-eligibility';
 import { maskedContactFor } from '@dms/vehicles-core';
@@ -337,48 +338,28 @@ export function JobCardDetailView({ jobCard: initialJobCard }: JobCardDetailView
   const upgradeVehicleInfo = vehicleMaster ? { year: vehicleMaster.year } : null;
   const upgradeResult = isUpgradeReady(upgradeVehicleInfo, jobCard, STUB_RECALLS);
 
-  // ─── Create lead handler (Seam 30, L3: graceful B1 fallback) ─────────────────
+  // ─── Create lead handler (Seam 30) ──────────────────────────────────────────
+  // Per user direction (2026-04-30): leads live entirely inside the sales
+  // module. Calls useSalesDealsStore.createLeadFromService() directly.
   function handleCreateSalesLead() {
     try {
-      // Dynamic import guard — B1 may not be shipped (L3)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const leadsStoreModule = (typeof window !== 'undefined')
-        ? (window as any).__leadsStore
-        : undefined;
-
-      if (leadsStoreModule?.createLead) {
-        leadsStoreModule.createLead({
-          vin: jobCard.vin,
-          customerId: jobCard.customerId,
-          source: 'SERVICE_UPGRADE',
-          stage: 'NEW',
-          createdFromJobCardId: jobCard.id,
-        });
-        toast(`${MESSAGES.upgradeLeadCreated} ${customer.name}`, 'success');
-        return;
-      }
-
-      // Attempt the real B1 store path — Seam 30
-      // useLeadsStore is dynamically required so this file doesn't hard-fail
-      // when B1 hasn't shipped yet (L3).
-      // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
-      const { useLeadsStore } = require('@/src/lib/leads/leads-store') as {
-        useLeadsStore: { getState: () => { createLead: (args: Record<string, unknown>) => void } }
-      };
-      useLeadsStore.getState().createLead({
-        vin: jobCard.vin,
+      const vehicleName = vehicleMaster
+        ? `${vehicleMaster.year} ${vehicleMaster.make} ${vehicleMaster.model}`
+        : `Vehicle ${jobCard.vin}`;
+      useSalesDealsStore.getState().createLeadFromService({
         customerId: jobCard.customerId,
-        source: 'SERVICE_UPGRADE',
-        stage: 'NEW',
-        createdFromJobCardId: jobCard.id,
+        customerName: customer.name,
+        customerPhone: customer.phone ?? '',
+        vehicleVin: jobCard.vin,
+        vehicleName,
+        outletId: jobCard.outletId,
+        city: jobCard.outletId,
+        sourceJobCardId: jobCard.id,
       });
       toast(`${MESSAGES.upgradeLeadCreated} ${customer.name}`, 'success');
-    } catch {
-      // L3: B1 not shipped — explicit info toast (never a silent no-op per CLAUDE.md §10 DoD #15)
-      console.info(
-        `[service-to-sale] Lead funnel (B1) not yet available. Would create SERVICE_UPGRADE lead for ${customer.name} (VIN: ${jobCard.vin})`,
-      );
-      toast(`${MESSAGES.upgradeLeadFallback} ${customer.name}`, 'info');
+    } catch (e) {
+      console.error('[service-to-sale] Failed to create sales lead:', e);
+      toast(`${MESSAGES.upgradeLeadFallback} ${customer.name}`, 'error');
     }
   }
 

@@ -16,34 +16,10 @@ export * from './documents';
 export * from './service-booking';
 export * from './custom-builds';
 export * from './notifications';
-// Leads module — SPEC-LEADS-001
-// LeadSource/LeadSourceEnum conflict with insurance's identically-named exports.
-// Export leads types with explicit aliases; consumers use the Lead-prefixed names.
-export {
-  LeadStageEnum,
-  LeadSourceEnum as LeadsSourceEnum,
-  LeadScoreEnum,
-  LeadActivityKindEnum,
-  LeadActivitySchema,
-  LeadSchema,
-  CreateLeadParamsSchema,
-  InvalidLeadStageTransitionError,
-  LeadAssignmentPermissionError,
-  LeadBulkImportNotImplementedError,
-  LEAD_STAGE_ORDER,
-  LEAD_TERMINAL_STAGES,
-  isValidLeadTransition,
-  LEAD_ASSIGN_ROLES,
-} from './lead';
-export type {
-  LeadStage,
-  LeadSource,
-  LeadScore,
-  LeadActivityKind,
-  LeadActivity,
-  Lead,
-  CreateLeadParams,
-} from './lead';
+// Leads module REMOVED 2026-04-30 — folded into the sales module per user
+// direction. Lead lifecycle is now modelled by `Deal` (sales.ts) with stages
+// 'new-lead' / 'contacted' / 'test-drive' / etc. Source enum + service-upgrade
+// flow live in `sales-deals-store`.
 
 // Insurance has its own LeadSource/LeadSourceEnum that conflicts with sales' identically-named exports.
 // Re-export everything except the conflicting names; insurance consumers should import from '@dms/types/domain/insurance' if they need them.
