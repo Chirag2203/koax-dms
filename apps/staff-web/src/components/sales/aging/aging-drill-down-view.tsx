@@ -23,7 +23,7 @@ import { useTranslations } from 'next-intl';
 
 import { Card, Field } from '@/src/components/custom-builds/shared/detail-card';
 import { useVehiclesStore } from '@/src/lib/vehicles/vehicles-store';
-import { computeAgingBand } from '@/src/lib/inventory-aging/selectors';
+import { computeAgingBand } from '@/src/lib/sales/aging/selectors';
 import { competitorPrices } from '@dms/mocks/fixtures';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────

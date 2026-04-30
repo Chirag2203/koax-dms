@@ -1693,6 +1693,22 @@
   "shoots": {
     "title": "Shoots",
     "description": "Photo and video shoot scheduling for vehicle listings",
+    "scheduleShoot": "Schedule Shoot",
+    "create": {
+      "title": "Schedule a new shoot",
+      "description": "Pick a vehicle from the for-sale inventory. Each VIN can have only one active shoot at a time.",
+      "searchLabel": "Search vehicles",
+      "searchPlaceholder": "Make, model, year, or VIN…",
+      "eligibleCount": "{count} eligible vehicles",
+      "emptyEligible": "No vehicles eligible right now. All currently-listed vehicles already have an active shoot.",
+      "hint": "Auto-shoots are created on every ACQUIRED event (per spec). Use this dialog only for mid-cycle scheduling.",
+      "cancel": "Cancel",
+      "createCta": "Schedule",
+      "creating": "Scheduling…",
+      "createdToast": "Shoot scheduled for {make} {model}",
+      "vehicleNotFound": "Vehicle not found",
+      "genericError": "Failed to schedule shoot"
+    },
     "tabs": {
       "pending": "Pending",
       "scheduled": "Scheduled",

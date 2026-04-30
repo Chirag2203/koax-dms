@@ -8,12 +8,12 @@
  */
 
 import type { Metadata } from 'next';
-import { InventoryAgingView } from '@/src/components/inventory-aging/inventory-aging-view';
+import { AgingView } from '@/src/components/sales/aging/aging-view';
 
 export const metadata: Metadata = {
   title: 'Inventory Aging — BN Automobiles DMS',
 };
 
 export default function InventoryAgingPage() {
-  return <InventoryAgingView />;
+  return <AgingView />;
 }

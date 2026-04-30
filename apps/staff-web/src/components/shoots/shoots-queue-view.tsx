@@ -14,15 +14,19 @@
  * - i18n via useTranslations('shoots.*')
  */
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { Camera, CalendarClock, Clock, CheckCircle2 } from 'lucide-react';
+import { Camera, CalendarClock, Clock, CheckCircle2, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { useShootsStore } from '@/src/lib/shoots/shoots-store';
+import { useStaffAuth } from '@/src/providers/staff-auth-provider';
+import { hasRank } from '@dms/types';
 import type { ShootStatus } from '@dms/types';
 import type { Shoot } from '@dms/types';
 import { ShootStatusChip } from './shoot-status-chip';
+import { Button } from '@/src/components/primitives/button';
+import { CreateShootDialog } from './create-shoot-dialog';
 
 // ─── Tab config ───────────────────────────────────────────────────────────────
 
@@ -102,9 +106,14 @@ export function ShootsQueueView({ activeTab }: ShootsQueueViewProps) {
   const t = useTranslations('shoots');
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { user } = useStaffAuth();
 
   // All shoots from store — compute all tab counts upfront (Rules of Hooks)
   const allShoots = useShootsStore((s) => s.shoots);
+  const [createOpen, setCreateOpen] = useState(false);
+
+  // R11+ Marketing role can manually schedule a shoot
+  const canSchedule = user ? hasRank(user.role, 'R11') : false;
 
   const currentTab: ShootStatus = VALID_TABS.includes(activeTab as ShootStatus)
     ? (activeTab as ShootStatus)
@@ -141,10 +150,25 @@ export function ShootsQueueView({ activeTab }: ShootsQueueViewProps) {
   return (
     <div className="px-6 py-8 space-y-6">
       {/* ── Header ─────────────────────────────────────────────────────────── */}
-      <div>
-        <h1 className="text-2xl font-semibold text-ink-primary">{t('title')}</h1>
-        <p className="text-sm text-ink-muted mt-1">{t('description')}</p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold text-ink-primary">{t('title')}</h1>
+          <p className="text-sm text-ink-muted mt-1">{t('description')}</p>
+        </div>
+        {canSchedule && (
+          <Button
+            variant="primary"
+            onClick={() => setCreateOpen(true)}
+            leadingIcon={<Plus className="h-4 w-4" aria-hidden="true" />}
+          >
+            {t('scheduleShoot')}
+          </Button>
+        )}
       </div>
+
+      {canSchedule && (
+        <CreateShootDialog open={createOpen} onClose={() => setCreateOpen(false)} />
+      )}
 
       {/* ── Stage tabs ─────────────────────────────────────────────────────── */}
       <div

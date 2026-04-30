@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * InventoryAgingView — Reports view for /inventory-aging.
+ * AgingView — Reports view for /inventory-aging.
  *
  * Lists all ACTIVE listings sorted by daysListed desc, grouped by aging band.
  * R10+ "Apply suggestion" button opens AlertDialog with reason textarea.
@@ -23,8 +23,8 @@ import { cn } from '@dms/ui';
 import { Gate } from '@/src/components/primitives/gate';
 import { Button } from '@/src/components/primitives/button';
 import { useVehiclesStore } from '@/src/lib/vehicles/vehicles-store';
-import { selectAgedListings } from '@/src/lib/inventory-aging/selectors';
-import type { AgingBand, AgedListingRow } from '@/src/lib/inventory-aging/selectors';
+import { selectAgedListings } from '@/src/lib/sales/aging/selectors';
+import type { AgingBand, AgedListingRow } from '@/src/lib/sales/aging/selectors';
 import { competitorPrices } from '@dms/mocks/fixtures';
 import { ApplySuggestionDialog } from './apply-suggestion-dialog';
 
@@ -60,7 +60,7 @@ function formatRupee(amount: number): string {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function InventoryAgingView() {
+export function AgingView() {
   const t = useTranslations('inventoryAging');
 
   const vehicles  = useVehiclesStore((s) => s.vehicles);

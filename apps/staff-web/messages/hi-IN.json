@@ -645,6 +645,22 @@
   "shoots": {
     "title": "Shoots",
     "description": "Vaahan listingon ke liye photo aur video shoot scheduling",
+    "scheduleShoot": "Shoot schedule karein",
+    "create": {
+      "title": "Naya shoot schedule karein",
+      "description": "Sale inventory se vaahan chunein. Ek VIN par ek samay par sirf ek active shoot ho sakta hai.",
+      "searchLabel": "Vaahan dhoondhein",
+      "searchPlaceholder": "Make, model, saal ya VIN…",
+      "eligibleCount": "{count} eligible vaahan",
+      "emptyEligible": "Abhi koi vaahan eligible nahi. Sabhi listed vaahanon par pahle se active shoot hai.",
+      "hint": "Auto-shoots har ACQUIRED event par bante hain (spec ke anusaar). Yeh dialog sirf mid-cycle scheduling ke liye use karein.",
+      "cancel": "Radd karein",
+      "createCta": "Schedule",
+      "creating": "Schedule ho raha hai…",
+      "createdToast": "{make} {model} ke liye shoot schedule ho gaya",
+      "vehicleNotFound": "Vaahan nahi mila",
+      "genericError": "Shoot schedule nahi ho saka"
+    },
     "tabs": {
       "pending": "Pending",
       "scheduled": "Scheduled",

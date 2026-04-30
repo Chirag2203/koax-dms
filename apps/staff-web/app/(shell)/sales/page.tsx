@@ -3,7 +3,7 @@
 import { useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
-import { Plus, LayoutGrid, List } from 'lucide-react';
+import { Plus, LayoutGrid, List, TrendingDown } from 'lucide-react';
 import { cn } from '@dms/ui';
 import { deals as allDeals } from '@dms/mocks/fixtures';
 import type { Deal, DealStage } from '@dms/types';
@@ -144,17 +144,31 @@ export default function SalesPage() {
         <h1 className="text-[28px] font-semibold leading-[1.25] text-ink-primary tracking-tight">
           Sales Pipeline
         </h1>
-        <Link
-          href="/sales/leads/new"
-          className={cn(
-            'inline-flex items-center gap-2 h-9 px-4 rounded-md text-sm font-semibold',
-            'bg-accent text-white hover:bg-accent/90 transition-colors',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2',
-          )}
-        >
-          <Plus className="h-4 w-4" aria-hidden="true" />
-          New Lead
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/sales/aging"
+            className={cn(
+              'inline-flex items-center gap-2 h-9 px-4 rounded-md text-sm font-medium',
+              'bg-bg-surface text-ink-primary border border-line hover:bg-bg-subtle transition-colors',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2',
+            )}
+            title="Inventory aging report — listings sorted by days-on-market with price-drop suggestions"
+          >
+            <TrendingDown className="h-4 w-4" aria-hidden="true" />
+            Aging Report
+          </Link>
+          <Link
+            href="/sales/leads/new"
+            className={cn(
+              'inline-flex items-center gap-2 h-9 px-4 rounded-md text-sm font-semibold',
+              'bg-accent text-white hover:bg-accent/90 transition-colors',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2',
+            )}
+          >
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            New Lead
+          </Link>
+        </div>
       </div>
 
       {/* ── View toggle + filters ────────────────────────────────────────────── */}

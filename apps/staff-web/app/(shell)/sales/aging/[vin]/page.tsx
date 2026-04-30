@@ -8,7 +8,7 @@
  */
 
 import type { Metadata } from 'next';
-import { AgingDrillDownView } from '@/src/components/inventory-aging/aging-drill-down-view';
+import { AgingDrillDownView } from '@/src/components/sales/aging/aging-drill-down-view';
 
 export const metadata: Metadata = {
   title: 'Aging Detail — BN Automobiles DMS',

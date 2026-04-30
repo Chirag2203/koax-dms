@@ -21,7 +21,6 @@ import {
   Shield,
   ShieldCheck,
   Star,
-  TrendingDown,
   Users,
   UserCheck,
   Wrench,
@@ -78,7 +77,8 @@ const NAV_GROUPS: NavGroup[] = [
       { key: 'staff', href: '/staff', icon: UserCheck },
       { key: 'insurance', href: '/insurance', icon: ShieldCheck },
       { key: 'shoots', href: '/shoots', icon: Camera },
-      { key: 'inventoryAging', href: '/inventory-aging', icon: TrendingDown },
+      // Inventory aging is now `/sales/aging` — accessed via the Sales hub
+      // header (Aging report button). Removed from sidebar 2026-04-30.
       { key: 'reviews', href: '/reviews', icon: Star },
       { key: 'finance', href: '/finance', icon: IndianRupee },
       { key: 'reports', href: '/reports', icon: BarChart3 },

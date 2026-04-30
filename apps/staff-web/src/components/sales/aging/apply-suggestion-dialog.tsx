@@ -20,7 +20,7 @@ import { AlertDialog } from '@/src/components/primitives/dialog';
 import { useVehiclesStore } from '@/src/lib/vehicles/vehicles-store';
 import { useStaffAuth } from '@/src/hooks/use-staff-auth';
 import { useToast } from '@/src/hooks/use-toast';
-import type { AgedListingRow } from '@/src/lib/inventory-aging/selectors';
+import type { AgedListingRow } from '@/src/lib/sales/aging/selectors';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 

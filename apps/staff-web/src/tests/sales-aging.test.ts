@@ -33,7 +33,7 @@ import {
   computeAgingBand,
   computePriceSuggestion,
   selectAgedListings,
-} from '../lib/inventory-aging/selectors';
+} from '../lib/sales/aging/selectors';
 import { useVehiclesStore } from '../lib/vehicles/vehicles-store';
 import { InsufficientRoleError } from '../lib/vehicles/vehicles-store/slices/sales-events-slice';
 import type { CompetitorPrice } from '@dms/mocks/fixtures';
