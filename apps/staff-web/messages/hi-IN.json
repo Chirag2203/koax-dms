@@ -2,6 +2,19 @@
   "staff": {
     "nav": {
       "testDrives": "Test Drives"
+    },
+    "enquiryDetail": {
+      "testDrivesCard": {
+        "title": "Test Drives",
+        "bookNew": "Book new",
+        "bookTestDrive": "Book Test Drive",
+        "empty": "No test drives yet for this deal.",
+        "view": "View",
+        "dateLabel": "Date",
+        "slotLabel": "Slot",
+        "advisorLabel": "Advisor",
+        "statusLabel": "Status"
+      }
     }
   },
   "testDrives": {

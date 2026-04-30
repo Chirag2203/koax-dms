@@ -95,6 +95,15 @@ export const TestDriveBookingSchema = z.object({
   cancellationReason: z.string().optional(),
   /** L6: optional link to B1 leads module */
   leadId: z.string().optional(),
+  /**
+   * Government ID type captured at test drive booking.
+   * Aadhaar stored as last-4 only per Doc 13 §Aadhaar / DPDP Act 2023.
+   */
+  governmentIdType: z.enum(['AADHAAR_L4', 'PAN', 'DL']).optional(),
+  /** Masked / last-4 only — never store full Aadhaar (Doc 13 §Aadhaar). */
+  governmentIdValue: z.string().max(20).optional(),
+  /** FK to Deal — set on auto-creation via Seam 44. */
+  linkedDealId: z.string().optional(),
   notes: z.string().optional(),
   execution: TestDriveExecutionSchema.optional(),
   feedback: TestDriveFeedbackSchema.optional(),

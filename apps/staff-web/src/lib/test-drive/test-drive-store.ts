@@ -25,6 +25,7 @@ import type {
   TestDriveExecution,
   TestDriveFeedback,
 } from '@dms/types';
+import { useSalesDealsStore } from '@/src/lib/sales/sales-deals-store';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -197,7 +198,32 @@ export const useTestDriveStore = create<TestDriveStore>()(
         state.bookings[booking.id] = booking;
       });
 
-      return booking;
+      // Seam 44: auto-create or advance a sales deal on test-drive booking.
+      // Best-effort — booking creation succeeds even if deal sync fails.
+      try {
+        const deal = useSalesDealsStore.getState().upsertDealFromTestDrive({
+          customerId: booking.customerId,
+          customerName: booking.customerName,
+          customerPhone: '',
+          vehicleVin: booking.vehicleVin,
+          vehicleMake: booking.vehicleMake,
+          vehicleModel: booking.vehicleModel,
+          vehicleYear: booking.vehicleYear,
+          outletId: booking.outletId,
+          city: booking.outletId,
+        });
+        // Back-reference: store linkedDealId on the booking for cross-module navigation
+        set((state) => {
+          if (state.bookings[booking.id]) {
+            state.bookings[booking.id]!.linkedDealId = deal.id;
+          }
+        });
+      } catch (e) {
+        console.warn('[test-drive] failed to upsert sales deal (Seam 44):', e);
+      }
+
+      // Return the freshest state (includes linkedDealId if set above)
+      return get().bookings[booking.id] ?? booking;
     },
 
     confirmBooking(id, advisorId, advisorName, confirmedDate, confirmedSlot) {

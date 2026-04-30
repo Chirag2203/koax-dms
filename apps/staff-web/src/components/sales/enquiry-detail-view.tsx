@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   MessageSquare,
   Phone,
@@ -27,6 +28,7 @@ import { AddNoteModal } from './add-note-modal';
 import { ContactDetailsPanel } from './contact-details-panel';
 import { WhatsappDialog } from './whatsapp-dialog';
 import { AiCallDialog } from './ai-call-dialog';
+import { TestDrivesForDealCard } from './test-drives-for-deal-card';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -199,6 +201,7 @@ export interface EnquiryDetailViewProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailViewProps) {
+  const router = useRouter();
   const [interactionFilter, setInteractionFilter] = useState<InteractionFilter>('all');
   const [showLogCall, setShowLogCall] = useState(false);
   const [showScheduleTD, setShowScheduleTD] = useState(false);
@@ -315,6 +318,18 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
               >
                 <Sparkles className="h-4 w-4" aria-hidden="true" />
                 AI Call
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const params = new URLSearchParams();
+                  if (dealData.customerName) params.set('customerId', dealData.customerName);
+                  if (dealData.vehicleVin) params.set('vehicleVin', dealData.vehicleVin);
+                  router.push(`/test-drives/new?${params.toString()}`);
+                }}
+                className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-line bg-bg-surface text-sm font-medium text-ink-primary hover:bg-bg-subtle transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+              >
+                Book Test Drive
               </button>
               <button
                 type="button"
@@ -510,7 +525,7 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
 
             {/* Deal notes */}
             {dealData.notes && (
-              <div className="rounded-md border border-line bg-bg-surface p-4 m-4 mb-4">
+              <div className="rounded-md border border-line bg-bg-surface p-4 m-4 mb-0">
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
                   Notes
                 </h3>
@@ -519,6 +534,11 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
                 </p>
               </div>
             )}
+
+            {/* Test Drives card — Seam 44 cross-module visibility */}
+            <div className="m-4 mb-4">
+              <TestDrivesForDealCard deal={dealData} />
+            </div>
           </div>
         </div>
       </div>
