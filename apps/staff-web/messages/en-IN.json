@@ -1956,7 +1956,28 @@
       "confirmLabel": "Confirm Booking",
       "submittingLabel": "Booking…",
       "successToast": "Test drive booking created.",
-      "errorToast": "Could not create booking. Please try again."
+      "errorToast": "Could not create booking. Please try again.",
+      "existingCustomerTab": "Existing Customer",
+      "newCustomerTab": "New Customer",
+      "newCustomerHeading": "Walk-in Customer",
+      "newCustomerSubtitle": "Enter the customer's details. A profile will be created in the system.",
+      "nameLabel": "Full Name",
+      "nameError": "Name must be at least 2 characters.",
+      "phoneLabel": "Mobile Number",
+      "phoneError": "Enter a valid Indian mobile number starting with +91 (e.g. +919876543210).",
+      "emailLabel": "Email Address",
+      "emailError": "Enter a valid email address.",
+      "preferredCityLabel": "Preferred City",
+      "dpdpConsentLabel": "I consent to BN Automobiles processing my data per DPDP Act 2023 for this test drive request and follow-up communications.",
+      "dpdpConsentRequired": "Consent is required to proceed.",
+      "duplicatePhoneError": "A customer with this phone already exists — please use the existing-customer search.",
+      "maxVehiclesNote": "Maximum {max} vehicles per session.",
+      "selectedVehiclesCount": "Selected: {count} vehicle(s)",
+      "noVehiclesSelected": "Select at least one vehicle to continue.",
+      "conflictSameSlot": "Two vehicles can't share the same slot at the same outlet — pick different times for each.",
+      "confirmBookingsCta": "Confirm {count} Booking(s)",
+      "partialFailureToast": "{succeeded} booking(s) created; {failed} failed — see console for details.",
+      "newCustomerCreatedBadge": "New"
     }
   }
 }

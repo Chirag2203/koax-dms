@@ -65,6 +65,10 @@ export function canTransitionTestDrive(from: TestDriveStatus, to: TestDriveStatu
 export interface CreateTestDriveInput {
   customerId: string;
   customerName: string;
+  /** Optional — captured at booking for walk-in customers. */
+  customerPhone?: string;
+  /** Optional — captured at booking for walk-in customers. */
+  customerEmail?: string;
   vehicleVin: string;
   vehicleMake: string;
   vehicleModel: string;
@@ -189,6 +193,9 @@ export const useTestDriveStore = create<TestDriveStore>()(
       const booking: TestDriveBooking = {
         id: nextId(),
         ...input,
+        // Normalise optional contact fields — spread passes them through if defined
+        customerPhone: input.customerPhone,
+        customerEmail: input.customerEmail,
         status: 'PENDING',
         createdAt: now,
         updatedAt: now,
@@ -204,7 +211,7 @@ export const useTestDriveStore = create<TestDriveStore>()(
         const deal = useSalesDealsStore.getState().upsertDealFromTestDrive({
           customerId: booking.customerId,
           customerName: booking.customerName,
-          customerPhone: '',
+          customerPhone: booking.customerPhone ?? '',
           vehicleVin: booking.vehicleVin,
           vehicleMake: booking.vehicleMake,
           vehicleModel: booking.vehicleModel,
