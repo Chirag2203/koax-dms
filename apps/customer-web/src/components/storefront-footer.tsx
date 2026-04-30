@@ -193,9 +193,25 @@ export function StorefrontFooter() {
 
         {/* Bottom bar */}
         <div className="flex flex-col gap-8 border-t border-[#1c1b19] pt-12 md:flex-row md:items-center md:justify-between">
-          <span className="text-[10px] text-ink-subtle">
-            {t('copyright')}
-          </span>
+          <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-6">
+            <span className="text-[10px] text-ink-subtle">
+              {t('copyright')}
+            </span>
+            <span className="text-[10px] text-ink-subtle" aria-label="Site built by Koax">
+              Powered by{' '}
+              <a
+                href="https://koax.in"
+                target="_blank"
+                rel="noopener noreferrer"
+                className={cn(
+                  'text-ink-secondary hover:text-accent motion-safe:transition-colors',
+                  'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
+                )}
+              >
+                Koax
+              </a>
+            </span>
+          </div>
 
           {/* Social links */}
           <nav aria-label="Social media" className="flex gap-8">

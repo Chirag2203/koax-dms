@@ -224,9 +224,10 @@ function MobileMenu({
         <Link
           href="/"
           onClick={onClose}
-          className="font-display text-xl font-bold tracking-[-0.04em] text-white"
+          className="font-display italic text-2xl tracking-tighter lowercase text-white"
+          aria-label="BN Automobiles — home"
         >
-          BN AUTOMOBILES
+          bn automobiles.
         </Link>
         <button
           type="button"
@@ -373,13 +374,14 @@ export function StorefrontHeader() {
           <Link
             href="/"
             className={cn(
-              'font-display text-xl font-bold tracking-[-0.04em] shrink-0',
+              'font-display italic text-2xl tracking-tighter lowercase shrink-0',
               isTransparent ? 'text-white' : 'text-ink-primary',
               'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent',
               'focus-visible:shadow-[0_0_0_4px_white]',
             )}
+            aria-label="BN Automobiles — home"
           >
-            BN AUTOMOBILES
+            bn automobiles.
           </Link>
 
           {/* Center: desktop nav links */}

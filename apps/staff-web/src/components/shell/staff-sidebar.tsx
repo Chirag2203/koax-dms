@@ -227,14 +227,18 @@ export function StaffSidebar() {
       aria-label="Main navigation"
     >
       {/* ── Logo area ── */}
+      {/* Brand wordmark — italic Playfair Display, matches customer-web
+          footer mark for cross-surface brand parity (per user direction
+          2026-04-30). Logo is the only place we use the display serif on
+          the staff surface; rest of UI stays Inter. */}
       <div className="flex items-center h-14 px-3 border-b border-line flex-shrink-0">
         {collapsed ? (
-          <span className="font-mono font-semibold text-[15px] text-ink-primary tracking-tight w-8 text-center">
-            BN
+          <span className="font-display italic text-xl tracking-tight lowercase text-ink-primary w-8 text-center">
+            bn
           </span>
         ) : (
-          <span className="font-sans font-semibold text-[16px] text-ink-primary tracking-tight whitespace-nowrap">
-            BN DMS
+          <span className="font-display italic text-xl tracking-tight lowercase text-ink-primary whitespace-nowrap">
+            bn automobiles.
           </span>
         )}
       </div>
@@ -529,6 +533,24 @@ export function StaffSidebar() {
             </>
           )}
         </button>
+
+        {/* Powered-by Koax branding (per user direction 2026-04-30) */}
+        {!collapsed && (
+          <div
+            className="px-3 pt-1 pb-1 text-[10px] text-ink-muted"
+            aria-label="Site built by Koax"
+          >
+            Powered by{' '}
+            <a
+              href="https://koax.in"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-ink-secondary hover:text-accent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent rounded-sm"
+            >
+              Koax
+            </a>
+          </div>
+        )}
       </div>
 
       {/* Role-switch submenu — portaled out of the <aside> (which has
