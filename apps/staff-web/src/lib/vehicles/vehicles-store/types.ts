@@ -344,6 +344,21 @@ export interface SalesEventsActions {
    * Called by VehiclesStoreHydrator after Phase A+B hydration.
    */
   hydrateSalesEvents(seed: SalesEvent[]): void;
+
+  /**
+   * R10+ gate — apply a suggested price drop.
+   * Emits PRICE_CHANGED SalesEvent via existing emitSalesEvent.
+   *
+   * SPEC-INVENTORY-AGING-001:
+   *   L6: throws InsufficientRoleError if actor.role not in allowed R10+ set.
+   *   L11: payload includes { previousPrice, newPrice, reason, source: 'AGING_SUGGESTION' }.
+   */
+  applySuggestedPriceDrop(
+    vin: string,
+    newPrice: number,
+    reason: string,
+    actor: Actor,
+  ): void;
 }
 
 // ─── Combined store type ──────────────────────────────────────────────────────

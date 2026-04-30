@@ -18,6 +18,28 @@ import { StaffRoleCodeEnum } from '@dms/types';
 import type { Actor, SalesEventsActions, VehiclesSlice } from '../types';
 import { makeEventId, now } from '../id-helpers';
 
+// ─── InsufficientRoleError (SPEC-INVENTORY-AGING-001 L6) ─────────────────────
+
+export class InsufficientRoleError extends Error {
+  readonly vin: string;
+  readonly actorRole: string;
+
+  constructor(vin: string, actorRole: string) {
+    super(
+      `InsufficientRoleError: actor role ${actorRole} is below R10 — cannot apply suggested price drop for VIN ${vin}. ` +
+      'Requires R10, R11, R12, R19, R22, or R24.',
+    );
+    this.name = 'InsufficientRoleError';
+    this.vin = vin;
+    this.actorRole = actorRole;
+  }
+}
+
+// Roles allowed to apply a suggested price drop (SPEC-INVENTORY-AGING-001 L6)
+const PRICE_DROP_ALLOWED_ROLES = new Set([
+  'R10', 'R11', 'R12', 'R19', 'R22', 'R24',
+]);
+
 // ─── SellerSignaturesIncomplete ───────────────────────────────────────────────
 
 export class SellerSignaturesIncomplete extends Error {
@@ -52,6 +74,13 @@ export const createSalesEventsSlice: VehiclesSlice<SalesEventsActions> = (set, g
   emitSalesEvent(vin: string, kind: SalesEventKind, payload: unknown, actor: Actor): void {
     // L28: validate payload BEFORE writing
     validateSalesEventPayload(kind, payload);
+
+    // ── LISTED guard: Seam 40 (SPEC-SHOOTS-001 L2) ───────────────────────────
+    // The ≥10 photos + ≥1 video threshold guard is enforced at the UI call site
+    // via assertShootComplete() before emitSalesEvent is called. This keeps the
+    // slice pure (no cross-store imports per ARCH-CROSS-MODULE-001 invariant #2).
+    // The UI layer MUST call assertShootComplete(vin) before emitting LISTED.
+    // See: apps/staff-web/src/lib/shoots/shoots-listed-guard.ts (Seam 40).
 
     // SOLD: seller signatures check (L15, L16)
     if (kind === 'SOLD') {
@@ -113,5 +142,45 @@ export const createSalesEventsSlice: VehiclesSlice<SalesEventsActions> = (set, g
         state.salesEvents[event.vin]!.push(event);
       }
     });
+  },
+
+  // SPEC-INVENTORY-AGING-001 L6, L11
+  applySuggestedPriceDrop(vin: string, newPrice: number, reason: string, actor: Actor): void {
+    // L6: R10+ gate — throws InsufficientRoleError if below threshold
+    const actorRole = actor.role ?? '';
+    if (!PRICE_DROP_ALLOWED_ROLES.has(actorRole)) {
+      throw new InsufficientRoleError(vin, actorRole);
+    }
+
+    // Derive previous price from LISTED + PRICE_CHANGED event stream
+    // (VehicleMaster has no price field — price lives in the event stream)
+    const state = get();
+    const vinEvents = state.salesEvents[vin] ?? [];
+    let previousPrice = 0;
+    for (const ev of vinEvents) {
+      if (ev.kind === 'LISTED') {
+        const p = ev.payload as { listPrice?: number };
+        previousPrice = p.listPrice ?? 0;
+      } else if (ev.kind === 'PRICE_CHANGED') {
+        const p = ev.payload as { toPrice?: number };
+        if (p.toPrice != null) previousPrice = p.toPrice;
+      }
+    }
+
+    // L11: emit PRICE_CHANGED with source = 'AGING_SUGGESTION'
+    // Payload uses fromPrice/toPrice (schema canonical names from validateSalesEventPayload).
+    // Extra fields (reason, source) are pass-through metadata the schema allows via .passthrough().
+    // Delegates to existing emitSalesEvent for validation + append (L28)
+    get().emitSalesEvent(
+      vin,
+      'PRICE_CHANGED',
+      {
+        fromPrice: previousPrice,
+        toPrice: newPrice,
+        reason,
+        source: 'AGING_SUGGESTION',
+      },
+      actor,
+    );
   },
 });

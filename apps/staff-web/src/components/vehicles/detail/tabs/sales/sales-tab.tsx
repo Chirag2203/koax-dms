@@ -207,6 +207,7 @@ export function SalesTab({ vehicle }: SalesTabProps) {
               <StaleListingChip
                 listedAt={vehicle.listedAt}
                 dealStage={activeDeal?.stage}
+                vin={vehicle.vin}
               />
             )}
           </div>
