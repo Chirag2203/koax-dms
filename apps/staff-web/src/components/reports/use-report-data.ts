@@ -21,7 +21,7 @@ import { useStaffStore } from '@/src/lib/staff/staff-store';
 
 import type { ReportInputState, ReportPeriod, ReportScope, KpiValue } from '@/src/lib/reports/types';
 import { selectOutletPnL } from '@/src/lib/reports/selectors/p-and-l-selectors';
-import { selectSalesVelocity, selectInventoryAging, selectCpoConversion } from '@/src/lib/reports/selectors/sales-selectors';
+import { selectSalesVelocity, selectInventoryAging, selectCpoConversion, selectServiceToSaleConversion } from '@/src/lib/reports/selectors/sales-selectors';
 import { selectServiceSlaMedian } from '@/src/lib/reports/selectors/service-selectors';
 import { selectInsuranceAttachmentRate } from '@/src/lib/reports/selectors/insurance-selectors';
 import { selectPartsMarginPct } from '@/src/lib/reports/selectors/parts-selectors';
@@ -40,15 +40,17 @@ const NULL_DEFERRED: KpiValue = { kind: 'deferred' };
 // ─── KPI Results type ─────────────────────────────────────────────────────────
 
 export interface KpiResults {
-  outletPnL:             KpiValue;
-  salesVelocity:         KpiValue;
-  inventoryAging:        KpiValue;
-  serviceSla:            KpiValue;
-  partsMargin:           KpiValue;
-  insuranceAttach:       KpiValue;
-  cpoConversion:         KpiValue;
-  customBuildsRevenue:   KpiValue;
-  staffUtilisation:      KpiValue;
+  outletPnL:                  KpiValue;
+  salesVelocity:              KpiValue;
+  inventoryAging:             KpiValue;
+  serviceSla:                 KpiValue;
+  partsMargin:                KpiValue;
+  insuranceAttach:            KpiValue;
+  cpoConversion:              KpiValue;
+  customBuildsRevenue:        KpiValue;
+  staffUtilisation:           KpiValue;
+  /** SPEC-SERVICE-SALE-001 L5: service→sale upgrade conversion rate */
+  serviceToSaleConversion:    KpiValue;
 }
 
 export interface ReportDataResult {
@@ -167,15 +169,17 @@ export function useReportData(period: ReportPeriod, scope: ReportScope): ReportD
     }
 
     return {
-      outletPnL:           safe(() => selectOutletPnL(state, period, scope),                  NULL_CURRENCY as KpiValue) as KpiValue,
-      salesVelocity:       safe(() => selectSalesVelocity(state, period, scope),              NULL_COUNT    as KpiValue) as KpiValue,
-      inventoryAging:      safe(() => selectInventoryAging(state, period, scope),             NULL_HIST     as KpiValue) as KpiValue,
-      serviceSla:          safe(() => selectServiceSlaMedian(state, period, scope),           NULL_DAYS     as KpiValue) as KpiValue,
-      partsMargin:         safe(() => selectPartsMarginPct(state, period, scope),             NULL_DEFERRED as KpiValue) as KpiValue,
-      insuranceAttach:     safe(() => selectInsuranceAttachmentRate(state, period, scope),    NULL_PCT      as KpiValue) as KpiValue,
-      cpoConversion:       safe(() => selectCpoConversion(state, period, scope),              NULL_PCT      as KpiValue) as KpiValue,
-      customBuildsRevenue: safe(() => selectCustomBuildsRevContribution(state, period, scope),NULL_PCT      as KpiValue) as KpiValue,
-      staffUtilisation:    safe(() => selectStaffUtilisation(state, period, scope),           NULL_PCT      as KpiValue) as KpiValue,
+      outletPnL:                safe(() => selectOutletPnL(state, period, scope),                  NULL_CURRENCY as KpiValue) as KpiValue,
+      salesVelocity:            safe(() => selectSalesVelocity(state, period, scope),              NULL_COUNT    as KpiValue) as KpiValue,
+      inventoryAging:           safe(() => selectInventoryAging(state, period, scope),             NULL_HIST     as KpiValue) as KpiValue,
+      serviceSla:               safe(() => selectServiceSlaMedian(state, period, scope),           NULL_DAYS     as KpiValue) as KpiValue,
+      partsMargin:              safe(() => selectPartsMarginPct(state, period, scope),             NULL_DEFERRED as KpiValue) as KpiValue,
+      insuranceAttach:          safe(() => selectInsuranceAttachmentRate(state, period, scope),    NULL_PCT      as KpiValue) as KpiValue,
+      cpoConversion:            safe(() => selectCpoConversion(state, period, scope),              NULL_PCT      as KpiValue) as KpiValue,
+      customBuildsRevenue:      safe(() => selectCustomBuildsRevContribution(state, period, scope),NULL_PCT      as KpiValue) as KpiValue,
+      staffUtilisation:         safe(() => selectStaffUtilisation(state, period, scope),           NULL_PCT      as KpiValue) as KpiValue,
+      // SPEC-SERVICE-SALE-001 L5, Seam 31
+      serviceToSaleConversion:  safe(() => selectServiceToSaleConversion(state, period, scope),    NULL_PCT      as KpiValue) as KpiValue,
     };
   }, [
     // Vehicles

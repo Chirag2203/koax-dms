@@ -31,6 +31,7 @@ import { last30dPeriod } from '@/src/lib/reports/period';
 import { PeriodFilter } from './period-filter';
 import { OutletScopeToggle } from './outlet-scope-toggle';
 import { KpiTile, KpiTileSkeleton } from './kpi-tile';
+import { NpsTile } from './nps-tile';
 import { useReportData } from './use-report-data';
 
 // ─── Outlet-to-ID mapping (for R10 scope enforcement) ────────────────────────
@@ -89,8 +90,10 @@ export function ReportsHubView() {
       if (k.kind === 'histogram') return k.buckets.every((b) => b.count === 0);
       return k.value === null;
     };
+    const { serviceToSaleConversion } = kpis;
     return isNull(outletPnL) && isNull(salesVelocity) && isNull(serviceSla) &&
-           isNull(insuranceAttach) && isNull(cpoConversion) && isNull(staffUtilisation);
+           isNull(insuranceAttach) && isNull(cpoConversion) && isNull(staffUtilisation) &&
+           isNull(serviceToSaleConversion);
   }, [kpis, isLoading]);
 
   // Service SLA chip color (§9.4)
@@ -285,6 +288,44 @@ export function ReportsHubView() {
                   kpi={kpis.partsMargin}
                 />
               )}
+            </div>
+          </section>
+
+          {/* Section 4: Revenue Funnel (SPEC-SERVICE-SALE-001 L10) */}
+          <section aria-labelledby="section-revenue-funnel">
+            <h2
+              id="section-revenue-funnel"
+              className="text-sm font-semibold text-ink-secondary uppercase tracking-wider mb-4"
+            >
+              {t('sections.revenueFunnel')}
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {isLoading ? <KpiTileSkeleton /> : (
+                <KpiTile
+                  label={t('kpi.serviceToSaleConversion')}
+                  kpi={kpis.serviceToSaleConversion}
+                  subtitle={t('kpi.serviceToSaleConversionUnit')}
+                />
+              )}
+            </div>
+          </section>
+
+          {/* Section 4: Customer Experience (NPS) — Seam 28 */}
+          <section aria-labelledby="section-cx">
+            <h2
+              id="section-cx"
+              className="text-sm font-semibold text-ink-secondary uppercase tracking-wider mb-4"
+            >
+              {t('sections.customerExperience')}
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* L11: NPS tile — R10+ gate enforced in NpsTile */}
+              {isLoading
+                ? <KpiTileSkeleton />
+                : <NpsTile period={period} scope={effectiveScope} />
+              }
             </div>
           </section>
 

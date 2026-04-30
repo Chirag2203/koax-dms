@@ -4,6 +4,9 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useServiceStore } from '@/src/lib/service/service-store';
 import { useCustomersStore } from '@/src/lib/customers/customers-store';
+import { useVehiclesStore } from '@/src/lib/vehicles/vehicles-store';
+import { isUpgradeReady } from '@/src/lib/service-to-sale/upgrade-eligibility';
+import type { VehicleRecall } from '@/src/lib/service-to-sale/upgrade-eligibility';
 import { maskedContactFor } from '@dms/vehicles-core';
 import { ROLE_RANK } from '@/src/lib/vehicles/state-machine';
 import {
@@ -18,6 +21,7 @@ import {
   RotateCcw,
   StickyNote,
   Lock,
+  TrendingUp,
 } from 'lucide-react';
 import { cn } from '@dms/ui';
 import {
@@ -48,6 +52,34 @@ import { CommunicationsPanel } from './side-panels/communications-panel';
 
 // ─── Messages ─────────────────────────────────────────────────────────────────
 
+// ─── Stub recall data (L2: real feed is DEF-SERVICE-SALE-1) ──────────────────
+// VINs listed here have known open recalls in the fixture dataset for demo purposes.
+const STUB_RECALLS: VehicleRecall[] = [
+  {
+    id: 'recall-001',
+    vin: 'WP0AAA1X8PSA12345',   // Porsche Taycan — fictitious airbag recall
+    title: 'Airbag Inflator Recall',
+    issuedAt: '2025-11-20',
+    status: 'OPEN',
+    description: 'Potential airbag inflator rupture under high humidity conditions.',
+  },
+  {
+    id: 'recall-002',
+    vin: 'WDD2221971A012345',    // Mercedes-Benz S-Class — fictitious software recall
+    title: 'MBUX Software Update',
+    issuedAt: '2026-01-15',
+    status: 'OPEN',
+    description: 'Infotainment system may freeze under certain navigation conditions.',
+  },
+];
+
+// ─── Upgrade reason → chip label ──────────────────────────────────────────────
+const UPGRADE_REASON_LABEL: Record<string, string> = {
+  'age-over-5y':  'Vehicle >5 years',
+  'km-over-70k':  '>70,000 km',
+  'open-recall':  'Open recall',
+};
+
 const MESSAGES = {
   breadcrumbService: 'Service',
   breadcrumbJobCards: 'Job Cards',
@@ -63,6 +95,10 @@ const MESSAGES = {
   resolve: 'Resolve',
   waitingPartsMsg: 'Job card is blocked — waiting for parts to arrive before work can resume.',
   approvalMsg: 'Awaiting customer approval for additional work discovered during service.',
+  upgradeReadyTitle: "Customer's vehicle is upgrade-ready",
+  upgradeReadyCta: 'Create sales lead',
+  upgradeLeadCreated: 'Sales lead created for',
+  upgradeLeadFallback: 'Lead funnel ships in B1 — would create lead for',
   odometerIn: 'Odometer In',
   promisedBy: 'Promised By',
   estimate: 'Estimate',
@@ -295,6 +331,57 @@ export function JobCardDetailView({ jobCard: initialJobCard }: JobCardDetailView
   const isBlocked =
     jobCard.status === 'WAITING_PARTS' || jobCard.status === 'ADDITIONAL_WORK_APPROVAL';
 
+  // ─── Upgrade-readiness computation (SPEC-SERVICE-SALE-001 §5, L11) ──────────
+  // L11: Look up VehicleMaster by VIN for age check. null if not in store.
+  const vehicleMaster = useVehiclesStore((s) => s.vehicles[jobCard.vin] ?? null);
+  const upgradeVehicleInfo = vehicleMaster ? { year: vehicleMaster.year } : null;
+  const upgradeResult = isUpgradeReady(upgradeVehicleInfo, jobCard, STUB_RECALLS);
+
+  // ─── Create lead handler (Seam 30, L3: graceful B1 fallback) ─────────────────
+  function handleCreateSalesLead() {
+    try {
+      // Dynamic import guard — B1 may not be shipped (L3)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const leadsStoreModule = (typeof window !== 'undefined')
+        ? (window as any).__leadsStore
+        : undefined;
+
+      if (leadsStoreModule?.createLead) {
+        leadsStoreModule.createLead({
+          vin: jobCard.vin,
+          customerId: jobCard.customerId,
+          source: 'SERVICE_UPGRADE',
+          stage: 'NEW',
+          createdFromJobCardId: jobCard.id,
+        });
+        toast(`${MESSAGES.upgradeLeadCreated} ${customer.name}`, 'success');
+        return;
+      }
+
+      // Attempt the real B1 store path — Seam 30
+      // useLeadsStore is dynamically required so this file doesn't hard-fail
+      // when B1 hasn't shipped yet (L3).
+      // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires
+      const { useLeadsStore } = require('@/src/lib/leads/leads-store') as {
+        useLeadsStore: { getState: () => { createLead: (args: Record<string, unknown>) => void } }
+      };
+      useLeadsStore.getState().createLead({
+        vin: jobCard.vin,
+        customerId: jobCard.customerId,
+        source: 'SERVICE_UPGRADE',
+        stage: 'NEW',
+        createdFromJobCardId: jobCard.id,
+      });
+      toast(`${MESSAGES.upgradeLeadCreated} ${customer.name}`, 'success');
+    } catch {
+      // L3: B1 not shipped — explicit info toast (never a silent no-op per CLAUDE.md §10 DoD #15)
+      console.info(
+        `[service-to-sale] Lead funnel (B1) not yet available. Would create SERVICE_UPGRADE lead for ${customer.name} (VIN: ${jobCard.vin})`,
+      );
+      toast(`${MESSAGES.upgradeLeadFallback} ${customer.name}`, 'info');
+    }
+  }
+
   const actor = { id: user?.id ?? 'staff-r24-001', name: user?.name ?? 'Meera Iyer' };
 
   function handleWhatsApp() {
@@ -472,6 +559,53 @@ export function JobCardDetailView({ jobCard: initialJobCard }: JobCardDetailView
             />
           </div>
         </div>
+
+        {/* ── Upgrade-ready banner (SPEC-SERVICE-SALE-001 §6, L6, L7) ────── */}
+        {/* L6: renders above the action bar (above blocked-state banners)    */}
+        {/* L7: Gate role R09+ — hidden from R11 Technicians and below         */}
+        {upgradeResult.ready && (
+          <Gate role={['R09', 'R12', 'R19', 'R22', 'R24']} fallback="hide">
+            <div
+              className="mt-4 flex items-start justify-between gap-3 rounded-md border border-accent/30 bg-accent/5 px-4 py-3"
+              role="alert"
+              aria-label="Vehicle upgrade-ready notification"
+              data-testid="upgrade-ready-banner"
+            >
+              <div className="flex items-start gap-3 min-w-0">
+                <TrendingUp
+                  className="mt-0.5 h-4 w-4 shrink-0 text-accent"
+                  aria-hidden="true"
+                />
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-ink-primary">
+                    {MESSAGES.upgradeReadyTitle}
+                  </p>
+                  {/* L8: all reason chips rendered */}
+                  <div className="mt-1.5 flex flex-wrap gap-1.5">
+                    {upgradeResult.reasons.map((reason) => (
+                      <span
+                        key={reason}
+                        data-testid={`upgrade-reason-chip-${reason}`}
+                        className="inline-flex items-center rounded-sm bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent"
+                      >
+                        {UPGRADE_REASON_LABEL[reason] ?? reason}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={handleCreateSalesLead}
+                data-testid="create-lead-cta"
+                className="shrink-0 inline-flex items-center gap-1.5 h-8 px-3 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+              >
+                <TrendingUp className="h-3.5 w-3.5" aria-hidden="true" />
+                {MESSAGES.upgradeReadyCta}
+              </button>
+            </div>
+          </Gate>
+        )}
 
         {/* ── Blocked state banners ────────────────────────────────────────── */}
         {isBlocked && (

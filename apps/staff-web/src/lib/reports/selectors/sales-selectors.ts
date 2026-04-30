@@ -1,5 +1,6 @@
 /**
- * Sales-related selectors: velocity, inventory aging, CPO conversion.
+ * Sales-related selectors: velocity, inventory aging, CPO conversion,
+ * and service-to-sale conversion rate.
  *
  * L18: Sales velocity source is vehicles-store.salesEvents filtered for kind='SOLD'.
  * L2:  Client-side pure functions.
@@ -8,11 +9,13 @@
  * L13: Validates scope.outletIds.length > 0.
  *
  * Spec reference: SPEC-REPORTS-001 §6.3 (Seams 20, 21)
+ * Service-to-sale: SPEC-SERVICE-SALE-001 §5, L5, L9 (Seam 31)
  */
 
 import type { ReportInputState, ReportPeriod, ReportScope, KpiValue } from '../types';
-import type { SalesEvent } from '@dms/types';
+import type { SalesEvent, JobCard } from '@dms/types';
 import { isInPeriod, last8WeekBuckets } from '../period';
+import { isUpgradeReady } from '@/src/lib/service-to-sale/upgrade-eligibility';
 
 /** Extracts outletId from a LISTED event payload or falls back to firstTouchOutletId */
 function getOutletForVin(state: ReportInputState, vin: string): string {
@@ -201,5 +204,87 @@ export function selectCpoConversion(
 
   const pct = (soldCpoCount / denominator) * 100;
 
+  return { kind: 'percentage', value: parseFloat(pct.toFixed(1)) };
+}
+
+// ─── Service-to-Sale Conversion Rate ─────────────────────────────────────────
+
+/**
+ * Service-to-sale conversion rate.
+ *
+ * Formula (SPEC-SERVICE-SALE-001 §5, L5):
+ *   (leads sourced from 'SERVICE_UPGRADE' that reached 'delivered' stage in period)
+ *   divided by
+ *   (distinct JCs in period+scope where isUpgradeReady returns ready:true)
+ *   × 100
+ *
+ * Numerator:   reads `state.salesDeals.deals` — filters for deals where source string
+ *              equals 'SERVICE_UPGRADE' (dynamic check; B1 may extend LeadSource enum
+ *              with this value when it ships). Counts deals reaching 'delivered' stage
+ *              (closest to 'CLOSED_WON' in the current DealStageEnum) with
+ *              lastActivityAt within period.
+ *
+ * Denominator: reads `state.service.jobCards` — counts JCs in scope whose
+ *              `receivedAt` falls in the period and for which `isUpgradeReady`
+ *              returns `{ ready: true }`. Uses `state.vehicles.vehicles[jc.vin]`
+ *              for vehicle age. Recalls are [] (stub — DEF-SERVICE-SALE-1).
+ *
+ * L5:  Zero denominator → `value: null` (per SPEC-REPORTS-001 L9 — never '0' for no-data).
+ * L9:  Extends SPEC-SERVICE-SALE-001 L9 (selector location in sales-selectors.ts).
+ * L13: Validates scope.outletIds.length > 0.
+ *
+ * Seam 31 reference: SPEC-SERVICE-SALE-001 §8
+ */
+export function selectServiceToSaleConversion(
+  state: ReportInputState,
+  period: ReportPeriod,
+  scope: ReportScope,
+): KpiValue {
+  // L13
+  if (!scope.outletIds.length) return { kind: 'percentage', value: null };
+
+  // ── Denominator: upgrade-eligible JCs in period+scope ─────────────────────
+  let eligibleJcCount = 0;
+
+  for (const jc of (state.service.jobCards as JobCard[])) {
+    if (!scope.outletIds.includes(jc.outletId)) continue;
+    if (!isInPeriod(jc.receivedAt, period)) continue;
+
+    // Look up VehicleMaster for age check (L11: null if not found → age check skipped)
+    const vehicleMaster = state.vehicles.vehicles[jc.vin] ?? null;
+    const vehicleInfo = vehicleMaster ? { year: vehicleMaster.year } : null;
+
+    const result = isUpgradeReady(vehicleInfo, jc, []); // recalls=[] stub (DEF-SERVICE-SALE-1)
+    if (result.ready) {
+      eligibleJcCount++;
+    }
+  }
+
+  // L5: Zero denominator → null (SPEC-REPORTS-001 L9)
+  if (eligibleJcCount === 0) return { kind: 'percentage', value: null };
+
+  // ── Numerator: SERVICE_UPGRADE leads that closed-won in period ─────────────
+  // B1 may not be shipped yet — we read deals from salesDeals store.
+  // When B1 ships, SERVICE_UPGRADE deals will appear here.
+  // 'delivered' is the closest stage to CLOSED_WON in the current DealStageEnum.
+  let closedWonCount = 0;
+
+  for (const deal of Object.values(state.salesDeals.deals)) {
+    // Dynamic string check — B1 will extend LeadSourceEnum with 'SERVICE_UPGRADE'
+    if ((deal.source as string) !== 'SERVICE_UPGRADE') continue;
+    if (deal.stage !== 'delivered') continue;
+    if (!isInPeriod(deal.lastActivityAt, period)) continue;
+
+    // Outlet scope check — deal.outlet maps to outletId
+    const dealOutletId = deal.outlet === 'bangalore' ? 'BLR-01'
+      : deal.outlet === 'mumbai' ? 'MUM-01'
+      : deal.outlet === 'chennai' ? 'CHE-01'
+      : deal.outlet; // pass-through if already an ID
+    if (!scope.outletIds.includes(dealOutletId)) continue;
+
+    closedWonCount++;
+  }
+
+  const pct = (closedWonCount / eligibleJcCount) * 100;
   return { kind: 'percentage', value: parseFloat(pct.toFixed(1)) };
 }
