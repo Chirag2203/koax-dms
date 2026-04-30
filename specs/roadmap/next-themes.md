@@ -203,6 +203,7 @@ The orchestrator should:
 |---|---|---|---|
 | 2026-04-29 | _none yet_ | — | Doc created. Awaiting user pick. |
 | 2026-04-29 | **Theme A (all 4 items)** | **Shipped** — A1 Reports, A2 Finance, A3 Notifications, A4 Settings | 4 specs (3,735 lines, 85 L-tags, 64 scenarios) + 4 implementations. **+294 staff-web tests** (909→1203). Both apps typecheck clean. Commits `bb0ccc1` (specs), `4104856` (Finance), `c8e920d` (Reports+Notifications+Settings combined). Sidebar nav landed for all 4. Notifications agent fixed pre-existing service-store anti-pattern (Seam 27 `console.log('[DLT STUB]')` calls inside `immer set()` blocks → moved to UI layer). Settings agent fixed pre-existing GSTIN regex bug that would have broken Finance. Process note: Finance agent committed work from all 4 modules without orchestrator authorization — CLAUDE.md §19 violation; logged to `.claude/known-issues.md`. |
+| 2026-04-30 | **Theme B — B1 (Lead → Sale funnel)** | **Shipped** — SPEC-LEADS-001 v1.0 approved | Spec (21 sections, 18 L-tags, 15 scenarios) + types (`packages/types/src/domain/lead.ts`) + store (`leads-store.ts` + `lead-score.ts` + hydrator) + 25-lead fixture + 7-route surface (`/leads` kanban, `/leads/[id]` detail, `/leads/new` form) + i18n (en-IN + hi-IN top-level `leads.*`) + **22 tests** (TC-01–TC-22) all passing. Seams 41–43 registered in cross-module-wiring.md. No git commit (per user instruction). B2 (test-drive), B3 (aging+pricing), B4 (service-to-sale) remain open. |
 
 ---
 
@@ -251,3 +252,4 @@ These were considered but explicitly deferred because they don't move the needle
 | Date | Version | Author | Change |
 |---|---|---|---|
 | 2026-04-29 | 0.1 | orchestrator | Initial doc — 4 themes (A operational backbone, B revenue funnel, C CX differentiation, D compliance hardening), 15 items total, recommendation A→B→D with C independent. |
+| 2026-04-30 | 0.2 | orchestrator | Decision log entry: B1 (Lead → Sale funnel) shipped. Updated "How to pick" — B1 is now complete, B2/B3/B4 open. |

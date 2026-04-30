@@ -10,6 +10,9 @@ import { ServiceStoreHydrator } from '@/src/lib/service/service-store-hydrator';
 import { FinanceStoreHydrator } from '@/src/lib/finance/finance-store-hydrator';
 import { NotificationsStoreHydrator } from '@/src/lib/notifications/notifications-store-hydrator';
 import { SettingsStoreHydrator } from '@/src/lib/settings/settings-store-hydrator';
+import { ShootsStoreHydrator } from '@/src/lib/shoots/shoots-store-hydrator';
+import { LeadsStoreHydrator } from '@/src/lib/leads/leads-store-hydrator';
+import { ReviewsStoreHydrator } from '@/src/lib/reviews/reviews-store-hydrator';
 import { CommandPalette } from './command-palette';
 import { StaffSidebar } from './staff-sidebar';
 import { StaffTopBar } from './staff-top-bar';
@@ -46,6 +49,10 @@ export function AppShell({ children }: AppShellProps) {
       <FinanceStoreHydrator />
       <NotificationsStoreHydrator />
       <SettingsStoreHydrator />
+      <ShootsStoreHydrator />
+      <LeadsStoreHydrator />
+      {/* Seam 28: Reviews store hoisted here so Reports hub can read NPS data */}
+      <ReviewsStoreHydrator />
 
       {/* Command palette — portals into document.body */}
       <CommandPalette />
