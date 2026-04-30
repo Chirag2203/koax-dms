@@ -10,6 +10,10 @@ import {
 } from '@/src/components/portal/preferences';
 import type { CommunicationPreferences } from '@dms/types';
 import type { Language, OutletCity } from '@/src/components/portal/preferences';
+import {
+  recordPortalConsentChange,
+  PORTAL_PURPOSE_MAP,
+} from '@/src/lib/portal/portal-consent-bridge';
 
 // ─── Toast ────────────────────────────────────────────────────────────────────
 
@@ -43,6 +47,24 @@ export default function PreferencesPage() {
   );
 
   const handleCommUpdate = (updated: CommunicationPreferences) => {
+    // DEF-PORTAL-1: drive the consent ledger for every mapped toggle.
+    // Diff the old prefs against updated to find which key changed.
+    const keys = Object.keys(updated) as Array<keyof CommunicationPreferences>;
+    for (const key of keys) {
+      if (updated[key] !== commPrefs[key]) {
+        const purpose = PORTAL_PURPOSE_MAP[key];
+        if (purpose) {
+          // L_PORTAL_2: bridge writes to portal consent store
+          recordPortalConsentChange(
+            mockCustomer.id,
+            mockCustomer.name,
+            purpose,
+            updated[key],
+          );
+        }
+      }
+    }
+
     setCommPrefs(updated);
     showToast(t('updated'));
   };

@@ -1,15 +1,25 @@
 'use client';
 
 /**
- * TestDriveBookingWizard — 4-step booking flow for the customer portal.
+ * TestDriveBookingWizard — 4-step multi-vehicle booking flow for the customer portal.
  *
- * Step 1: Vehicle picker (from available vehicles fixture)
- * Step 2: Customer info + government ID (DPDP Act 2023 — Aadhaar last-4 only)
- * Step 3: Date + slot + outlet
- * Step 4: Review + confirm
+ * Step 1 — Vehicles: multi-select (up to MAX_VEHICLES=3), checkbox cards.
+ * Step 2 — Customer: govt ID + details from auth context.
+ * Step 3 — Schedule: per-vehicle date / slot / outlet; collision guard.
+ * Step 4 — Review + Notes: summary list of N bookings, shared notes.
+ *
+ * On submit: loops createBooking() once per VIN via portal bridge (Seam 44 portal variant).
+ * All-or-nothing: if ANY booking fails, surface inline error — DO NOT navigate away.
  *
  * Design: Editorial Luxury / Dark Premium (customer surface).
  * NO text-[NNpx]. NO rounded-lg/xl.
+ *
+ * PRE-FLIGHT UI CHECKLIST (SPEC-ARCH-UI-001 §17.1):
+ * 1. text-xs/sm/base/lg/xl/2xl only — no text-[NNpx].
+ * 2. rounded-md only — no oversized radius classes.
+ * 3. All hooks before any conditional return.
+ * 4. Zustand: ONE base ref per selector call; computation in useMemo.
+ * 5. i18n via useTranslations('portal.testDrive').
  *
  * Spec reference: SPEC-TEST-DRIVE-001 §6 S1 S6 L3 L8
  */
@@ -17,7 +27,7 @@
 import * as React from 'react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
-import { CheckCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CheckCircle, ChevronLeft, ChevronRight, CheckSquare, Square, Car, CalendarCheck } from 'lucide-react';
 import { vehicles as allVehicles } from '@dms/mocks/fixtures';
 import {
   useTestDriveStore,
@@ -27,9 +37,14 @@ import {
 import { usePortalAuth } from '@/src/providers/portal-auth-provider';
 import type { TestDriveSlot } from '@dms/types';
 
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+/** Cap at 3 for portal customers — shopping for 5+ cars at once is unusual. */
+const MAX_VEHICLES = 3;
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type WizardStep = 'vehicle' | 'customer' | 'datetime' | 'review' | 'success';
+type WizardStep = 'vehicle' | 'customer' | 'schedule' | 'review' | 'success';
 
 type GovtIdType = 'AADHAAR_L4' | 'PAN' | 'DL';
 
@@ -40,6 +55,14 @@ interface CustomerFields {
   govtIdType: GovtIdType;
   govtIdValue: string;
 }
+
+export interface VehicleSchedule {
+  date: string;
+  slot: TestDriveSlot;
+  outlet: string;
+}
+
+// ─── Option constants ─────────────────────────────────────────────────────────
 
 const SLOT_OPTIONS: { key: TestDriveSlot; label: string; desc: string }[] = [
   { key: 'MORNING', label: 'Morning', desc: '9am – 12pm' },
@@ -54,9 +77,7 @@ const OUTLET_OPTIONS = [
   { id: 'chennai', label: 'Chennai' },
 ];
 
-// Vehicle statuses that customers can book a test drive on. Sourced from
-// the @dms/types Vehicle status enum: only 'published' (actively listed)
-// vehicles are bookable. 'reserved' and 'sold' are excluded.
+// Vehicle statuses that customers can book a test drive on.
 const BOOKABLE_STATUSES = new Set(['published']);
 
 // ─── Validation helpers ───────────────────────────────────────────────────────
@@ -74,11 +95,34 @@ function validateGovtId(type: GovtIdType, value: string): string | null {
   return null;
 }
 
+/** Detect same date+slot+outlet collision across two VINs. */
+export function hasSlotCollision(
+  selectedVins: Set<string>,
+  schedules: Record<string, VehicleSchedule>,
+): boolean {
+  const vins = Array.from(selectedVins);
+  for (let i = 0; i < vins.length; i++) {
+    for (let j = i + 1; j < vins.length; j++) {
+      const a = schedules[vins[i]!];
+      const b = schedules[vins[j]!];
+      if (
+        a && b &&
+        a.date && a.date === b.date &&
+        a.slot === b.slot &&
+        a.outlet === b.outlet
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 // ─── Step indicator ───────────────────────────────────────────────────────────
 
 function StepIndicator({ step }: { step: WizardStep }) {
-  const steps: WizardStep[] = ['vehicle', 'customer', 'datetime', 'review'];
-  const labels = ['Vehicle', 'Your Details', 'Date & Slot', 'Review'];
+  const steps: WizardStep[] = ['vehicle', 'customer', 'schedule', 'review'];
+  const labels = ['Vehicle', 'Your Details', 'Schedule', 'Review'];
   const current = steps.indexOf(step);
   return (
     <div className="flex items-center gap-2 mb-8" aria-label="Booking steps">
@@ -109,40 +153,67 @@ function StepIndicator({ step }: { step: WizardStep }) {
   );
 }
 
-// ─── Step 1: Vehicle picker ───────────────────────────────────────────────────
+// ─── Step 1: Vehicle multi-select ────────────────────────────────────────────
 
-function StepVehicle({
-  selectedVin,
-  onSelect,
-}: {
-  selectedVin: string;
-  onSelect: (vin: string) => void;
-}) {
+interface StepVehicleProps {
+  selectedVins: Set<string>;
+  onToggle: (vin: string) => void;
+}
+
+function StepVehicle({ selectedVins, onToggle }: StepVehicleProps) {
   const t = useTranslations('portal.testDrive');
-  const listedVehicles = allVehicles.filter((v) => BOOKABLE_STATUSES.has(v.status ?? '')).slice(0, 12);
+  const listedVehicles = React.useMemo(
+    () => allVehicles.filter((v) => BOOKABLE_STATUSES.has(v.status ?? '')).slice(0, 12),
+    [],
+  );
+
+  const count = selectedVins.size;
+  const atMax = count >= MAX_VEHICLES;
 
   return (
     <div>
       <h2 className="font-display text-xl text-[var(--color-ink)] mb-2">{t('stepVehicleTitle')}</h2>
-      <p className="text-sm text-[var(--color-ink-secondary)] mb-6">{t('stepVehicleSubtitle')}</p>
+      <p className="text-sm text-[var(--color-ink-secondary)] mb-2">{t('stepVehicleSubtitle')}</p>
+
+      {/* Counter + max note */}
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-xs font-mono text-[var(--color-ink-secondary)]">
+          {t('selectedVehiclesCount', { count })}
+        </p>
+        <p className="text-xs text-[var(--color-ink-muted)]">
+          {t('maxVehiclesNote', { max: MAX_VEHICLES })}
+        </p>
+      </div>
+
       <div className="space-y-2">
+        {listedVehicles.length === 0 && (
+          <p className="text-sm text-[var(--color-ink-muted)]">{t('noVehiclesSelected')}</p>
+        )}
         {listedVehicles.map((v) => {
-          const selected = selectedVin === v.vin;
+          const checked = selectedVins.has(v.vin);
+          const disabled = atMax && !checked;
           return (
             <button
               key={v.vin}
               type="button"
-              onClick={() => onSelect(v.vin)}
+              onClick={() => !disabled && onToggle(v.vin)}
+              disabled={disabled}
+              aria-pressed={checked}
               className={[
                 'w-full text-left p-4 border transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)]',
-                selected
+                checked
                   ? 'border-[var(--color-brass)] bg-[var(--color-brass,#C9A96E)/0.06]'
                   : 'border-[var(--color-line)] hover:border-[var(--color-ink-muted)] bg-transparent',
+                disabled ? 'opacity-40 cursor-not-allowed' : '',
               ].join(' ')}
-              aria-pressed={selected}
             >
-              <div className="flex items-start justify-between gap-3">
-                <div>
+              <div className="flex items-start gap-3">
+                <span className="shrink-0 mt-0.5 text-[var(--color-brass)]">
+                  {checked
+                    ? <CheckSquare size={16} aria-hidden="true" />
+                    : <Square size={16} className="text-[var(--color-ink-muted)]" aria-hidden="true" />}
+                </span>
+                <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-[var(--color-ink)]">
                     {v.year} {v.make} {v.model}
                   </p>
@@ -157,12 +228,6 @@ function StepVehicle({
                   <p className="font-mono text-xs text-[var(--color-ink-muted)]">{v.km?.toLocaleString('en-IN')} km</p>
                 </div>
               </div>
-              {selected && (
-                <div className="mt-2 flex items-center gap-1 text-xs font-mono uppercase tracking-widest text-[var(--color-brass)]">
-                  <CheckCircle size={12} strokeWidth={2} aria-hidden="true" />
-                  Selected
-                </div>
-              )}
             </button>
           );
         })}
@@ -172,6 +237,8 @@ function StepVehicle({
 }
 
 // ─── Step 2: Customer info + Govt ID ─────────────────────────────────────────
+// Portal customer is already authenticated — NO walk-in path.
+// This step only collects govt ID + confirms/fills optional details.
 
 interface StepCustomerProps {
   fields: CustomerFields;
@@ -338,90 +405,138 @@ function StepCustomer({ fields, onChange }: StepCustomerProps) {
   );
 }
 
-// ─── Step 3: Date + Slot + Outlet ─────────────────────────────────────────────
+// ─── Step 3: Per-vehicle Schedule ────────────────────────────────────────────
 
-function StepDateTime({
-  date, slot, outletId,
-  onDate, onSlot, onOutlet,
-}: {
-  date: string; slot: TestDriveSlot; outletId: string;
-  onDate: (d: string) => void; onSlot: (s: TestDriveSlot) => void; onOutlet: (o: string) => void;
-}) {
+interface StepScheduleProps {
+  selectedVins: Set<string>;
+  schedules: Record<string, VehicleSchedule>;
+  onUpdateSchedule: (vin: string, s: VehicleSchedule) => void;
+}
+
+function StepSchedule({ selectedVins, schedules, onUpdateSchedule }: StepScheduleProps) {
   const t = useTranslations('portal.testDrive');
-  const minDate = new Date();
-  minDate.setDate(minDate.getDate() + 1); // at least tomorrow
-  const minDateStr = minDate.toISOString().slice(0, 10);
+
+  const tomorrow = React.useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().split('T')[0]!;
+  }, []);
+
+  // Collision detection: same date+slot+outlet across multiple VINs
+  function getCollision(vin: string): string | null {
+    const me = schedules[vin];
+    if (!me?.date || !me?.slot || !me?.outlet) return null;
+    for (const otherVin of selectedVins) {
+      if (otherVin === vin) continue;
+      const other = schedules[otherVin];
+      if (
+        other?.date === me.date &&
+        other?.slot === me.slot &&
+        other?.outlet === me.outlet
+      ) {
+        return t('conflictSameSlot');
+      }
+    }
+    return null;
+  }
+
+  const vins = Array.from(selectedVins);
 
   return (
     <div>
-      <h2 className="font-display text-xl text-[var(--color-ink)] mb-2">{t('stepDateTitle')}</h2>
-      <p className="text-sm text-[var(--color-ink-secondary)] mb-6">{t('stepDateSubtitle')}</p>
-      <div className="space-y-6">
-        {/* Outlet */}
-        <div>
-          <label className="block font-mono text-xs uppercase tracking-widest text-[var(--color-ink-muted)] mb-2">
-            {t('outletLabel')}
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {OUTLET_OPTIONS.map((o) => (
-              <button
-                key={o.id}
-                type="button"
-                onClick={() => onOutlet(o.id)}
-                aria-pressed={outletId === o.id}
-                className={[
-                  'px-4 py-2 border font-mono text-xs uppercase tracking-widest transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)]',
-                  outletId === o.id
-                    ? 'border-[var(--color-brass)] text-[var(--color-brass)] bg-[var(--color-brass,#C9A96E)/0.06]'
-                    : 'border-[var(--color-line)] text-[var(--color-ink-secondary)] hover:border-[var(--color-ink-muted)]',
-                ].join(' ')}
-              >
-                {o.label}
-              </button>
-            ))}
-          </div>
-        </div>
+      <h2 className="font-display text-xl text-[var(--color-ink)] mb-2">{t('stepScheduleTitle')}</h2>
+      <p className="text-sm text-[var(--color-ink-secondary)] mb-6">{t('stepScheduleSubtitle')}</p>
 
-        {/* Date */}
-        <div>
-          <label htmlFor="td-date" className="block font-mono text-xs uppercase tracking-widest text-[var(--color-ink-muted)] mb-2">
-            {t('dateLabel')}
-          </label>
-          <input
-            id="td-date"
-            type="date"
-            value={date}
-            min={minDateStr}
-            onChange={(e) => onDate(e.target.value)}
-            className="w-full border border-[var(--color-line)] px-3 h-10 text-sm bg-transparent text-[var(--color-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brass)] focus:ring-offset-1"
-          />
-        </div>
+      <div className="space-y-4">
+        {vins.map((vin) => {
+          const vehicle = allVehicles.find((v) => v.vin === vin);
+          const label = vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : vin;
+          const sched = schedules[vin] ?? { date: '', slot: 'MORNING' as TestDriveSlot, outlet: 'bangalore' };
+          const collision = getCollision(vin);
 
-        {/* Slot */}
-        <div>
-          <label className="block font-mono text-xs uppercase tracking-widest text-[var(--color-ink-muted)] mb-2">
-            {t('slotLabel')}
-          </label>
-          <div className="grid grid-cols-2 gap-2">
-            {SLOT_OPTIONS.map((s) => (
-              <button
-                key={s.key}
-                type="button"
-                onClick={() => onSlot(s.key)}
-                aria-pressed={slot === s.key}
-                className={[
-                  'p-3 border text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)]',
-                  slot === s.key
-                    ? 'border-[var(--color-brass)] bg-[var(--color-brass,#C9A96E)/0.06]'
-                    : 'border-[var(--color-line)] hover:border-[var(--color-ink-muted)]',
-                ].join(' ')}
-              >
-                <p className="text-sm font-semibold text-[var(--color-ink)]">{s.label}</p>
-                <p className="font-mono text-xs text-[var(--color-ink-muted)] mt-0.5">{s.desc}</p>
-              </button>
-            ))}
-          </div>
-        </div>
+          return (
+            <div key={vin} className="border border-[var(--color-line)] p-4 space-y-4">
+              {/* Vehicle header */}
+              <div className="flex items-center gap-2">
+                <Car size={14} className="text-[var(--color-ink-muted)] shrink-0" aria-hidden="true" />
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-[var(--color-ink)] truncate">{label}</p>
+                  <p className="font-mono text-xs text-[var(--color-ink-muted)]">{vin}</p>
+                </div>
+              </div>
+
+              {/* Outlet */}
+              <div>
+                <label className="block font-mono text-xs uppercase tracking-widest text-[var(--color-ink-muted)] mb-2">
+                  {t('outletLabel')}
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {OUTLET_OPTIONS.map((o) => (
+                    <button
+                      key={o.id}
+                      type="button"
+                      onClick={() => onUpdateSchedule(vin, { ...sched, outlet: o.id })}
+                      aria-pressed={sched.outlet === o.id}
+                      className={[
+                        'px-4 py-2 border font-mono text-xs uppercase tracking-widest transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)]',
+                        sched.outlet === o.id
+                          ? 'border-[var(--color-brass)] text-[var(--color-brass)] bg-[var(--color-brass,#C9A96E)/0.06]'
+                          : 'border-[var(--color-line)] text-[var(--color-ink-secondary)] hover:border-[var(--color-ink-muted)]',
+                      ].join(' ')}
+                    >
+                      {o.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Date */}
+              <div>
+                <label className="block font-mono text-xs uppercase tracking-widest text-[var(--color-ink-muted)] mb-2">
+                  {t('dateLabel')} *
+                </label>
+                <input
+                  type="date"
+                  min={tomorrow}
+                  value={sched.date}
+                  onChange={(e) => onUpdateSchedule(vin, { ...sched, date: e.target.value })}
+                  className="w-full border border-[var(--color-line)] px-3 h-10 text-sm bg-transparent text-[var(--color-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brass)] focus:ring-offset-1"
+                />
+              </div>
+
+              {/* Slot */}
+              <div>
+                <label className="block font-mono text-xs uppercase tracking-widest text-[var(--color-ink-muted)] mb-2">
+                  {t('slotLabel')}
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {SLOT_OPTIONS.map((s) => (
+                    <button
+                      key={s.key}
+                      type="button"
+                      onClick={() => onUpdateSchedule(vin, { ...sched, slot: s.key })}
+                      aria-pressed={sched.slot === s.key}
+                      className={[
+                        'p-3 border text-left transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)]',
+                        sched.slot === s.key
+                          ? 'border-[var(--color-brass)] bg-[var(--color-brass,#C9A96E)/0.06]'
+                          : 'border-[var(--color-line)] hover:border-[var(--color-ink-muted)]',
+                      ].join(' ')}
+                    >
+                      <p className="text-sm font-semibold text-[var(--color-ink)]">{s.label}</p>
+                      <p className="font-mono text-xs text-[var(--color-ink-muted)] mt-0.5">{s.desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Collision error */}
+              {collision && (
+                <p className="text-xs text-red-600" role="alert">{collision}</p>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -429,17 +544,17 @@ function StepDateTime({
 
 // ─── Step 4: Review ───────────────────────────────────────────────────────────
 
-function StepReview({
-  vin, date, slot, outletId, notes, onNotes, customer,
-}: {
-  vin: string; date: string; slot: TestDriveSlot; outletId: string;
-  notes: string; onNotes: (n: string) => void;
+interface StepReviewProps {
+  selectedVins: Set<string>;
+  schedules: Record<string, VehicleSchedule>;
   customer: CustomerFields;
-}) {
+  notes: string;
+  onNotes: (n: string) => void;
+}
+
+function StepReview({ selectedVins, schedules, customer, notes, onNotes }: StepReviewProps) {
   const t = useTranslations('portal.testDrive');
-  const vehicle = allVehicles.find((v) => v.vin === vin);
-  const outletLabel = OUTLET_OPTIONS.find((o) => o.id === outletId)?.label ?? outletId;
-  const slotLabel = SLOT_OPTIONS.find((s) => s.key === slot);
+  const vins = Array.from(selectedVins);
 
   const govtIdTypeLabel =
     customer.govtIdType === 'AADHAAR_L4' ? t('govtIdAadhaar')
@@ -450,28 +565,34 @@ function StepReview({
     <div>
       <h2 className="font-display text-xl text-[var(--color-ink)] mb-2">{t('stepReviewTitle')}</h2>
       <p className="text-sm text-[var(--color-ink-secondary)] mb-6">{t('stepReviewSubtitle')}</p>
-      <div className="border border-[var(--color-line)] p-4 mb-4 space-y-3">
-        <div className="flex justify-between text-sm">
-          <span className="text-[var(--color-ink-muted)] font-mono text-xs uppercase tracking-widest">{t('vehicle')}</span>
-          <span className="text-[var(--color-ink)] font-semibold">
-            {vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : vin}
-          </span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-[var(--color-ink-muted)] font-mono text-xs uppercase tracking-widest">{t('dateLabel')}</span>
-          <span className="text-[var(--color-ink)]">{date}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-[var(--color-ink-muted)] font-mono text-xs uppercase tracking-widest">{t('slotLabel')}</span>
-          <span className="text-[var(--color-ink)]">{slotLabel?.label} · {slotLabel?.desc}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-[var(--color-ink-muted)] font-mono text-xs uppercase tracking-widest">{t('outletLabel')}</span>
-          <span className="text-[var(--color-ink)]">{outletLabel}</span>
-        </div>
+
+      {/* Booking entries — one per VIN */}
+      <div className="border border-[var(--color-line)] divide-y divide-[var(--color-line)] mb-4">
+        {vins.map((vin) => {
+          const vehicle = allVehicles.find((v) => v.vin === vin);
+          const label = vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : vin;
+          const sched = schedules[vin];
+          const slotEntry = SLOT_OPTIONS.find((s) => s.key === sched?.slot);
+          const outletLabel = OUTLET_OPTIONS.find((o) => o.id === sched?.outlet)?.label ?? sched?.outlet ?? '—';
+
+          return (
+            <div key={vin} className="px-4 py-3 flex items-start gap-3">
+              <CalendarCheck size={14} className="text-[var(--color-ink-muted)] mt-0.5 shrink-0" aria-hidden="true" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-[var(--color-ink)] truncate">{label}</p>
+                <p className="font-mono text-xs text-[var(--color-ink-muted)]">{vin}</p>
+                {sched && (
+                  <p className="text-xs text-[var(--color-ink-secondary)] mt-0.5">
+                    {sched.date} · {slotEntry?.label ?? sched.slot} · {outletLabel}
+                  </p>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
-      {/* Customer summary block */}
+      {/* Customer summary */}
       <div className="border border-[var(--color-line)] p-4 mb-6 space-y-3">
         <div className="flex justify-between text-sm">
           <span className="text-[var(--color-ink-muted)] font-mono text-xs uppercase tracking-widest">{t('customerNameLabel')}</span>
@@ -495,6 +616,7 @@ function StepReview({
         </div>
       </div>
 
+      {/* Shared notes */}
       <div>
         <label htmlFor="td-notes" className="block font-mono text-xs uppercase tracking-widest text-[var(--color-ink-muted)] mb-2">
           {t('notesLabel')} ({t('optional')})
@@ -512,18 +634,22 @@ function StepReview({
   );
 }
 
-// ─── Success ─────────────────────────────────────────────────────────────────
+// ─── Success ──────────────────────────────────────────────────────────────────
 
-function StepSuccess({ bookingId }: { bookingId: string }) {
+function StepSuccess({ bookingIds }: { bookingIds: string[] }) {
   const t = useTranslations('portal.testDrive');
   return (
     <div className="text-center py-12">
       <CheckCircle size={48} className="mx-auto mb-4 text-[var(--color-brass)]" strokeWidth={1} aria-hidden="true" />
       <h2 className="font-display text-2xl text-[var(--color-ink)] mb-3">{t('successTitle')}</h2>
       <p className="text-base text-[var(--color-ink-secondary)] mb-2">{t('successBody')}</p>
-      <p className="font-mono text-xs text-[var(--color-ink-muted)] mb-8">
-        {t('bookingRef')}: {bookingId}
-      </p>
+      <div className="space-y-1 mb-8">
+        {bookingIds.map((id) => (
+          <p key={id} className="font-mono text-xs text-[var(--color-ink-muted)]">
+            {t('bookingRef')}: {id}
+          </p>
+        ))}
+      </div>
       <a
         href="/test-drive"
         className="font-mono text-xs uppercase tracking-widest text-[var(--color-brass)] hover:underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)]"
@@ -539,22 +665,26 @@ function StepSuccess({ bookingId }: { bookingId: string }) {
 export function TestDriveBookingWizard({ customerName }: { customerName?: string }) {
   const t = useTranslations('portal.testDrive');
   const { customerId } = usePortalAuth();
+
+  // ── All hooks first (Rules of Hooks) ───────────────────────────────────────
   const createBooking = useTestDriveStore((s) => s.createBooking);
 
   // Seed store once
   React.useEffect(() => { seedPortalTestDriveStore(); }, []);
 
   const [step, setStep] = React.useState<WizardStep>('vehicle');
-  const [selectedVin, setSelectedVin] = React.useState('');
-  const [date, setDate] = React.useState('');
-  const [slot, setSlot] = React.useState<TestDriveSlot>('MORNING');
-  const [outletId, setOutletId] = React.useState('bangalore');
-  const [notes, setNotes] = React.useState('');
-  const [successId, setSuccessId] = React.useState('');
-  const [error, setError] = React.useState('');
   const [submitting, setSubmitting] = React.useState(false);
+  const [notes, setNotes] = React.useState('');
+  const [successIds, setSuccessIds] = React.useState<string[]>([]);
+  const [error, setError] = React.useState('');
 
-  // Customer fields — pre-fill name from prop (passed from auth context by page)
+  // Multi-select VINs (cap at MAX_VEHICLES)
+  const [selectedVins, setSelectedVins] = React.useState<Set<string>>(new Set());
+
+  // Per-vehicle schedules
+  const [schedules, setSchedules] = React.useState<Record<string, VehicleSchedule>>({});
+
+  // Customer fields — pre-fill name from auth context prop
   const [customerFields, setCustomerFields] = React.useState<CustomerFields>({
     name: customerName ?? '',
     phone: '',
@@ -563,8 +693,34 @@ export function TestDriveBookingWizard({ customerName }: { customerName?: string
     govtIdValue: '',
   });
 
-  const vehicle = allVehicles.find((v) => v.vin === selectedVin);
+  // ── Toggle VIN selection ────────────────────────────────────────────────────
+  function toggleVin(vin: string) {
+    setSelectedVins((prev) => {
+      const next = new Set(prev);
+      if (next.has(vin)) {
+        next.delete(vin);
+        setSchedules((s) => {
+          const ns = { ...s };
+          delete ns[vin];
+          return ns;
+        });
+      } else if (next.size < MAX_VEHICLES) {
+        next.add(vin);
+        setSchedules((s) =>
+          s[vin]
+            ? s
+            : { ...s, [vin]: { date: '', slot: 'MORNING', outlet: 'bangalore' } },
+        );
+      }
+      return next;
+    });
+  }
 
+  function updateSchedule(vin: string, s: VehicleSchedule) {
+    setSchedules((prev) => ({ ...prev, [vin]: s }));
+  }
+
+  // ── Customer validation ─────────────────────────────────────────────────────
   function isCustomerValid(): boolean {
     const { name, phone, email, govtIdType, govtIdValue } = customerFields;
     if (name.trim().length < 2) return false;
@@ -574,52 +730,84 @@ export function TestDriveBookingWizard({ customerName }: { customerName?: string
     return true;
   }
 
+  // ── Schedule validation ─────────────────────────────────────────────────────
+  const scheduleValid = React.useMemo(() => {
+    if (selectedVins.size === 0) return false;
+    return Array.from(selectedVins).every((vin) => {
+      const s = schedules[vin];
+      return s?.date && s?.slot && s?.outlet;
+    });
+  }, [selectedVins, schedules]);
+
+  const collisionDetected = React.useMemo(
+    () => hasSlotCollision(selectedVins, schedules),
+    [selectedVins, schedules],
+  );
+
+  // ── Navigation ──────────────────────────────────────────────────────────────
   function canProceed(): boolean {
-    if (step === 'vehicle') return !!selectedVin;
+    if (step === 'vehicle') return selectedVins.size > 0;
     if (step === 'customer') return isCustomerValid();
-    if (step === 'datetime') return !!date && !!outletId;
+    if (step === 'schedule') return scheduleValid && !collisionDetected;
     return true;
   }
 
   function handleNext() {
     setError('');
     if (step === 'vehicle') setStep('customer');
-    else if (step === 'customer') setStep('datetime');
-    else if (step === 'datetime') setStep('review');
+    else if (step === 'customer') setStep('schedule');
+    else if (step === 'schedule') setStep('review');
   }
 
   function handleBack() {
     setError('');
     if (step === 'customer') setStep('vehicle');
-    else if (step === 'datetime') setStep('customer');
-    else if (step === 'review') setStep('datetime');
+    else if (step === 'schedule') setStep('customer');
+    else if (step === 'review') setStep('schedule');
   }
 
-  function handleSubmit() {
-    if (!vehicle) return;
+  // ── Submit — all-or-nothing ─────────────────────────────────────────────────
+  async function handleSubmit() {
+    if (submitting) return;
     setSubmitting(true);
     setError('');
-    const input: PortalCreateTestDriveInput = {
-      customerId,
-      customerName: customerFields.name || (customerName ?? 'Portal Customer'),
-      customerPhone: customerFields.phone ? `+91${customerFields.phone}` : undefined,
-      customerEmail: customerFields.email || undefined,
-      vehicleVin: vehicle.vin,
-      vehicleMake: vehicle.make,
-      vehicleModel: vehicle.model,
-      vehicleYear: vehicle.year,
-      outletId,
-      requestedDate: date,
-      requestedSlot: slot,
-      notes: notes || undefined,
-      governmentIdType: customerFields.govtIdType,
-      governmentIdValue: customerFields.govtIdValue || undefined,
-    };
+
+    const vins = Array.from(selectedVins);
+    const createdIds: string[] = [];
+
     try {
-      const booking = createBooking(input);
-      setSuccessId(booking.id);
+      for (const vin of vins) {
+        const sched = schedules[vin];
+        if (!sched) throw new Error(`missing-schedule:${vin}`);
+
+        const vehicle = allVehicles.find((v) => v.vin === vin);
+
+        const input: PortalCreateTestDriveInput = {
+          customerId,
+          customerName: customerFields.name || (customerName ?? 'Portal Customer'),
+          customerPhone: customerFields.phone ? `+91${customerFields.phone}` : undefined,
+          customerEmail: customerFields.email || undefined,
+          vehicleVin: vin,
+          vehicleMake: vehicle?.make ?? '',
+          vehicleModel: vehicle?.model ?? '',
+          vehicleYear: vehicle?.year ?? 0,
+          outletId: sched.outlet,
+          requestedDate: sched.date,
+          requestedSlot: sched.slot,
+          notes: notes || undefined,
+          governmentIdType: customerFields.govtIdType,
+          governmentIdValue: customerFields.govtIdValue || undefined,
+        };
+
+        const booking = createBooking(input);
+        createdIds.push(booking.id);
+      }
+
+      // All bookings created — navigate to success screen
+      setSuccessIds(createdIds);
       setStep('success');
     } catch (err) {
+      // All-or-nothing: surface error inline, do NOT navigate away
       const msg = err instanceof Error && err.message === 'duplicate-active-booking'
         ? t('errorDuplicate')
         : t('errorGeneric');
@@ -629,30 +817,37 @@ export function TestDriveBookingWizard({ customerName }: { customerName?: string
     }
   }
 
+  // ── Render ──────────────────────────────────────────────────────────────────
   if (step === 'success') {
-    return <StepSuccess bookingId={successId} />;
+    return <StepSuccess bookingIds={successIds} />;
   }
+
+  const confirmLabel = t('confirmBookingsCta', { count: selectedVins.size });
 
   return (
     <div>
       <StepIndicator step={step} />
 
       {step === 'vehicle' && (
-        <StepVehicle selectedVin={selectedVin} onSelect={setSelectedVin} />
+        <StepVehicle selectedVins={selectedVins} onToggle={toggleVin} />
       )}
       {step === 'customer' && (
         <StepCustomer fields={customerFields} onChange={setCustomerFields} />
       )}
-      {step === 'datetime' && (
-        <StepDateTime
-          date={date} slot={slot} outletId={outletId}
-          onDate={setDate} onSlot={setSlot} onOutlet={setOutletId}
+      {step === 'schedule' && (
+        <StepSchedule
+          selectedVins={selectedVins}
+          schedules={schedules}
+          onUpdateSchedule={updateSchedule}
         />
       )}
       {step === 'review' && (
         <StepReview
-          vin={selectedVin} date={date} slot={slot} outletId={outletId}
-          notes={notes} onNotes={setNotes} customer={customerFields}
+          selectedVins={selectedVins}
+          schedules={schedules}
+          customer={customerFields}
+          notes={notes}
+          onNotes={setNotes}
         />
       )}
 
@@ -668,7 +863,8 @@ export function TestDriveBookingWizard({ customerName }: { customerName?: string
           <button
             type="button"
             onClick={handleBack}
-            className="flex items-center gap-1 font-mono text-xs uppercase tracking-widest text-[var(--color-ink-secondary)] hover:text-[var(--color-ink)] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)]"
+            disabled={submitting}
+            className="flex items-center gap-1 font-mono text-xs uppercase tracking-widest text-[var(--color-ink-secondary)] hover:text-[var(--color-ink)] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)] disabled:opacity-50"
           >
             <ChevronLeft size={14} aria-hidden="true" />
             {t('back')}
@@ -697,7 +893,7 @@ export function TestDriveBookingWizard({ customerName }: { customerName?: string
             disabled={submitting}
             className="px-6 py-2.5 bg-[var(--color-brass)] text-white font-mono text-xs uppercase tracking-widest hover:opacity-90 transition-opacity disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-brass)]"
           >
-            {submitting ? t('booking') : t('confirmBooking')}
+            {submitting ? t('booking') : confirmLabel}
           </button>
         )}
       </div>

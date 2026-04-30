@@ -32,7 +32,25 @@ export const createWhatsAppSlice: InsuranceSlice<WhatsAppActions> = (set, get) =
       throw new TemplateNotApprovedError(templateId);
     }
 
-    // L14 / B2: re-check live opt-out registry at send time
+    // L14 / B2: re-check live opt-out registry at send time.
+    //
+    // Consent chain (DEF-PORTAL-1 / SPEC-CUSTOMER-PORTAL-001 §5.1):
+    //   Portal toggle OFF  → recordPortalConsentChange(..., granted=false)
+    //     → usePortalConsentStore.withdrawConsent(customerId, purpose, actor, reason)
+    //       → sets revokedAt on the ConsentEntry in the portal-side consent store
+    //         (customer-web/src/lib/portal/portal-consent-bridge.ts)
+    //
+    //   Staff revocation  → useCustomersStore.withdrawConsent(consentId, reason, actor)
+    //     → sets revokedAt on the ConsentEntry in the staff-side customers-store
+    //
+    //   Both paths set revokedAt on the same ConsentEntry schema. In v1.1 both
+    //   will write to the same DB table. In mock phase, the insurance optOuts
+    //   Set here is the staff-side opt-out registry. Portal revocations in the
+    //   customer-web process will not appear here until recordOptOut() is called
+    //   explicitly (cross-process limitation of in-memory mocks).
+    //
+    //   Production path: this check will query the consent DB, and portal
+    //   revocations will be visible within the same tick per L_PORTAL_2.
     const optOuts = get().optOuts;
     if (optOuts.has(recipientId)) {
       return { messageId: `skipped-optout-${recipientId}` };
