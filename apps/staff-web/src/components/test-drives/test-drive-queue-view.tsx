@@ -16,6 +16,7 @@
 
 import * as React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { CalendarCheck, Car, MapPin } from 'lucide-react';
 import { useTestDriveStore } from '@/src/lib/test-drive/test-drive-store';
@@ -109,6 +110,7 @@ function BookingCard({ booking }: { booking: TestDriveBooking }) {
 function QueueContent() {
   const t = useTranslations('testDrives');
   const { outlet } = useOutlet();
+  const router = useRouter();
   const [activeTab, setActiveTab] = React.useState<TestDriveStatus>('PENDING');
 
   const selectByOutlet = useTestDriveStore((s) => s.selectByOutlet);
@@ -146,8 +148,12 @@ function QueueContent() {
           <p className="text-sm text-ink-secondary mt-0.5">{t('queueSubtitle')}</p>
         </div>
         <Gate role={['R01', 'R03', 'R09', 'R19', 'R22', 'R24']} fallback="hide">
-          <Button variant="primary" size="md">
-            {t('noAction')}
+          <Button
+            variant="primary"
+            size="md"
+            onClick={() => router.push('/test-drives/new')}
+          >
+            {t('newBooking')}
           </Button>
         </Gate>
       </div>

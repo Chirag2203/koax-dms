@@ -1862,6 +1862,7 @@
     "emptyState": "No {status} test drives",
     "tryAllOutlets": "Switch to All Outlets if needed.",
     "noAction": "Note Request",
+    "newBooking": "New Booking",
     "backToQueue": "Back to Queue",
     "notFound": "Booking not found.",
     "confirmBooking": "Confirm Booking",
@@ -1932,6 +1933,30 @@
     "toastDriveCompleted": "Drive completed. Feedback recorded.",
     "toastCancelled": "Booking cancelled.",
     "toastNoShow": "Marked as no show.",
-    "toastError": "Something went wrong. Please try again."
+    "toastError": "Something went wrong. Please try again.",
+    "new": {
+      "pageTitle": "New Test Drive Booking",
+      "pageSubtitle": "Book a staff-initiated test drive for a customer.",
+      "customerLabel": "Customer",
+      "customerSearchPlaceholder": "Search by name, phone or email…",
+      "noCustomersFound": "No customers found.",
+      "vehicleLabel": "Vehicle",
+      "vehicleSearchPlaceholder": "Search by VIN, make, model or year…",
+      "noVehiclesFound": "No published vehicles found.",
+      "changeLabel": "Change",
+      "dateLabel": "Date",
+      "slotLabel": "Time Slot",
+      "outletLabel": "Outlet",
+      "scheduleLabel": "Schedule",
+      "notesLabel": "Notes (optional)",
+      "notesPlaceholder": "Any special instructions, customer preferences, etc.",
+      "backLabel": "Back",
+      "cancelLabel": "Cancel",
+      "nextLabel": "Next",
+      "confirmLabel": "Confirm Booking",
+      "submittingLabel": "Booking…",
+      "successToast": "Test drive booking created.",
+      "errorToast": "Could not create booking. Please try again."
+    }
   }
 }

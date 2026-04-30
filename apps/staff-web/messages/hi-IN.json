@@ -25,6 +25,7 @@
     "emptyState": "No {status} test drives",
     "tryAllOutlets": "Switch to All Outlets if needed.",
     "noAction": "Note Request",
+    "newBooking": "नई बुकिंग",
     "backToQueue": "Back to Queue",
     "notFound": "Booking not found.",
     "confirmBooking": "Confirm Booking",
@@ -95,7 +96,31 @@
     "toastDriveCompleted": "Drive completed. Feedback recorded.",
     "toastCancelled": "Booking cancelled.",
     "toastNoShow": "Marked as no show.",
-    "toastError": "Something went wrong. Please try again."
+    "toastError": "Something went wrong. Please try again.",
+    "new": {
+      "pageTitle": "नई Test Drive बुकिंग",
+      "pageSubtitle": "ग्राहक के लिए Staff-initiated test drive बुक करें।",
+      "customerLabel": "ग्राहक",
+      "customerSearchPlaceholder": "नाम, फ़ोन या ईमेल से खोजें…",
+      "noCustomersFound": "कोई ग्राहक नहीं मिला।",
+      "vehicleLabel": "वाहन",
+      "vehicleSearchPlaceholder": "VIN, Make, Model या वर्ष से खोजें…",
+      "noVehiclesFound": "कोई प्रकाशित वाहन नहीं मिला।",
+      "changeLabel": "बदलें",
+      "dateLabel": "दिनांक",
+      "slotLabel": "समय स्लॉट",
+      "outletLabel": "आउटलेट",
+      "scheduleLabel": "शेड्यूल",
+      "notesLabel": "नोट्स (वैकल्पिक)",
+      "notesPlaceholder": "कोई विशेष निर्देश या प्राथमिकताएं…",
+      "backLabel": "वापस",
+      "cancelLabel": "रद्द करें",
+      "nextLabel": "अगला",
+      "confirmLabel": "बुकिंग कन्फर्म करें",
+      "submittingLabel": "बुकिंग हो रही है…",
+      "successToast": "Test drive बुकिंग बन गई।",
+      "errorToast": "बुकिंग नहीं बन सकी। कृपया पुनः प्रयास करें।"
+    }
   },
   "finance": {
     "period": {
