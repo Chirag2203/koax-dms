@@ -248,7 +248,6 @@ const TEXT_PX_BASELINE = new Set<string>([
   'src/components/vehicles/detail/tabs/documents/document-category-group.tsx',
   'src/components/vehicles/detail/tabs/documents/replace-document-dialog.tsx',
   'src/components/vehicles/detail/tabs/sales/active-deal-card.tsx',
-  'src/components/vehicles/detail/tabs/sales/stale-listing-chip.tsx',
   'src/components/vehicles/detail/tabs/shared/timeline-entry-chips.tsx',
   'src/components/vehicles/detail/tabs/shared/timeline-entry-row.tsx',
   'src/components/vehicles/detail/vehicle-detail-header.tsx',
