@@ -89,3 +89,10 @@ export {
   notificationDispatches,
   notificationAuditEvents,
 } from './notifications';
+export { competitorPrices } from './competitor-prices';
+export type { CompetitorPrice } from './competitor-prices';
+export { leads, leadActivities } from './leads';
+export { testDriveBookings } from './test-drives';
+
+export { reviews } from './reviews';
+export { shoots } from './shoots';

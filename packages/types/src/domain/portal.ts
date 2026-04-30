@@ -81,12 +81,21 @@ export const DocumentSchema = z.object({
     'service-record',
     'purchase-agreement',
     'inspection-report',
+    // SPEC-PORTAL-DOCS-001 L9: customer-visible counterparts to staff StaffDocumentCategory
+    'sale-agreement',
+    'custom-build-quote',
   ]),
   name: z.string(),
   uploadedAt: z.string(),
   expiresAt: z.string().optional(),
   fileUrl: z.string(),
   fileSize: z.string(),
+  /**
+   * Display name of the staff member / outlet who uploaded this document.
+   * NOT a staff ID — safe to surface to portal (outlet attribution, not personal PII).
+   * SPEC-PORTAL-DOCS-001 L6.
+   */
+  uploadedBy: z.string().optional(),
   /**
    * Id of a newer document that superseded this one (REPLACE operation).
    * Portal renders as boolean "Replaced" label — never exposes the id (L27).

@@ -284,7 +284,7 @@ export const serviceRecords: ServiceRecord[] = [
 // ─── Documents ────────────────────────────────────────────────────────────────
 
 export const documents: Document[] = [
-  // Porsche 911 (5 docs)
+  // Porsche 911 (7 docs — includes sale-agreement + warranty)
   {
     id: 'doc-911-rc',
     vehicleVin: 'WP0AB2A91MS247831',
@@ -294,6 +294,7 @@ export const documents: Document[] = [
     uploadedAt: '2026-03-01T09:00:00.000Z',
     fileUrl: '/documents/doc-911-rc.pdf',
     fileSize: '1.2 MB',
+    uploadedBy: 'BN Automobiles – Bangalore',
   },
   {
     id: 'doc-911-insurance',
@@ -305,6 +306,7 @@ export const documents: Document[] = [
     expiresAt: '2027-03-31',
     fileUrl: '/documents/doc-911-insurance.pdf',
     fileSize: '2.4 MB',
+    uploadedBy: 'BN Automobiles – Bangalore',
   },
   {
     id: 'doc-911-puc',
@@ -316,6 +318,7 @@ export const documents: Document[] = [
     expiresAt: '2026-05-31',
     fileUrl: '/documents/doc-911-puc.pdf',
     fileSize: '0.3 MB',
+    uploadedBy: 'BN Automobiles – Bangalore',
   },
   {
     id: 'doc-911-purchase',
@@ -326,6 +329,18 @@ export const documents: Document[] = [
     uploadedAt: '2026-03-05T10:00:00.000Z',
     fileUrl: '/documents/doc-911-purchase.pdf',
     fileSize: '3.8 MB',
+    uploadedBy: 'BN Automobiles – Bangalore',
+  },
+  {
+    id: 'doc-911-sale-agreement',
+    vehicleVin: 'WP0AB2A91MS247831',
+    vehicleName: 'Porsche 911 Carrera S',
+    type: 'sale-agreement',
+    name: 'Sale Agreement (BN Automobiles)',
+    uploadedAt: '2026-03-05T11:00:00.000Z',
+    fileUrl: '/documents/doc-911-sale-agreement.pdf',
+    fileSize: '2.1 MB',
+    uploadedBy: 'BN Automobiles – Bangalore',
   },
   {
     id: 'doc-911-warranty',
@@ -337,6 +352,18 @@ export const documents: Document[] = [
     expiresAt: '2027-03-05',
     fileUrl: '/documents/doc-911-warranty.pdf',
     fileSize: '1.8 MB',
+    uploadedBy: 'BN Automobiles – Bangalore',
+  },
+  {
+    id: 'doc-911-build-quote',
+    vehicleVin: 'WP0AB2A91MS247831',
+    vehicleName: 'Porsche 911 Carrera S',
+    type: 'custom-build-quote',
+    name: 'Sport Chrono + Exhaust Custom Build Quote',
+    uploadedAt: '2026-03-20T14:00:00.000Z',
+    fileUrl: '/documents/doc-911-build-quote.pdf',
+    fileSize: '0.8 MB',
+    uploadedBy: 'BN Automobiles – Bangalore',
   },
   // BMW X5 (5 docs)
   {
@@ -348,6 +375,7 @@ export const documents: Document[] = [
     uploadedAt: '2026-02-15T09:00:00.000Z',
     fileUrl: '/documents/doc-x5-rc.pdf',
     fileSize: '1.1 MB',
+    uploadedBy: 'BN Automobiles – Bangalore',
   },
   {
     id: 'doc-x5-insurance',
@@ -359,6 +387,7 @@ export const documents: Document[] = [
     expiresAt: '2027-02-28',
     fileUrl: '/documents/doc-x5-insurance.pdf',
     fileSize: '2.2 MB',
+    uploadedBy: 'BN Automobiles – Bangalore',
   },
   {
     id: 'doc-x5-puc',
@@ -370,6 +399,7 @@ export const documents: Document[] = [
     expiresAt: '2026-08-15',
     fileUrl: '/documents/doc-x5-puc.pdf',
     fileSize: '0.3 MB',
+    uploadedBy: 'BN Automobiles – Bangalore',
   },
   {
     id: 'doc-x5-purchase',
@@ -380,6 +410,7 @@ export const documents: Document[] = [
     uploadedAt: '2026-02-20T10:00:00.000Z',
     fileUrl: '/documents/doc-x5-purchase.pdf',
     fileSize: '3.5 MB',
+    uploadedBy: 'BN Automobiles – Bangalore',
   },
   {
     id: 'doc-x5-warranty',
@@ -391,8 +422,9 @@ export const documents: Document[] = [
     expiresAt: '2027-02-20',
     fileUrl: '/documents/doc-x5-warranty.pdf',
     fileSize: '1.7 MB',
+    uploadedBy: 'BN Automobiles – Bangalore',
   },
-  // Mercedes S-Class (5 docs) — insurance expires in 30 days from 2026-04-16
+  // Mercedes S-Class (6 docs) — insurance expires ~30 days from 2026-04-30, puc expired
   {
     id: 'doc-sclass-rc',
     vehicleVin: 'WDD2221971A012345',
@@ -402,6 +434,7 @@ export const documents: Document[] = [
     uploadedAt: '2026-03-10T09:00:00.000Z',
     fileUrl: '/documents/doc-sclass-rc.pdf',
     fileSize: '1.3 MB',
+    uploadedBy: 'BN Automobiles – Bangalore',
   },
   {
     id: 'doc-sclass-insurance',
@@ -410,9 +443,10 @@ export const documents: Document[] = [
     type: 'insurance',
     name: 'Comprehensive Insurance Policy',
     uploadedAt: '2026-03-10T09:00:00.000Z',
-    expiresAt: '2026-05-16', // ~30 days from 2026-04-16
+    expiresAt: '2026-05-25', // ~25 days from 2026-04-30 → amber chip
     fileUrl: '/documents/doc-sclass-insurance.pdf',
     fileSize: '2.6 MB',
+    uploadedBy: 'BN Automobiles – Bangalore',
   },
   {
     id: 'doc-sclass-puc',
@@ -420,10 +454,11 @@ export const documents: Document[] = [
     vehicleName: 'Mercedes-Benz S 450',
     type: 'puc',
     name: 'Pollution Under Control Certificate',
-    uploadedAt: '2026-03-10T09:00:00.000Z',
-    expiresAt: '2026-09-10',
+    uploadedAt: '2026-01-10T09:00:00.000Z',
+    expiresAt: '2026-04-10', // expired ~20 days ago → red chip
     fileUrl: '/documents/doc-sclass-puc.pdf',
     fileSize: '0.3 MB',
+    uploadedBy: 'BN Automobiles – Bangalore',
   },
   {
     id: 'doc-sclass-purchase',
@@ -434,6 +469,18 @@ export const documents: Document[] = [
     uploadedAt: '2026-03-15T10:00:00.000Z',
     fileUrl: '/documents/doc-sclass-purchase.pdf',
     fileSize: '4.1 MB',
+    uploadedBy: 'BN Automobiles – Bangalore',
+  },
+  {
+    id: 'doc-sclass-sale-agreement',
+    vehicleVin: 'WDD2221971A012345',
+    vehicleName: 'Mercedes-Benz S 450',
+    type: 'sale-agreement',
+    name: 'Sale Agreement (BN Automobiles)',
+    uploadedAt: '2026-03-15T11:00:00.000Z',
+    fileUrl: '/documents/doc-sclass-sale-agreement.pdf',
+    fileSize: '2.3 MB',
+    uploadedBy: 'BN Automobiles – Bangalore',
   },
   {
     id: 'doc-sclass-warranty',
@@ -445,6 +492,7 @@ export const documents: Document[] = [
     expiresAt: '2027-03-15',
     fileUrl: '/documents/doc-sclass-warranty.pdf',
     fileSize: '1.9 MB',
+    uploadedBy: 'BN Automobiles – Bangalore',
   },
 ];
 
