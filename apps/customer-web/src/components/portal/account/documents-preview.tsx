@@ -43,6 +43,8 @@ const DOC_TYPE_LABELS: Record<Document['type'], string> = {
   'service-record': 'Service Record',
   'purchase-agreement': 'Purchase Agreement',
   'inspection-report': 'Inspection Report',
+  'sale-agreement': 'Sale Agreement',
+  'custom-build-quote': 'Custom Build Quote',
 };
 
 // ─── Single document row ──────────────────────────────────────────────────────
