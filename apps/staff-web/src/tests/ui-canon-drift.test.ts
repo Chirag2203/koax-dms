@@ -102,7 +102,6 @@ const TEXT_PX_BASELINE = new Set<string>([
   'src/components/insurance/create-lead-view.tsx',
   'src/components/insurance/dialogs/close-policy-dialog.tsx',
   'src/components/insurance/dialogs/manual-call-outcome-dialog.tsx',
-  'src/components/insurance/insurance-audit-view.tsx',
   'src/components/insurance/insurance-hub-view.tsx',
   'src/components/insurance/lead-bulk-import-view.tsx',
   'src/components/insurance/lead-detail-view.tsx',

@@ -46,6 +46,7 @@ export {
   ManualFollowupOutcomeEnum,
   ManualCallRecordSchema,
   LeadSourceEnum as InsuranceLeadSourceEnum,
+  InsuranceAuditEventKindEnum,
 } from './insurance';
 export type {
   InsuranceProvider,
