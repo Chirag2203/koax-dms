@@ -1,11 +1,12 @@
 'use client';
 
 /**
- * TestDriveBookingWizard — 3-step booking flow for the customer portal.
+ * TestDriveBookingWizard — 4-step booking flow for the customer portal.
  *
  * Step 1: Vehicle picker (from available vehicles fixture)
- * Step 2: Date + slot + outlet
- * Step 3: Review + confirm
+ * Step 2: Customer info + government ID (DPDP Act 2023 — Aadhaar last-4 only)
+ * Step 3: Date + slot + outlet
+ * Step 4: Review + confirm
  *
  * Design: Editorial Luxury / Dark Premium (customer surface).
  * NO text-[NNpx]. NO rounded-lg/xl.
@@ -28,7 +29,17 @@ import type { TestDriveSlot } from '@dms/types';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type WizardStep = 'vehicle' | 'datetime' | 'review' | 'success';
+type WizardStep = 'vehicle' | 'customer' | 'datetime' | 'review' | 'success';
+
+type GovtIdType = 'AADHAAR_L4' | 'PAN' | 'DL';
+
+interface CustomerFields {
+  name: string;
+  phone: string;
+  email: string;
+  govtIdType: GovtIdType;
+  govtIdValue: string;
+}
 
 const SLOT_OPTIONS: { key: TestDriveSlot; label: string; desc: string }[] = [
   { key: 'MORNING', label: 'Morning', desc: '9am – 12pm' },
@@ -48,10 +59,26 @@ const OUTLET_OPTIONS = [
 // vehicles are bookable. 'reserved' and 'sold' are excluded.
 const BOOKABLE_STATUSES = new Set(['published']);
 
+// ─── Validation helpers ───────────────────────────────────────────────────────
+
+const AADHAAR_RE = /^\d{4}$/;
+const PAN_RE = /^[A-Z]{5}\d{4}[A-Z]$/;
+const DL_RE = /^[A-Z0-9]{9,20}$/i;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_RE = /^\d{10}$/;
+
+function validateGovtId(type: GovtIdType, value: string): string | null {
+  if (type === 'AADHAAR_L4') return AADHAAR_RE.test(value) ? null : 'AADHAAR_L4';
+  if (type === 'PAN') return PAN_RE.test(value) ? null : 'PAN';
+  if (type === 'DL') return DL_RE.test(value) ? null : 'DL';
+  return null;
+}
+
 // ─── Step indicator ───────────────────────────────────────────────────────────
 
 function StepIndicator({ step }: { step: WizardStep }) {
-  const steps: WizardStep[] = ['vehicle', 'datetime', 'review'];
+  const steps: WizardStep[] = ['vehicle', 'customer', 'datetime', 'review'];
+  const labels = ['Vehicle', 'Your Details', 'Date & Slot', 'Review'];
   const current = steps.indexOf(step);
   return (
     <div className="flex items-center gap-2 mb-8" aria-label="Booking steps">
@@ -70,7 +97,7 @@ function StepIndicator({ step }: { step: WizardStep }) {
               {i < current ? '✓' : i + 1}
             </span>
             <span className="text-xs font-mono uppercase tracking-widest hidden sm:inline">
-              {s === 'vehicle' ? 'Vehicle' : s === 'datetime' ? 'Date & Slot' : 'Review'}
+              {labels[i]}
             </span>
           </div>
           {i < steps.length - 1 && (
@@ -144,7 +171,174 @@ function StepVehicle({
   );
 }
 
-// ─── Step 2: Date + Slot + Outlet ─────────────────────────────────────────────
+// ─── Step 2: Customer info + Govt ID ─────────────────────────────────────────
+
+interface StepCustomerProps {
+  fields: CustomerFields;
+  onChange: (fields: CustomerFields) => void;
+}
+
+const GOVT_ID_TYPES: { key: GovtIdType; labelKey: string }[] = [
+  { key: 'AADHAAR_L4', labelKey: 'govtIdAadhaar' },
+  { key: 'PAN', labelKey: 'govtIdPan' },
+  { key: 'DL', labelKey: 'govtIdDl' },
+];
+
+function StepCustomer({ fields, onChange }: StepCustomerProps) {
+  const t = useTranslations('portal.testDrive');
+
+  const [touched, setTouched] = React.useState<Record<string, boolean>>({});
+
+  function mark(field: string) {
+    setTouched((p) => ({ ...p, [field]: true }));
+  }
+
+  function set(patch: Partial<CustomerFields>) {
+    onChange({ ...fields, ...patch });
+  }
+
+  const govtIdError = touched.govtIdValue
+    ? validateGovtId(fields.govtIdType, fields.govtIdValue)
+    : null;
+
+  function govtIdPlaceholder(): string {
+    if (fields.govtIdType === 'AADHAAR_L4') return t('govtIdAadhaarPlaceholder');
+    if (fields.govtIdType === 'PAN') return t('govtIdPanPlaceholder');
+    return t('govtIdDlPlaceholder');
+  }
+
+  function govtIdErrorMsg(): string | null {
+    if (!govtIdError) return null;
+    if (govtIdError === 'AADHAAR_L4') return t('govtIdAadhaarError');
+    if (govtIdError === 'PAN') return t('govtIdPanError');
+    return t('govtIdDlError');
+  }
+
+  const nameError = touched.name && fields.name.trim().length < 2 ? t('customerNameError') : null;
+  const phoneError = touched.phone && !PHONE_RE.test(fields.phone.replace(/\s/g, '')) ? t('customerPhoneError') : null;
+  const emailError = touched.email && !EMAIL_RE.test(fields.email) ? t('customerEmailError') : null;
+
+  return (
+    <div>
+      <h2 className="font-display text-xl text-[var(--color-ink)] mb-2">{t('stepCustomerTitle')}</h2>
+      <p className="text-sm text-[var(--color-ink-secondary)] mb-6">{t('stepCustomerSubtitle')}</p>
+
+      <div className="space-y-5">
+        {/* Full name */}
+        <div>
+          <label htmlFor="td-cust-name" className="block font-mono text-xs uppercase tracking-widest text-[var(--color-ink-muted)] mb-2">
+            {t('customerNameLabel')} *
+          </label>
+          <input
+            id="td-cust-name"
+            type="text"
+            value={fields.name}
+            onChange={(e) => set({ name: e.target.value })}
+            onBlur={() => mark('name')}
+            autoComplete="name"
+            className="w-full border border-[var(--color-line)] px-3 h-10 text-sm bg-transparent text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brass)] focus:ring-offset-1"
+          />
+          {nameError && (
+            <p className="mt-1 text-xs text-red-600" role="alert">{nameError}</p>
+          )}
+        </div>
+
+        {/* Mobile */}
+        <div>
+          <label htmlFor="td-cust-phone" className="block font-mono text-xs uppercase tracking-widest text-[var(--color-ink-muted)] mb-2">
+            {t('customerPhoneLabel')} *
+          </label>
+          <div className="flex">
+            <span className="inline-flex items-center border border-r-0 border-[var(--color-line)] px-3 text-sm text-[var(--color-ink-muted)] bg-transparent">+91</span>
+            <input
+              id="td-cust-phone"
+              type="tel"
+              inputMode="numeric"
+              maxLength={10}
+              value={fields.phone}
+              onChange={(e) => set({ phone: e.target.value.replace(/\D/g, '') })}
+              onBlur={() => mark('phone')}
+              autoComplete="tel-national"
+              className="flex-1 border border-[var(--color-line)] px-3 h-10 text-sm bg-transparent text-[var(--color-ink)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brass)] focus:ring-offset-1"
+            />
+          </div>
+          {phoneError && (
+            <p className="mt-1 text-xs text-red-600" role="alert">{phoneError}</p>
+          )}
+        </div>
+
+        {/* Email */}
+        <div>
+          <label htmlFor="td-cust-email" className="block font-mono text-xs uppercase tracking-widest text-[var(--color-ink-muted)] mb-2">
+            {t('customerEmailLabel')} *
+          </label>
+          <input
+            id="td-cust-email"
+            type="email"
+            value={fields.email}
+            onChange={(e) => set({ email: e.target.value })}
+            onBlur={() => mark('email')}
+            autoComplete="email"
+            className="w-full border border-[var(--color-line)] px-3 h-10 text-sm bg-transparent text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-brass)] focus:ring-offset-1"
+          />
+          {emailError && (
+            <p className="mt-1 text-xs text-red-600" role="alert">{emailError}</p>
+          )}
+        </div>
+
+        {/* Govt ID type */}
+        <div>
+          <p className="font-mono text-xs uppercase tracking-widest text-[var(--color-ink-muted)] mb-2">
+            {t('govtIdTypeLabel')} *
+          </p>
+          <div className="flex flex-col gap-2">
+            {GOVT_ID_TYPES.map(({ key, labelKey }) => (
+              <label key={key} className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="radio"
+                  name="govtIdType"
+                  value={key}
+                  checked={fields.govtIdType === key}
+                  onChange={() => {
+                    set({ govtIdType: key, govtIdValue: '' });
+                    setTouched((p) => ({ ...p, govtIdValue: false }));
+                  }}
+                  className="accent-[var(--color-brass)]"
+                />
+                <span className="text-sm text-[var(--color-ink)]">{t(labelKey as Parameters<typeof t>[0])}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Govt ID value */}
+        <div>
+          <label htmlFor="td-govt-id" className="block font-mono text-xs uppercase tracking-widest text-[var(--color-ink-muted)] mb-2">
+            {t('govtIdValueLabel')} *
+          </label>
+          <input
+            id="td-govt-id"
+            type="text"
+            value={fields.govtIdValue}
+            onChange={(e) => {
+              const v = fields.govtIdType === 'PAN' ? e.target.value.toUpperCase() : e.target.value;
+              set({ govtIdValue: v });
+            }}
+            onBlur={() => mark('govtIdValue')}
+            placeholder={govtIdPlaceholder()}
+            maxLength={fields.govtIdType === 'AADHAAR_L4' ? 4 : fields.govtIdType === 'PAN' ? 10 : 20}
+            className="w-full border border-[var(--color-line)] px-3 h-10 text-sm bg-transparent text-[var(--color-ink)] placeholder:text-[var(--color-ink-muted)] font-mono focus:outline-none focus:ring-2 focus:ring-[var(--color-brass)] focus:ring-offset-1"
+          />
+          {govtIdErrorMsg() && (
+            <p className="mt-1 text-xs text-red-600" role="alert">{govtIdErrorMsg()}</p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Step 3: Date + Slot + Outlet ─────────────────────────────────────────────
 
 function StepDateTime({
   date, slot, outletId,
@@ -233,24 +427,30 @@ function StepDateTime({
   );
 }
 
-// ─── Step 3: Review ───────────────────────────────────────────────────────────
+// ─── Step 4: Review ───────────────────────────────────────────────────────────
 
 function StepReview({
-  vin, date, slot, outletId, notes, onNotes,
+  vin, date, slot, outletId, notes, onNotes, customer,
 }: {
   vin: string; date: string; slot: TestDriveSlot; outletId: string;
   notes: string; onNotes: (n: string) => void;
+  customer: CustomerFields;
 }) {
   const t = useTranslations('portal.testDrive');
   const vehicle = allVehicles.find((v) => v.vin === vin);
   const outletLabel = OUTLET_OPTIONS.find((o) => o.id === outletId)?.label ?? outletId;
   const slotLabel = SLOT_OPTIONS.find((s) => s.key === slot);
 
+  const govtIdTypeLabel =
+    customer.govtIdType === 'AADHAAR_L4' ? t('govtIdAadhaar')
+    : customer.govtIdType === 'PAN' ? t('govtIdPan')
+    : t('govtIdDl');
+
   return (
     <div>
       <h2 className="font-display text-xl text-[var(--color-ink)] mb-2">{t('stepReviewTitle')}</h2>
       <p className="text-sm text-[var(--color-ink-secondary)] mb-6">{t('stepReviewSubtitle')}</p>
-      <div className="border border-[var(--color-line)] p-4 mb-6 space-y-3">
+      <div className="border border-[var(--color-line)] p-4 mb-4 space-y-3">
         <div className="flex justify-between text-sm">
           <span className="text-[var(--color-ink-muted)] font-mono text-xs uppercase tracking-widest">{t('vehicle')}</span>
           <span className="text-[var(--color-ink)] font-semibold">
@@ -270,6 +470,31 @@ function StepReview({
           <span className="text-[var(--color-ink)]">{outletLabel}</span>
         </div>
       </div>
+
+      {/* Customer summary block */}
+      <div className="border border-[var(--color-line)] p-4 mb-6 space-y-3">
+        <div className="flex justify-between text-sm">
+          <span className="text-[var(--color-ink-muted)] font-mono text-xs uppercase tracking-widest">{t('customerNameLabel')}</span>
+          <span className="text-[var(--color-ink)]">{customer.name}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-[var(--color-ink-muted)] font-mono text-xs uppercase tracking-widest">{t('customerPhoneLabel')}</span>
+          <span className="text-[var(--color-ink)] font-mono">+91 {customer.phone}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-[var(--color-ink-muted)] font-mono text-xs uppercase tracking-widest">{t('customerEmailLabel')}</span>
+          <span className="text-[var(--color-ink)]">{customer.email}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-[var(--color-ink-muted)] font-mono text-xs uppercase tracking-widest">{t('govtIdTypeLabel')}</span>
+          <span className="text-[var(--color-ink)]">{govtIdTypeLabel}</span>
+        </div>
+        <div className="flex justify-between text-sm">
+          <span className="text-[var(--color-ink-muted)] font-mono text-xs uppercase tracking-widest">{t('govtIdValueLabel')}</span>
+          <span className="text-[var(--color-ink)] font-mono">{customer.govtIdValue}</span>
+        </div>
+      </div>
+
       <div>
         <label htmlFor="td-notes" className="block font-mono text-xs uppercase tracking-widest text-[var(--color-ink-muted)] mb-2">
           {t('notesLabel')} ({t('optional')})
@@ -329,23 +554,44 @@ export function TestDriveBookingWizard({ customerName }: { customerName?: string
   const [error, setError] = React.useState('');
   const [submitting, setSubmitting] = React.useState(false);
 
+  // Customer fields — pre-fill name from prop (passed from auth context by page)
+  const [customerFields, setCustomerFields] = React.useState<CustomerFields>({
+    name: customerName ?? '',
+    phone: '',
+    email: '',
+    govtIdType: 'AADHAAR_L4',
+    govtIdValue: '',
+  });
+
   const vehicle = allVehicles.find((v) => v.vin === selectedVin);
+
+  function isCustomerValid(): boolean {
+    const { name, phone, email, govtIdType, govtIdValue } = customerFields;
+    if (name.trim().length < 2) return false;
+    if (!PHONE_RE.test(phone.replace(/\s/g, ''))) return false;
+    if (!EMAIL_RE.test(email)) return false;
+    if (validateGovtId(govtIdType, govtIdValue) !== null) return false;
+    return true;
+  }
 
   function canProceed(): boolean {
     if (step === 'vehicle') return !!selectedVin;
+    if (step === 'customer') return isCustomerValid();
     if (step === 'datetime') return !!date && !!outletId;
     return true;
   }
 
   function handleNext() {
     setError('');
-    if (step === 'vehicle') setStep('datetime');
+    if (step === 'vehicle') setStep('customer');
+    else if (step === 'customer') setStep('datetime');
     else if (step === 'datetime') setStep('review');
   }
 
   function handleBack() {
     setError('');
-    if (step === 'datetime') setStep('vehicle');
+    if (step === 'customer') setStep('vehicle');
+    else if (step === 'datetime') setStep('customer');
     else if (step === 'review') setStep('datetime');
   }
 
@@ -355,7 +601,9 @@ export function TestDriveBookingWizard({ customerName }: { customerName?: string
     setError('');
     const input: PortalCreateTestDriveInput = {
       customerId,
-      customerName: customerName ?? 'Portal Customer',
+      customerName: customerFields.name || (customerName ?? 'Portal Customer'),
+      customerPhone: customerFields.phone ? `+91${customerFields.phone}` : undefined,
+      customerEmail: customerFields.email || undefined,
       vehicleVin: vehicle.vin,
       vehicleMake: vehicle.make,
       vehicleModel: vehicle.model,
@@ -364,6 +612,8 @@ export function TestDriveBookingWizard({ customerName }: { customerName?: string
       requestedDate: date,
       requestedSlot: slot,
       notes: notes || undefined,
+      governmentIdType: customerFields.govtIdType,
+      governmentIdValue: customerFields.govtIdValue || undefined,
     };
     try {
       const booking = createBooking(input);
@@ -390,6 +640,9 @@ export function TestDriveBookingWizard({ customerName }: { customerName?: string
       {step === 'vehicle' && (
         <StepVehicle selectedVin={selectedVin} onSelect={setSelectedVin} />
       )}
+      {step === 'customer' && (
+        <StepCustomer fields={customerFields} onChange={setCustomerFields} />
+      )}
       {step === 'datetime' && (
         <StepDateTime
           date={date} slot={slot} outletId={outletId}
@@ -399,7 +652,7 @@ export function TestDriveBookingWizard({ customerName }: { customerName?: string
       {step === 'review' && (
         <StepReview
           vin={selectedVin} date={date} slot={slot} outletId={outletId}
-          notes={notes} onNotes={setNotes}
+          notes={notes} onNotes={setNotes} customer={customerFields}
         />
       )}
 

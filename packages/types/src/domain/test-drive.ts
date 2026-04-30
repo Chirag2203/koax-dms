@@ -80,6 +80,9 @@ export const TestDriveBookingSchema = z.object({
   id: z.string(),
   customerId: z.string(),
   customerName: z.string(),
+  /** Customer contact info captured at booking time. */
+  customerPhone: z.string().optional(),
+  customerEmail: z.string().email().optional(),
   vehicleVin: z.string(),
   vehicleMake: z.string(),
   vehicleModel: z.string(),

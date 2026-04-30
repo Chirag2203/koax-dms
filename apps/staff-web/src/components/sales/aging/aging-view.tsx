@@ -23,8 +23,10 @@ import { cn } from '@dms/ui';
 import { Gate } from '@/src/components/primitives/gate';
 import { Button } from '@/src/components/primitives/button';
 import { useVehiclesStore } from '@/src/lib/vehicles/vehicles-store';
+import { useSalesDealsStore } from '@/src/lib/sales/sales-deals-store';
 import { selectAgedListings } from '@/src/lib/sales/aging/selectors';
 import type { AgingBand, AgedListingRow } from '@/src/lib/sales/aging/selectors';
+import type { DealStage } from '@dms/types';
 import { competitorPrices } from '@dms/mocks/fixtures';
 import { ApplySuggestionDialog } from './apply-suggestion-dialog';
 
@@ -58,6 +60,41 @@ function formatRupee(amount: number): string {
   }).format(amount);
 }
 
+// ─── Deal stage chip config ───────────────────────────────────────────────────
+
+const DEAL_STAGE_LABEL: Record<DealStage, string> = {
+  'new-lead':   'New Lead',
+  'contacted':  'Contacted',
+  'test-drive': 'Test Drive',
+  'reserved':   'Reserved',
+  'sales-order':'Sales Order',
+  'delivered':  'Delivered',
+  'lost':       'Lost',
+  'on-hold':    'On Hold',
+};
+
+const DEAL_STAGE_CHIP_CLASS: Record<DealStage, string> = {
+  'new-lead':    'bg-bg-subtle text-ink-secondary border border-line',
+  'contacted':   'bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20',
+  'test-drive':  'bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20',
+  'reserved':    'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20',
+  'sales-order': 'bg-green-500/10 text-green-700 dark:text-green-400 border border-green-500/20',
+  'delivered':   'bg-bg-subtle text-ink-muted border border-line',
+  'lost':        'bg-state-danger/10 text-state-danger border border-state-danger/20',
+  'on-hold':     'bg-bg-subtle text-ink-muted border border-line',
+};
+
+function DealStageChip({ stage }: { stage: DealStage }) {
+  return (
+    <span className={cn(
+      'inline-flex items-center px-1.5 py-0.5 rounded-md text-xs font-medium',
+      DEAL_STAGE_CHIP_CLASS[stage],
+    )}>
+      {DEAL_STAGE_LABEL[stage]}
+    </span>
+  );
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function AgingView() {
@@ -66,14 +103,17 @@ export function AgingView() {
   const vehicles  = useVehiclesStore((s) => s.vehicles);
   const salesEvents = useVehiclesStore((s) => s.salesEvents);
   const costLedger  = useVehiclesStore((s) => s.costLedger);
+  // Single base-ref selector per CLAUDE.md §10 #14
+  const deals = useSalesDealsStore((s) => s.deals);
 
   const rows = useMemo(
     () => selectAgedListings(
       { vehicles, salesEvents, costLedger },
       competitorPrices,
       new Date().toISOString(),
+      deals,
     ),
-    [vehicles, salesEvents, costLedger],
+    [vehicles, salesEvents, costLedger, deals],
   );
 
   // Group by band
@@ -297,16 +337,21 @@ function AgingRow({ row, onApply, t }: AgingRowProps) {
       {/* VIN */}
       <td className="px-4 py-3">
         <Link
-          href={`/inventory-aging/${row.vin}`}
+          href={row.linkedDealId ? `/sales?dealId=${row.linkedDealId}` : `/inventory-aging/${row.vin}`}
           className="font-mono text-xs text-accent hover:underline underline-offset-2"
         >
           {row.vin.slice(-8)}
         </Link>
       </td>
 
-      {/* Vehicle name */}
+      {/* Vehicle name + deal stage chip */}
       <td className="px-4 py-3">
-        <span className="text-sm text-ink-primary leading-snug">{row.vehicleName}</span>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-sm text-ink-primary leading-snug">{row.vehicleName}</span>
+          {row.linkedDealStage && (
+            <DealStageChip stage={row.linkedDealStage} />
+          )}
+        </div>
       </td>
 
       {/* Days listed */}

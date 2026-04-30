@@ -35,6 +35,19 @@
       "comingSoon": "Coming soon",
       "loading": "Loading..."
     },
+    "enquiryDetail": {
+      "testDrivesCard": {
+        "title": "Test Drives",
+        "bookNew": "Book new",
+        "bookTestDrive": "Book Test Drive",
+        "empty": "No test drives yet for this deal.",
+        "view": "View",
+        "dateLabel": "Date",
+        "slotLabel": "Slot",
+        "advisorLabel": "Advisor",
+        "statusLabel": "Status"
+      }
+    },
     "inventory": {
       "title": "Vehicles",
       "addVehicle": "Add Vehicle",
@@ -1860,6 +1873,15 @@
     "overviewCard": "Booking Overview",
     "executionCard": "Drive Execution",
     "feedbackCard": "Post-Drive Feedback",
+    "customerIdCard": "Customer & ID",
+    "customerNameLabel": "Customer Name",
+    "customerPhoneLabel": "Mobile",
+    "customerEmailLabel": "Email",
+    "govtIdTypeLabel": "ID Type",
+    "govtIdAadhaar": "Aadhaar (last 4)",
+    "govtIdPan": "PAN",
+    "govtIdDl": "Driving Licence",
+    "govtIdValueLabel": "ID Number",
     "vehicle": "Vehicle",
     "vinLabel": "VIN",
     "dateLabel": "Date",

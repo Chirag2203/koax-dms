@@ -558,6 +558,45 @@ function DetailContent({ bookingId }: DetailContentProps) {
           </dl>
         </Card>
 
+        {/* Customer & ID card — shown when govt ID was captured at booking */}
+        {(booking.customerPhone ?? booking.customerEmail ?? booking.governmentIdType) && (
+          <Card title={t('customerIdCard')}>
+            <dl className="grid grid-cols-2 gap-x-6 gap-y-3">
+              <Field label={t('customerNameLabel')} value={booking.customerName} />
+              {booking.customerPhone && (
+                <Field label={t('customerPhoneLabel')} value={<span className="font-mono text-xs">{booking.customerPhone}</span>} />
+              )}
+              {booking.customerEmail && (
+                <div className="col-span-2">
+                  <Field label={t('customerEmailLabel')} value={booking.customerEmail} />
+                </div>
+              )}
+              {booking.governmentIdType && (
+                <Field
+                  label={t('govtIdTypeLabel')}
+                  value={
+                    booking.governmentIdType === 'AADHAAR_L4' ? t('govtIdAadhaar')
+                    : booking.governmentIdType === 'PAN' ? t('govtIdPan')
+                    : t('govtIdDl')
+                  }
+                />
+              )}
+              {booking.governmentIdValue && (
+                <Field
+                  label={t('govtIdValueLabel')}
+                  value={
+                    <span className="font-mono text-xs">
+                      {booking.governmentIdType === 'AADHAAR_L4'
+                        ? `XXXX-XXXX-${booking.governmentIdValue}`
+                        : booking.governmentIdValue}
+                    </span>
+                  }
+                />
+              )}
+            </dl>
+          </Card>
+        )}
+
         {/* Execution card — S9: Gate */}
         <Gate role={['R01', 'R03', 'R09', 'R19', 'R22', 'R24']} fallback="hide">
           {booking.execution && (

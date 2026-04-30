@@ -314,6 +314,65 @@ describe('selectAgedListings', () => {
     const rows = selectAgedListings({ vehicles: {}, salesEvents: {}, costLedger: {} }, NO_COMPETITORS, new Date().toISOString());
     expect(rows).toEqual([]);
   });
+
+  it('rows with linked deals carry linkedDealId and linkedDealStage', () => {
+    const vin = 'VIN-DEAL-001';
+    const state = {
+      vehicles: { [vin]: makeVehicle(vin, daysAgoIso(90)) },
+      salesEvents: { [vin]: [makeListedEvent(vin, daysAgoIso(90))] },
+      costLedger: {},
+    };
+    const deals: Record<string, import('@dms/types').Deal> = {
+      'deal-linked-1': {
+        id: 'deal-linked-1',
+        customerName: 'Rajan Pillai',
+        customerPhone: '+919800000001',
+        vehicleVin: vin,
+        vehicleName: '2021 Porsche 911 Carrera S',
+        amount: 0,
+        stage: 'test-drive',
+        source: 'walk-in',
+        priority: 'medium',
+        city: 'Bangalore',
+        outlet: 'BLR-01',
+        createdAt: daysAgoIso(10),
+        lastActivityAt: daysAgoIso(2),
+        daysInStage: 2,
+      },
+    };
+    const rows = selectAgedListings(state, NO_COMPETITORS, new Date().toISOString(), deals);
+    const row = rows.find((r) => r.vin === vin);
+    expect(row).toBeDefined();
+    expect(row!.linkedDealId).toBe('deal-linked-1');
+    expect(row!.linkedDealStage).toBe('test-drive');
+  });
+
+  it('rows without linked deals carry undefined for linkedDealId and linkedDealStage', () => {
+    const vin = 'VIN-NODEAL-001';
+    const state = {
+      vehicles: { [vin]: makeVehicle(vin, daysAgoIso(60)) },
+      salesEvents: { [vin]: [makeListedEvent(vin, daysAgoIso(60))] },
+      costLedger: {},
+    };
+    // No deals supplied (default {} — backwards compat test)
+    const rows = selectAgedListings(state, NO_COMPETITORS, new Date().toISOString());
+    const row = rows.find((r) => r.vin === vin);
+    expect(row).toBeDefined();
+    expect(row!.linkedDealId).toBeUndefined();
+    expect(row!.linkedDealStage).toBeUndefined();
+  });
+
+  it('backwards-compat: omitting deals param still works (no error)', () => {
+    const vin = 'VIN-COMPAT-001';
+    const state = {
+      vehicles: { [vin]: makeVehicle(vin, daysAgoIso(45)) },
+      salesEvents: { [vin]: [makeListedEvent(vin, daysAgoIso(45))] },
+      costLedger: {},
+    };
+    expect(() =>
+      selectAgedListings(state, NO_COMPETITORS, new Date().toISOString()),
+    ).not.toThrow();
+  });
 });
 
 // ─── 16–19: applySuggestedPriceDrop ──────────────────────────────────────────

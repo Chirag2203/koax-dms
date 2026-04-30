@@ -47,6 +47,8 @@ function nextId(): string {
 export interface PortalCreateTestDriveInput {
   customerId: string;
   customerName: string;
+  customerPhone?: string;
+  customerEmail?: string;
   vehicleVin: string;
   vehicleMake: string;
   vehicleModel: string;
@@ -55,6 +57,8 @@ export interface PortalCreateTestDriveInput {
   requestedDate: string;
   requestedSlot: TestDriveSlot;
   notes?: string;
+  governmentIdType?: 'AADHAAR_L4' | 'PAN' | 'DL';
+  governmentIdValue?: string;
 }
 
 // ─── Store shape ──────────────────────────────────────────────────────────────

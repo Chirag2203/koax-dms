@@ -15,6 +15,7 @@
 
 import type { VehiclesState } from '@/src/lib/vehicles/vehicles-store/types';
 import type { CompetitorPrice } from '@dms/mocks/fixtures';
+import type { Deal, DealStage } from '@dms/types';
 
 // ─── Band types ───────────────────────────────────────────────────────────────
 
@@ -46,6 +47,9 @@ export interface AgedListingRow {
   reason: PriceSuggestionReason;
   competitorMedian?: number; // present when competitor data exists
   outletId: string;
+  /** Most-recent open Deal for this VIN, if any (stage not in ['lost','delivered']). */
+  linkedDealId?: string;
+  linkedDealStage?: DealStage;
 }
 
 // ─── deriveCurrentPrice ───────────────────────────────────────────────────────
@@ -210,6 +214,16 @@ export function computePriceSuggestion(
 
 // ─── selectAgedListings ───────────────────────────────────────────────────────
 
+// Deal stages that are considered "open" (i.e. not terminal) for linking.
+const OPEN_DEAL_STAGES: ReadonlySet<string> = new Set([
+  'new-lead',
+  'contacted',
+  'test-drive',
+  'reserved',
+  'sales-order',
+  'on-hold',
+]);
+
 /**
  * Returns all ACTIVE listed vehicles sorted by daysListed desc.
  *
@@ -220,11 +234,14 @@ export function computePriceSuggestion(
  * @param state - VehiclesState (vehicles + salesEvents + costLedger)
  * @param competitorPrices - all competitor price records from fixture / scrape
  * @param now - ISO timestamp (for deterministic tests)
+ * @param deals - optional Record<id, Deal> from SalesDealsStore; defaults to {}
+ *                so existing callers are unaffected.
  */
 export function selectAgedListings(
   state: Pick<VehiclesState, 'vehicles' | 'salesEvents' | 'costLedger'>,
   competitorPrices: CompetitorPrice[],
   now: string,
+  deals: Record<string, Deal> = {},
 ): AgedListingRow[] {
   const nowMs = new Date(now).getTime();
   const rows: AgedListingRow[] = [];
@@ -271,6 +288,12 @@ export function selectAgedListings(
       .filter(Boolean)
       .join(' ');
 
+    // Find most-recent open Deal for this VIN (not 'lost' or 'delivered').
+    const openDealsForVin = Object.values(deals)
+      .filter((d) => d.vehicleVin === vin && OPEN_DEAL_STAGES.has(d.stage))
+      .sort((a, b) => new Date(b.lastActivityAt).getTime() - new Date(a.lastActivityAt).getTime());
+    const linkedDeal = openDealsForVin[0];
+
     rows.push({
       vin,
       vehicleName,
@@ -284,6 +307,7 @@ export function selectAgedListings(
       reason,
       ...(competitorMedian !== undefined ? { competitorMedian } : {}),
       outletId: vehicle.firstTouchOutletId ?? '',
+      ...(linkedDeal ? { linkedDealId: linkedDeal.id, linkedDealStage: linkedDeal.stage } : {}),
     });
   }
 
