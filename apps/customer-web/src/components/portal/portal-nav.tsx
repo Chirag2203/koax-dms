@@ -12,6 +12,7 @@ import {
   LogOut,
   Wrench,
   Hammer,
+  CarFront,
 } from 'lucide-react';
 import { useAuth } from '@/src/providers/auth-provider';
 
@@ -20,6 +21,7 @@ const navItems = [
   { key: 'vehicles', href: '/vehicles', icon: Car },
   { key: 'bookings', href: '/bookings', icon: Calendar },
   { key: 'service', href: '/service/bookings', icon: Wrench },
+  { key: 'testDrive', href: '/test-drive', icon: CarFront },
   { key: 'builds', href: '/builds', icon: Hammer },
   { key: 'documents', href: '/documents', icon: FileText },
   { key: 'preferences', href: '/preferences', icon: Settings },

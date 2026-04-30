@@ -21,6 +21,7 @@ import {
   DocumentsPreview,
 } from '@/src/components/portal/account';
 import type { SavedVehicleDisplay } from '@/src/components/portal/account';
+import { SavedSearchList } from '@/src/components/portal/account/saved-search-list';
 
 // ─── Data join ────────────────────────────────────────────────────────────────
 
@@ -82,6 +83,18 @@ export default function AccountPage() {
       {/* ── 6. Archive of Documents ──────────────────────────────────────────── */}
       <div className="border-t border-[var(--color-line)]" />
       <DocumentsPreview documents={documents} />
+
+      {/* ── 7. Saved inventory searches ──────────────────────────────────────── */}
+      <div className="border-t border-[var(--color-line)]" />
+      <section className="px-6 md:px-12 lg:px-16 py-8">
+        <h2 className="mb-1 font-mono text-xs uppercase tracking-widest text-ink-muted">
+          Saved Searches
+        </h2>
+        <p className="mb-6 text-sm text-ink-secondary">
+          Your pinned inventory filters — pick up right where you left off.
+        </p>
+        <SavedSearchList />
+      </section>
 
       {/* Bottom padding */}
       <div className="pb-16" />

@@ -13,6 +13,7 @@ import {
   SimilarVehicles,
   MobileStickyBar,
 } from '@/src/components/vdp';
+import { ReviewsSection } from '@/src/components/storefront/reviews-section';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -123,7 +124,10 @@ export default function VdpPage({ params }: VdpPageProps) {
       {/* 9 — Similar vehicles */}
       <SimilarVehicles vehicles={similarVehicles} />
 
-      {/* 10 — Mobile sticky reservation bar (client, fixed) */}
+      {/* 10 — Owner reviews (SPEC-REVIEWS-001 L6) */}
+      <ReviewsSection vin={vehicle.vin} />
+
+      {/* 11 — Mobile sticky reservation bar (client, fixed) */}
       <MobileStickyBar vehicle={vehicle} />
     </>
   );
