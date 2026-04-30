@@ -13,12 +13,12 @@
  * L24: DPDP consent + role + salary scaffold occurs at step 4 + 5;
  *      salary fields hidden behind R12+ gate (FIXME: OQ-PT-1 — salary tab P2).
  *
- * RBAC gate (S7 AC — L_S7):
+ * RBAC gate (S7 AC — L_S7 / DEF-S7-1):
  *   Page-level:  R03+ can reach the wizard.
- *   Role options in Step 2:
- *     - R03–R11  (Outlet Manager): can only select roles below R12 (i.e. R05–R11 range).
- *     - R12–R18  (Manager tier): can select R05–R18 (all non-admin roles below R12+ tier).
- *     - R02+     (Org Admin):    can select all roles including R12+ tier.
+ *   Role options in Step 2 (filtered via src/lib/staff/role-rank.ts):
+ *     - R03   (Outlet Manager):  op-tier only (R05–R11).
+ *     - Manager-tier (R04/R08/R12/R14/R16/R19): R05–R11 + manager-tier roles.
+ *     - R02+  (Org Admin):       all onboardable roles.
  *   Submit guard: if actor is not R02+ and selected role meets R12 rank, reject with toast.
  */
 import { useState } from 'react';
@@ -32,6 +32,7 @@ import { useStaffStore } from '@/src/lib/staff/staff-store';
 import { useStaffAuth } from '@/src/providers/staff-auth-provider';
 import { useToast } from '@/src/hooks/use-toast';
 import { ToastContainer } from '@/src/components/primitives/toast';
+import { availableRolesForViewer, roleOnboardingHintForViewer } from '@/src/lib/staff/role-rank';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -69,12 +70,6 @@ interface Step4Data {
 type WizardData = Step1Data & Step2Data & Step3Data & Step4Data;
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-
-const ONBOARDABLE_ROLES: StaffRoleCode[] = [
-  'R03', 'R04', 'R05', 'R06', 'R07', 'R08', 'R09', 'R10',
-  'R11', 'R12', 'R13', 'R14', 'R15', 'R16', 'R17', 'R18',
-  'R19', 'R20', 'R21',
-];
 
 const ROLE_NAMES: Partial<Record<StaffRoleCode, string>> = {
   R03: 'Outlet Manager', R04: 'Sales Manager', R05: 'Sales Executive',
@@ -234,43 +229,35 @@ function Step2({ data, onChange, errors, actorRole }: {
   actorRole: StaffRoleCode;
 }) {
   /**
-   * Role-option scoping per S7 / L_S7:
-   *   R02+ (Org Admin, rank 22):  all roles selectable
-   *   R12+ but not R02 (rank 15–21): below-R12 roles only (can't self-elevate to admin tier)
-   *   R03+ but not R12 (Outlet Manager, rank 18 — note: R03 rank=18 > R12 rank=15):
-   *     actually R03 has rank 18 which IS >= R12 rank 15, so R03 can see all non-R02+ roles.
-   *     We apply a two-tier guard:
-   *       - R02+ sees everything
-   *       - R03–R11 (rank < 15) sees only roles NOT meeting R12 rank (i.e. below manager tier)
+   * DEF-S7-1: Role options are filtered per viewer rank via availableRolesForViewer().
+   * Three tiers (see src/lib/staff/role-rank.ts for full tier matrix):
+   *   R02+  → all onboardable roles
+   *   R03   → op-tier only (R05–R11)
+   *   Manager-tier (R04/R08/R12/R14/R16/R19) → op-tier + manager-tier roles
    *
-   * From the rank table:
-   *   R03 = 18, R04 = 16, R08 = 16, R10 = 12, R12 = 15, R14 = 16, R16 = 18
-   *   R02 = 22
-   *
-   * Spec S7 intent: "R03 can onboard Sales Executive (R05)". R12+ manager-tier
-   * roles require R02+ to onboard. We define "manager-tier" as hasRank(role, 'R12').
+   * The submit-side guard (submitRbacGuard) is the source of truth (L_S7).
+   * This UI filter is a presentation-layer restriction so unavailable roles
+   * are never shown in the first place.
    */
-  const canOnboardManagerTier = hasRank(actorRole, 'R02');
-  const availableRoles = canOnboardManagerTier
-    ? ONBOARDABLE_ROLES
-    : ONBOARDABLE_ROLES.filter((r) => !hasRank(r, 'R12'));
+  const roles = availableRolesForViewer(actorRole);
+  const hint = roleOnboardingHintForViewer(actorRole);
 
   return (
     <div className="space-y-4">
-      <h2 className="text-[15px] font-semibold text-ink-primary">Role & Outlet</h2>
+      <h2 className="text-sm font-semibold text-ink-primary">Role & Outlet</h2>
       <Field label="Role" required error={errors.role}>
         <select
           value={data.role}
           onChange={(e) => onChange({ role: e.target.value as StaffRoleCode })}
           className={inputClass}
         >
-          {availableRoles.map((r) => (
+          {roles.map((r) => (
             <option key={r} value={r}>{r} — {ROLE_NAMES[r] ?? r}</option>
           ))}
         </select>
-        {!canOnboardManagerTier && (
-          <p className="mt-1 text-[11px] text-ink-muted">
-            Manager-tier (R12+) roles require Org Admin (R02) authority. Onboardable roles shown.
+        {hint && (
+          <p className="mt-1 text-xs text-ink-muted">
+            {hint}
           </p>
         )}
       </Field>
