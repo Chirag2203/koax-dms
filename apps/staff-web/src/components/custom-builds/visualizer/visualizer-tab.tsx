@@ -49,6 +49,8 @@ const DROPDOWN_VEHICLES: { modelSlug: string; displayName: string }[] =
       displayName: asset.displayName,
     };
   });
+import { ErrorBoundary } from '@/src/components/primitives/error-boundary';
+import { Button } from '@/src/components/primitives/button';
 import { VisualizerCanvas } from './visualizer-canvas';
 import type { VisibleLayer } from './visualizer-canvas';
 import type { VisualizerFineControls } from '@dms/types';
@@ -65,17 +67,70 @@ import {
 } from '@/src/lib/custom-builds/customization-presets';
 
 // ─── Lazy-load 3D canvas (L56: ssr: false — three.js requires browser env) ─────
+//
+// Chunk-retry: Next.js dev/prod can occasionally emit a chunk URL that resolves
+// to `_next/undefined` after a stale build manifest or a deploy that
+// invalidates a cached chunk hash. The retry below catches the first reject,
+// waits a beat, and re-attempts the import — second attempt usually picks up
+// the fresh manifest. If both attempts fail, the ErrorBoundary wrapping the
+// component (see <Visualizer3DCanvas> usage below) renders a graceful
+// fallback instead of crashing the whole tab.
+
+async function loadVisualizer3DCanvas() {
+  try {
+    return await import('./visualizer-3d-canvas');
+  } catch (firstErr) {
+    // Wait briefly for any stale manifest refresh, then retry once.
+    await new Promise((r) => setTimeout(r, 250));
+    try {
+      return await import('./visualizer-3d-canvas');
+    } catch {
+      throw firstErr; // surface the original cause to the boundary
+    }
+  }
+}
 
 const Visualizer3DCanvas = dynamic(
-  () =>
-    import('./visualizer-3d-canvas').then((m) => ({
-      default: m.Visualizer3DCanvas,
-    })),
+  () => loadVisualizer3DCanvas().then((m) => ({ default: m.Visualizer3DCanvas })),
   {
     ssr: false,
     loading: () => <Canvas3DSkeleton />,
   },
 );
+
+// ─── 3D-canvas error fallback (chunk-load / runtime crashes) ────────────────
+
+function Visualizer3DErrorFallback({ reset }: { error: Error; reset: () => void }) {
+  return (
+    <div
+      className="flex h-full min-h-[480px] flex-col items-center justify-center gap-4 rounded-md bg-card-2 p-8 text-center"
+      role="alert"
+    >
+      <Box className="size-10 text-ink-muted" aria-hidden="true" />
+      <div className="space-y-1">
+        <p className="text-sm font-medium text-ink-primary">
+          3D viewer failed to load
+        </p>
+        <p className="text-xs text-ink-muted">
+          The 3D model bundle could not be fetched. This is usually a transient
+          network or build issue.
+        </p>
+      </div>
+      <Button
+        variant="secondary"
+        size="sm"
+        onClick={() => {
+          reset();
+          // Hard refresh the route segment as a last-resort to repopulate any
+          // stale chunk manifest entries.
+          if (typeof window !== 'undefined') window.location.reload();
+        }}
+      >
+        Reload viewer
+      </Button>
+    </div>
+  );
+}
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -548,13 +603,15 @@ export function VisualizerTab({ job }: VisualizerTabProps) {
 
           {/* 3D canvas for supported vehicles (Ferrari in v0, L57) */}
           {is3DSupported ? (
-            <Visualizer3DCanvas
-              asset={asset3D}
-              paintColor={paintHex}
-              wheelSize={fineControls.wheelSize}
-              customizations={customizations}
-              onFullscreenChange={setIsFullscreen}
-            />
+            <ErrorBoundary fallback={Visualizer3DErrorFallback}>
+              <Visualizer3DCanvas
+                asset={asset3D}
+                paintColor={paintHex}
+                wheelSize={fineControls.wheelSize}
+                customizations={customizations}
+                onFullscreenChange={setIsFullscreen}
+              />
+            </ErrorBoundary>
           ) : (
             // 2D fallback for other vehicles (WebGL unavailable OR non-3D model)
             <VisualizerCanvas
