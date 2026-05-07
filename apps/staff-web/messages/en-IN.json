@@ -2001,5 +2001,251 @@
       "partialFailureToast": "{succeeded} booking(s) created; {failed} failed — see console for details.",
       "newCustomerCreatedBadge": "New"
     }
+  },
+  "serviceIntake": {
+    "consent": {
+      "title": "Vehicle Intake Inspection — Consent Notice",
+      "text": "This document is a vehicle condition record completed in your presence at vehicle reception.\n\n(i) Personal data being processed: your full name, contact details, vehicle identifiers (VIN, registration), the vehicle's pre-service condition, ten photographs of the vehicle exterior/dashboard/interior/boot, and your handwritten signature.\n\n(ii) Specific purpose: to create a legally-defensible pre-service condition record protecting both customer and dealer against false-deficiency claims under the Consumer Protection Act 2019 §69; to support OEM warranty-claim adjudication; and to satisfy Motor Vehicles Act §130/§145 document-presence checks at intake.\n\n(iii) Withdrawal of consent: you may withdraw consent at any time by writing to the Data Protection Officer at the address below. Withdrawal does not affect data processed before withdrawal nor processing required under DPDP Act 2023 §17(1)(c) lawful-purpose carve-out (legal-claim defence) — see §13.5.\n\n(iv) Right to lodge a complaint: you have the right to lodge a complaint with the Data Protection Board of India under DPDP Act 2023 §13.\n\n(v) Data Protection Officer contact: dpo@bnautos.in; BN Automobiles DPO, [registered office address per master DPDP notice].\n\nRetention: 5 years from the date of this record, per BN Automobiles DPDP notice and DPDP Act 2023 §11."
+    },
+    "fields": {
+      "jobCardId": {
+        "label": "Job Card"
+      },
+      "inspectionAt": {
+        "label": "Inspection Date & Time"
+      },
+      "outletId": {
+        "label": "Outlet"
+      },
+      "qrPayload": {
+        "label": "QR Code",
+        "helpText": "QR code encoding the job card URL for traceability"
+      },
+      "regNumber": {
+        "label": "Registration Number",
+        "helpText": "Vehicle registration number (e.g. KA01-XX-1234)"
+      },
+      "vin": {
+        "label": "VIN",
+        "helpText": "Vehicle Identification Number — auto-filled from vehicle record"
+      },
+      "make": {
+        "label": "Make"
+      },
+      "model": {
+        "label": "Model"
+      },
+      "variant": {
+        "label": "Variant"
+      },
+      "year": {
+        "label": "Year"
+      },
+      "exteriorColor": {
+        "label": "Exterior Colour"
+      },
+      "odometerKm": {
+        "label": "Odometer Reading (km)",
+        "helpText": "Current odometer reading at vehicle intake"
+      },
+      "fuelLevel": {
+        "label": "Fuel Level",
+        "helpText": "Fuel tank level at reception"
+      },
+      "damageCallouts": {
+        "label": "Damage Callouts",
+        "helpText": "Pre-existing damage marks recorded during walk-around"
+      },
+      "damageDiagramAnnotations": {
+        "label": "Damage Diagram Annotations",
+        "helpText": "SVG path overlay for interactive damage marking (P2 feature)"
+      },
+      "spareTyrePresent": {
+        "label": "Spare Tyre Present"
+      },
+      "toolKitPresent": {
+        "label": "Tool Kit Present"
+      },
+      "keyCount": {
+        "label": "Number of Keys"
+      },
+      "keyType": {
+        "label": "Key Type",
+        "helpText": "Smart key, valet key, or both (relevant for luxury/premium vehicles)"
+      },
+      "serviceBookPresent": {
+        "label": "Service Book Present"
+      },
+      "rcInVehicle": {
+        "label": "RC in Vehicle",
+        "helpText": "Registration Certificate (MV Act §130). NOT_VERIFIED = check not performed; ABSENT = checked, not found."
+      },
+      "insuranceCertInVehicle": {
+        "label": "Insurance Certificate in Vehicle",
+        "helpText": "Insurance certificate (MV Act §145). NOT_VERIFIED = check not performed; ABSENT = checked, not found."
+      },
+      "cabinAccessoriesNote": {
+        "label": "Cabin Accessories Note",
+        "helpText": "Free text — e.g. dash cam, child seat, boot organiser"
+      },
+      "battery12VCondition": {
+        "label": "12V Battery Condition"
+      },
+      "tyreConditionFL": {
+        "label": "Front Left Tyre Condition"
+      },
+      "tyreConditionFR": {
+        "label": "Front Right Tyre Condition"
+      },
+      "tyreConditionRL": {
+        "label": "Rear Left Tyre Condition"
+      },
+      "tyreConditionRR": {
+        "label": "Rear Right Tyre Condition"
+      },
+      "acFunctional": {
+        "label": "Air Conditioning Functional"
+      },
+      "wipersFunctional": {
+        "label": "Wipers Functional"
+      },
+      "lightsFunctional": {
+        "label": "Lights Functional"
+      },
+      "infotainmentFunctional": {
+        "label": "Infotainment Functional",
+        "helpText": "Touchscreen / entertainment unit — applicable for luxury/premium vehicles"
+      },
+      "dashboardWarningLightsNote": {
+        "label": "Dashboard Warning Lights Note",
+        "helpText": "Note any illuminated warning lights observed at reception"
+      },
+      "customerName": {
+        "label": "Customer Name"
+      },
+      "customerSignatureDataUrl": {
+        "label": "Customer Signature",
+        "helpText": "Customer handwritten signature captured on device"
+      },
+      "customerSignedAt": {
+        "label": "Customer Signed At"
+      },
+      "saName": {
+        "label": "Service Advisor Name"
+      },
+      "saEmployeeId": {
+        "label": "Service Advisor ID"
+      },
+      "saSignatureDataUrl": {
+        "label": "Service Advisor Signature"
+      },
+      "saSignedAt": {
+        "label": "Service Advisor Signed At"
+      },
+      "nextActionNoteForWorkshop": {
+        "label": "Workshop Action Note",
+        "helpText": "Internal note for workshop team — not shown to customer"
+      },
+      "tyreTreadMmFL": {
+        "label": "Front Left Tyre Tread (mm)"
+      },
+      "tyreTreadMmFR": {
+        "label": "Front Right Tyre Tread (mm)"
+      },
+      "tyreTreadMmRL": {
+        "label": "Rear Left Tyre Tread (mm)"
+      },
+      "tyreTreadMmRR": {
+        "label": "Rear Right Tyre Tread (mm)"
+      },
+      "priorVisitDamageHistorySummary": {
+        "label": "Prior Visit Damage History",
+        "helpText": "Auto-populated in P2 from prior visit records"
+      },
+      "signedSheetAttachmentId": {
+        "label": "Signed Sheet Attachment",
+        "helpText": "Reverse-link to the uploaded scanned signed sheet attachment"
+      },
+      "signedSheetUploadedAt": {
+        "label": "Signed Sheet Uploaded At"
+      },
+      "retainUntil": {
+        "label": "Retain Until",
+        "helpText": "ISO date; computed as createdAt + 5 years"
+      },
+      "retentionPolicy": {
+        "label": "Retention Policy"
+      },
+      "version": {
+        "label": "Record Version",
+        "helpText": "Bumps on each R19 amendment"
+      },
+      "amendments": {
+        "label": "Amendment Audit Trail",
+        "helpText": "Audit rows; excludes signature/photo dataUrls per PII redaction policy"
+      }
+    },
+    "errors": {
+      "photoOver1MB": "Photo exceeds 1 MB limit — please retake",
+      "signatureRequired": "Customer signature required to complete intake",
+      "signedSheetWithoutSignature": "Cannot upload signed sheet — customer signature not yet captured",
+      "amendmentRequiresGM": "Amendments require Outlet Manager (R03+) or higher",
+      "amendmentReasonTooShort": "Reason must be at least 10 characters"
+    },
+    "toasts": {
+      "recorded": "Intake inspection recorded",
+      "signed": "Customer signature captured",
+      "uploaded": "Signed sheet uploaded — intake completed",
+      "amended": "Intake record amended",
+      "skipped": "Intake inspection skipped"
+    },
+    "events": {
+      "intake_recorded": {
+        "label": "Intake Recorded"
+      },
+      "intake_signed": {
+        "label": "Customer Signed"
+      },
+      "intake_sheet_uploaded": {
+        "label": "Signed Sheet Uploaded"
+      },
+      "intake_amended": {
+        "label": "Intake Amended"
+      },
+      "intake_photo_captured": {
+        "label": "Photo Captured"
+      },
+      "intake_skipped": {
+        "label": "Intake Skipped"
+      },
+      "intake_pdf_downloaded": {
+        "label": "PDF Downloaded"
+      }
+    },
+    "fuelLevel": {
+      "EMPTY": "Empty",
+      "Q1": "1/4",
+      "Q2": "1/2",
+      "Q3": "3/4",
+      "FULL": "Full"
+    },
+    "damageCode": {
+      "S": "Scratch",
+      "D": "Dent",
+      "C": "Chip / Crack",
+      "R": "Rust",
+      "B": "Broken / Missing",
+      "P": "Paint Fade"
+    },
+    "damageView": {
+      "TOP": "Top / Roof",
+      "FRONT": "Front",
+      "REAR": "Rear",
+      "LEFT": "Left Side",
+      "RIGHT": "Right Side"
+    },
+    "deferred": {
+      "emailCopy": "Customer email copy coming in v1.1"
+    }
   }
 }

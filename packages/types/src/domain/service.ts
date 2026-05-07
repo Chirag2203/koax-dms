@@ -183,6 +183,10 @@ export const JobCardSchema = z.object({
   }).optional(),
   concerns: z.string().optional(),
   declineReason: z.string().optional(),
+  // SPEC-SERVICE-INTAKE-001 L1: back-reference to the intake inspection aggregate (id-only)
+  // These are optional so existing fixtures do not break — intake is captured post-JC-creation
+  intakeInspectionId: z.string().optional(),
+  intakeInspectionCompletedAt: z.string().optional(), // ISO datetime; set when intake reaches COMPLETED
 });
 
 export type JobCard = z.infer<typeof JobCardSchema>;

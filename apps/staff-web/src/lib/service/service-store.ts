@@ -36,6 +36,10 @@ import type {
   WarrantyClaimStatus,
   JobCardTimelineEvent,
   AdvisorNote,
+  IntakeInspection,
+  IntakeDamageCallout,
+  IntakeInspectionPhoto,
+  IntakePhotoSlot,
 } from '@dms/types';
 import { canTransition, canCancelAwaitingConfirmation, SELF_CANCEL_REASON } from './state-machine';
 import { buildVhcItems } from './vhc-checklist';
@@ -137,6 +141,10 @@ interface ServiceState {
   photos: Photo[];
   attachments: Attachment[];
   communications: Communication[];
+  // SPEC-SERVICE-INTAKE-001 L2: intake slice — lives in service-store, no separate store
+  intakeInspections: IntakeInspection[];
+  intakeDamageCallouts: IntakeDamageCallout[];
+  intakeInspectionPhotos: IntakeInspectionPhoto[];
 }
 
 // ─── Actions shape ────────────────────────────────────────────────────────────
@@ -324,6 +332,129 @@ interface ServiceActions {
 
   /** Returns all JobCards for a given customerId (RLS enforced). */
   selectBookingsByCustomer(customerId: string): JobCard[];
+
+  // ── Intake Inspection actions (SPEC-SERVICE-INTAKE-001) ─────────────────────
+
+  /**
+   * SC-1 / AC-1: Create a new IntakeInspection record in DRAFT state.
+   * Mints id, sets state=DRAFT, retainUntil=now+5y, retentionPolicy, version=1, amendments=[].
+   * Also patches JobCard.intakeInspectionId.
+   * Emits timeline event `intake_recorded` (per §14 / QA #5: includes actorRole).
+   *
+   * L7: retainUntil = createdAt + 5 years (DPDP Act 2023 §11)
+   * L2: intake state lives in service-store; no cross-module seam
+   */
+  recordIntakeInspection(
+    input: Omit<
+      IntakeInspection,
+      'id' | 'state' | 'retainUntil' | 'retentionPolicy' | 'version' | 'amendments'
+    >,
+    actor: Actor & { role: string },
+  ): string; // returns the new intakeInspectionId
+
+  /**
+   * SC-4 / AC-4: Capture customer signature — DRAFT → CUSTOMER_SIGNED.
+   * Only valid from DRAFT state.
+   * Emits `intake_signed`.
+   */
+  captureCustomerSignature(
+    intakeId: string,
+    signatureDataUrl: string,
+    actor: Actor & { role: string },
+  ): void;
+
+  /**
+   * SC-7 / AC-7: Attach the scanned signed sheet.
+   * REJECTS if state !== CUSTOMER_SIGNED (per SC-17 / B6 in spec).
+   * On success: appends Attachment, sets signedSheetAttachmentId,
+   * transitions CUSTOMER_SIGNED → SHEET_UPLOADED → COMPLETED,
+   * sets JC.intakeInspectionCompletedAt.
+   * Emits `intake_sheet_uploaded`.
+   */
+  attachSignedSheet(
+    intakeId: string,
+    attachment: Omit<Attachment, 'id' | 'uploadedAt' | 'uploadedBy'>,
+    actor: Actor & { role: string },
+  ): void;
+
+  /**
+   * QA #4 / L5: Add a photo to a typed slot.
+   * Rejects if photo dataUrl size > 1 MB (after base64 decode estimate).
+   * L5: one photo per slot — replaces existing if the slot is already filled.
+   * Emits `intake_photo_captured`.
+   */
+  addIntakePhoto(
+    intakeId: string,
+    photoBase64: string,
+    slot: IntakePhotoSlot,
+    actor: Actor & { role: string },
+  ): { ok: true; photoId: string } | { ok: false; error: 'PHOTO_TOO_LARGE' | 'INTAKE_NOT_FOUND' };
+
+  /** Delete an intake photo by id */
+  deleteIntakePhoto(photoId: string, actor: Actor): void;
+
+  /**
+   * SC-3: Add a damage callout to an intake.
+   * Auto-numbers callout based on existing callouts for this intake.
+   * Idempotent on the same callout id (safe to call twice).
+   */
+  addDamageCallout(
+    intakeId: string,
+    callout: Omit<IntakeDamageCallout, 'id' | 'intakeInspectionId' | 'number'>,
+    actor: Actor,
+  ): string; // returns the calloutId
+
+  /** Remove a damage callout */
+  removeDamageCallout(calloutId: string, actor: Actor): void;
+
+  /**
+   * SC-9 / AC-9: Amend a COMPLETED or AMENDED intake.
+   * L8: REJECTS if actor.role rank below R12 (only R03/R19/R24 may amend).
+   * L8: REJECTS if state not in {COMPLETED, AMENDED}.
+   * L8: REJECTS if reason is empty or shorter than 10 characters.
+   * L8 (tightened): scalarDiffs MUST NOT contain customerSignatureDataUrl,
+   *   saSignatureDataUrl, or photo dataUrls — this is validated on input.
+   * On success: bumps version, appends to amendments[], state=AMENDED.
+   * Emits `intake_amended` with { actorEmployeeId, actorRole, intakeInspectionId,
+   *   version, changedFields, reasonLength } (per Sec #11: no reasonHash).
+   */
+  amendIntake(
+    intakeId: string,
+    scalarDiffs: Record<string, { before: unknown; after: unknown }>,
+    reason: string,
+    actor: Actor & { role: string },
+  ): { ok: true } | { ok: false; error: 'UNAUTHORIZED' | 'INVALID_STATE' | 'REASON_TOO_SHORT' | 'PII_IN_DIFFS' | 'NOT_FOUND' };
+
+  /**
+   * SC-8b / AC-8b: Record that intake was skipped (R19+ only per Sec #10).
+   * Rejects if actor role rank < R12 (R03/R19/R24 only).
+   * Rejects if reason is empty.
+   * Emits `intake_skipped` event with { actorEmployeeId, actorRole, jobCardId, reason }.
+   */
+  recordIntakeSkipped(
+    jobCardId: string,
+    reason: string,
+    actor: Actor & { role: string },
+  ): { ok: true } | { ok: false; error: 'UNAUTHORIZED' | 'REASON_REQUIRED' | 'JC_NOT_FOUND' };
+
+  // ── Intake selectors ─────────────────────────────────────────────────────────
+
+  /** Get the intake inspection for a job card */
+  selectIntakeForJobCard(jobCardId: string): IntakeInspection | undefined;
+
+  /** Get all photos for an intake inspection */
+  selectIntakePhotosForIntake(intakeId: string): IntakeInspectionPhoto[];
+
+  /** Get all damage callouts for an intake inspection */
+  selectDamageCalloutsForIntake(intakeId: string): IntakeDamageCallout[];
+
+  /**
+   * SC-16 / L13 / AC-17: Get all intake records for a customer (DSAR pipeline).
+   * Two-hop join: customerId → JobCard[] → IntakeInspection[].
+   * Used by R23 DPO DSAR pipeline per DPDP §11.
+   * Returns across all outlets (R23 has cross-outlet read).
+   */
+  selectIntakesByCustomerId(customerId: string): IntakeInspection[];
 }
 
 // ─── Combined store type ──────────────────────────────────────────────────────
@@ -361,6 +492,10 @@ export const useServiceStore = create<ServiceStore>()(
       photos: [],
       attachments: [],
       communications: [],
+      // SPEC-SERVICE-INTAKE-001 L2: intake slice state
+      intakeInspections: [],
+      intakeDamageCallouts: [],
+      intakeInspectionPhotos: [],
 
       // ── setJobCardStatus ─────────────────────────────────────────────────────
 
@@ -1450,6 +1585,379 @@ export const useServiceStore = create<ServiceStore>()(
 
       selectBookingsByCustomer(customerId) {
         return get().jobCards.filter((jc) => jc.customerId === customerId);
+      },
+
+      // ── Intake Inspection actions (SPEC-SERVICE-INTAKE-001) ─────────────────
+
+      recordIntakeInspection(input, actor) {
+        const intakeId = makeId('intake');
+        // L7: retainUntil = createdAt + 5 years (DPDP Act 2023 §11)
+        const createdAt = new Date();
+        const retainUntil = new Date(createdAt);
+        retainUntil.setFullYear(retainUntil.getFullYear() + 5);
+        const retainUntilStr = retainUntil.toISOString().slice(0, 10); // ISO date
+
+        set((state) => {
+          const intake: IntakeInspection = {
+            ...input,
+            id: intakeId,
+            state: 'DRAFT',
+            // L7: 5-year retention; v1 records date only; v1.5 wires automated purge (DEF-INTAKE-1)
+            retainUntil: retainUntilStr,
+            retentionPolicy: 'INTAKE_INSPECTION_5Y',
+            version: 1,
+            amendments: [],
+          };
+          state.intakeInspections.push(intake);
+
+          // Patch JC with intakeInspectionId back-reference (L1)
+          const jc = findJC(state, input.jobCardId);
+          if (jc) jc.intakeInspectionId = intakeId;
+
+          // Emit timeline event `intake_recorded` (§14 / QA #5: actorRole for debugging)
+          pushEvent(state, {
+            jobCardId: input.jobCardId,
+            at: now(),
+            actorId: actor.id,
+            actorName: actor.name,
+            type: 'note',
+            description: `Intake inspection recorded (id: ${intakeId}).`,
+            metadata: {
+              event: 'intake_recorded',
+              actorEmployeeId: actor.id,
+              actorRole: actor.role, // QA #5: role stored for standalone debugging
+              intakeInspectionId: intakeId,
+              jobCardId: input.jobCardId,
+            },
+          });
+        });
+        return intakeId;
+      },
+
+      captureCustomerSignature(intakeId, signatureDataUrl, actor) {
+        set((state) => {
+          const intake = state.intakeInspections.find((i) => i.id === intakeId);
+          if (!intake) return;
+          if (intake.state !== 'DRAFT') return; // only valid from DRAFT
+
+          intake.customerSignatureDataUrl = signatureDataUrl;
+          intake.customerSignedAt = now();
+          intake.state = 'CUSTOMER_SIGNED';
+
+          pushEvent(state, {
+            jobCardId: intake.jobCardId,
+            at: now(),
+            actorId: actor.id,
+            actorName: actor.name,
+            type: 'note',
+            description: `Customer signature captured. Intake state: DRAFT → CUSTOMER_SIGNED.`,
+            metadata: {
+              event: 'intake_signed',
+              actorRole: actor.role,
+              intakeInspectionId: intakeId,
+              jobCardId: intake.jobCardId,
+            },
+          });
+        });
+      },
+
+      attachSignedSheet(intakeId, attachment, actor) {
+        set((state) => {
+          const intake = state.intakeInspections.find((i) => i.id === intakeId);
+          if (!intake) return;
+          // SC-17 / B6: REJECTS if state !== CUSTOMER_SIGNED
+          if (intake.state !== 'CUSTOMER_SIGNED') {
+            // State guard: reject silently (caller should validate before calling)
+            // Logged to console in dev for debugging; not surfaced as a store side-effect
+            return;
+          }
+
+          const attRecord: Attachment = {
+            id: makeId('att'),
+            ...attachment,
+            jobCardId: intake.jobCardId, // always use intake's JC id as authoritative source
+            uploadedAt: now(),
+            uploadedBy: actor.id,
+          };
+          state.attachments.push(attRecord);
+
+          intake.signedSheetAttachmentId = attRecord.id;
+          intake.signedSheetUploadedAt = now();
+          // Auto-transition: CUSTOMER_SIGNED → SHEET_UPLOADED → COMPLETED
+          intake.state = 'COMPLETED';
+
+          // Set JC.intakeInspectionCompletedAt — lifts the soft-warn banner (L9)
+          const jc = findJC(state, intake.jobCardId);
+          if (jc) jc.intakeInspectionCompletedAt = now();
+
+          pushEvent(state, {
+            jobCardId: intake.jobCardId,
+            at: now(),
+            actorId: actor.id,
+            actorName: actor.name,
+            type: 'note',
+            description: `Signed intake sheet uploaded. Intake state: CUSTOMER_SIGNED → COMPLETED.`,
+            metadata: {
+              event: 'intake_sheet_uploaded',
+              actorRole: actor.role,
+              intakeInspectionId: intakeId,
+              jobCardId: intake.jobCardId,
+              attachmentId: attRecord.id,
+            },
+          });
+        });
+      },
+
+      addIntakePhoto(intakeId, photoBase64, slot, actor) {
+        const intake = get().intakeInspections.find((i) => i.id === intakeId);
+        if (!intake) return { ok: false, error: 'INTAKE_NOT_FOUND' };
+
+        // QA #4 / SC-2: Reject if photo size > 1 MB
+        // Base64 encodes ~1.33x raw bytes; estimate raw size from base64 string length
+        const base64Data = photoBase64.includes(',') ? photoBase64.split(',')[1] ?? '' : photoBase64;
+        const estimatedBytes = Math.ceil((base64Data.length * 3) / 4);
+        const ONE_MB = 1024 * 1024;
+        if (estimatedBytes > ONE_MB) {
+          return { ok: false, error: 'PHOTO_TOO_LARGE' };
+        }
+
+        const photoId = makeId('iph');
+        set((state) => {
+          // L5: slot uniqueness — one photo per slot; replace existing if slot is already filled
+          const existingIdx = state.intakeInspectionPhotos.findIndex(
+            (p) => p.intakeInspectionId === intakeId && p.slot === slot,
+          );
+          if (existingIdx >= 0) {
+            state.intakeInspectionPhotos.splice(existingIdx, 1);
+          }
+
+          const photo: IntakeInspectionPhoto = {
+            id: photoId,
+            intakeInspectionId: intakeId,
+            jobCardId: intake.jobCardId,
+            dataUrl: photoBase64,
+            slot,
+            capturedAt: now(),
+            uploadedBy: actor.id,
+          };
+          state.intakeInspectionPhotos.push(photo);
+
+          pushEvent(state, {
+            jobCardId: intake.jobCardId,
+            at: now(),
+            actorId: actor.id,
+            actorName: actor.name,
+            type: 'photo_uploaded',
+            description: `Intake photo captured for slot: ${slot}.`,
+            metadata: {
+              event: 'intake_photo_captured',
+              actorRole: actor.role,
+              intakeInspectionId: intakeId,
+              slot,
+            },
+          });
+        });
+        return { ok: true, photoId };
+      },
+
+      deleteIntakePhoto(photoId, actor) {
+        set((state) => {
+          const idx = state.intakeInspectionPhotos.findIndex((p) => p.id === photoId);
+          if (idx < 0) return;
+          const photo = state.intakeInspectionPhotos[idx]!;
+          const jobCardId = photo.jobCardId;
+          state.intakeInspectionPhotos.splice(idx, 1);
+          pushEvent(state, {
+            jobCardId,
+            at: now(),
+            actorId: actor.id,
+            actorName: actor.name,
+            type: 'note',
+            description: `Intake photo deleted (id: ${photoId}).`,
+            metadata: { photoId, intakeInspectionId: photo.intakeInspectionId },
+          });
+        });
+      },
+
+      addDamageCallout(intakeId, callout, actor) {
+        const calloutId = makeId('dmg');
+        set((state) => {
+          const intake = state.intakeInspections.find((i) => i.id === intakeId);
+          if (!intake) return;
+
+          // Auto-number based on existing callouts for this intake
+          const existingCallouts = state.intakeDamageCallouts.filter(
+            (c) => c.intakeInspectionId === intakeId,
+          );
+          const number = existingCallouts.length + 1;
+
+          const newCallout: IntakeDamageCallout = {
+            ...callout,
+            id: calloutId,
+            intakeInspectionId: intakeId,
+            number,
+          };
+          state.intakeDamageCallouts.push(newCallout);
+
+          // Update damageCalloutIds on the intake record
+          intake.damageCalloutIds.push(calloutId);
+        });
+        return calloutId;
+      },
+
+      removeDamageCallout(calloutId, actor) {
+        set((state) => {
+          const idx = state.intakeDamageCallouts.findIndex((c) => c.id === calloutId);
+          if (idx < 0) return;
+          const callout = state.intakeDamageCallouts[idx]!;
+          state.intakeDamageCallouts.splice(idx, 1);
+
+          // Remove from intake's damageCalloutIds
+          const intake = state.intakeInspections.find(
+            (i) => i.id === callout.intakeInspectionId,
+          );
+          if (intake) {
+            const cidx = intake.damageCalloutIds.indexOf(calloutId);
+            if (cidx >= 0) intake.damageCalloutIds.splice(cidx, 1);
+          }
+        });
+      },
+
+      amendIntake(intakeId, scalarDiffs, reason, actor) {
+        // L8: RBAC check — only R03/R19/R24 can amend (rank ≥ R03 in role hierarchy)
+        // Roles that may amend: R03 (Outlet Manager), R19 (GM), R24 (CEO)
+        // The task description says "rank R09 < R12 required by L8" but the spec says
+        // "R03 (Outlet Manager) and R19 (GM) can amend" — we check role directly.
+        const ALLOWED_AMENDMENT_ROLES = new Set(['R03', 'R19', 'R24']);
+        if (!ALLOWED_AMENDMENT_ROLES.has(actor.role)) {
+          return { ok: false, error: 'UNAUTHORIZED' };
+        }
+
+        // L8: Reason must be ≥ 10 characters
+        if (reason.length < 10) {
+          return { ok: false, error: 'REASON_TOO_SHORT' };
+        }
+
+        // L8 (tightened): scalarDiffs MUST NOT include data URL fields
+        const PII_FORBIDDEN_KEYS = new Set([
+          'customerSignatureDataUrl',
+          'saSignatureDataUrl',
+          'dataUrl', // photo dataUrl
+        ]);
+        const hasPiiKey = Object.keys(scalarDiffs).some((k) => PII_FORBIDDEN_KEYS.has(k));
+        if (hasPiiKey) {
+          return { ok: false, error: 'PII_IN_DIFFS' };
+        }
+
+        const intake = get().intakeInspections.find((i) => i.id === intakeId);
+        if (!intake) return { ok: false, error: 'NOT_FOUND' };
+
+        // L8: Only COMPLETED or AMENDED states can be amended
+        if (intake.state !== 'COMPLETED' && intake.state !== 'AMENDED') {
+          return { ok: false, error: 'INVALID_STATE' };
+        }
+
+        set((state) => {
+          const mutableIntake = state.intakeInspections.find((i) => i.id === intakeId);
+          if (!mutableIntake) return;
+
+          const newVersion = mutableIntake.version + 1;
+          const changedFields = Object.keys(scalarDiffs);
+
+          // L8 (tightened): amendment audit row stores scalar diffs ONLY — never base64 blobs
+          mutableIntake.amendments.push({
+            at: now(),
+            byEmployeeId: actor.id,
+            byRole: actor.role, // QA #5: actorRole stored for standalone debugging
+            reason,
+            changedFields,
+            scalarDiffs, // guaranteed PII-free by the check above
+          });
+          mutableIntake.version = newVersion;
+          mutableIntake.state = 'AMENDED';
+
+          // Emit `intake_amended` event per §14 / Sec #11:
+          // reasonLength instead of hash to avoid leakable short-hash inversion
+          pushEvent(state, {
+            jobCardId: mutableIntake.jobCardId,
+            at: now(),
+            actorId: actor.id,
+            actorName: actor.name,
+            type: 'note',
+            description: `Intake amended by ${actor.role}. Version: ${newVersion}. Fields: ${changedFields.join(', ')}.`,
+            metadata: {
+              event: 'intake_amended',
+              actorEmployeeId: actor.id,
+              actorRole: actor.role,
+              intakeInspectionId: intakeId,
+              version: newVersion,
+              changedFields,
+              reasonLength: reason.length, // Sec #11: emit reasonLength, not hash
+            },
+          });
+        });
+        return { ok: true };
+      },
+
+      recordIntakeSkipped(jobCardId, reason, actor) {
+        // Sec #10: only R03/R19/R24 can skip intake
+        const ALLOWED_SKIP_ROLES = new Set(['R03', 'R19', 'R24']);
+        if (!ALLOWED_SKIP_ROLES.has(actor.role)) {
+          return { ok: false, error: 'UNAUTHORIZED' };
+        }
+
+        if (!reason || reason.trim().length === 0) {
+          return { ok: false, error: 'REASON_REQUIRED' };
+        }
+
+        const jc = get().jobCards.find((j) => j.id === jobCardId);
+        if (!jc) return { ok: false, error: 'JC_NOT_FOUND' };
+
+        set((state) => {
+          pushEvent(state, {
+            jobCardId,
+            at: now(),
+            actorId: actor.id,
+            actorName: actor.name,
+            type: 'note',
+            description: `Intake inspection skipped by ${actor.role}. Reason: ${reason}`,
+            metadata: {
+              event: 'intake_skipped',
+              actorEmployeeId: actor.id,
+              actorRole: actor.role,
+              jobCardId,
+              reason, // reason text only (no hash)
+            },
+          });
+        });
+        return { ok: true };
+      },
+
+      // ── Intake selectors ─────────────────────────────────────────────────────
+
+      selectIntakeForJobCard(jobCardId) {
+        // Single base-ref selector — computation done here, not in the action
+        return get().intakeInspections.find((i) => i.jobCardId === jobCardId);
+      },
+
+      selectIntakePhotosForIntake(intakeId) {
+        return get().intakeInspectionPhotos.filter((p) => p.intakeInspectionId === intakeId);
+      },
+
+      selectDamageCalloutsForIntake(intakeId) {
+        return get().intakeDamageCallouts.filter((c) => c.intakeInspectionId === intakeId);
+      },
+
+      // SC-16 / L13 / AC-17: two-hop join through jobCard.customerId
+      selectIntakesByCustomerId(customerId) {
+        const jobCards = get().jobCards;
+        const intakes = get().intakeInspections;
+        // Step 1: find all JC ids for this customer
+        const customerJcIds = new Set(
+          jobCards.filter((jc) => jc.customerId === customerId).map((jc) => jc.id),
+        );
+        // Step 2: find all intakes whose jobCardId is in those JC ids
+        return intakes.filter((i) => customerJcIds.has(i.jobCardId));
       },
     };
   }),

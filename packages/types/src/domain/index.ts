@@ -74,6 +74,7 @@ export type {
 } from './insurance';
 
 export * from './shoot';
+export * from './intake-inspection';
 
 export * from './review';
 export * from './test-drive';
