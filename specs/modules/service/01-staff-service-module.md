@@ -526,3 +526,4 @@ All components strictly follow `D:/dms/dms/design/04_staff_component_patterns.md
 | Date | Version | Author | Change |
 |------|---------|--------|--------|
 | 2026-04-17 | 0.1 | Claude (integrator) | Initial spec for Phase S4 Service — 4 routes + 6 tabs + 2 standalone flows |
+| 2026-05-07 | v1.x — added child spec SPEC-SERVICE-INTAKE-001 (intake inspection sheet — sibling under specs/modules/service/03-intake-inspection.md) |
