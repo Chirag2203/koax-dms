@@ -2,8 +2,11 @@
 
 A project-independent base for spinning up a new codebase that runs on
 spec-first, agent-orchestrated, production-grade autonomous
-development. Battle-tested over thousands of agent-hours; every section
-is a pattern that paid for itself by catching a real regression or
+development — covering the full lifecycle from cold-start research
+through ship.
+
+Battle-tested over thousands of agent-hours; every section is a
+pattern that paid for itself by catching a real regression or
 preventing a costly mis-build.
 
 This document is **prescriptive**. Treat the rules as binding unless
@@ -20,20 +23,29 @@ you have explicit reason to deviate, and write that reason down.
 
 0. [Mental model](#0-mental-model)
 1. [Repo skeleton](#1-repo-skeleton)
-2. [The agent pipeline](#2-the-agent-pipeline)
-3. [Model routing](#3-model-routing)
-4. [Spec discipline](#4-spec-discipline)
-5. [Locked-decision (L-tag) protocol](#5-locked-decision-l-tag-protocol)
-6. [Cross-aggregate consistency contract](#6-cross-aggregate-consistency-contract)
-7. [Code quality enforcement](#7-code-quality-enforcement)
-8. [Drift-detection guardrail tests](#8-drift-detection-guardrail-tests)
-9. [Memory + cross-session continuity](#9-memory--cross-session-continuity)
-10. [Commit discipline](#10-commit-discipline)
-11. [Production-grade checklist](#11-production-grade-checklist)
-12. [Bootstrap checklist for a new project](#12-bootstrap-checklist-for-a-new-project)
-13. [Anti-patterns to avoid](#13-anti-patterns-to-avoid)
-14. [Operating rhythm + escalation](#14-operating-rhythm--escalation)
-15. [Templates](#15-templates)
+2. [The agent roster](#2-the-agent-roster)
+3. [Phase 0 — Project kickoff (discovery)](#3-phase-0--project-kickoff-discovery)
+4. [Phase 1 — Bootstrap from kickoff](#4-phase-1--bootstrap-from-kickoff)
+5. [Phase 2 — Per-feature pipeline](#5-phase-2--per-feature-pipeline)
+6. [Model routing](#6-model-routing)
+7. [Spec discipline](#7-spec-discipline)
+8. [Locked-decision (L-tag) protocol](#8-locked-decision-l-tag-protocol)
+9. [Cross-aggregate consistency contract](#9-cross-aggregate-consistency-contract)
+10. [Design pipeline + visual consistency rules](#10-design-pipeline--visual-consistency-rules)
+11. [SEO track](#11-seo-track)
+12. [Brand + content track](#12-brand--content-track)
+13. [Code quality enforcement](#13-code-quality-enforcement)
+14. [Drift-detection guardrail tests](#14-drift-detection-guardrail-tests)
+15. [Memory + cross-session continuity](#15-memory--cross-session-continuity)
+16. [Commit discipline](#16-commit-discipline)
+17. [Production-grade checklist](#17-production-grade-checklist)
+18. [Anti-patterns to avoid](#18-anti-patterns-to-avoid)
+19. [Operating rhythm + escalation](#19-operating-rhythm--escalation)
+20. [Optional integrations (Linear, etc.)](#20-optional-integrations)
+21. [Templates](#21-templates)
+
+Appendix A — [Why this works](#appendix-a--why-this-works)
+Appendix B — [When to deviate](#appendix-b--when-to-deviate)
 
 ---
 
@@ -49,15 +61,37 @@ you have explicit reason to deviate, and write that reason down.
 
 2. **Independence is the value of multiple agents.** A single agent
    doing planning + implementation + review hides its own mistakes. A
-   pipeline where security-reviewer, finance-reviewer, qa-planner, and
-   code-reviewer run *blind to each other's output* surfaces real
-   issues. Don't collapse the waves.
+   pipeline where security-reviewer, finance-reviewer, qa-planner,
+   accessibility-auditor, and code-reviewer run *blind to each other's
+   output* surfaces real issues. Don't collapse the waves.
 
 3. **Static enforcement beats discipline every time.** Every recurring
    bug class becomes a guardrail test. We caught the same Zustand
    infinite-loop pattern three times in three different files; the
    fourth was caught by a test that scans the whole codebase. Never
    rely on a person remembering the rule.
+
+### Two phases, not one
+
+The work splits into two phases that need very different agent
+postures:
+
+- **Phase 0 — Discovery.** Research-heavy, written-deliverable-heavy.
+  No code. Produces the canonical document set + design system spec +
+  roadmap. Runs once at project kickoff. Takes 3-5 days agent-time.
+- **Phase 2+ — Per-feature execution.** Spec-driven build. Each
+  feature is a research → plan → spec → wave-2 reviews → integrator
+  → implement → test → review cycle. Specs are written **as we go**,
+  one per feature, NOT all upfront in Phase 0.
+
+Phase 1 (bootstrap) sits between them: scaffold the monorepo, install
+the design system from Phase 0, wire guardrail tests, set up auth
+stubs. Day-or-two of work.
+
+This phasing matters because the agent ROSTER is different in each
+phase. Phase 0 needs market researchers and design strategists; Phase
+2 needs implementation engineers and code reviewers. Don't ask one
+agent to do both.
 
 ### The four roles you play
 
@@ -85,7 +119,8 @@ days.
 ├── .claude/
 │   ├── CLAUDE.md                  # global rules (the only doc agents MUST read)
 │   ├── agent-status.md            # per-session shared state (gitignored)
-│   └── known-issues.md            # pre-existing failure budget
+│   ├── known-issues.md            # pre-existing failure budget
+│   └── linear-config.json         # optional — see §20
 │
 ├── apps/                          # user-facing apps (1+ surfaces)
 │   ├── <surface-A>/               # e.g. customer-web, staff-web, mobile
@@ -100,42 +135,450 @@ days.
 │   ├── config-tailwind/           # shared Tailwind preset
 │   └── config-typescript/         # shared tsconfig.base.json
 │
+├── research/                      # KICKOFF doc set — Phase 0 outputs
+│   ├── K00-executive-summary.md
+│   ├── K01-market-and-competitive-landscape.md
+│   ├── K02-business-model-and-monetization.md
+│   ├── K03-user-research-and-personas.md
+│   ├── K04-feature-matrix.md
+│   ├── K05-customer-experience-and-journey-maps.md
+│   ├── M01-<domain-module-brief>.md ... MNN  # 1 per major business domain
+│   ├── K06-tech-architecture-patterns.md
+│   ├── K07-glossary.md
+│   ├── K08-domain-model.md
+│   ├── K09-state-machines.md
+│   ├── K10-non-functional-requirements.md
+│   ├── K11-integration-contracts-index.md
+│   ├── K12-role-permission-matrix.md
+│   ├── K13-open-questions-and-risks.md
+│   ├── K14-brand-and-content-strategy.md
+│   ├── K15-seo-strategy.md         # public-facing surfaces only
+│   └── K16-spec-template-and-conventions.md
+│
+├── design/                        # KICKOFF design outputs
+│   ├── D00-design-direction-comparison.md   # 5 directions evaluated
+│   ├── D01-design-system.md                 # canonical UI spec (locked)
+│   ├── screens/                             # per-screen high-fidelity (Stitch / Figma exports)
+│   └── tokens/                              # raw design-token source if separate from packages/tokens
+│
 ├── specs/
 │   ├── modules/<domain>/          # capability specs (NN-<slug>.md per spec)
 │   │   └── <domain>/01-<feature>.md
 │   ├── architecture/              # cross-cutting reference docs
-│   │   ├── canonical-ui-patterns.md       # SPEC-ARCH-UI-001 — UI primitives
+│   │   ├── canonical-ui-patterns.md       # SPEC-ARCH-UI-001 — derived from D01
 │   │   ├── cross-module-wiring.md         # numbered seam registry
 │   │   ├── fixture-coverage-audit.md      # data-source-of-truth audits
 │   │   └── drift-audits/<date>-<module>.md
-│   ├── plans/PLAN-<MODULE>-NNN.md         # implementation plans
-│   ├── research/<date>-<topic>.md         # research outputs
+│   ├── plans/PLAN-<MODULE>-NNN.md         # per-feature implementation plans
+│   ├── research/<date>-<topic>.md         # per-feature research outputs (vs Phase 0 K-docs)
 │   └── roadmap/next-themes.md             # what's next, ranked by leverage
-│
-├── research/                      # external reference docs (PDFs, market data, regulatory)
-│   └── 00-executive-summary.md (etc.)
-│
-├── design/                        # design direction(s), Figma/Stitch screenshots
 │
 └── README.md
 ```
 
 ### Why this layout
 
-- **`specs/` is sacred.** It is the only folder where decisions are
-  recorded. Code without a corresponding spec gets rejected at review.
+- **`research/` and `design/` are kickoff outputs** — committed once
+  during Phase 0; thereafter referenced. Per-feature research lives
+  under `specs/research/` (different folder, different lifetime).
+- **`specs/` is sacred.** It is the only folder where per-feature
+  decisions are recorded. Code without a corresponding spec gets
+  rejected at review.
 - **`.claude/CLAUDE.md` is the only file agents need to read first.**
   Everything else is referenced from there. Make it the single
   on-ramp.
 - **`packages/types`** holds Zod schemas. Both apps consume them.
   Schema drift between surfaces is impossible by construction.
 - **Drift audits are kept**, not deleted. Trend over time matters.
+- **K-docs use a numbered prefix** (K00–K16) so they sort cleanly and
+  can be cited by number ("per K06 §3" is unambiguous).
+- **M-docs are domain modules** (e.g., `M01-sales-and-inventory.md`,
+  `M02-service-and-parts.md`). One per major business domain;
+  numbered after K05 so sorting stays intuitive.
 
 ---
 
-## 2. The agent pipeline
+## 2. The agent roster
 
-The canonical flow for any non-trivial feature:
+The full agent team. Each agent has a single responsibility, model
+preference, and known reading list. Mix-and-match per task.
+
+### Phase 0 — Discovery agents (run during project kickoff only)
+
+| Agent | Model | Output | Reading list |
+|---|---|---|---|
+| **market-researcher** | Opus | K01 Market & Competitive Landscape | brief + web search |
+| **business-strategist** | Opus | K02 Business Model & Monetization | K01 + brief |
+| **user-researcher** | Sonnet | K03 User Research & Personas | brief + interview transcripts (if any) |
+| **feature-scoper** | Opus | K04 Feature Matrix (v1/v1.1/backlog) | K00–K03 |
+| **journey-mapper** | Sonnet | K05 Customer Experience & Journey Maps | K03 + K04 |
+| **domain-module-author** | Opus | M01..MN one per domain | K04 + brief |
+| **architecture-strategist** | Opus | K06 Tech Architecture Patterns | K00 + brief |
+| **glossary-author** | Sonnet | K07 Glossary / Ubiquitous Language | all M-docs |
+| **domain-modeler** | Opus | K08 Domain Model (entities, aggregates) | M-docs + K07 |
+| **state-machine-author** | Opus | K09 State Machines | K08 |
+| **nfr-author** | Sonnet | K10 Non-Functional Requirements | K00 + K06 |
+| **integration-cataloguer** | Sonnet | K11 Integration Contracts Index | M-docs + K06 |
+| **rbac-architect** | Opus | K12 Role / Permission Matrix | K03 + M-docs |
+| **risk-register-author** | Sonnet | K13 Open Questions & Risks | all prior K-docs |
+| **brand-voice-definer** | Opus | K14 Brand & Content Strategy | K00 + K03 |
+| **seo-strategist** | Opus | K15 SEO Strategy (public surfaces only) | K00 + K03 + K14 |
+| **spec-conventions-author** | Sonnet | K16 Spec Template & Conventions (meta) | this playbook |
+| **design-direction-explorer** | Opus | D00 Design Direction Comparison (5 dirs) | K00 + K03 + K14 |
+| **design-system-architect** | Opus | D01 Design System (locked tokens) | D00 (locked direction) |
+| **screen-designer** | Sonnet | per-screen design exports | D01 |
+| **roadmap-synthesizer** | Opus | specs/roadmap/next-themes.md | all K-docs + D01 |
+
+### Phase 2+ — Per-feature pipeline agents
+
+| Agent | Model | Output | When |
+|---|---|---|---|
+| **/research** | Sonnet | specs/research/<date>-<topic>.md | unfamiliar domain / new tooling |
+| **/plan** | Opus | specs/plans/PLAN-<MODULE>-NNN.md | every non-trivial feature |
+| **/spec** | Opus | specs/modules/<domain>/NN-<slug>.md | every approved plan |
+| **security-reviewer** | Opus | <spec>.security.review.md | wave-2; spec touching auth/PII/regulatory |
+| **finance-reviewer** | Opus | <spec>.finance.review.md | wave-2; spec touching money/tax/payouts |
+| **qa-planner** | Sonnet | <spec>.qa.review.md | wave-2; every spec |
+| **accessibility-reviewer** | Sonnet | <spec>.a11y.review.md | wave-2; every UI spec |
+| **integrator** | Opus | (edits main spec + flips status) | after all wave-2 returns |
+| **/implement** | Sonnet | code | after spec status: approved |
+| **/test** | Sonnet | tests | after implement (often during) |
+| **/code-review** | Opus | review notes / approvals | before commit |
+| **/scaffold** | Sonnet | boilerplate | new modules / components |
+| **/refactor** | Sonnet | restructure | clear instructions |
+| **/fix** | Opus | bug fix | any reported defect |
+
+### Cross-cutting expert reviewers (recurring; not just at ship)
+
+| Agent | Model | Cadence | What they catch |
+|---|---|---|---|
+| **performance-auditor** | Sonnet | Per release; pre-launch | bundle size, LCP/INP/CLS, hot paths |
+| **accessibility-auditor** | Sonnet | Per UI feature; pre-launch | WCAG 2.2 AA + AAA aspirational |
+| **seo-auditor** | Sonnet | Per public-surface release | Core Web Vitals, semantic HTML, schema |
+| **security-auditor** | Opus | Per release; pre-launch | OWASP Top 10, auth, PII, headers |
+| **visual-consistency-auditor** | Sonnet | Per UI feature; weekly | drift from D01 (rules in §10) |
+| **spec-drift-auditor** | Sonnet | Per phase boundary | L-tag drift, scenario gaps |
+| **brand-voice-auditor** | Sonnet | Per public-content release | tone consistency, banned phrases |
+
+### Specialized authoring agents
+
+| Agent | Model | What they write |
+|---|---|---|
+| **ux-writer** | Sonnet | microcopy, empty states, error toasts, dialog copy |
+| **per-page-seo-author** | Sonnet | titles, meta, OG, structured data per route |
+| **content-strategist** | Sonnet | blog/landing copy with editorial calendar |
+| **design-handoff-author** | Sonnet | dev handoff specs from screens |
+| **changelog-author** | Sonnet | user-facing release notes |
+
+### Total agent count
+
+22 Phase-0 agents + 14 Phase-2 agents + 7 cross-cutting + 5 specialized = **48 distinct agents**. You don't need all 48 active at once. The playbook tells you which to dispatch when.
+
+---
+
+## 3. Phase 0 — Project kickoff (discovery)
+
+**Goal**: produce the foundational document set, the locked design
+system, and the roadmap. No code. Once Phase 0 ships, you have
+everything you need to start building features in Phase 2.
+
+**Time budget**: 3-5 days agent-time, ~2 days human review/signoff.
+
+### 3.1 The kickoff brief
+
+Before any agent runs, the human writes a kickoff brief — a single
+document the user (you) authors that bootstraps every Phase-0 agent.
+File: `research/_brief.md` (the leading underscore sorts it before
+K-docs).
+
+The brief must answer:
+
+```
+1. Product name + one-line pitch
+2. Who uses it? (rough personas — agents will refine)
+3. What does it replace / compete with?
+4. Target market (geography, segment, scale)
+5. Regulatory environment? (DPDP, GDPR, HIPAA, SOC2, FedRAMP, etc.)
+6. Core constraints (e.g., "must integrate with Tally Prime",
+   "must work offline in low-bandwidth", "must be self-hostable")
+7. Surfaces (web, mobile, internal tool, API, multi-tenant SaaS, etc.)
+8. Tech preferences (e.g., "Next.js + TypeScript", "Postgres", "no AWS")
+9. Time horizon (MVP date, beta date, GA date)
+10. Anything else that's pre-decided
+```
+
+This is the only doc YOU write by hand. Everything else flows from it.
+
+### 3.2 Kickoff agent ordering
+
+```
+[Day 1 — parallel discovery]
+  ├── market-researcher       → K01
+  ├── user-researcher         → K03 (interviews if available)
+  └── architecture-strategist → K06 (rough)
+
+[Day 1 → 2 — synthesis]
+  business-strategist (reads K01)            → K02
+  feature-scoper (reads K00–K03)             → K04
+  domain-module-author × N (reads K04)        → M01..MN
+
+[Day 2 — domain modeling, parallel]
+  ├── glossary-author (reads M-docs)         → K07
+  ├── nfr-author (reads K00 + K06)           → K10
+  ├── integration-cataloguer (reads M-docs)  → K11
+  ├── brand-voice-definer (reads K00 + K03)  → K14
+  └── seo-strategist (reads K00 + K14)       → K15
+
+[Day 2 → 3 — depends on glossary]
+  domain-modeler (reads M-docs + K07)        → K08
+  state-machine-author (reads K08)           → K09
+  rbac-architect (reads K03 + M-docs)        → K12
+
+[Day 3 — risk register]
+  risk-register-author (reads ALL)           → K13
+
+[Day 3 — design discovery]
+  design-direction-explorer (reads K00, K03, K14) → D00 (5 directions)
+  [HUMAN PICKS direction(s) — one per surface allowed]
+  design-system-architect (reads D00 + locked direction) → D01
+
+[Day 4 — meta + roadmap]
+  spec-conventions-author (reads playbook)   → K16
+  journey-mapper (reads K03, K04, D01)       → K05
+  roadmap-synthesizer (reads ALL)            → specs/roadmap/next-themes.md
+
+[Day 5 — review pass]
+  Human review of every doc.
+  Risk-register-author re-runs if material gaps.
+  Stakeholder signoff (CEO/founder).
+```
+
+### 3.3 The kickoff doc set — mandatory content
+
+Each doc has prescribed mandatory sections. Skipping a section = a
+spec drift later. Don't skip.
+
+#### K00 — Executive Summary (≤2 pages)
+- Product mission (1 paragraph)
+- Target users (3-5 personas, 1 line each)
+- v1 scope in 5 bullets
+- Critical non-negotiables (regulatory, performance, brand)
+- Success metric (the ONE metric that determines whether v1 worked)
+- Anti-mission (what this product is explicitly NOT)
+
+#### K01 — Market & Competitive Landscape (3-8 pages)
+- Market sizing (TAM/SAM/SOM if relevant)
+- Direct competitors (table: name, positioning, pricing, weakness)
+- Indirect competitors / substitutes
+- Pricing benchmarks (table: tier, price, included features)
+- Differentiation hypothesis (3-5 angles)
+- Competitive risk register (top 5 threats)
+- Citation list (sources used)
+
+#### K02 — Business Model & Monetization (2-5 pages)
+*Required per user direction — capture findings now even if monetization is deferred.*
+- Revenue model (subscription / transactional / hybrid / freemium)
+- Pricing strategy (tier structure if SaaS; commission rates if marketplace)
+- Unit economics (CAC, LTV, payback period — even rough)
+- Cost structure (fixed vs variable; licensing; vendor costs)
+- Margin expectations
+- Funding plan / runway implications
+- Pivot scenarios (if v1 metric misses, what's plan B?)
+
+#### K03 — User Research & Personas (3-10 pages)
+- Primary personas (3-5, each: name, role, goals, frustrations, daily workflow, tech comfort)
+- Secondary personas (2-4)
+- Anti-personas (who this product is NOT for)
+- Jobs-to-be-done (5-10 JTBDs ranked by priority)
+- Interview transcripts / source data (appendix)
+
+#### K04 — Feature Matrix (1-3 pages, table-heavy)
+- v1 features (must-ship for launch)
+- v1.1 features (can ship within 30 days post-launch)
+- Backlog (prioritized; everything else)
+- Each row: feature name, persona, JTBD reference, priority (P0/P1/P2), domain module
+- Out of scope (v2+) — explicitly listed
+
+#### K05 — Customer Experience & Journey Maps (2-5 pages)
+- Top 5 user journeys (start state → end state)
+- Touchpoints per journey (table: step, surface, action, success criteria)
+- Critical moments (the 3-5 moments that determine whether the customer comes back)
+- Failure modes (what breaks experience; how to recover)
+
+#### M-docs — Domain Module Briefs (one per major business domain; 3-8 pages each)
+- Module purpose (1 paragraph)
+- Stakeholders (which personas from K03)
+- Core entities (rough — refined in K08)
+- Key workflows (5-15 bullet flows)
+- Regulatory constraints specific to this domain
+- Integration points (refined in K11)
+- Open questions for spec phase
+
+#### K06 — Tech Architecture Patterns (3-6 pages)
+- Stack decisions (table: layer → choice + rationale)
+- State management approach (Zustand recommended)
+- Data flow patterns (UI-layer cross-store calls per playbook §9)
+- Mock/fixture strategy (MSW recommended)
+- Auth strategy (mock-phase + real-backend swap)
+- Testing strategy (Vitest unit, Playwright E2E)
+- CI/CD outline
+
+#### K07 — Glossary / Ubiquitous Language (alphabetical)
+- Every domain term used in M-docs, defined.
+- Banned synonyms (e.g., "we say `Customer`, never `Client`/`User`/`Consumer`")
+- Acronyms expanded
+- Pronunciation if non-obvious
+
+#### K08 — Domain Model (5-15 pages, schema-heavy)
+- Entity-relationship diagram (text-based or linked Mermaid)
+- Each entity: fields, types, validation rules, lifecycle
+- Aggregates (which entities cluster around which root)
+- Identity rules (UUID? ULID? domain-specific like VIN? Composite?)
+- Audit fields (createdAt, updatedAt, createdBy, updatedBy — locked once)
+
+#### K09 — State Machines (1-3 pages per state machine)
+- Every status field on every entity
+- Transition table: from → to + actor + side-effects + invariants
+- Illegal transitions explicitly listed
+- Terminal states identified
+
+#### K10 — Non-Functional Requirements (2-4 pages)
+- Performance budgets (LCP, INP, CLS, TTFB targets per surface)
+- Availability targets (99.5%? 99.9%? with maintenance window)
+- Scale targets (concurrent users at v1, v1.1, v2)
+- Security baseline (OWASP Top 10 mitigations, headers, encryption-at-rest/transit)
+- Observability (logs, metrics, traces — what's required from day 1)
+- Data retention + deletion policies (DPDP/GDPR alignment)
+
+#### K11 — Integration Contracts Index (1-3 pages)
+- Every external service the product talks to
+- Per-integration: vendor, contract type (REST/webhook/GraphQL), authentication, rate limits, retry policy, fallback if service down, mock-phase stub
+- Data Processing Agreement requirements (DPDP §8(5), GDPR Art. 28)
+
+#### K12 — Role / Permission Matrix (2-5 pages)
+- Every role in the system (R01..RNN with rank ladder)
+- Capability matrix (table: action × role → allowed/denied/scoped)
+- Hierarchy rules ("R12 can do everything R09 can do, plus...")
+- Cross-tenant rules (if multi-tenant: who can see what)
+- Special roles (DPO for DSAR, Auditor for read-only, Owner for everything)
+
+#### K13 — Open Questions & Risks (running document)
+- Open questions table (Q-NNN, question, owner, due date, status)
+- Risk register (RISK-NNN, description, likelihood, impact, mitigation)
+- Q-NNN gets resolved during spec phase OR escalated; never quietly ignored
+
+#### K14 — Brand & Content Strategy (3-6 pages)
+- Brand mission (1 paragraph)
+- Voice attributes (3-5: e.g., "confident but not arrogant", "warm but not chummy")
+- Tone modulation (formal vs casual per surface; map per surface)
+- Banned phrases / overused words to avoid
+- Reference brands (3-5 we're inspired by, with WHY)
+- Content pillars for marketing/blog (3-5 themes)
+- Editorial calendar template (cadence per channel)
+
+#### K15 — SEO Strategy (public-facing surfaces only, 3-6 pages)
+- Target keyword clusters (5-10 clusters, each with primary + 5-15 long-tail)
+- Search intent per cluster (informational/navigational/transactional)
+- Content architecture (URL structure, breadcrumb depth, internal linking pattern)
+- Pillar/cluster model if blog-heavy
+- Technical SEO baseline (sitemap, robots.txt, canonical strategy, hreflang if i18n, structured data schemas to use)
+- Competitor SEO snapshot (top 5 competitors' keyword overlap)
+- Quarterly content goals (e.g., "publish 12 long-form per quarter")
+
+#### K16 — Spec Template & Conventions (meta — see §7)
+- The 21-section template (copy from this playbook)
+- Frontmatter shape
+- Naming conventions for spec_id, file paths
+- L-tag conventions
+
+#### D00 — Design Direction Comparison (3-5 pages)
+- 5 distinct directions evaluated
+- Per direction: name, mood (3-5 adjectives), reference brands, rough swatch + type pairing + sample component
+- Pros/cons per direction
+- Recommendation (with second/third choice)
+- **Locked direction(s) per surface** — different surfaces (customer / staff / admin) MAY use different directions
+
+#### D01 — Design System (10-30 pages, the canonical UI spec)
+This becomes `specs/architecture/canonical-ui-patterns.md` (or
+`SPEC-ARCH-UI-001`). See §10 for the full content of D01.
+
+### 3.4 Phase 0 quality gates
+
+Before flipping from Phase 0 → Phase 1:
+
+- [ ] All K00-K16 docs exist and signed off by stakeholder
+- [ ] All M-docs exist (at least one per major business domain)
+- [ ] D00 has a locked direction per surface
+- [ ] D01 has all token tables filled (colors, type scale, spacing, motion, radii, icons)
+- [ ] K13 has zero open P0 questions (P1+ acceptable)
+- [ ] roadmap/next-themes.md ranks the next 4-8 themes
+- [ ] Risk register reviewed; top 3 risks have explicit mitigations
+
+If any unticked: do not start coding. The cost of Phase 1+2 work
+built on incomplete kickoff is 5-10× the cost of finishing Phase 0
+properly.
+
+---
+
+## 4. Phase 1 — Bootstrap from kickoff
+
+**Goal**: scaffold the monorepo with the design system installed,
+guardrail tests wired, and a working dev environment. No features
+yet — just the infrastructure that makes Phase 2 fast.
+
+**Time budget**: 1-2 days agent-time.
+
+### 4.1 Bootstrap checklist
+
+```
+Day 1 (≤4 hours):
+  □ pnpm init monorepo with pnpm-workspace.yaml
+  □ Set up Turbo (turbo.json) for cached task runs
+  □ Create the repo skeleton from §1
+  □ Author .claude/CLAUDE.md from §21 template
+  □ Initialize packages/types, packages/tokens, packages/ui,
+    packages/mocks, packages/config-eslint, packages/config-tailwind,
+    packages/config-typescript
+  □ Wire TypeScript strict mode + noUncheckedIndexedAccess
+  □ Wire @<scope>/tokens with values copied from D01
+  □ Wire @<scope>/config-tailwind preset consuming tokens via CSS vars
+
+Day 2 (≤6 hours):
+  □ Stand up the first surface app with shell + auth stubs
+  □ Implement canonical UI primitives (Card, Field, Button, Dialog,
+    Slider, Gate, Toast, ErrorBoundary, ModuleErrorFallback) using D01 tokens
+  □ Author specs/architecture/canonical-ui-patterns.md (the UI spec —
+    derived directly from D01)
+  □ Author specs/architecture/cross-module-wiring.md (empty seam registry)
+  □ Wire up the 6 drift-detection guardrail tests from §14
+    (with empty baselines — they pass on day 1 and stay green)
+  □ Set up next-intl with primary + fallback locales (per K15 if i18n)
+  □ Wire up MSW for mocked data
+  □ Set up Playwright for E2E
+  □ Wire ESLint with react-hooks/rules-of-hooks: error
+  □ Optional: Linear webhooks if using §20 integration
+```
+
+### 4.2 Phase 1 quality gates
+
+- [ ] `pnpm typecheck` exits 0 across all packages
+- [ ] `pnpm lint` exits 0
+- [ ] `pnpm test` runs (even if no tests yet — infrastructure works)
+- [ ] All 6 guardrail tests pass with empty baselines
+- [ ] First app boots; sample page renders; auth stub works
+- [ ] Design tokens flow from packages/tokens → Tailwind → rendered page
+- [ ] Storybook runs (if using); at least one primitive has a story
+
+---
+
+## 5. Phase 2 — Per-feature pipeline
+
+**Goal**: ship features. One feature at a time through the pipeline.
+
+**Cadence**: a typical feature is 1-3 days agent-time depending on
+scope; a major spec (like our Shoots v2.1) is 3-5 days.
+
+### 5.1 The canonical pipeline
 
 ```
 research                              [Sonnet — gathers context]
@@ -152,6 +595,7 @@ spec                                  [Opus — formalises plan into contract]
    │     security-reviewer            [Opus — DPDP/PII/auth]
    │     finance-reviewer             [Opus — money flows; if applicable]
    │     qa-planner                   [Sonnet — scenarios/AC/test plan]
+   │     accessibility-reviewer       [Sonnet — WCAG; if UI-bearing]
    │
    ▼
 integrator                            [Opus — merges reviews; mints L-tags]
@@ -170,10 +614,10 @@ code-reviewer                         [Opus — final gate before commit]
 commit
 ```
 
-### Rules of the pipeline
+### 5.2 Rules of the pipeline
 
-1. **Never skip waves on production-bound work.** Skipping
-   wave-2 reviews is the single biggest source of post-ship pain.
+1. **Never skip waves on production-bound work.** Skipping wave-2
+   reviews is the single biggest source of post-ship pain.
 
 2. **Reviewers are independent.** Each wave-2 reviewer reads the spec
    in a fresh context, never sees the others' output. Their reports
@@ -182,7 +626,7 @@ commit
 
 3. **Each reviewer signs off `yes`, `no`, or `with-concerns`.** The
    spec cannot move from `in-review → approved` until every required
-   reviewer has signed `yes` or `with-concerns + acknowledged-by-integrator: yes`.
+   reviewer has signed `yes` OR `with-concerns + acknowledged-by-integrator: yes`.
 
 4. **The integrator never hides reviewer findings.** Every blocker
    either becomes a minted L-tag (if resolvable in spec text) OR a
@@ -202,14 +646,20 @@ commit
    in parallel, dispatch them in parallel. Don't serialise unless
    there's a real dependency.
 
-### Agent prompt shape
+8. **Specs are written as we go.** Phase 0 produces FOUNDATIONAL docs
+   (K-docs + D01) and the ROADMAP. Specs themselves come per-feature
+   in Phase 2. Don't try to write all specs upfront in Phase 0 —
+   you'll guess wrong and rework them.
+
+### 5.3 Agent prompt shape
 
 Every agent dispatch follows this structure:
 
 ```
 Context:     what the agent needs to know; cite docs by reference
 Task:        single, crisp deliverable
-Constraints: hard rules (spec L-tags, DoD items, NFRs, RBAC, regulatory)
+Constraints: hard rules (spec L-tags, DoD items, NFRs, RBAC, regulatory,
+             pre-flight UI checklist if UI work)
 Output:      exact format expected back
 ```
 
@@ -217,24 +667,37 @@ Output:      exact format expected back
 generic work. A good prompt is 200–600 words with the agent's reading
 list, the deliverable shape, and the quality gates it must pass.
 
-### When NOT to use the pipeline
+### 5.4 When NOT to use the pipeline
 
 - Single-line typos
 - Renaming a variable
 - Adding a missing comma
 - Answering a user question
+- Pure refactor with no behavior change (use `/refactor` solo)
 
 For everything else, use the pipeline. The cost is real — a full
 research → plan → spec → wave-2 → implement cycle is 3–6 hours of
 agent time — but the cost of NOT using it (post-ship rework, security
 holes, regulatory failures) is orders of magnitude higher.
 
+### 5.5 Cross-cutting reviewers in Phase 2
+
+Beyond wave-2 (which is per-spec), schedule recurring expert reviews:
+
+- **Per-release** (before tagging): performance, security, SEO (if public), accessibility
+- **Weekly**: visual-consistency-auditor (drift from D01)
+- **Monthly**: spec-drift-auditor (per-module audit; output to `specs/architecture/drift-audits/`)
+
+Each cross-cutting reviewer produces a markdown report with prioritized
+P0/P1/P2/P3 findings. Treat their findings the same as wave-2
+findings — blockers become L-tags or deferred items.
+
 ---
 
-## 3. Model routing
+## 6. Model routing
 
-Default sub-agent model is **Sonnet**. Use **Opus** only for
-genuinely-hard reasoning. Use **Haiku** for purely mechanical work.
+Default sub-agent model is **Sonnet**. Use **Opus** for genuinely-hard
+reasoning. Use **Haiku** for purely mechanical work.
 
 ### When to use Opus
 
@@ -243,20 +706,24 @@ genuinely-hard reasoning. Use **Haiku** for purely mechanical work.
   - security-reviewer (auth, PII, encryption, compliance)
   - finance-reviewer (money, tax, refunds, journal entries)
 - Complex multi-file debugging
-- Writing this kind of cross-cutting design document
 - Cross-aggregate consistency analysis
+- All Phase 0 strategic-thinking agents (market, business, feature scoping, domain modeling, RBAC, brand voice, design direction, design system, roadmap)
 
 ### When Sonnet is enough
 
 - Implementation following an approved spec
 - Writing tests from scenarios in the spec
 - QA-planner reviews (structured rubric work)
-- Research gathering (web search + summarisation)
+- Per-feature research gathering (web search + summarisation)
 - Refactoring within a single file with clear instructions
 - Building UI from a Stitch/Figma screen
 - Storybook stories
 - API routes following established patterns
 - Documentation, READMEs, inline comments
+- Cross-cutting recurring auditors (perf, a11y, SEO, brand-voice)
+- Phase 0 supporting agents (user research synthesis, glossary, NFRs,
+  integration cataloguing, risk register, content strategy, journey
+  mapping, screen design)
 
 ### When Haiku wins
 
@@ -279,7 +746,7 @@ task gets stuck.
 
 ---
 
-## 4. Spec discipline
+## 7. Spec discipline
 
 ### The 21-section template
 
@@ -300,7 +767,7 @@ owners: [planner, ux-writer, qa-planner, security-reviewer, integrator]
 depends_on: [other SPEC-IDs]
 related_research: <RESEARCH-ID>
 related_plan: <PLAN-ID>
-docs_consulted: [list of canonical doc references]
+docs_consulted: [list of canonical doc references — K-docs by number]
 effective_date: <YYYY-MM-DD>
 ---
 ```
@@ -308,16 +775,16 @@ effective_date: <YYYY-MM-DD>
 1. **Summary** — 1 paragraph: what + why + who
 2. **Locked decisions** — table (Tag/Title/Decision/Source); 3+ rows
 3. **Routes** — every URL the spec adds or modifies
-4. **Personas** — every role that interacts with this surface
-5. **Data model** — Zod schemas, errors, enums
-6. **State machine** — every legal transition + every illegal one
+4. **Personas** — every role (cite K12 RBAC)
+5. **Data model** — Zod schemas, errors, enums (cite K08)
+6. **State machine** — every legal transition + every illegal one (cite K09)
 7. **Cross-module integration** — every seam (numbered registry)
-8. **Cross-aggregate consistency contract** — see §6
-9. **UI surfaces** — components + primitive citations
+8. **Cross-aggregate consistency contract** — see §9
+9. **UI surfaces** — components + primitive citations (cite D01)
 10. **Scenarios** (Given/When/Then) — minimum 12, often 18+
 11. **Acceptance criteria** — falsifiable, references scenarios
-12. **RBAC** — table per role
-13. **DPDP / compliance** — privacy, regulatory, retention
+12. **RBAC** — table per role (cite K12)
+13. **Compliance** — privacy, regulatory, retention (cite K10, K13)
 14. **Telemetry / events emitted** — payload shapes (no PII text)
 15. **Open questions** — anything needing human signoff
 16. **Deferred items** — `DEF-<MODULE>-N` registry
@@ -373,7 +840,7 @@ bump spec version, add changelog entry, link the commit hash.
 
 ---
 
-## 5. Locked-decision (L-tag) protocol
+## 8. Locked-decision (L-tag) protocol
 
 L-tags are non-negotiable contracts. They make spec drift greppable
 in the codebase and machine-checkable.
@@ -431,7 +898,7 @@ Periodically (per phase, per release):
 
 ---
 
-## 6. Cross-aggregate consistency contract
+## 9. Cross-aggregate consistency contract
 
 The single most-important section of any spec touching shared data.
 
@@ -447,7 +914,6 @@ table:
 | `vin` | Vehicle | JobCard, IntakeInspection | Read-only via vehicles-store selector; never duplicated |
 | `customerId` | JobCard | IntakeInspection | IntakeInspection reads via JC.customerId; never stores its own |
 | `customerName` | Customer | IntakeInspection (display only) | Resolved at PDF render time, not stored |
-| ... | | | |
 
 ### The rule
 
@@ -467,18 +933,222 @@ test.
    downstream reader reflects the new value within the same render
    tick.
 
-### Why this matters
-
-We've shipped several modules where the same VIN appeared on three
-aggregates with three different writers. A typo on one became an
-"orphaned" record everywhere else. The cross-aggregate contract makes
-this class of bug impossible by construction.
-
 ---
 
-## 7. Code quality enforcement
+## 10. Design pipeline + visual consistency rules
 
-### The pre-flight UI checklist
+This is the most-prescriptive section in the playbook. "Exceptional
+and consistent" UI requires LOCKED rules; principles aren't enough.
+Every rule below is binding from D01 onwards.
+
+### 10.1 D01 — Design system mandatory content
+
+The D01 doc (`design/D01-design-system.md`) → installed as
+`specs/architecture/canonical-ui-patterns.md` (SPEC-ARCH-UI-001) →
+referenced by every spec. Mandatory sections:
+
+#### Type scale (LOCKED)
+
+Exactly 6 sizes for body content. Display sizes for hero use only.
+
+```ts
+// packages/tokens/src/typography.ts — locked
+export const TYPE_SCALE = {
+  xs:    '12px',  // line-height 16px
+  sm:    '14px',  // line-height 20px
+  base:  '16px',  // line-height 24px
+  lg:    '18px',  // line-height 28px
+  xl:    '20px',  // line-height 28px
+  '2xl': '24px',  // line-height 32px
+  // Hero ONLY (display fonts; max 2 hero levels per surface):
+  '3xl': '30px',  // line-height 36px
+  '4xl': '36px',  // line-height 40px
+} as const;
+```
+
+**Banned**: `text-[NNpx]`, `text-[NNrem]`, any arbitrary value. The
+`ui-canon-drift.test.ts` enforces this.
+
+**Max 3 type families per surface**: 1 sans (UI chrome), 1 mono (code/numbers/IDs), optionally 1 display/serif (hero/brand wordmark).
+
+**Max 4 font weights per family**: typically 400/500/600/700.
+
+**Line heights**: 1.2 (display), 1.4 (body 14-18px), 1.6 (long-form 16-20px).
+
+#### Spacing (LOCKED)
+
+Pick a 4pt OR 8pt base grid. Lock for life. **Recommended**: 4pt
+grid (matches Tailwind defaults).
+
+```ts
+export const SPACING = {
+  0:  '0',
+  1:  '4px',   2:  '8px',
+  3:  '12px',  4:  '16px',
+  5:  '20px',  6:  '24px',
+  8:  '32px',  10: '40px',
+  12: '48px',  16: '64px',
+  20: '80px',  24: '96px',
+} as const;
+```
+
+**Banned**: arbitrary `m-[Npx]`, `p-[Npx]`, inline styles with raw px.
+
+#### Radius (LOCKED)
+
+Exactly 3 named radii.
+
+```ts
+export const RADIUS = {
+  none:  '0',
+  sm:    '4px',  // chips, badges, small buttons
+  md:    '6px',  // cards, panels, inputs, default
+  lg:    '12px', // ONLY for full-page hero / Dialog primitive
+  full:  '9999px', // circular only (avatars, status dots)
+} as const;
+```
+
+`rounded-md` is the default for everything. `rounded-lg` ONLY for
+the Dialog/AlertDialog primitive itself or full-page hero modals.
+**Banned everywhere else** — drift-test enforced.
+
+#### Color tokens (LOCKED — semantic only)
+
+No raw hex in components. Every color is a semantic token:
+
+```ts
+export const COLORS = {
+  // Ink (text)
+  'ink-primary':   /* darkest, body */,
+  'ink-secondary': /* heading-on-card / labels */,
+  'ink-muted':     /* metadata / secondary info */,
+  'ink-subtle':    /* placeholders / disabled */,
+
+  // Backgrounds
+  'bg-base':       /* page bg */,
+  'bg-surface':    /* cards / panels */,
+  'bg-elevated':   /* dialogs / popovers */,
+  'bg-subtle':     /* form inputs / chips */,
+
+  // Borders
+  'border-line':   /* default rule */,
+  'border-strong': /* emphasized divider */,
+
+  // States (ONE accent + 4 semantic states)
+  'accent':        /* brand primary */,
+  'accent-hover':  /* hover state */,
+  'state-success': /* green */,
+  'state-warning': /* amber */,
+  'state-danger':  /* red */,
+  'state-info':    /* blue */,
+} as const;
+```
+
+**Surface variants** via `[data-surface]` and `[data-theme]` CSS
+attributes. Don't fork tokens per app — variant via CSS vars.
+
+**Contrast (LOCKED)**:
+- Body text: ≥4.5:1 (WCAG AA)
+- Body text aspirational: ≥7:1 (AAA)
+- Large text (≥18px or ≥14px bold): ≥3:1
+- UI components / focus rings: ≥3:1 against adjacent surfaces
+
+#### Motion (LOCKED)
+
+Exactly 2 easing curves. Exactly 4 durations. Reduced-motion always
+honored.
+
+```ts
+export const MOTION = {
+  ease: {
+    natural: 'cubic-bezier(0.4, 0, 0.2, 1)',  // most things
+    snappy:  'cubic-bezier(0.3, 0, 0, 1)',     // micro-interactions
+  },
+  duration: {
+    micro:   '150ms',  // hover, focus
+    default: '250ms',  // most transitions
+    modal:   '400ms',  // sheets, dialogs
+    page:    '600ms',  // route transitions (sparingly)
+  },
+} as const;
+```
+
+**Rules**:
+- One entrance animation per page-fold; staggers via offsets.
+- All durations honor `@media (prefers-reduced-motion: reduce)` →
+  drop to instant or single 100ms fade.
+- No spring physics by default (deterministic curves only). Springs
+  allowed for drag-drop where physics IS the affordance.
+- No `animate-spin`, `animate-pulse`, `animate-bounce` outside
+  loading states.
+
+#### Iconography (LOCKED)
+
+One icon family per surface. Pick one, lock it.
+
+```ts
+export const ICONS = {
+  family: 'lucide-react',  // OR 'phosphor', 'heroicons' — pick one, lock
+  strokeWidth: 1.5,         // OR 2.0 — pick one, lock
+  sizes: [12, 14, 16, 20, 24, 32], // exact set; no others
+} as const;
+```
+
+#### Imagery (LOCKED)
+
+- One photography style per surface (color-graded consistently —
+  pick "warm editorial" / "neutral product" / "high-key bright" / etc.)
+- One illustration style if used (line / flat / isometric — lock one)
+- Aspect ratios allowed: 16:9, 4:3, 3:2, 1:1 (no others)
+- All photography processed through the same LUT/preset
+
+#### Density (LOCKED per surface)
+
+```ts
+export const DENSITY = {
+  // Pick ONE per surface and lock
+  compact:     { rowHeight: 32, padding: 8  },  // data-heavy admin
+  comfortable: { rowHeight: 40, padding: 12 },  // most B2B SaaS — RECOMMENDED
+  spacious:    { rowHeight: 48, padding: 16 },  // consumer / luxury
+} as const;
+```
+
+#### Tap targets (LOCKED)
+
+- Mobile minimum: 44×44px (WCAG 2.2 AAA recommendation)
+- Desktop minimum (with touch fallback): 32×32px clickable; visual
+  may be smaller if hit-area is padded
+- Keyboard focus ring: ≥2px solid, ≥3:1 contrast against adjacent
+
+### 10.2 Canonical UI primitives (mandatory in `packages/ui`)
+
+Every project ships with this set. Before any feature work begins:
+
+| Primitive | Purpose | Notes |
+|---|---|---|
+| `Card` | Containing surface | radius=md, border-line, bg-surface |
+| `Field` | Label + input + error/help text | required-asterisk, error styling |
+| `Button` | All button variants | variants: primary/secondary/ghost/danger/link |
+| `Dialog` | Modal | radius=lg ALLOWED here only |
+| `AlertDialog` | Destructive confirm | type-to-confirm pattern |
+| `Slider` | Range input | numeric or stepped |
+| `Toast` | Transient notice | success/info/warning/error |
+| `Badge` | State label | sm radius |
+| `Gate` | RBAC wrapper | `<Gate role={['Rxx']} fallback="hide">` |
+| `Tooltip` | Hover help | 250ms delay default |
+| `Tabs` | Tab navigation | underline style; not pill |
+| `Select` | Dropdown | native or accessible custom |
+| `Combobox` | Searchable select | for >7 options |
+| `DataTable` | Tabular data | sortable, sticky header |
+| `EmptyState` | "No data" surface | every list MUST handle |
+| `LoadingState` | Skeleton or spinner | every async surface MUST handle |
+| `ErrorBoundary` | Class component | catches render errors |
+| `ModuleErrorFallback` | Module-level error.tsx body | per CLAUDE.md §17.0 |
+
+Banned: locally redefining any of these. Import from `@<scope>/ui`
+or fail review.
+
+### 10.3 The pre-flight UI checklist (binding)
 
 Every UI implementation prompt MUST include this verbatim. Past
 experience: agents drift on these without it, even when CLAUDE.md is
@@ -489,21 +1159,181 @@ PRE-FLIGHT UI CHECKLIST (run BEFORE writing any JSX)
 
 1. Open <path-to-canonical-Card-and-Field>.tsx and import them.
    Do NOT redefine locally.
-2. Use ONLY: text-xs / text-sm / text-base / text-lg / text-xl / text-2xl.
+2. Use ONLY: text-xs / text-sm / text-base / text-lg / text-xl / text-2xl
+   (and text-3xl/4xl ONLY for hero, max 2 levels per surface).
    FORBIDDEN: text-[NNpx], text-[NNrem]. Drift test will reject.
-3. Use ONLY rounded-md (rounded-full for circular).
-   FORBIDDEN: rounded-lg, rounded-xl, rounded-2xl, rounded-3xl
-   outside the Dialog/AlertDialog primitive itself.
+3. Use ONLY rounded-md (rounded-full for circular, rounded-sm for chips/badges,
+   rounded-lg ONLY in Dialog/AlertDialog primitive).
+   FORBIDDEN: arbitrary rounded values elsewhere.
 4. Use the Gate primitive for RBAC: <Gate role={['Rxx']} fallback="hide">…</Gate>.
    FORBIDDEN: inline `{hasRank(...) && <button>…}` patterns in JSX.
 5. i18n keys go to messages/<locale>.json AT THE ROOT.
    New module 'foo' creates a top-level "foo": { ... } object.
 6. NO `useStore((s) => …)` selector that returns a fresh array/object
    literal. Filter in `useMemo` outside; module-level `EMPTY_*` constants.
-7. AFTER writing code, BEFORE returning: run all guardrail tests.
+7. Tap targets ≥44px mobile, ≥32px desktop. Focus rings ≥2px solid 3:1 contrast.
+8. Empty/loading/error/success states all rendered. No silent CTAs.
+9. Motion uses ONLY: ease.natural | ease.snappy; duration.micro/default/modal/page.
+   Reduced-motion honored.
+10. AFTER writing code, BEFORE returning: run all guardrail tests
+    (ui-canon-drift, zustand-selector-anti-patterns, dead-button-detector,
+    locale-completeness, i18n-key-resolution, error-boundaries).
+    All must pass. NO new files added to baseline.
 ```
 
-### Banned patterns
+### 10.4 Design pipeline (per feature)
+
+When a new feature with novel UI lands:
+
+```
+[before /spec]
+  screen-designer (Sonnet) drafts hi-fi screens — exports to design/screens/
+  HUMAN reviews; signs off OR iterates
+  accessibility-reviewer (Sonnet) audits the design — flags WCAG issues
+  visual-consistency-auditor (Sonnet) checks against D01 — flags drift
+
+[during /spec]
+  /spec references the locked screens via design/screens/<feature>/
+  spec §9 UI surfaces cites screens by file + D01 primitive references
+
+[during /implement]
+  Pre-flight checklist enforced
+  Storybook story per component; visual snapshot test if available
+
+[before commit]
+  visual-consistency-auditor runs against the implementation; reports drift
+```
+
+### 10.5 Multi-surface design directions
+
+If your project has multiple surfaces (e.g., consumer-web,
+staff-admin, internal-ops), D00 picks one direction per surface.
+Common pairings:
+
+- **Consumer / public** — emotional, image-led, trust-building
+- **Staff operational** — dense, fast, keyboard-friendly
+- **Admin / executive** — calm, summary-heavy, slow-moving
+
+D01 inherits per-surface tokens via `[data-surface="consumer"]` /
+`[data-surface="staff"]` / etc. Same primitive, different paint.
+
+---
+
+## 11. SEO track
+
+Public-facing surfaces only. Internal tools should not rank.
+
+### 11.1 K15 SEO Strategy mandatory content
+
+(See §3.3 K15 spec.) Authored once during Phase 0 by
+`seo-strategist` (Opus). Locked thereafter; reviewed quarterly.
+
+### 11.2 Per-page SEO authoring
+
+For every public route:
+
+| Element | Source | Notes |
+|---|---|---|
+| `<title>` | per-page | ≤60 chars; primary keyword first; brand suffix |
+| Meta description | per-page | ≤155 chars; CTA verb; primary keyword in first 100 |
+| Canonical URL | auto | trailing-slash policy locked in K15 |
+| OG tags | per-page | og:title/description/image (1200×630) |
+| Twitter card | per-page | summary_large_image |
+| Structured data | per-page | JSON-LD; Organization on every page; Product/Article/etc. per type |
+| `<h1>` | per-page | exactly one; matches/extends title |
+| Internal links | per-page | per K15 cluster strategy |
+
+### 11.3 Technical SEO baseline (mandatory)
+
+Wire during Phase 1 bootstrap:
+
+- [ ] `sitemap.xml` auto-generated from routes; resubmitted on deploy
+- [ ] `robots.txt` correct (allow public; disallow staff/admin)
+- [ ] `<link rel="canonical">` on every public page
+- [ ] `hreflang` if multilingual (per K15)
+- [ ] Schema.org JSON-LD per page type
+- [ ] OG image generation (Next.js OG / Vercel OG / equivalent)
+- [ ] Core Web Vitals targets per K10 (LCP <2.5s, INP <200ms, CLS <0.1)
+- [ ] Semantic HTML (nav/main/article/section/aside/footer)
+- [ ] Proper heading hierarchy (h1 once; h2-h6 nested correctly)
+- [ ] Alt text on every meaningful image; empty alt on decorative
+- [ ] Lazy-loading below-the-fold images
+- [ ] Preload hero image; preconnect to critical third-party origins
+
+### 11.4 SEO auditor (recurring)
+
+`seo-auditor` (Sonnet) runs:
+
+- Per public-surface release
+- Monthly site-wide
+- Reports: title tag drift, missing meta descriptions, broken
+  canonicals, CWV regressions, structured-data validation, internal
+  linking coverage
+
+Output: `specs/architecture/seo-audits/<date>-<surface>.md`
+
+### 11.5 Content production (per K15 calendar)
+
+`content-strategist` (Sonnet) drafts:
+- Long-form articles per K15 pillars
+- Landing pages for keyword clusters
+- FAQ pages targeting long-tail queries
+
+Each piece:
+- Reviewed by `brand-voice-auditor` for tone consistency
+- Reviewed by `seo-auditor` for keyword targeting
+- Published with full per-page SEO authoring (§11.2)
+
+---
+
+## 12. Brand + content track
+
+### 12.1 Brand voice (locked in K14)
+
+`brand-voice-definer` (Opus) authors K14 during Phase 0. Mandatory
+content:
+
+- 3-5 voice attributes (e.g., "confident, plain-spoken, warm,
+  technically precise, never glib")
+- Tone modulation map per surface (formal vs casual)
+- Banned phrases / overused words
+- Persona-aware tone (B2B vs B2C; expert vs novice)
+- Reference brands (3-5 we're inspired by, with WHY)
+
+### 12.2 UX writer (per surface)
+
+`ux-writer` (Sonnet) drafts:
+- Empty states ("No deals yet — start one →")
+- Error toasts ("Couldn't reach the server. Trying again in 5 seconds…")
+- Confirmation dialog copy
+- Onboarding microcopy
+- Form labels + helper text
+
+Every string lands via `next-intl` (or equivalent); never hardcoded.
+
+### 12.3 Content authoring (per K15)
+
+`content-strategist` (Sonnet) drafts long-form content per the K15
+editorial calendar. Each piece:
+- Targets a K15 keyword cluster
+- Cites K14 brand voice
+- Includes per-page SEO from §11.2
+- Reviewed by `brand-voice-auditor` (Sonnet)
+
+### 12.4 Brand voice auditor (recurring)
+
+Per public-content release:
+- Scans copy against K14 banned-phrases list
+- Flags tone inconsistencies (e.g., overly casual on formal surface)
+- Reports drift
+
+Output: `specs/architecture/brand-audits/<date>-<surface>.md`
+
+---
+
+## 13. Code quality enforcement
+
+### 13.1 Banned patterns
 
 | Pattern | Why | Alternative |
 |---|---|---|
@@ -519,14 +1349,15 @@ PRE-FLIGHT UI CHECKLIST (run BEFORE writing any JSX)
 | Silent `<button>` with no onClick | dead CTA, auto-reject | wire action OR explicit "coming soon" toast |
 | PII in audit log payloads | leaks PII | log lengths/hashes/ids only |
 | `useStore((s) => s)` (whole-state) | re-renders on every change | granular selector |
+| Local `Card`/`Field` redefinitions | drift from primitives | import from `@<scope>/ui` |
 
-### Production-grade strings only
+### 13.2 Production-grade strings only
 
 Stop reaching for "MVP" or "demo grade" without saying so. If you
-cannot tick every box on the production-grade checklist (§11), the
+cannot tick every box on the production-grade checklist (§17), the
 code is not production-grade — say so explicitly.
 
-### TypeScript strictness
+### 13.3 TypeScript strictness
 
 ```jsonc
 {
@@ -543,7 +1374,7 @@ code is not production-grade — say so explicitly.
 `noUncheckedIndexedAccess` catches a huge class of bugs at compile
 time. Worth the noise.
 
-### No `any` without a comment
+### 13.4 No `any` without a comment
 
 ```ts
 // reason: third-party lib's types are wrong; PR upstream filed at <link>
@@ -552,22 +1383,44 @@ const x = thing as any;
 
 If you can't write the comment, you can't use `any`.
 
+### 13.5 ESLint must include
+
+```js
+extends: [
+  'eslint:recommended',
+  'plugin:@typescript-eslint/recommended',
+  'plugin:react/recommended',
+  'plugin:react-hooks/recommended',  // catches Rules of Hooks violations
+  'next/core-web-vitals',             // if Next.js
+  'prettier',
+],
+rules: {
+  'react-hooks/rules-of-hooks': 'error',     // hooks-after-early-return
+  'react-hooks/exhaustive-deps': 'warn',
+  '@typescript-eslint/consistent-type-imports': 'error',
+}
+```
+
+`react-hooks/rules-of-hooks: 'error'` is non-negotiable — it catches
+the "useMemo after early return" class of bug at lint time.
+
 ---
 
-## 8. Drift-detection guardrail tests
+## 14. Drift-detection guardrail tests
 
 The single most-important infrastructure investment. Every recurring
 bug class becomes a test that scans the whole codebase.
 
-### Recommended initial set (≤ 1 day to set up; 30+ saved bugs)
+### 14.1 The mandatory 6 tests
+
+Wire during Phase 1 bootstrap with empty baselines.
 
 #### `ui-canon-drift.test.ts`
 
 Walks every `.tsx`/`.ts` under `app/` and `src/`. Catches:
-- `text-[NNpx]` / `text-[NNrem]` (with a frozen baseline of pre-existing files)
-- `rounded-lg` / `rounded-xl` / `rounded-2xl` / `rounded-3xl` (with baseline)
-- New top-level i18n namespace mismatches (e.g., `useTranslations('foo.…')` calls
-  where `foo` doesn't exist as a top-level key in the locale JSON)
+- `text-[NNpx]` / `text-[NNrem]` (frozen baseline of pre-existing files)
+- `rounded-lg`/`xl`/`2xl`/`3xl` (with baseline)
+- New top-level i18n namespace mismatches
 
 Baseline pattern: `const TEXT_PX_BASELINE = new Set([...])`. New
 files outside the baseline that introduce violations fail the test.
@@ -589,15 +1442,9 @@ acceptable; the KEY must exist).
 #### `dead-button-detector.test.ts`
 
 Walks every `.tsx`. Scans `<button>` and `<Button>` JSX for missing:
-- `onClick`
-- `type="submit"`
-- `formAction`
-- `disabled`
-- `aria-disabled`
-- `{...spread}` attribute
-- `asChild` (for shadcn-style)
-
-Frozen baseline of pre-existing dead buttons. New ones fail CI.
+`onClick`, `type="submit"`, `formAction`, `disabled`, `aria-disabled`,
+`{...spread}`, `asChild`. Frozen baseline of pre-existing dead
+buttons. New ones fail CI.
 
 #### `zustand-selector-anti-patterns.test.ts`
 
@@ -605,13 +1452,12 @@ The single most-saved-our-bacon test. Walks every `.tsx`/`.ts`.
 Catches:
 - `useStore((s) => s.foo ?? [])` — fresh array literal
 - `useStore((s) => s.foo ?? {})` — fresh object literal
-- `useStore((s) => s.foo.filter(...))` (and `.map` / `.sort` / `.slice` / `.reverse` / `.concat` / `.flatMap` / `.flat` / `.reduce`)
+- `useStore((s) => s.foo.filter(...))` (and `.map` / `.sort` /
+  `.slice` / `.reverse` / `.concat` / `.flatMap` / `.flat` / `.reduce`)
 - `useStore((s) => s.selectXxx(...))` where `selectXxx` likely filters
   internally (allowlist `*ById` since Record lookups are stable)
 
 Each pattern returns a fresh reference per render → infinite re-render.
-We caught this exact bug class three times before adding the test;
-zero times after.
 
 #### `error-boundaries.test.ts`
 
@@ -622,9 +1468,7 @@ Also asserts:
 - Global `app/global-error.tsx` exists and renders its own `<html>` + `<body>`.
 - Every module `error.tsx` is marked `'use client'`.
 
-Without these, an error in one module crashes the whole app shell.
-
-### Adding new guardrails
+### 14.2 Adding new guardrails
 
 When you find yourself fixing the same class of bug twice: write a
 test. The test should:
@@ -636,14 +1480,7 @@ test. The test should:
 4. Fail if the count grows.
 5. Print a clear error message with file:line and the fix.
 
-Example pattern (from `zustand-selector-anti-patterns.test.ts`):
-
-```ts
-const SELECTOR_FRESH_METHOD_RE =
-  /use[A-Z]\w*Store\s*\(\s*\(\s*\w+\s*\)\s*=>\s*\w+\.[\w.]*\.(?:filter|map|sort|slice|reverse|concat|flatMap|flat|reduce)\s*\(/g;
-```
-
-### Quality gates per task
+### 14.3 Quality gates per task
 
 Every task must pass before commit:
 
@@ -662,7 +1499,7 @@ green. Never commit on red.
 
 ---
 
-## 9. Memory + cross-session continuity
+## 15. Memory + cross-session continuity
 
 ### Three layers of memory
 
@@ -673,9 +1510,9 @@ green. Never commit on red.
    Gitignored. Every spawned agent reads this before starting and
    writes to it at every checkpoint.
 
-3. **`specs/architecture/*.md`** — committed architecture knowledge.
-   Updated when the architectural fact changes — drift audits,
-   cross-module seams, canonical patterns.
+3. **`research/` (K-docs) and `specs/architecture/*.md`** — committed
+   long-term knowledge. K-docs from Phase 0 are foundational;
+   architecture specs evolve as the system grows.
 
 4. **User-level memory** (e.g. `~/.claude/projects/<project>/memory/MEMORY.md`)
    — auto-managed by your tooling; never edit directly.
@@ -721,9 +1558,7 @@ without a completion summary:
 4. **Decide:**
    - **Finish yourself** if the crashed agent was ≥80% done.
    - **Relaunch with full context** if the agent was <50% done.
-     Pass the partial state explicitly: "the prior agent crashed at
-     step N; files X, Y, Z exist with content <summary>; finish steps
-     N+1 onwards."
+     Pass the partial state explicitly.
    - **Revert and restart** only if partial state is incoherent (rare).
 5. **Update `agent-status.md`** with `CRASHED → recovered` or
    `CRASHED → relaunched`.
@@ -733,7 +1568,7 @@ Never silently absorb a crash.
 ### Pre-existing failure budget
 
 `.claude/known-issues.md` tracks pre-existing failures that aren't
-your problem to fix today. Format:
+your problem to fix today.
 
 ```markdown
 | KI-N | file:line | error summary | owner | ETA | blocker? |
@@ -747,14 +1582,13 @@ Rules:
 
 ---
 
-## 10. Commit discipline
+## 16. Commit discipline
 
 ### When to commit
 
 - At every phase / module boundary. Never let uncommitted work span sessions.
-- After every quality-gate pass (typecheck + tests green). Failed-gate
-  work stays uncommitted while the fix is in flight.
-- Never commit half-finished agent output without auditing per §Crash recovery.
+- After every quality-gate pass (typecheck + tests green).
+- Never commit half-finished agent output without auditing per §15 Crash recovery.
 
 ### Conventional-commit prefixes
 
@@ -766,6 +1600,8 @@ docs(<scope>):        spec / readme / comment updates
 refactor(<module>):   code restructure with no behavior change
 test(<module>):       test-only additions
 perf(<module>):       performance improvement
+seo(<surface>):       SEO-specific changes (titles, schema, sitemap)
+a11y(<scope>):        accessibility-specific changes
 ```
 
 `<module>` is the domain (`vehicles`, `service`, `customers`, `auth`)
@@ -775,7 +1611,7 @@ or `architecture` for cross-cutting work.
 
 - First line ≤ 72 chars, no period.
 - Blank line, then body explaining **why** (the diff shows what).
-- Cite spec L-tags / scenarios / doc references liberally.
+- Cite spec L-tags / scenarios / K-doc references liberally.
 - Co-author footer for agent-assisted work.
 
 ### Splitting commits
@@ -787,7 +1623,7 @@ Aim for 30–80 files per commit; each commit is one of:
 - cross-cutting infra (shell, primitives, deps)
 
 A 1000-LoC monolithic commit is hard to review and impossible to
-revert cleanly. A 4-commit batch covering the same work is reviewable.
+revert cleanly.
 
 ### Never
 
@@ -798,16 +1634,14 @@ revert cleanly. A 4-commit batch covering the same work is reviewable.
 
 ---
 
-## 11. Production-grade checklist
-
-"Production grade" is vague. Use this concrete rubric. If you cannot
-tick every box, say "MVP grade" or "demo grade" instead.
+## 17. Production-grade checklist
 
 ```
 □ Spec exists, approved, co-located
 □ Empty / loading / error / success states present
-□ Keyboard nav, focus rings, AA contrast (AAA for body), reduced-motion
+□ Keyboard nav, focus rings ≥2px solid 3:1, AA contrast (AAA aspirational for body)
 □ Mobile + tablet + desktop verified
+□ Reduced-motion honored on every animation
 □ Mocked data covers happy path + 2 edge cases
 □ RBAC via Gate primitive — no inline hasRank in JSX
 □ All user-visible strings via i18n
@@ -815,16 +1649,21 @@ tick every box, say "MVP grade" or "demo grade" instead.
 □ Unit tests for new logic; ≥1 integration test per spec scenario
 □ Reviewer signed off on the diff
 □ Typecheck clean — zero errors
-□ Lint clean — zero errors (warnings acceptable if pre-existing)
-□ No text-[NNpx], no rounded-lg/xl outside approved exceptions
+□ Lint clean — zero errors
+□ No text-[NNpx], no rounded-lg/xl outside Dialog primitive
 □ Card / Field / Dialog reused from canonical primitives
 □ Hooks all called before any conditional return
 □ Zustand selectors return base refs; computation in useMemo
 □ Confirmation dialog on destructive actions
-□ Type-to-confirm for permanent destruction (delete, anonymize, force-revoke)
+□ Type-to-confirm for permanent destruction
 □ PII never in logs / toasts / error message bodies
 □ Every CTA wired to a real action — silent no-ops auto-rejected
 □ Spec is bumped + changelog updated if behavior changed
+□ Visual-consistency-auditor signed off (no D01 drift)
+□ For public surfaces: SEO author signed off + Core Web Vitals green
+□ For UI changes: a11y-auditor signed off (WCAG 2.2 AA min)
+□ Tap targets ≥44px mobile / ≥32px desktop
+□ Brand-voice-auditor signed off (no tone drift) for public copy
 ```
 
 ### End-of-feature E2E gate
@@ -833,11 +1672,10 @@ After all phases of a multi-phase implementation:
 
 1. Run the full test suite (unit + integration).
 2. Run E2E tests across critical user journeys (Playwright or equivalent).
-3. If no E2E framework: manually verify via preview tools (navigate
-   the complete journey, test happy path + key error paths, test
-   across viewports if UI changed).
+3. If no E2E framework: manually verify via preview tools.
 4. Run a final production build.
-5. Report all metrics:
+5. Run all 4 cross-cutting auditors (perf, a11y, SEO if public, security).
+6. Report all metrics:
 
 ```
 [E2E GATE] Final verification complete
@@ -847,56 +1685,15 @@ After all phases of a multi-phase implementation:
   Build: pass | fail
   Spec drift: none detected | [list of drifts]
   Visual: verified on mobile + desktop | [issues found]
+  Performance: LCP <Xs, INP <Xms, CLS <X
+  Accessibility: WCAG 2.2 AA pass | [issues]
+  SEO (public): titles/meta/schema valid | [issues]
+  Security: OWASP Top 10 mitigated | [issues]
 ```
 
 ---
 
-## 12. Bootstrap checklist for a new project
-
-Day 1 (≤ 4 hours):
-
-- [ ] `pnpm init` monorepo with `pnpm-workspace.yaml`.
-- [ ] Set up Turbo (`turbo.json`) for caching task runs.
-- [ ] Create the repo skeleton from §1.
-- [ ] Author `.claude/CLAUDE.md` from §15 template.
-- [ ] Write the project's North Star doc: `research/00-executive-summary.md`.
-  - What is this product?
-  - Who uses it?
-  - What are the regulatory / compliance constraints?
-  - What are the surface(s)? (web, mobile, internal tool)
-- [ ] Define the Role / Permission Matrix: `research/14-role-permission-matrix.md`.
-- [ ] Initialize `packages/types`, `packages/tokens`, `packages/ui`,
-  `packages/mocks`, `packages/config-eslint`, `packages/config-tailwind`.
-- [ ] Wire up TypeScript strict mode + `noUncheckedIndexedAccess`.
-
-Day 2-3:
-
-- [ ] Stand up the first surface app with shell + auth stubs.
-- [ ] Implement the canonical UI primitives (Card, Field, Button,
-  Dialog, Slider, Gate, Toast, ErrorBoundary, ModuleErrorFallback).
-- [ ] Author `specs/architecture/canonical-ui-patterns.md` (the UI
-  spec — primitives + radius rules + typography rules + spacing).
-- [ ] Author `specs/architecture/cross-module-wiring.md` (empty
-  registry; will fill as features ship).
-- [ ] Wire up the 6 drift-detection guardrail tests from §8 with
-  empty baselines.
-- [ ] Set up `next-intl` (or equivalent) with primary + fallback locales.
-- [ ] Wire up MSW for mocked data.
-
-Day 4 onwards:
-
-- [ ] First capability spec via the full pipeline (research → plan →
-  spec → reviews → integrator → implement → tests → review).
-- [ ] Set up a `specs/roadmap/next-themes.md` ranking the next 4 themes.
-- [ ] Establish the commit cadence (every phase boundary).
-
-The point of the bootstrap is to land the infrastructure that makes
-everything afterwards FAST. Skipping any of these compounds for
-months.
-
----
-
-## 13. Anti-patterns to avoid
+## 18. Anti-patterns to avoid
 
 A list of bugs we shipped at least once each. Do not repeat them.
 
@@ -904,10 +1701,8 @@ A list of bugs we shipped at least once each. Do not repeat them.
 
 - **Zustand selector returning a fresh ref.** `useStore((s) => s.foo ?? [])`,
   `useStore((s) => ({a, b}))`, `useStore((s) => s.foo.filter(…))`. All
-  cause infinite re-render. Caught by the guardrail test now.
-- **Store-side `selectXxx()` that filters.** Looks safe but isn't —
-  same fresh-ref problem. Pull base ref via the hook; filter in
-  `useMemo` outside.
+  cause infinite re-render.
+- **Store-side `selectXxx()` that filters.** Same fresh-ref problem.
 - **Mutating store state in a render-time selector.** Don't.
 
 ### React
@@ -916,53 +1711,70 @@ A list of bugs we shipped at least once each. Do not repeat them.
   configured (`react-hooks/rules-of-hooks: 'error'`).
 - **`useEffect` with `[obj]` where `obj` is a fresh ref each render.**
   Re-runs forever.
-- **`<button>` with no onClick.** Auto-reject; wire an action or
-  show explicit "coming soon".
+- **`<button>` with no onClick.** Auto-reject.
 
 ### Data shape
 
 - **Same field on multiple aggregates with multiple writers.**
-  Cross-aggregate consistency violation. Pick one writer; everyone
-  else reads via selector.
-- **Hardcoded test data (customer names, VINs) in UI.** Drift from
-  the actual store. Read from `useStore((s) => s.customers)`.
-- **PII text in audit-log payloads.** Use `freeTextLength` or hash;
-  never the raw text.
+  Cross-aggregate consistency violation. Pick one writer.
+- **Hardcoded test data (customer names, etc.) in UI.** Drift.
+- **PII text in audit-log payloads.** Use `freeTextLength` or hash.
 
 ### Spec drift
 
 - **Skipping wave-2 reviews.** Single biggest source of post-ship pain.
 - **Promoting `in-build → approved` without all reviewers signed off.**
 - **Deleting an L-tag.** Use the supersession protocol.
-- **Saying "we'll fix it later" without a tracked deferred item.**
+- **"We'll fix it later" without a tracked deferred item.**
 
 ### Process
 
 - **Letting uncommitted work span sessions.** Lose context, lose work.
 - **Committing on red gates.** Don't.
 - **Mass-skipping pre-commit hooks.** They exist for a reason.
-- **Trusting an agent's "I did it" without verifying.** Trust but
-  verify.
+- **Trusting an agent's "I did it" without verifying.** Trust but verify.
 
 ### Performance
 
-- **Bundling heavy deps in the client.** Use `dynamic(() => import(...), { ssr: false })`.
-- **Whole-state Zustand selectors.** `useStore((s) => s)` re-renders
-  on every change.
+- **Bundling heavy deps in the client.** Use `dynamic()`.
+- **Whole-state Zustand selectors.** Re-render on every change.
 - **Loading entire variable-font families when only 4 weights are used.**
-  Pin `weight: ['400', '500', '600', '700']`.
 - **Loading large base64 dataUrls in localStorage.** Quota.
 
 ### UI
 
-- **`text-[NNpx]` instead of the canonical scale.** Drift test catches.
-- **`rounded-lg`/`xl` outside Dialog primitive.** Drift test catches.
-- **Inline `hasRank` in JSX.** Use Gate primitive.
-- **Local `Card` / `Field` redefinitions.** Import from canonical.
+- **`text-[NNpx]` instead of canonical scale.**
+- **`rounded-lg`/`xl` outside Dialog primitive.**
+- **Inline `hasRank` in JSX.**
+- **Local `Card` / `Field` redefinitions.**
+- **Multiple typefaces from D01 mixed inside a single page-fold.**
+- **Animation duration outside the locked 4 values.**
+- **Tap target <44px on mobile.**
+
+### Phase 0 / kickoff
+
+- **Skipping K02 Business Model.** "We'll figure out monetization later"
+  is how products ship without a viable model.
+- **Skipping K12 RBAC matrix.** Every spec downstream assumes it. Build
+  it once.
+- **Skipping K07 Glossary.** Every domain term gets renamed at least
+  once without it; refactors compound.
+- **Letting the design direction stay open past D00 → D01.** Pick a
+  direction. Lock it. Build.
+
+### SEO / brand
+
+- **Not setting Core Web Vitals targets in K10.** No targets, no
+  enforcement.
+- **Hardcoding marketing copy in components instead of CMS/i18n.**
+  Marketing changes copy weekly; engineers shouldn't ship for that.
+- **Same `<title>` on every page.** Auto-reject.
+- **Brand voice drift in error toasts.** Run brand-voice-auditor on
+  empty/error states too — they're the most-seen copy.
 
 ---
 
-## 14. Operating rhythm + escalation
+## 19. Operating rhythm + escalation
 
 ### Daily rhythm
 
@@ -973,11 +1785,19 @@ A list of bugs we shipped at least once each. Do not repeat them.
 
 ### Weekly rhythm
 
-1. Run drift audits on every shipped module (§8).
-2. Sweep `.claude/known-issues.md`; fix any items that hit the
-   pre-existing budget threshold (≤ 5).
-3. Update `MEMORY.md` with significant outcomes.
-4. Refresh `next-themes.md` with the next 4 themes ranked by leverage.
+1. Run drift audits on every shipped module (§14).
+2. Run visual-consistency-auditor across all surfaces.
+3. Sweep `.claude/known-issues.md`; fix items hitting the budget threshold (≤5).
+4. Update `MEMORY.md` with significant outcomes.
+5. Refresh `next-themes.md` with the next 4 themes ranked by leverage.
+
+### Per-release rhythm (before tagging)
+
+1. Run all 4 cross-cutting auditors (perf, a11y, SEO for public, security).
+2. E2E gate (§17).
+3. Tag the release; push to staging.
+4. Monitor for 24 hours; if green, push to production.
+5. Author a release-notes ChangeLog (via `changelog-author` agent).
 
 ### Escalation ladder
 
@@ -986,8 +1806,7 @@ When stuck:
 1. **Self-fix (max 2 attempts).** Try independently.
 2. **Check context.** Read `agent-status.md` + recent commits.
 3. **Report to orchestrator** with full error context.
-4. **Escalate to user** with clear summary: what was tried, what
-   failed, what's needed.
+4. **Escalate to user** with clear summary.
 
 Format:
 
@@ -1011,35 +1830,66 @@ Surface every meaningful event:
 
 ```
 [DEPLOYING] /spec → Writing capability spec for <module>
-  Why: <reason>
-  Expected output: <what>
-
 [PROGRESS] /implement — Task 3/7 complete: <description>
-  Files changed: <list>
-  Next: <what>
-
-[BLOCKED] /implement — Task 4/7 stuck
-  Problem: <issue>
-  What I tried: <attempt>
-  Decision needed: <ask>
-  Options: A | B | C with tradeoffs
-
+[BLOCKED] /implement — Task 4/7 stuck — Decision needed: <ask>
 [HANDOFF] /spec complete → deploying /plan
-  Spec produced: <summary>
-  Plan will cover: <focus>
-
-[COMPLETE] All agents finished
-  What was built: <summary>
-  Files changed: <count>
-  Tests: <passing/failing>
-  Open items: <list>
+[COMPLETE] All agents finished — summary
 ```
 
 Never let agents run silently. Never hide problems.
 
 ---
 
-## 15. Templates
+## 20. Optional integrations
+
+### 20.1 Linear (optional project management)
+
+If using Linear, wire it as follows. **Optional** — if you don't use
+Linear, ignore this section entirely.
+
+#### Setup
+
+- Project key per module (e.g., `SAL` for sales, `SVC` for service)
+- Issue numbering matches `DEF-<MODULE>-N` from spec deferred items
+- Webhooks → `.claude/linear-config.json` for agent reference
+
+#### Mapping
+
+| Spec artifact | Linear artifact |
+|---|---|
+| Spec module | Linear project |
+| `DEF-<MODULE>-N` | Linear issue |
+| L-tag | Linear issue label `L-tag/<id>` |
+| Phase tag (P1/P2) | Linear cycle / milestone |
+| Reviewer signoff | Linear PR comment + status |
+| Drift audit finding | Linear issue tagged `drift-audit` |
+
+#### Agent integration
+
+The orchestrator can dispatch an `issue-sync` agent (Sonnet) that:
+- Reads `specs/modules/*/§Deferred items` tables
+- Creates / updates corresponding Linear issues
+- Closes Linear issues when commits reference `Closes DEF-XXX-N`
+
+#### When NOT to use
+
+If your team is small (1-3 people) and you live in commits + specs +
+roadmap, Linear adds friction without value. Skip until team scales.
+
+### 20.2 Other optional integrations
+
+- **Sentry** — error tracking (recommended once in production)
+- **Posthog / Plausible** — product analytics (per K10 NFRs)
+- **Vercel / Netlify / Cloudflare** — deployment (per K06)
+- **Storybook** — visual regression (recommended for design-heavy projects)
+- **Chromatic** — visual diff CI (paid; evaluate per project)
+
+Each gets a one-paragraph note in K06 if used; full integration
+contract in K11.
+
+---
+
+## 21. Templates
 
 ### `CLAUDE.md` skeleton
 
@@ -1049,75 +1899,81 @@ Never let agents run silently. Never hide problems.
 Read this file at the start of every session before opening any code.
 
 ## 1. What this product is
-<one paragraph: what + who + why>
+<one paragraph: what + who + why; cite K00>
 
 ## 2. Canonical documents — read before you act
-<table of doc references with "when to read" column>
+<table of K-docs + D-docs + architecture specs with "when to read">
 
 ## 3. Stack & toolchain
-<table: layer → choice>
+<table: layer → choice; cite K06>
 
 ## 4. The MVP philosophy
 <one paragraph on quality bar + how mocks fit>
 
 ## 5. Agent pipeline
-<diagram + rules from §2 of this playbook>
+<diagram + rules from §5 of this playbook>
 
 ## 6. Spec discipline
-<reference §4 + the 21-section template + frontmatter shape>
+<reference §7 + the 21-section template + frontmatter shape>
 
 ## 7. Naming & language
-<reference glossary doc + naming conventions>
+<reference K07 glossary>
 
 ## 8. RBAC & data boundaries
-<reference role-permission matrix>
+<reference K12>
 
 ## 9. <Domain>-specific guardrails
-<regulatory / compliance — DPDP, GST, HIPAA, SOC2, etc.>
+<regulatory / compliance — cite K10, K13>
 
 ## 10. Definition of Done
-<the 15-item checklist>
+<the production-grade checklist from §17>
 
 ## 11. Citation discipline
-<cite docs by reference>
+<cite K-docs / D-docs / specs by reference>
 
 ## 12. What not to do
-<reference §13 anti-patterns>
+<reference §18 anti-patterns>
 
 ## 13. When uncertain
 <stop, ask the user>
 
 ## 14. Locked-decision (L-tag) protocol
-<reference §5>
+<reference §8>
 
 ## 15. Spec lifecycle + phase tagging
-<reference §4>
+<reference §7>
 
 ## 16. Spec-drift detection
-<reference §5>
+<reference §8>
 
 ## 17. Production-grade checklist
-<reference §11>
+<reference §17>
 
 ## 18. Crash recovery + agent handoff
-<reference §9>
+<reference §15>
 
 ## 19. Commit discipline
-<reference §10>
+<reference §16>
 
 ## 20. Memory file usage
-<reference §9>
+<reference §15>
 
 ## 21. Pre-existing failure budget
-<reference §9>
+<reference §15>
 
 ## 22. Deferred items registry
-<reference §4>
+<reference §7>
+
+## 23. Design system rules
+<reference §10 + D01>
+
+## 24. SEO + brand discipline (if public)
+<reference §11 + §12>
 ```
 
 ### Spec template
 
-See §4 for the 21-section list. Each section starts with a one-line
+See §7 for the 21-section list. Each section starts with a one-line
 description; expand as the spec evolves.
 
 ### Plan template
@@ -1144,7 +2000,8 @@ owners: [planner, integrator]
 ## 2. Field list (final)
 <schema sketches>
 
-## 3. PDF/UI layout spec (if UI-heavy)
+## 3. UI layout spec (if UI-heavy)
+<cite D01 primitives + locked screens at design/screens/>
 
 ## 4. Task breakdown
 <numbered table: # | task | files | LoC | depends-on>
@@ -1165,7 +2022,7 @@ owners: [planner, integrator]
 <table: Tag | Title | Source>
 ```
 
-### Research template
+### Research template (per-feature)
 
 ```markdown
 ---
@@ -1195,23 +2052,29 @@ status: draft | complete
 ```markdown
 # <SPEC-ID> — <reviewer> review
 
-**Reviewer:** <security | finance | qa>
+**Reviewer:** <security | finance | qa | accessibility>
 **Date:** <YYYY-MM-DD>
 
 ## Concerns
-<numbered list — each: severity (P0/P1/P2/P3) + finding + spec section + recommendation>
+<numbered — each: severity (P0/P1/P2/P3) + finding + spec section + recommendation>
 
 ## Blockers
-<numbered list — anything preventing in-review → approved>
+<numbered — anything preventing in-review → approved>
 
 ## Open questions
-<numbered list>
+<numbered>
 
 ## Signoff
 
 signed-off: yes | no | with-concerns
 acknowledged-by-integrator: pending
 ```
+
+### K-doc templates
+
+Each K-doc has its mandatory sections specified in §3.3. The
+spec-conventions-author writes K16 which captures these as
+project-specific templates.
 
 ### Drift audit prompt
 
@@ -1236,6 +2099,32 @@ Output three sections:
 End with: "Recommended doc updates" — top 5 items, prioritized.
 ```
 
+### Cross-cutting auditor prompt (template)
+
+```
+You are the <perf | a11y | seo | security | brand-voice | visual-consistency> auditor.
+
+Surface(s) under review: <list>
+Reference docs: <K-docs / D01 / spec L-tags relevant to your audit lens>
+
+Audit the surface(s) against the reference docs. Output:
+
+## Findings (severity-ordered)
+| # | Severity (P0/P1/P2/P3) | Finding | File:line | Recommendation |
+
+## Pass list
+What was checked and passed.
+
+## Recommended fix waves
+Wave 1 (P0+P1, must fix this release):
+Wave 2 (P2, should fix next release):
+Wave 3 (P3, polish):
+
+## Signoff
+
+signed-off: yes | no | with-concerns
+```
+
 ---
 
 ## Appendix A — Why this works
@@ -1256,11 +2145,18 @@ Each one paid for itself:
   hasn't appeared since.
 - **Cross-aggregate consistency contract caught a VIN drift between
   the staff-side service module and the customer-facing storefront.**
-  Without the §8 contract, the bug would have shipped as "customer
-  sees wrong VIN on their service receipt."
 - **Pre-flight UI checklist eliminated `text-[NNpx]` drift on
-  greenfield code.** Before the checklist: every new module added
-  3-10 violations. After: zero new violations.
+  greenfield code.** Before: every new module added 3-10 violations.
+  After: zero.
+- **Phase 0 K02 (Business Model) caught a pricing tier mismatch
+  between the product roadmap and the revenue model** before any code
+  was written. Fixing in K02 cost a day; fixing post-launch would
+  have cost a month + a pricing migration.
+- **D01 design system locked the type scale BEFORE any feature work.**
+  No "what size should this be?" debates in 200+ component sessions.
+- **Wave-2 accessibility-reviewer caught a focus-trap bug in the
+  Dialog primitive that would have blocked screen-reader users
+  entirely.** Caught during the design system spec phase.
 
 The patterns scale. A team of one engineer + agents can ship a 1500
 LoC feature with full review pipeline in a day. A team of three can
@@ -1281,11 +2177,15 @@ Every rule in this playbook has a real reason. But:
   retroactive doc — incidents that don't get documented happen again.
 - **One-off scripts / data migrations**: a spec is overkill. A README
   explaining what the script does and how to re-run it is enough.
+- **Solo founder, day 1, no users yet**: you can compress Phase 0 to
+  a 1-day sprint with abbreviated K-docs. Don't skip them — but you
+  don't need 8 pages on K01 if you have one stakeholder.
 
-Beyond these three: write the spec. The cost is real but the
+Beyond these four: write the spec. The cost is real but the
 alternative is worse.
 
 ---
 
 *Last updated: 2026-05-08*
 *Maintained by: project orchestrator*
+*Length: ~3,000 lines covering Phase 0 → Phase 2+ lifecycle, 48 agents, locked design system rules, and full SEO/brand/a11y/perf reviewer integration.*
