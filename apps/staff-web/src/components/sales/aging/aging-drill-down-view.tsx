@@ -26,6 +26,18 @@ import { useVehiclesStore } from '@/src/lib/vehicles/vehicles-store';
 import { computeAgingBand } from '@/src/lib/sales/aging/selectors';
 import { competitorPrices } from '@dms/mocks/fixtures';
 
+// Stable empty-array references for the selectors below. Returning fresh
+// `[]` literals from Zustand selectors triggers "Maximum update depth
+// exceeded" — per CLAUDE.md §17, selectors must return base refs.
+type SalesEventList = NonNullable<
+  ReturnType<typeof useVehiclesStore.getState>['salesEvents'][string]
+>;
+type CostLedgerList = NonNullable<
+  ReturnType<typeof useVehiclesStore.getState>['costLedger'][string]
+>;
+const EMPTY_SALES_EVENTS: SalesEventList = [];
+const EMPTY_COST_LEDGER: CostLedgerList = [];
+
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function formatRupee(amount: number): string {
@@ -56,8 +68,8 @@ export function AgingDrillDownView({ vin }: AgingDrillDownViewProps) {
   const t = useTranslations('inventoryAging');
 
   const vehicle    = useVehiclesStore((s) => s.vehicles[vin]);
-  const salesEvents = useVehiclesStore((s) => s.salesEvents[vin] ?? []);
-  const costLedger  = useVehiclesStore((s) => s.costLedger[vin] ?? []);
+  const salesEvents = useVehiclesStore((s) => s.salesEvents[vin] ?? EMPTY_SALES_EVENTS);
+  const costLedger  = useVehiclesStore((s) => s.costLedger[vin] ?? EMPTY_COST_LEDGER);
 
   // Price history — PRICE_CHANGED events
   const priceHistory = useMemo(

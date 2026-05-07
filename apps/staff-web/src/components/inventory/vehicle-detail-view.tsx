@@ -80,6 +80,13 @@ export interface VehicleDetailViewProps {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+// Stable empty-array reference for the runtime-ledger selector below.
+// Returning a fresh `[]` literal from a Zustand selector triggers
+// "Maximum update depth exceeded" because every render produces a new
+// reference, which Zustand treats as a state change. Per CLAUDE.md §17:
+// selectors must return base refs.
+const EMPTY_LEDGER: CostLedgerEntry[] = [];
+
 const INR = new Intl.NumberFormat('en-IN', {
   style: 'currency',
   currency: 'INR',
@@ -1052,7 +1059,9 @@ export function VehicleDetailView({
   const [copied, setCopied] = useState(false);
 
   // ── Runtime cost-ledger from vehicles-store (L40 merge) ──────────────────
-  const runtimeLedger = useVehiclesStore((s) => s.costLedger[vehicle.vin] ?? []);
+  const runtimeLedger = useVehiclesStore(
+    (s) => s.costLedger[vehicle.vin] ?? EMPTY_LEDGER,
+  );
 
   // ── Local state (optimistic) ───────────────────────────────────────────────
   // Merge fixture + runtime entries, deduped by id (L40)
