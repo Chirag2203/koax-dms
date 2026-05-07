@@ -27,25 +27,32 @@ you have explicit reason to deviate, and write that reason down.
 3. [Phase 0 — Project kickoff (discovery)](#3-phase-0--project-kickoff-discovery)
 4. [Phase 1 — Bootstrap from kickoff](#4-phase-1--bootstrap-from-kickoff)
 5. [Phase 2 — Per-feature pipeline](#5-phase-2--per-feature-pipeline)
-6. [Model routing](#6-model-routing)
+6. [Model routing + cost budgets](#6-model-routing--cost-budgets)
 7. [Spec discipline](#7-spec-discipline)
 8. [Locked-decision (L-tag) protocol](#8-locked-decision-l-tag-protocol)
 9. [Cross-aggregate consistency contract](#9-cross-aggregate-consistency-contract)
 10. [Design pipeline + visual consistency rules](#10-design-pipeline--visual-consistency-rules)
 11. [SEO track](#11-seo-track)
-12. [Brand + content track](#12-brand--content-track)
-13. [Code quality enforcement](#13-code-quality-enforcement)
-14. [Drift-detection guardrail tests](#14-drift-detection-guardrail-tests)
-15. [Memory + cross-session continuity](#15-memory--cross-session-continuity)
-16. [Commit discipline](#16-commit-discipline)
-17. [Production-grade checklist](#17-production-grade-checklist)
-18. [Anti-patterns to avoid](#18-anti-patterns-to-avoid)
-19. [Operating rhythm + escalation](#19-operating-rhythm--escalation)
-20. [Optional integrations (Linear, etc.)](#20-optional-integrations)
-21. [Templates](#21-templates)
+12. [Backend/API discipline](#12-backendapi-discipline)
+13. [Brand + content track](#13-brand--content-track)
+14. [Privacy + Data Subject Rights](#14-privacy--data-subject-rights)
+15. [Code quality enforcement](#15-code-quality-enforcement)
+16. [Drift-detection guardrail tests](#16-drift-detection-guardrail-tests)
+17. [Memory + cross-session continuity](#17-memory--cross-session-continuity)
+18. [Commit discipline](#18-commit-discipline)
+19. [Production-grade checklist](#19-production-grade-checklist)
+20. [Anti-patterns to avoid](#20-anti-patterns-to-avoid)
+21. [Operating rhythm + escalation](#21-operating-rhythm--escalation)
+22. [Optional integrations (Linear, etc.)](#22-optional-integrations)
+23. [Toolchain setup](#23-toolchain-setup)
+24. [Agent prompt management](#24-agent-prompt-management)
+25. [Working with agents (human-agent handshake)](#25-working-with-agents)
+26. [Post-launch operations](#26-post-launch-operations)
+27. [Templates](#27-templates)
 
 Appendix A — [Why this works](#appendix-a--why-this-works)
 Appendix B — [When to deviate](#appendix-b--when-to-deviate)
+Appendix C — [Patterns library](#appendix-c--patterns-library)
 
 ---
 
@@ -153,7 +160,13 @@ days.
 │   ├── K13-open-questions-and-risks.md
 │   ├── K14-brand-and-content-strategy.md
 │   ├── K15-seo-strategy.md         # public-facing surfaces only
-│   └── K16-spec-template-and-conventions.md
+│   ├── K16-spec-template-and-conventions.md
+│   └── K17-identity-and-authentication.md
+│   # M-docs (one per major business domain) — examples:
+│   #   M01-<domain>.md ... MNN
+│   # Plus prescribed M-docs when scope requires:
+│   #   M-billing.md          (when SaaS / subscription)
+│   #   M-notifications.md    (when product sends emails/SMS/push)
 │
 ├── design/                        # KICKOFF design outputs
 │   ├── D00-design-direction-comparison.md   # 5 directions evaluated
@@ -224,6 +237,10 @@ preference, and known reading list. Mix-and-match per task.
 | **brand-voice-definer** | Opus | K14 Brand & Content Strategy | K00 + K03 |
 | **seo-strategist** | Opus | K15 SEO Strategy (public surfaces only) | K00 + K03 + K14 |
 | **spec-conventions-author** | Sonnet | K16 Spec Template & Conventions (meta) | this playbook |
+| **auth-architect** | Opus | K17 Identity & Authentication | K00 + K12 |
+| **billing-architect** | Opus | M-billing brief (when SaaS) | K00 + K02 |
+| **notifications-architect** | Opus | M-notifications brief (when comms) | K00 + K10 |
+| **api-designer** | Opus | section in K06 (REST/GraphQL/tRPC contract) | K00 + K06 |
 | **design-direction-explorer** | Opus | D00 Design Direction Comparison (5 dirs) | K00 + K03 + K14 |
 | **design-system-architect** | Opus | D01 Design System (locked tokens) | D00 (locked direction) |
 | **screen-designer** | Sonnet | per-screen design exports | D01 |
@@ -272,7 +289,7 @@ preference, and known reading list. Mix-and-match per task.
 
 ### Total agent count
 
-22 Phase-0 agents + 14 Phase-2 agents + 7 cross-cutting + 5 specialized = **48 distinct agents**. You don't need all 48 active at once. The playbook tells you which to dispatch when.
+26 Phase-0 agents + 14 Phase-2 agents + 7 cross-cutting + 5 specialized = **52 distinct agents**. You don't need all 52 active at once. The playbook tells you which to dispatch when.
 
 ---
 
@@ -491,6 +508,61 @@ spec drift later. Don't skip.
 - Naming conventions for spec_id, file paths
 - L-tag conventions
 
+#### K17 — Identity & Authentication (3-6 pages)
+*Mandatory for any product with user accounts. Authored during Phase 0 by `auth-architect` (Opus).*
+- Auth provider decision (Clerk / Auth0 / Supabase / Cognito / WorkOS / build-own); rationale + alternatives rejected
+- Session strategy (cookie-session vs JWT vs hybrid)
+- Token expiry + refresh policy
+- Multi-factor strategy (TOTP, SMS, email magic-link, WebAuthn — minimum one)
+- Passwordless options
+- Account recovery (email reset; security questions banned per OWASP)
+- SSO requirements per persona (admins likely SSO-required)
+- Server-side session enforcement contract: every API call validates;
+  no "authenticated client implies authenticated server" patterns
+- Logout-everywhere capability (DPDP §11 / GDPR Art. 17 alignment)
+- Banned: passwords as MD5/SHA1, JWT secrets without rotation policy,
+  long-lived access tokens (>1h) without refresh rotation
+- Threat model: brute-force, credential stuffing, session hijacking,
+  CSRF, XSS — mitigation per threat
+- Audit log: every login / logout / password change / MFA enrollment
+
+#### M-billing — Billing & Subscriptions (SaaS only, 3-6 pages)
+*Mandatory when project has paid plans. Authored by `billing-architect` (Opus).*
+- Provider (Stripe / Razorpay / Paddle / Lemon Squeezy / Chargebee); rationale
+- Subscription state machine: `trialing → active → past_due → canceled → recovered`
+- Plan / tier / pricing structure (table)
+- Failed-payment handling: dunning email cadence, grace period, downgrade rules
+- Refund + dispute flow: who can refund, partial vs full, accounting impact
+- Invoicing + tax (GST India / VAT EU / region-aware)
+- Coupon / discount strategy + redemption rules
+- Per-seat vs flat vs usage-based pricing implementation
+- Webhook handling: signature verification + idempotency
+- Mock-phase: provider test mode + signed-webhook fixtures
+- Banned: storing card numbers (PCI scope explosion); skipping
+  webhook signature verification; sync billing calls in user-facing flows
+
+#### M-notifications — Notifications & Communications (any product with comms, 3-6 pages)
+*Authored by `notifications-architect` (Opus).*
+- Channel registry (email / SMS / push / in-app); table per channel
+- Provider per channel (SendGrid / Postmark / Twilio / Plivo / OneSignal /
+  FCM / APNS); rationale + fallback
+- Template registry (every send goes through a template — never ad-hoc)
+- Transactional vs marketing distinction
+  (different consent + opt-out laws per jurisdiction)
+- Deliverability setup: SPF / DKIM / DMARC, sender-warmup plan
+- Region-specific compliance:
+  - India DLT: every SMS template registered with template ID
+  - US TCPA / CAN-SPAM: opt-out in every marketing message
+  - EU GDPR Art. 7: granular consent, withdraw as easy as grant
+  - DPDP §6 (India): purpose limitation, withdraw-easy
+- Send-time optimization (per-recipient timezone) policy
+- Batch vs real-time strategy
+- Opt-out / preference center surface
+- Audit: every send logged with template id, recipient, status,
+  delivery / open / bounce / complaint
+- Banned: free-text SMS sends (unregistered template); no-reply
+  mailboxes that swallow replies; marketing in transactional templates
+
 #### D00 — Design Direction Comparison (3-5 pages)
 - 5 distinct directions evaluated
 - Per direction: name, mood (3-5 adjectives), reference brands, rough swatch + type pairing + sample component
@@ -506,11 +578,16 @@ This becomes `specs/architecture/canonical-ui-patterns.md` (or
 
 Before flipping from Phase 0 → Phase 1:
 
-- [ ] All K00-K16 docs exist and signed off by stakeholder
+- [ ] All K00-K17 docs exist and signed off by stakeholder
 - [ ] All M-docs exist (at least one per major business domain)
+- [ ] M-billing exists if SaaS / paid plans
+- [ ] M-notifications exists if product sends emails / SMS / push
 - [ ] D00 has a locked direction per surface
 - [ ] D01 has all token tables filled (colors, type scale, spacing, motion, radii, icons)
 - [ ] K13 has zero open P0 questions (P1+ acceptable)
+- [ ] K17 picked an auth provider + locked session strategy
+- [ ] K10 has Core Web Vitals targets locked (for public surfaces)
+- [ ] K15 keyword clusters reviewed by SEO-auditor
 - [ ] roadmap/next-themes.md ranks the next 4-8 themes
 - [ ] Risk register reviewed; top 3 risks have explicit mitigations
 
@@ -694,7 +771,7 @@ findings — blockers become L-tags or deferred items.
 
 ---
 
-## 6. Model routing
+## 6. Model routing + cost budgets
 
 Default sub-agent model is **Sonnet**. Use **Opus** for genuinely-hard
 reasoning. Use **Haiku** for purely mechanical work.
@@ -743,6 +820,47 @@ that took 3 seconds is a huge win over Sonnet doing the same.
 For critical tasks, prefer Opus — quality matters more than tokens.
 For everything else, default Sonnet and reach for Opus only when the
 task gets stuck.
+
+### Cost budgets (rough order-of-magnitude)
+
+These are calibrated against current Anthropic API pricing and a
+medium-complexity project. Numbers shift with model price changes
+and project scope; use as a sanity check, not a hard limit.
+
+| Phase | Estimated cost | Notes |
+|---|---|---|
+| Phase 0 (kickoff, 22 Opus + 4 Sonnet agents) | ~$80-200 | 3-5 day budget; Opus-heavy by design |
+| Phase 1 (bootstrap) | ~$10-30 | Mostly Sonnet for scaffolding |
+| Per-feature Phase 2 (small spec, no UI) | ~$5-15 | Most Sonnet; one Opus pass for spec |
+| Per-feature Phase 2 (medium spec + UI) | ~$15-40 | + wave-2 reviews (Opus) |
+| Per-feature Phase 2 (large spec, multi-phase) | ~$40-120 | Multiple Opus passes |
+| Wave-2 reviews per spec (security + finance + qa + a11y) | ~$8-25 | All four parallel |
+| Drift audit (per module) | ~$3-10 | Sonnet read-only |
+| Per-release cross-cutting auditors (perf+a11y+SEO+security) | ~$15-40 | Run once per release |
+| Daily orchestrator (active dev) | ~$10-50 | Highly variable |
+
+### Cost-tracking discipline
+
+- Every agent's tool result includes a token-count summary
+- Orchestrator aggregates daily / weekly to `agent-status.md`
+- Alert at 2× expected budget for a phase — switch defaults harder to
+  Sonnet, audit which agents over-ran
+- Track per-feature LoC vs cost — features costing >$50/100 LoC are
+  smelly (probably needed re-research or had a bad spec)
+- Phase 0 is the most expensive single event; budget for it explicitly
+  in your runway. After Phase 0, spend tracks linearly with feature volume.
+
+### When to switch defaults
+
+If your project is hitting 2× budget repeatedly:
+- Drop wave-2 reviews to qa-only on low-risk specs (re-add for high-risk)
+- Use Sonnet for plans on small features (Opus only for complex)
+- Move recurring auditors from per-release to monthly
+- Cap research depth — explicit ≤500 word limits in research prompts
+
+If your project is critical (regulated / enterprise / consumer-facing
+at scale): pay the cost. Quality matters more than tokens. Opus for
+all wave-2 reviews; Opus for spec drafting; Opus for integrator.
 
 ---
 
@@ -1286,7 +1404,149 @@ Each piece:
 
 ---
 
-## 12. Brand + content track
+## 12. Backend/API discipline
+
+The frontend track is rigorous; the backend deserves the same. This
+section is mandatory for any project with server-side code.
+
+### 12.1 API contract format (locked at K06)
+
+Pick ONE format. Lock for life.
+
+| Format | When to use |
+|---|---|
+| **tRPC** | Monorepo with shared TypeScript; full-stack TS; private API |
+| **OpenAPI (REST)** | Public API; consumed by external clients; multi-language |
+| **GraphQL** | Complex query needs; client-driven shape; federated services |
+
+**Recommended default**: tRPC for new monorepo projects (zero
+boilerplate, end-to-end types). Move to OpenAPI when you need third
+parties.
+
+### 12.2 Database migrations discipline
+
+Every migration:
+- Has both `up()` and `down()` (reversible)
+- Tested in CI against a clean DB
+- Named: `YYYYMMDDHHMM_<verb>_<subject>.sql` (or framework convention)
+- Schema changes paired with TypeScript types regen (post-migration hook)
+- Backfills are SEPARATE migrations from schema changes (deploy
+  schema first, then backfill — never combined)
+- Long-running migrations (>30s anticipated) flagged as "manual" —
+  never auto-run in deploy
+
+**Banned**: irreversible migrations without explicit comment +
+review approval. "It's just a backfill" is not an excuse.
+
+### 12.3 Query patterns (locked)
+
+| Pattern | Rule |
+|---|---|
+| **N+1 prevention** | Every list query MUST eager-load related entities. Use ORM `include` / `with` / Dataloader. CI lint catches obvious N+1. |
+| **Index discipline** | Every `WHERE` clause backing list/detail queries gets an index. Document in K08 per entity. |
+| **Soft-delete** | `deletedAt` timestamp; never hard-delete user data without explicit purge job |
+| **Pagination** | Cursor-based for sorted lists (offset breaks under sort changes); page size capped at 100; default 25 |
+| **SELECT * banned** | List explicit columns; protects against schema drift breaking response shape |
+| **Transaction scope** | Within single HTTP request only. Multi-request consistency uses sagas / state machines (per K09) |
+
+### 12.4 Background jobs / workers
+
+Every async job:
+- Lives in a queue (BullMQ / Inngest / Trigger.dev / Cloud Tasks — one, locked)
+- Has an idempotency key (mandatory — every job retry-safe)
+- Has a dead-letter queue with admin visibility (Sentry / dashboard)
+- Has a per-job retry policy documented in spec (max attempts, backoff)
+- Logs structured events: queued / started / succeeded / failed / dead
+
+**Banned**: synchronous email sends in user-facing flows (always
+queue); jobs without idempotency keys; jobs that mutate state and
+also call external APIs without compensation logic on retry.
+
+### 12.5 Webhook handling (inbound)
+
+Mandatory per inbound webhook:
+- Signature verification (HMAC + provider secret); reject unsigned
+- Idempotency via `Idempotency-Key` header (or provider's request id)
+- 200 response within 3 seconds (queue async work; never process
+  inline)
+- Replay protection (timestamp tolerance ±5 min)
+- Dedupe table for already-processed event ids (TTL ~30 days)
+
+### 12.6 API rate limiting
+
+Mandatory per public endpoint:
+- Per-IP for unauthenticated routes (e.g., 100/15min)
+- Per-user for authenticated routes (per-tier limits if SaaS)
+- Per-tenant for multi-tenant
+- 429 response includes `Retry-After` header
+- Limits documented in K10 NFR
+
+### 12.7 Banned backend patterns
+
+| Pattern | Why banned | Alternative |
+|---|---|---|
+| `SELECT *` | schema drift breaks response | explicit column list |
+| Sync email in user flow | high-latency UX | queue + worker |
+| Auth in middleware only | bypassed if route handler skipped | enforce at handler boundary too |
+| Multi-request transactions | leaks across HTTP boundary | saga / state machine |
+| Plaintext tokens at rest | breach risk | encrypt with KMS-backed keys |
+| `eval()` / `Function()` constructor | arbitrary code execution | structured config / DSL |
+| String SQL concatenation | injection risk | parameterized queries / ORM |
+| Synchronous Date.now() in tests | flaky | injected clock |
+| Unbounded list endpoints | DoS risk | cursor + page-size cap |
+| Logs containing raw PII | leak | structured logs with PII redaction |
+
+### 12.8 Backend drift tests
+
+Mirror the frontend guardrail tests. Examples:
+
+- **`api-contract-drift.test.ts`** — every route's input/output shape
+  matches its OpenAPI spec / tRPC types
+- **`migration-reversibility.test.ts`** — every migration runs `up`
+  then `down` cleanly against a sample DB
+- **`n-plus-one-detector.test.ts`** — runs a known list query;
+  asserts query count ≤ N (not 2N)
+- **`webhook-idempotency.test.ts`** — replays the same webhook;
+  asserts state changes only once
+- **`rbac-server-enforcement.test.ts`** — asserts every protected
+  route 403s without auth (no UI-only enforcement)
+
+### 12.9 API design pipeline
+
+When a new feature adds API surface:
+
+```
+[during /spec]
+  api-designer (Opus) drafts the contract:
+    - Endpoint shape (route / method / params)
+    - Request + response Zod schemas
+    - Error codes
+    - Rate limit class
+    - Auth requirement
+  Spec §5 Data model includes the contract verbatim.
+
+[during wave-2 review]
+  security-reviewer audits:
+    - Auth required appropriately
+    - Inputs validated server-side (not just client)
+    - PII redaction in responses for low-rank viewers
+    - Rate limit category is appropriate
+    - No data leakage across tenants
+
+[during /implement]
+  Server route handler implements + tests
+  Client SDK regenerated (if OpenAPI / tRPC)
+  Integration test asserts: 200 happy path; 401 unauth; 403 wrong-role;
+  400 invalid input; 429 rate-limited
+
+[before commit]
+  api-contract-drift.test.ts passes
+  Backend security audit (recurring) signs off if route is sensitive
+```
+
+---
+
+## 13. Brand + content track
 
 ### 12.1 Brand voice (locked in K14)
 
@@ -1331,9 +1591,105 @@ Output: `specs/architecture/brand-audits/<date>-<surface>.md`
 
 ---
 
-## 13. Code quality enforcement
+## 14. Privacy + Data Subject Rights
 
-### 13.1 Banned patterns
+DPDP, GDPR, CCPA, and equivalent frameworks all require the same
+core capabilities. Build them once; comply everywhere.
+
+### 14.1 Consent UI patterns
+
+- **Granular consent** — per purpose: marketing email, marketing SMS,
+  analytics tracking, voice calls, etc. NEVER one mega-checkbox.
+- **Opt-in default** — every consent toggle defaults OFF. Pre-checked
+  marketing consent is illegal under GDPR Art. 7(2).
+- **Withdraw as easy as grant** — single click to revoke (DPDP §6,
+  GDPR Art. 7(3)). Hiding the off-switch in 4-deep settings is non-compliant.
+- **Consent history** — viewable by user; exportable as JSON
+- **Audit log** — every consent change recorded with: timestamp,
+  purpose, version of consent notice, IP, user-agent, granular state.
+  Append-only ledger.
+- **Cookie banner**: only essential cookies pre-checked; everything
+  else opt-in. Single "Reject all" button as prominent as "Accept
+  all" (EU mandate).
+
+### 14.2 Data export ("Download my data")
+
+Available to every user account by self-service.
+
+- Format: JSON + CSV bundle (zipped)
+- Includes: profile, all created records, communication history,
+  consent ledger, audit-of-PII-access entries that reference the user
+- Excludes: encrypted payment tokens; system audit logs that
+  reference the user but contain other users' data
+- Async generation (queue job); email link when ready
+- Download link expires in 7 days
+- Re-request blocked for 24h after delivery (anti-abuse)
+
+### 14.3 Account deletion
+
+- User-initiated path on every account
+- Type-to-confirm pattern ("DELETE my account")
+- 24-hour cooling-off period (recoverable in this window)
+- After cooling-off:
+  - **Soft-delete** by default (DPDP §17(1)(c) lawful-purpose carve-out
+    for retention; CPA evidentiary periods; tax retention)
+  - **Hard-delete** of PII fields after retention period
+    (configurable per data type per K10)
+  - **Tombstone** preserves audit-trail integrity (entity exists
+    with `deleted: true` and PII fields nulled)
+- Cascade rules documented per entity in K08 (FK ON DELETE strategy:
+  CASCADE / SET NULL / RESTRICT — pick per relationship)
+- Audit trail of deletion (who initiated, when, what was retained,
+  what was purged)
+
+### 14.4 Audit logs for PII access
+
+- Every read of medium/high PII fields logged
+- Includes: actor, target user, fields accessed, timestamp, route /
+  action that triggered the read
+- Retained per K10 (typically ≥7 years)
+- DPO has read access; nobody has write access (append-only)
+- DSAR includes "who has accessed your PII" report
+
+### 14.5 DSR (Data Subject Request) fulfillment
+
+The `dsr-console` surface (R23 DPO role) handles incoming requests.
+
+- 30-day SLA per DPDP Act / GDPR Art. 12(3)
+- Console shows: incoming requests, status, due date, fulfillment proof
+- One-click "Generate access bundle" → §14.2 export
+- One-click "Initiate erasure" → §14.3 hard-delete with reason
+- One-click "Anonymize" → replace PII fields with pseudonyms; keep audit integrity
+- Refusal protocol with reason text + appeal path
+- Per-request audit (every action by DPO logged)
+
+### 14.6 Privacy-by-design rules (binding)
+
+| Rule | Enforcement |
+|---|---|
+| Default to MINIMUM data collection | Spec §5 Data model justifies every PII field |
+| PII grading on every entity | `pii_sensitivity: none\|low\|medium\|high` on schema |
+| Display masking by default | last-4 of PAN/Aadhaar/phone for low-rank viewers |
+| Logs NEVER contain PII bodies | length/hash/id only — drift-test the audit payloads |
+| Backups encrypted at rest | KMS-backed keys; rotation policy in K17 |
+| Test/dev environments use synthetic data | NEVER production PII; CI checks for PII patterns in fixtures |
+| Cross-border data transfer documented | GDPR Art. 44+; DPDP §17 transfer rules |
+| Sub-processors listed publicly | Update on every vendor add/remove |
+
+### 14.7 Privacy-track agents
+
+| Agent | When |
+|---|---|
+| **privacy-architect** | Phase 0 — authors privacy section in K10 + reviews K17 |
+| **dsr-console-spec author** | Phase 2 — when building the DPO surface |
+| **privacy-auditor** | Recurring — quarterly + per-release for regulated surfaces |
+| **consent-flow-reviewer** | Per consent-touching spec (wave-2) |
+
+---
+
+## 15. Code quality enforcement
+
+### 15.1 Banned patterns
 
 | Pattern | Why | Alternative |
 |---|---|---|
@@ -1351,13 +1707,13 @@ Output: `specs/architecture/brand-audits/<date>-<surface>.md`
 | `useStore((s) => s)` (whole-state) | re-renders on every change | granular selector |
 | Local `Card`/`Field` redefinitions | drift from primitives | import from `@<scope>/ui` |
 
-### 13.2 Production-grade strings only
+### 15.2 Production-grade strings only
 
 Stop reaching for "MVP" or "demo grade" without saying so. If you
 cannot tick every box on the production-grade checklist (§17), the
 code is not production-grade — say so explicitly.
 
-### 13.3 TypeScript strictness
+### 15.3 TypeScript strictness
 
 ```jsonc
 {
@@ -1374,7 +1730,7 @@ code is not production-grade — say so explicitly.
 `noUncheckedIndexedAccess` catches a huge class of bugs at compile
 time. Worth the noise.
 
-### 13.4 No `any` without a comment
+### 15.4 No `any` without a comment
 
 ```ts
 // reason: third-party lib's types are wrong; PR upstream filed at <link>
@@ -1383,7 +1739,7 @@ const x = thing as any;
 
 If you can't write the comment, you can't use `any`.
 
-### 13.5 ESLint must include
+### 15.5 ESLint must include
 
 ```js
 extends: [
@@ -1404,9 +1760,64 @@ rules: {
 `react-hooks/rules-of-hooks: 'error'` is non-negotiable — it catches
 the "useMemo after early return" class of bug at lint time.
 
+### 15.6 Feature flag discipline
+
+Feature flags solve real problems (gradual rollout, kill switches,
+A/B experiments) but each flag is also a fork in the code that costs
+maintenance forever. Treat them with the same discipline as L-tags.
+
+**Naming convention** (locked):
+
+```
+<surface>.<module>.<feature>.<version>
+```
+
+Examples: `staff.service.intake.v1`, `customer.checkout.upsell.v2`,
+`admin.audit.export.v1`.
+
+**Flag types** (pick one per flag; the type drives the cleanup rules):
+
+| Type | Purpose | Lifetime |
+|---|---|---|
+| **Release flag** | gradual rollout, kill-switch | ≤30 days post-GA, then remove |
+| **Experiment flag** | A/B test, multivariate | ≤90 days; auto-expires when experiment closes |
+| **Permission flag** | role / plan / tenant gating | persistent; not really a flag |
+| **Operational flag** | circuit breaker for downstream | persistent until vendor stable |
+
+**Flag lifecycle** (binding):
+
+```
+1. Add        Spec frontmatter declares the flag; registry entry created
+              with: name, type, owner, default (OFF in prod), expiry date
+2. Develop    Code uses getFlag(name); default OFF; tests for both branches
+3. Internal QA  Flip ON in dev/staging; soak for ≥3 days
+4. Limited    Percentage-based or role-based ramp (10% → 25% → 50% → 100%)
+5. GA         Flag stays at 100% for ≤30 days
+6. Cleanup    Remove flag from code + registry within 30 days of GA
+              Stale-flag CI check (§below) blocks merges if exceeded
+```
+
+**Stale-flag CI check**:
+
+```ts
+// stale-feature-flags.test.ts
+// Fails if any flag in registry has been at 100% for >30 days
+// without an explicit `extension` field with reason + new expiry.
+```
+
+**Banned flag patterns**:
+
+| Pattern | Why banned | Alternative |
+|---|---|---|
+| Flag without owner | nobody to clean up | every flag has an `owner` field |
+| Flag without expiry | lives forever | every flag has `expires_at` |
+| Nested flags >2 levels | combinatorial explosion | redesign as state machine |
+| Flag determining business logic | wrong abstraction | use roles / plans |
+| Flag whose state isn't audit-logged | invisible behavior change | every eval audited |
+
 ---
 
-## 14. Drift-detection guardrail tests
+## 16. Drift-detection guardrail tests
 
 The single most-important infrastructure investment. Every recurring
 bug class becomes a test that scans the whole codebase.
@@ -1499,7 +1910,7 @@ green. Never commit on red.
 
 ---
 
-## 15. Memory + cross-session continuity
+## 17. Memory + cross-session continuity
 
 ### Three layers of memory
 
@@ -1582,7 +1993,7 @@ Rules:
 
 ---
 
-## 16. Commit discipline
+## 18. Commit discipline
 
 ### When to commit
 
@@ -1634,7 +2045,7 @@ revert cleanly.
 
 ---
 
-## 17. Production-grade checklist
+## 19. Production-grade checklist
 
 ```
 □ Spec exists, approved, co-located
@@ -1693,7 +2104,7 @@ After all phases of a multi-phase implementation:
 
 ---
 
-## 18. Anti-patterns to avoid
+## 20. Anti-patterns to avoid
 
 A list of bugs we shipped at least once each. Do not repeat them.
 
@@ -1774,7 +2185,7 @@ A list of bugs we shipped at least once each. Do not repeat them.
 
 ---
 
-## 19. Operating rhythm + escalation
+## 21. Operating rhythm + escalation
 
 ### Daily rhythm
 
@@ -1840,7 +2251,7 @@ Never let agents run silently. Never hide problems.
 
 ---
 
-## 20. Optional integrations
+## 22. Optional integrations
 
 ### 20.1 Linear (optional project management)
 
@@ -1889,7 +2300,545 @@ contract in K11.
 
 ---
 
-## 21. Templates
+## 23. Toolchain setup
+
+### 23.1 Reference harness: Claude Code
+
+This playbook was developed with Claude Code (Anthropic's CLI agent
+harness) as the orchestration layer. Other harnesses work with
+porting notes — see §23.6.
+
+### 23.2 Claude Code project files
+
+Required files in every project using this playbook:
+
+| Path | Purpose | Gitignore? |
+|---|---|---|
+| `.claude/CLAUDE.md` | global project rules (§27 template) | committed |
+| `.claude/agents/<name>.md` | reusable sub-agent definitions (§24) | committed |
+| `.claude/agent-status.md` | per-session state | gitignored |
+| `.claude/known-issues.md` | pre-existing failure log | committed |
+| `.claude/settings.json` | permissions, hooks, model defaults | committed |
+| `.claude/settings.local.json` | per-developer overrides | gitignored |
+| `.claude/commands/<name>.md` | slash-command definitions | committed |
+
+### 23.3 Agent dispatch patterns
+
+Three execution modes:
+
+| Mode | When to use | Cost vs latency |
+|---|---|---|
+| **Foreground** | Next step depends on output | Sequential; full latency |
+| **Background** | Multiple independent agents in parallel | Parallel; same total cost; lower wall-clock |
+| **Self-contained** | Pure code-gen with no orchestrator return | Lowest overhead |
+
+Rule of thumb: if you can dispatch 3+ agents in parallel, do so.
+Wave-2 reviews (security + finance + qa + a11y) MUST run in parallel
+— that's the entire point of independence.
+
+### 23.4 CI/CD pipeline shape
+
+Required stages on every PR:
+
+```yaml
+1. install              # cached dependency install
+2. typecheck            # parallel per app/package
+3. lint                 # parallel per app/package
+4. test:unit            # fast, no DB
+5. test:integration     # ephemeral DB / mocked
+6. build                # production build per surface
+7. test:e2e             # against built artifacts (Playwright)
+8. perf-budget          # Lighthouse CI; CWV per K10 NFR
+9. bundle-size          # size-limit; per-route budgets
+10. visual-regression   # Chromatic / Percy if used
+11. drift-tests         # all 6 guardrails (§16)
+```
+
+Required deploy stages:
+
+```
+- Merge to `main`        → auto-deploy to staging
+- Tag `vX.Y.Z`           → manual-approval deploy to production
+- Hot-fix branch         → cherry-pick to release branch + re-tag
+```
+
+Branch protection (mandatory):
+- ≥1 review on every PR
+- All stages green
+- Linear history (rebase or squash; no merge commits)
+- Signed commits if compliance requires
+- No force-push to `main`
+
+Performance budgets enforced in CI (per K10 NFR):
+- Lighthouse: LCP target, INP target, CLS target — fail PR on regression
+- Bundle: per-route size-limit budgets — fail PR on regression
+- Visual: Chromatic snapshot diffs — manual approval if intentional
+
+### 23.5 MCP servers (optional integrations)
+
+Model Context Protocol servers extend agent capabilities:
+
+| Server | What it adds | When valuable |
+|---|---|---|
+| **Linear** | Issue read/write from agents | When using Linear (§22) |
+| **GitHub** | PR / issue / Actions context | Always recommended |
+| **Sentry** | Error context for /fix dispatches | Once in production |
+| **Postgres / Supabase** | Schema introspection for /spec | Backend-heavy projects |
+| **Notion / Confluence** | External doc reading | If team docs live there |
+| **Browser** | Live page snapshot for /code-review | Per-project judgment |
+
+### 23.6 Porting to other harnesses
+
+If using Cursor / Aider / Continue / custom harness:
+
+- **`.claude/CLAUDE.md`** maps to `cursor.json` rules / `.aider.conf.yml`
+  / your harness's equivalent. Content stays identical.
+- **Sub-agent definitions** map to: Cursor "rules per directory",
+  Aider "Aiders for specific tasks", or a custom dispatcher.
+- **Background agents** require harness support; if absent, dispatch
+  sequentially and accept higher wall-clock.
+- **Slash commands** map to: Cursor commands, Aider chat shortcuts,
+  or custom CLI scripts.
+
+The playbook's content (specs, K-docs, drift tests, L-tag protocol)
+is harness-agnostic. Only the agent-dispatch mechanics differ.
+
+### 23.7 Observability of the dev process itself
+
+Track these metrics weekly (orchestrator aggregates from agent reports):
+
+- Specs landed per week (target: 1-3)
+- Wave-2 catches per spec (target: ≥2 P1 findings — fewer = reviews
+  are too soft; more than 8 = spec quality is degrading)
+- Mean-time-to-fix on drift findings (target: ≤7 days for P1)
+- Agent token spend per feature (track outliers >$50)
+- Drift-test baselines: should SHRINK over time
+- Pre-existing failure budget usage (target: ≤5)
+
+If the trend is wrong, adjust the system — usually means stricter
+prompts, more guardrail tests, or better wave-2 prompt templates.
+
+---
+
+## 24. Agent prompt management
+
+Prompts ARE source code. Treat them with the same discipline.
+
+### 24.1 Where prompts live
+
+```
+.claude/
+├── agents/
+│   ├── security-reviewer.md       # reusable agent definition
+│   ├── finance-reviewer.md
+│   ├── qa-planner.md
+│   ├── a11y-reviewer.md
+│   ├── /spec.md
+│   ├── /implement.md
+│   ├── /research.md
+│   └── ...
+└── commands/
+    ├── kickoff.md                 # slash-command for Phase 0
+    ├── wave-2.md                  # dispatch wave-2 reviews
+    ├── drift-audit.md
+    └── ...
+```
+
+### 24.2 Agent definition format
+
+Every reusable agent has a definition file with this frontmatter:
+
+```yaml
+---
+name: <agent-name>
+description: <one-line trigger description; what the agent does>
+model: opus | sonnet | haiku
+tools: [Read, Edit, Bash, ...]    # restricted toolset
+version: <semver>
+owners: [orchestrator]
+last_reviewed: <YYYY-MM-DD>
+---
+
+# <Agent Name>
+
+## Role
+<one paragraph: what role this agent plays in the pipeline>
+
+## When to use
+<bullet list of triggers>
+
+## When NOT to use
+<bullet list of anti-triggers — equally important>
+
+## Reading list
+<files / specs / docs the agent must read first>
+
+## Output format
+<exact shape of the agent's output — markdown sections, file paths>
+
+## Hard rules
+<numbered list of non-negotiables>
+
+## Examples
+<1-3 worked examples of good output>
+```
+
+### 24.3 Authoring rules
+
+- **Every reusable agent has a definition file.** Ad-hoc dispatches
+  are fine for one-offs; recurring agents must be defined.
+- **Definitions are reviewed like code.** Changes go through PR.
+- **Restricted toolsets matter.** Don't give a research agent `Edit`
+  / `Write`. Don't give a code-reviewer `Bash` (read-only is enough).
+- **Prompts cite docs by reference.** "Read CLAUDE.md §17" — not a
+  copy-paste. Single source of truth.
+
+### 24.4 Versioning
+
+- Prompts use semver in frontmatter
+- **Major bump** for behavior change (changes outputs in incompatible ways)
+- **Minor bump** for clarification / new section / better rule
+- **Patch bump** for typos / formatting
+- Changelog at top of file
+
+### 24.5 Banned in prompts
+
+| Pattern | Why banned |
+|---|---|
+| "Try your best" / "do what you can" | vague; produces vague output |
+| Open-ended "anything else" without bounds | scope creep |
+| "Just rewrite this" | no acceptance criteria |
+| Quote-stripping the original task | loses nuance |
+| Personal info / API keys hardcoded | security; use env vars |
+| Pleas / threats / "this is critical" theatrics | doesn't help; specify hard rules instead |
+
+### 24.6 Prompt sharing across projects
+
+For organizations running multiple projects with this playbook:
+
+- **Generic prompts** (e.g., `code-reviewer`, `qa-planner`,
+  `accessibility-auditor`) live in a shared `@<scope>/agentic-prompts`
+  package
+- **Project-specific prompts** (with K-doc / spec references) stay
+  local in `.claude/agents/`
+- Imports via `@<scope>/agentic-prompts/code-reviewer` (or
+  symlink / copy on bootstrap)
+
+### 24.7 Prompt regression testing
+
+Critical agents (security-reviewer, finance-reviewer, integrator)
+get a fixture-based regression suite:
+
+- Known-good spec inputs → expected review outputs
+- Run quarterly against the latest prompt version
+- Output diff reviewed; intentional changes update fixtures
+
+This catches prompt drift — when a "minor wording fix" silently
+changes the agent's output shape.
+
+---
+
+## 25. Working with agents
+
+The human-agent handshake. Most engineers don't intuitively trust
+agents. The first month is the adjustment. This section is the
+practical guide.
+
+### 25.1 The trust-but-verify loop
+
+After every agent dispatch:
+
+1. **Read the agent's report critically.** Don't skim. The
+   summary often glosses over what actually changed.
+2. **Run the gates yourself before accepting.** Typecheck. Tests.
+   Drift tests. Don't trust the agent's "all green."
+3. **Spot-check the diff.** `git diff` the agent's changes. Does it
+   match what the agent claimed? Are there sneaky scope expansions?
+4. **If anything's off, comment in `agent-status.md`** and
+   course-correct. Don't relaunch silently.
+
+### 25.2 Reading agent reports critically
+
+**Red flags** (be suspicious):
+
+- "All tests pass" — verify yourself
+- "No regressions" — run drift tests yourself
+- Wide changes for a narrow task — agent may have over-reached
+- Files mentioned in the spec but missing from the diff
+- Suspiciously short reports for big tasks
+- Vague success language ("looks good", "should work")
+- Agent claims to have done X but no commit/edit shows it
+
+**Green flags** (probably solid):
+
+- Specific file:line citations
+- Test counts before/after
+- Honest note of pre-existing failures encountered
+- Acknowledged decisions / tradeoffs explicitly
+- Concrete cost (token count, time)
+- Caveats about what wasn't done
+
+### 25.3 When to override an agent
+
+| Situation | Override |
+|---|---|
+| Agent's recommendation conflicts with K-doc / D01 / spec L-tag | Override; spec wins |
+| Agent missed an obvious case | Don't relaunch; fix yourself + document why |
+| Agent kept retrying on a bad approach | Stop, redirect, escalate |
+| Agent is "done" but didn't run gates | Reject; rerun until gates pass |
+| Agent introduced new tech without spec approval | Reject; revert; require spec |
+
+### 25.4 Communicating overrides to the next agent
+
+When you override an agent, the next agent in the pipeline must know:
+
+- Note in `agent-status.md` under "Handoff Notes"
+- Cite the override + reason
+- Next agent's prompt includes "see handoff: <X>"
+
+Never silent overrides — they confuse downstream agents.
+
+### 25.5 Onboarding a new human engineer
+
+For a human joining the project:
+
+| Day | Activity |
+|---|---|
+| 1 | Read CLAUDE.md + this playbook end-to-end (~3-4 hours) |
+| 1-2 | Read K00, K03, K06, K12, D01 (the highest-leverage K-docs) |
+| 2 | Shadow the orchestrator on a real feature dispatch |
+| 3 | Dispatch your first agent (small scope, supervised) |
+| Week 1 | No production-bound agent dispatches alone |
+| Week 2 | Independent on small features; supervised on critical |
+| Month 1 | Full autonomy |
+
+### 25.6 When agents disagree
+
+| Disagreement | Resolution |
+|---|---|
+| Two reviewers disagree | Integrator merges; cite both; justify pick |
+| Reviewer disagrees with spec | Spec wins; reviewer escalates |
+| Spec disagrees with code | Spec is source of truth; code fixes |
+| User disagrees with agent | User wins; document the override |
+| Orchestrator disagrees with user | Surface tradeoff; user decides |
+
+### 25.7 When the user disagrees with the orchestrator
+
+The user is always right about WHAT to build. The orchestrator is
+right about HOW (process, gates, discipline). When these collide,
+the orchestrator surfaces the tradeoff and lets the user decide
+explicitly:
+
+```
+[OVERRIDE NEEDED]
+You want: <X>
+Process says: <Y> because <reason>
+Tradeoff: skipping <process> means <consequence>
+Your call?
+```
+
+If the user says "skip" — skip, but log it in `agent-status.md`
+as a deliberate process exception. If the same exception happens
+3 times, the process probably needs updating.
+
+### 25.8 Anti-patterns (human side)
+
+- Dispatching without reading the spec yourself first
+- Accepting an agent's "I did it" without verifying
+- Skipping wave-2 to save time
+- Letting the orchestrator skip the production-grade checklist
+- Treating drift-test failures as suggestions
+- Not committing at phase boundaries (work spans sessions, gets lost)
+- Editing committed specs without bumping version + changelog
+- Re-running an agent that already failed without changing the prompt
+
+### 25.9 The cultural shift
+
+The system rewards a specific cultural posture:
+
+- **Spec discipline > velocity.** Slowing down to write a good spec
+  is faster than coding fast and reworking.
+- **Independence > consensus.** Reviewers disagreeing is the system
+  working. Force-merging is the system failing.
+- **Static enforcement > human discipline.** If you keep catching the
+  same bug class, write a test. Don't ask people to be more careful.
+- **Honesty > optics.** "We skipped wave-2 to ship faster" is better
+  than "we shipped on time" without saying how.
+
+If the team can't internalize these, the playbook won't deliver
+its value.
+
+---
+
+## 26. Post-launch operations
+
+Phases 0-2 cover building. This section covers running.
+
+### 26.1 Observability stack (required from day 1 of production)
+
+| Layer | Recommended | Lock in |
+|---|---|---|
+| Error tracking | Sentry / Rollbar / Bugsnag | K06 |
+| Metrics | Prometheus + Grafana / Datadog / Honeycomb | K06 |
+| Logs | Structured JSON; aggregated (Datadog / Loki / CloudWatch) | K06 |
+| Traces | OpenTelemetry; sampling per K10 NFR | K06 |
+| Real User Monitoring | Sentry / Datadog RUM / Vercel Analytics | K06 |
+| Uptime monitoring | Pingdom / Better Stack / UptimeRobot | K06 |
+
+### 26.2 Required dashboards
+
+1. **Health**: error rate, p95 latency, uptime, queue depth, alarm count
+2. **Business**: signups, activations, key conversion event, churn
+3. **Money** (if SaaS): MRR, ARR, refund rate, payment failure rate
+4. **Per-module**: per-spec health (events emitted, RBAC denials, drift findings)
+
+### 26.3 On-call
+
+- Rotation defined (1-week shifts typical for small teams)
+- Pager (PagerDuty / Opsgenie / Better Stack)
+- Escalation policy: L1 (on-call) → L2 (lead) → owner → CTO
+- Quiet hours respected (except SEV-1)
+- Compensation policy clear (paid? extra time off?)
+
+### 26.4 Incident response
+
+**SEV taxonomy**:
+
+| SEV | Definition | Response time | Communication |
+|---|---|---|---|
+| SEV-1 | Production down for >50% of users | 15 min | Status page + customer email |
+| SEV-2 | Major feature broken / partial outage | 1 hr | Status page |
+| SEV-3 | Minor feature broken / slow | 4 hrs | None public |
+| SEV-4 | Cosmetic / no user impact | Next business day | None |
+
+Per SEV:
+- Runbook for known failure modes
+- Status page (Statuspage / own) for SEV-1/2
+- Customer comms cadence per SEV
+- Post-mortem mandatory for SEV-1/2; optional for SEV-3+
+
+### 26.5 Post-mortem requirements
+
+Within 5 business days of resolution:
+
+- Authored by on-call + reviewed by 2 humans
+- Filed at `specs/post-mortems/YYYY-MM-DD-<incident>.md`
+- Template includes: timeline, root cause (5-whys), what went well,
+  what went wrong, action items
+- Blameless tone (no individual blame; system improvements)
+- Action items tracked as deferred items (DEF-OPS-N)
+- Quarterly review of post-mortem trends
+
+### 26.6 Release operations
+
+- Tag releases via semver (`vMAJOR.MINOR.PATCH`)
+- Auto-generated release notes (`changelog-author` agent)
+- Deployment checklist (§23.4)
+- Rollback procedure documented per release type:
+  - Code-only: revert + redeploy
+  - Database migration: tested down() in staging; documented
+  - Both: code revert THEN migration revert (order matters)
+- Feature flag kill-switch ready for new feature rollouts
+
+### 26.7 Dependency hygiene
+
+- **Renovate** or **Dependabot** configured
+- Security advisories: auto-PR for patches; manual review for majors
+- Deprecation tracking: any deprecated dep → issue with sunset date
+- License compliance: `license-checker` in CI; banned licenses fail
+- Quarterly review of `package.json` for unused deps
+
+### 26.8 Performance budget enforcement
+
+Per K10 NFR targets:
+
+- **Lighthouse CI** on every PR for public surfaces
+- **Bundle size**: `size-limit` per route; PR fails on regression
+- **Performance regression**: any 10%+ drop on Core Web Vitals fails CI
+- **Server-side**: p95 latency tracked per route; alarms at 2× SLA
+
+### 26.9 Security ops
+
+- **Quarterly security audit** (security-auditor agent + human review)
+- **SBOM generation** per release
+- **Penetration test** before public launch + annually after
+- **Vulnerability disclosure program** (`security@<domain>` mailbox)
+- **Secret rotation** quarterly (or per-incident if leaked)
+- **Security headers** verified in CI (CSP, HSTS, X-Frame-Options, etc.)
+
+### 26.10 Customer support / help docs
+
+Post-launch needs:
+
+- Help center / knowledge base (HelpScout / Intercom / own)
+- In-app help (tooltip + "?" links)
+- Searchable FAQ
+- Authored by `content-strategist` agent + human review
+- Reviewed quarterly for accuracy
+- Updated proactively on every shipped feature (changelog-author
+  agent drafts customer-facing release notes)
+
+### 26.11 Migration / rollback strategy (feature-level)
+
+When a feature ships and goes wrong post-launch:
+
+1. **Kill switch**: feature flag (§15.6) flipped to OFF
+2. **Code revert**: if flag isn't enough, revert + redeploy
+3. **Migration revert**: if data shape changed, run migration `down()`
+4. **Communication**: customer-facing comms per SEV
+5. **Post-mortem**: filed within 5 business days
+
+Mandatory: every shipped feature is reversible within 1 hour of
+incident detection. If it isn't, the spec didn't take rollback
+seriously enough — fix in next iteration.
+
+### 26.12 i18n beyond fallback
+
+If the project ships in multiple languages:
+
+- **RTL support** if any locale is RTL (Arabic, Hebrew, Urdu) — every
+  layout tested in RTL mode
+- **Plural rules**: ICU MessageFormat or equivalent (English's
+  one/other doesn't generalize)
+- **Date / number / currency**: locale-specific via Intl.* APIs
+- **Imagery**: locale-aware where culturally significant
+- **Audit**: per-locale completeness test (already in §16) catches
+  missing keys; quality of translation needs human review per locale
+
+### 26.13 Mobile-specific track (when applicable)
+
+If the project includes a mobile app (RN, Expo, native):
+
+- D01 design system extends with mobile-specific tokens (touch
+  targets, safe areas, gesture zones)
+- Mobile-specific guardrails (no fixed layouts; safe-area-aware)
+- Per-platform release process (App Store + Play Store)
+- TestFlight / Play Console internal testing rotation
+- Crash reporting (Sentry mobile, Firebase Crashlytics)
+
+### 26.14 Customer support escalation to dev
+
+- Tier-1 support → Tier-2 → engineering
+- Engineering tickets filed as `bug` issues with reproduction steps
+- Bugs above P2 severity get a `/fix` agent dispatch
+- Bug-fix discipline: write a regression test FIRST; fix second
+  (so the bug never recurs)
+
+### 26.15 Quarterly review
+
+Every quarter, the orchestrator runs:
+
+- All cross-cutting auditors (perf, a11y, SEO, security, brand-voice)
+  across all surfaces
+- Drift audit per active module
+- Post-mortem trend review (recurring patterns?)
+- Cost review (per-feature spend trending up/down?)
+- Spec coverage audit (every shipped feature has a spec?)
+- Output: `specs/architecture/quarterly-review-<Q>-<year>.md`
+
+---
+
+## 27. Templates
 
 ### `CLAUDE.md` skeleton
 
@@ -2186,6 +3135,262 @@ alternative is worse.
 
 ---
 
+## Appendix C — Patterns library
+
+Common micro-decisions codified. Cite by pattern ID in specs to avoid
+re-deciding the same thing every time.
+
+### PATTERN-PAGINATION
+
+Always cursor-based, never offset. Cursor format: opaque base64
+encoding `{ id, sortKey }`. Page size capped at 100; default 25.
+Returns `{ items, nextCursor | null }`.
+
+**Why cursor over offset**: offset breaks under inserts during
+pagination (user sees the same item twice or skips one); cursors are
+stable.
+
+### PATTERN-TIME
+
+- **Storage**: ISO 8601 UTC strings (`z.string().datetime()`)
+- **Display**: locale-aware via `Intl.DateTimeFormat`
+- **Comparisons**: always parse to `Date` object first; never
+  string-compare ISO timestamps for ordering across timezones
+- **Banned**: Unix timestamps in user-facing fields, mixing timezones
+  in storage, "current time" inputs in tests (use injected clocks)
+
+### PATTERN-MONEY
+
+- **Storage**: smallest currency unit as integer (paise / cents)
+- **Display**: locale-aware via `Intl.NumberFormat` with currency
+- **Math**: never use floating-point for currency
+- **Schema**: `amount: z.number().int().nonnegative(), currency: z.string().length(3)`
+- **Rounding**: round to smallest unit at every operation; document
+  rounding direction (banker's rounding by default)
+
+### PATTERN-PHONE
+
+- **Storage**: E.164 format (`+919876543210`)
+- **Display**: locale-aware via `libphonenumber-js`
+- **Validation**: against country code, not regex
+- **Masking**: last-4 by default for low-rank viewers
+
+### PATTERN-ADDRESS
+
+- **Country-specific shape** — don't normalize to a single global
+  schema (postal code rules vary; states/regions vary)
+- **Per-country**: `address_line_1`, `address_line_2`, `city`,
+  `region/state`, `postal_code`, `country` (ISO 3166-1 alpha-2)
+- **India**: include `landmark` field (cultural norm — used for
+  delivery)
+- **Validation**: country code first, then country-specific format
+
+### PATTERN-NAMES
+
+- **Single name field by default** — many cultures don't split
+  first/last
+- **Two fields ONLY if business need** (immigration, KYC, formal docs)
+- **Display as entered** — don't auto-capitalize / normalize
+- **Sort key**: separate optional field if alphabetical sort matters
+
+### PATTERN-EMAIL
+
+- **Validation**: valid format check, not deliverability (verification
+  flow handles deliverability)
+- **Comparison**: case-insensitive (lowercased on storage)
+- **Storage**: lowercased canonical form; display as entered if needed
+- **Banned**: rejecting `+` aliases (`user+tag@domain.com`) — they
+  are valid
+
+### PATTERN-LIST-FILTERING
+
+- **Server-side filtering** for >50 items
+- **URL-driven filter state** (`?status=active&outlet=BLR`)
+- **Filter chips** clearable individually + "Clear all"
+- **Empty state per filter combination** — different copy for "no
+  results" vs "no data"
+- **Result count** displayed (e.g., "12 of 145")
+
+### PATTERN-FORM-VALIDATION
+
+- **Zod schema** on both client + server (shared in `packages/types`)
+- **Inline errors** below field, not in toast
+- **Submit button disabled** while invalid OR submitting
+- **Submit button shows loading state** during async (spinner +
+  "Saving…")
+- **Validation timing**: on blur for individual fields; on submit
+  for cross-field
+
+### PATTERN-CONFIRMATION
+
+| Action type | Pattern |
+|---|---|
+| Routine (save, update) | No confirmation needed |
+| Destructive (soft-delete) | Simple "Confirm?" dialog |
+| Permanent (hard-delete, anonymize) | Type-to-confirm string ("DELETE") |
+| Catastrophic (purge tenant) | Type-to-confirm + 24h cooling-off period |
+
+### PATTERN-RATE-LIMITING
+
+- **Auth routes**: 5 attempts / 15 min per IP
+- **API routes**: per K10 NFR (typically 100/15min unauth, 1000/15min auth)
+- **429 response**: includes `Retry-After` header
+- **UI**: countdown timer when blocked; never silent ignore
+
+### PATTERN-FEATURE-DETECTION
+
+- **Feature flags**: via §15.6
+- **Browser features**: feature-detection (`'IntersectionObserver' in window`),
+  not user-agent sniffing
+- **Network**: `navigator.connection` for slow-network optimizations
+
+### PATTERN-OFFLINE-HANDLING
+
+- **Service worker** for static assets
+- **Pending mutations queue** (IndexedDB)
+- **Online/offline indicator** in UI
+- **Sync on reconnect** with conflict resolution (last-write-wins by
+  default; CRDT for collaborative)
+
+### PATTERN-LOADING-STATES
+
+- **Skeleton** on first load (matches actual content shape)
+- **Spinner** for short waits (<3s)
+- **Progress bar** for long operations (>3s; percentage if known)
+- **Optimistic UI** for mutations with rollback path
+
+### PATTERN-ERROR-RECOVERY
+
+- **Retry button** on every error
+- **"Report this" link** to error tracking
+- **Friendly error messages** — never raw stack traces
+- **Preserve user input** on error (don't lose form data)
+
+### PATTERN-SEARCH
+
+- **Debounced input** (250ms)
+- **Clear button** when input non-empty
+- **Empty state** per query ("No deals matching 'foo'")
+- **Suggestions / history** if available
+- **Server-side** for >100 items; client-side filter for <100
+
+### PATTERN-MULTI-TENANT
+
+- **Tenant ID on every request** (header / subdomain / path)
+- **RLS at database level**, not just app
+- **No cross-tenant queries possible** by construction
+- **Tenant ID in audit logs**
+- **Tenant deletion**: cascading hard-delete with retention override
+
+### PATTERN-WEBHOOKS
+
+(Inbound — receiving from third parties.)
+
+- **Signature verification mandatory** (HMAC + provider secret)
+- **Idempotency keys** (`Idempotency-Key` header or provider event id)
+- **Replay protection** (timestamp tolerance ±5 min)
+- **Retry policy**: exponential backoff, max 24 hours
+- **DLQ** visible in admin dashboard
+- **3-second response** budget; queue async work
+
+### PATTERN-API-VERSIONING
+
+- **URL-path versioning** (`/v1/`, `/v2/`)
+- **Deprecation**: 180-day notice in response headers (`Sunset`,
+  `Deprecation`)
+- **Client migration guide** per breaking change
+- **Banned**: silent breaking changes within a major version
+
+### PATTERN-AUDIT-LOG
+
+Every audit log entry includes:
+
+```ts
+{
+  id: string,
+  actorId: string,
+  actorRole: string,           // per QA #5 lesson — not just employeeId
+  action: string,              // 'created' | 'updated' | 'deleted' | ...
+  entityType: string,          // 'JobCard' | 'Customer' | ...
+  entityId: string,
+  at: ISO datetime,
+  context?: Record<string, scalar>,  // ids, counts, lengths — NEVER raw PII
+}
+```
+
+Banned: PII text, free-form field bodies, customer-quoted text in
+context.
+
+### PATTERN-PII-MASKING
+
+| Field | Default display | High-rank display | Banned |
+|---|---|---|---|
+| PAN | `XXXXX1234` (last 4) | full | full to low-rank |
+| Aadhaar | `XXXX-XXXX-1234` (last 4) | last 4 only (NEVER full per DPDP §17) | full anywhere |
+| Phone | `+91-XXXX-XX1234` | full | full in logs |
+| Email | `f***@domain.com` | full | full in logs |
+| Address | city + region only | full | full in non-essential surfaces |
+
+### PATTERN-NOTIFICATION-OPT-OUT
+
+- One-click unsubscribe (CAN-SPAM, GDPR, DPDP)
+- Preference center (granular per channel + purpose)
+- Audit every opt-in / opt-out change
+- Suppression list honored across all channels (opt-out from email
+  also stops marketing SMS unless explicitly granted)
+
+### PATTERN-QUEUE-RETRY
+
+- Idempotency key on every job
+- Exponential backoff: 1m, 5m, 15m, 1h, 4h, 12h, 24h
+- Max retries: 5 for transient errors; 1 for 4xx errors
+- DLQ after max retries; alert + admin visibility
+- Job logs structured: queued / started / succeeded / failed / dead
+
+### PATTERN-FILE-UPLOAD
+
+- Client-side validation (size, mime) before upload
+- Server-side validation (re-check size, mime, content sniffing)
+- Storage: signed URLs (S3 / GCS) — never base64 in DB except for
+  small icons
+- Antivirus scan if user-uploadable to other users
+- Rate limit per user
+- EXIF stripping for images (privacy)
+
+### PATTERN-MIGRATION-ROLLOUT
+
+For schema changes that need data backfill:
+
+1. Deploy new schema (additive — old code still works)
+2. Deploy code that writes to BOTH old + new fields
+3. Backfill old data into new fields (separate migration)
+4. Deploy code that reads from new field
+5. Deploy code that stops writing to old field
+6. Wait observability period (7 days minimum)
+7. Drop old field
+
+Five separate deploys minimum for any non-trivial schema change.
+
+### PATTERN-API-ERROR-SHAPE
+
+Every API error response uses the same shape:
+
+```ts
+{
+  error: {
+    code: string,          // 'VALIDATION_FAILED' | 'UNAUTHORIZED' | ...
+    message: string,        // human-readable
+    details?: unknown,      // structured per error code
+    requestId: string,      // correlation with logs
+  }
+}
+```
+
+Never variable shapes; never plain string error messages; never
+expose stack traces.
+
+---
+
 *Last updated: 2026-05-08*
 *Maintained by: project orchestrator*
-*Length: ~3,000 lines covering Phase 0 → Phase 2+ lifecycle, 48 agents, locked design system rules, and full SEO/brand/a11y/perf reviewer integration.*
+*Length: ~3,700 lines covering Phase 0 → Phase 2+ lifecycle, 52 agents, locked design system rules, full SEO/brand/a11y/perf/privacy/backend reviewer integration, toolchain setup, prompt management, human-agent handshake, post-launch operations, and a 24-pattern micro-decision library.*
