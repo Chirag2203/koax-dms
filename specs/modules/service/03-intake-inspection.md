@@ -2,7 +2,7 @@
 spec_id: SPEC-SERVICE-INTAKE-001
 domain: service
 title: Vehicle Intake Inspection Sheet (SA walk-around at JC creation)
-version: 1.1
+version: 1.1.1
 status: approved
 risk_level: medium
 pii_sensitivity: medium
@@ -582,7 +582,7 @@ A merge of this spec's implementation cannot proceed until ALL of the following 
 | SC-8b | AC-8b | `intake-inspection-flow.test.ts` + `intake-rbac.test.ts` (R19 "Confirm anyway" + `intake_skipped` audit) |
 | SC-9 | AC-9 | `intake-inspection.test.ts` (`amendIntake`) |
 | SC-10 | AC-10 | `intake-rbac.test.ts` |
-| SC-11 | AC-11 | `cross-aggregate-consistency.test.ts` |
+| SC-11 | AC-11 | `intake-inspection-flow.test.ts:334` (cross-aggregate VIN + outletId + jobCardId consistency) |
 | SC-12 | AC-12 | `intake-rbac.test.ts`; `intake-summary-card.test.tsx` |
 | SC-13 | AC-13 | `intake-inspection.test.ts` (`retainUntil` calculation) |
 | SC-14 | AC-14 | `intake-rbac.test.ts` |
@@ -600,4 +600,5 @@ A merge of this spec's implementation cannot proceed until ALL of the following 
 |---|---|---|---|
 | 2026-05-07 | 0.1 | /spec (integrator) | Initial draft. Mints L1–L11 from PLAN-SERVICE-INTAKE-001 §L-tag summary; 14 scenarios; 15 ACs; cross-aggregate consistency contract (§8) per user binding direction. Status: `draft` pending wave-2 reviewer signoff (security, qa) on the 7 open questions in §15. |
 | 2026-05-07 | 1.1 | /spec (integrator) | **Wave-2 review integration.** Resolved Sec blockers B1 (§13.1 expanded to DPDP §6-compliant notice with DPO contact `dpo@bnautos.in`), B2 (minted **L12** PDF Route Handler hardening contract + SC-15 + AC-16 + `intake_pdf_downloaded` telemetry), B3 (minted **L13** DPDP §17 erasure carve-out + SC-16 + AC-17 + §13.5 + `selectIntakesByCustomerId` selector). Resolved QA blockers B4 (split SC-8 → SC-8a/SC-8b + AC-8a/AC-8b + traceability rows), B5 (added §19.1 Quality gates: typecheck/drift/i18n/lint/guardrails/bundle), B6 (added SC-17 illegal DRAFT → SHEET_UPLOADED transition + AC-18). Minted **L14** photos `pii_sensitivity: medium` + PDF MUST NOT embed photo dataUrls (Sec #6); **L15** mock-phase signature integrity caveat + §13.6 (Sec #7); **L16** post-COMPLETED snapshot immutability + SC-18 + AC-19 (Sec #8); tightened **L8** with explicit redaction list excluding `customerSignatureDataUrl`/`saSignatureDataUrl`/photo dataUrl from `beforeJson`/`afterJson` (Sec #5). Promoted §5 `rcInVehicle` + `insuranceCertInVehicle` from `z.boolean()` to `z.enum(['PRESENT','ABSENT','NOT_VERIFIED'])` (Sec #9). Added `actorRole` to `intake_recorded` + `intake_amended` payloads (QA #5); added `intake_skipped` event row + `intake_pdf_downloaded` event row (Sec #10, L12); replaced `reasonHash` with `reasonLength` (Sec #11). §19 test plan now enumerates explicit SC numbers per file (QA #7), specifies cross-aggregate fixture-mutation methodology (QA #6), and asserts PDF marker-content (QA #11). §13.1 cites `serviceIntake.consent.text` i18n key path (QA #9). §6 state machine clarifies AMENDED → AMENDED valid re-entry (QA #12). §12 R23 DPO row corrected to Read-only (Sec open Q6). §15 wave-2 resolutions block added. §16 added DEF-INTAKE-11 (DSAR pipeline), DEF-INTAKE-12 (SHA-256 digest), DEF-INTAKE-13 (re-signature on odometer amendments), DEF-INTAKE-14 (license-plate redaction). Status: `draft → approved`. Reviews acknowledged in `.security.review.md` + `.qa.review.md`. |
+| 2026-05-07 | 1.1.1 | orchestrator (W1+W2 hardening) | **§20 matrix correction.** SC-11 row corrected: `cross-aggregate-consistency.test.ts` does not exist as a separate file; SC-11 is covered by `intake-inspection-flow.test.ts:334`. Matrix row updated to point to the correct file + line. No behavioral change. |
 | _placeholder_ | 1.2 | _tbd_ | _Reserved for L9 supersession when P2 promotes soft-warn to hard-block via `state-machine.ts canTransition` (DEF-INTAKE-6). Per CLAUDE §14, L9 will be marked `[SUPERSEDED by L<new>]` and a §22 supersession section added._ |

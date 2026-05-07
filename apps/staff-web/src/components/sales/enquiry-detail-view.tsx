@@ -29,6 +29,8 @@ import { ContactDetailsPanel } from './contact-details-panel';
 import { WhatsappDialog } from './whatsapp-dialog';
 import { AiCallDialog } from './ai-call-dialog';
 import { TestDrivesForDealCard } from './test-drives-for-deal-card';
+import { useToast } from '@/src/hooks/use-toast';
+import { ToastContainer } from '@/src/components/primitives';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -202,6 +204,7 @@ export interface EnquiryDetailViewProps {
 
 export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailViewProps) {
   const router = useRouter();
+  const { toast, toasts, dismiss } = useToast();
   const [interactionFilter, setInteractionFilter] = useState<InteractionFilter>('all');
   const [showLogCall, setShowLogCall] = useState(false);
   const [showScheduleTD, setShowScheduleTD] = useState(false);
@@ -276,8 +279,15 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
 
             {/* Actions */}
             <div className="flex items-center gap-2 shrink-0 pt-1">
+              {/* W1.3: Assign Lead — DEF-SALES-N: assignment UI is coming in v1.1;
+                    currently leads are auto-routed to the on-duty SA.
+                    Per CLAUDE.md §10 DoD #15: explicit info toast, never silent. */}
               <button
                 type="button"
+                onClick={() => toast(
+                  'Lead assignment coming in v1.1 — currently leads are auto-routed to the on-duty SA.',
+                  'info',
+                )}
                 className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-line bg-bg-surface text-sm font-medium text-ink-primary hover:bg-bg-subtle transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
               >
                 Assign Lead
@@ -583,6 +593,8 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
         vehicleName={dealData.vehicleName}
         onCallLogged={handleInteractionSaved}
       />
+      {/* W1.3: toast container for info/error feedback in this view */}
+      <ToastContainer toasts={toasts} onDismiss={dismiss} />
     </>
   );
 }

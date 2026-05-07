@@ -1900,8 +1900,10 @@ export const useServiceStore = create<ServiceStore>()(
       },
 
       recordIntakeSkipped(jobCardId, reason, actor) {
-        // Sec #10: only R03/R19/R24 can skip intake
-        const ALLOWED_SKIP_ROLES = new Set(['R03', 'R19', 'R24']);
+        // W1.2 fix (per spec L9 / SC-8b): R19/R24 ONLY — R03 removed.
+        // L9: "R19+ confirm-anyway override". SC-8b: "R19". R03 was incorrectly
+        // in the prior list; corrected here and in canSkip UI check.
+        const ALLOWED_SKIP_ROLES = new Set(['R19', 'R24']);
         if (!ALLOWED_SKIP_ROLES.has(actor.role)) {
           return { ok: false, error: 'UNAUTHORIZED' };
         }

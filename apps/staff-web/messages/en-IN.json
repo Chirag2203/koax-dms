@@ -2246,6 +2246,16 @@
     },
     "deferred": {
       "emailCopy": "Customer email copy coming in v1.1"
+    },
+    "skip": {
+      "dialogTitle": "Skip Intake Inspection",
+      "warningBody": "Skipping intake means this vehicle has no condition record at handover. The customer may dispute pre-existing damage later. This action is logged with your name and reason.",
+      "reasonLabel": "Reason for skipping (required, minimum 20 characters)",
+      "reasonPlaceholder": "Describe why intake is being skipped (e.g. customer drop-off without SA present, collection service authorised by GM)...",
+      "reasonCharCount": "{count} / 20 characters minimum",
+      "cancelButton": "Cancel",
+      "confirmButton": "Confirm Skip",
+      "confirmButtonDisabledTitle": "Reason must be at least 20 characters"
     }
   }
 }

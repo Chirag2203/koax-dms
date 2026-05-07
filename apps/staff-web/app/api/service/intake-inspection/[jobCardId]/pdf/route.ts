@@ -78,21 +78,43 @@ const ALLOWED_ORIGINS = new Set([
   'https://staff.bnautos.in',
 ]);
 
-// ── Stub session reader (v1 mock — real auth in v1.5 per L12-a comment) ──────
+// ── Session reader (v1 mock-phase: header-based; v1.5 backend: real session via auth provider) ──
+//
+// v1 mock-phase pattern: the staff-web shell injects the current viewer as JSON
+// via the `x-staff-session` request header on every fetch() that originates
+// from a client component. This header replaces the hardcoded R09 stub so that
+// the L12 RBAC + outlet-isolation checks (SC-6, SC-14) fire for real users.
+//
+// v1.5 real-auth upgrade path: replace this function body with a JWT/session-
+// cookie validation call to the auth-service. The call signature is unchanged.
 
-function getStaffSession(_req: NextRequest): StaffSession {
-  // v1 mock-phase stub: returns a mock R09 SA session.
-  // Real implementation reads JWT/session cookie and validates with auth-service.
-  // MUST be the FIRST thing checked per L12-a contract.
-  return {
-    user: {
-      id: 'staff-r09-001',
-      name: 'Priya Sharma',
-      role: 'R09',
-      outletId: 'BLR-01',
-      employeeId: 'EMP-R09-001',
-    },
-  };
+function getStaffSession(req: NextRequest): StaffSession | null {
+  const raw = req.headers.get('x-staff-session');
+  if (!raw) return null;
+
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any -- reason: runtime JSON from trusted shell header
+    const parsed = JSON.parse(raw) as any;
+    if (
+      typeof parsed?.id !== 'string' ||
+      typeof parsed?.role !== 'string' ||
+      typeof parsed?.outletId !== 'string' ||
+      typeof parsed?.employeeId !== 'string'
+    ) {
+      return null;
+    }
+    return {
+      user: {
+        id: parsed.id as string,
+        name: typeof parsed.name === 'string' ? parsed.name : parsed.id,
+        role: parsed.role as string,
+        outletId: parsed.outletId as string,
+        employeeId: parsed.employeeId as string,
+      },
+    };
+  } catch {
+    return null;
+  }
 }
 
 // ── Stub audit log (v1 mock — real audit store in v1.5) ───────────────────────
@@ -191,7 +213,15 @@ export async function GET(
   const { jobCardId } = params;
 
   // ── (a) Auth/session check — FIRST per L12-a ──────────────────────────────
+  // v1 mock-phase: session is read from the x-staff-session request header.
+  // Absent or malformed header → 401 Unauthorized (not 403 — identity unknown).
   const session = getStaffSession(req);
+  if (!session) {
+    return new NextResponse(
+      JSON.stringify({ error: 'Unauthorized — missing or invalid x-staff-session header' }),
+      { status: 401, headers: { 'Content-Type': 'application/json' } },
+    );
+  }
 
   // ── (b) R11 gate — per L11 / SC-6 ────────────────────────────────────────
   if (isR11(session.user.role)) {

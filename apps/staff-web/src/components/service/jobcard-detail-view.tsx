@@ -53,8 +53,65 @@ import { CommunicationsPanel } from './side-panels/communications-panel';
 import { IntakeInspectionForm } from './intake/intake-inspection-form';
 import { IntakeSummaryCard } from './intake/intake-summary-card';
 import { UploadSignedSheetDialog } from './intake/upload-signed-sheet-dialog';
+import { SkipIntakeDialog } from './intake/skip-intake-dialog';
 import { SlideInPanel } from '@/src/components/primitives/slide-in-panel';
 import { ClipboardList, Download, Upload as UploadIcon } from 'lucide-react';
+
+// ── PDF download helper (W1.1: v1 mock-phase header-based session) ─────────────
+// Sends viewer session via x-staff-session header so the route can enforce L12
+// RBAC + outlet-isolation (SC-6, SC-14). Triggers blob download client-side.
+// v1.5 upgrade: remove header injection once real session cookies are in use.
+
+// Map StaffProfile.outlet (city name) to outlet-id format used by JC data.
+const OUTLET_ID_MAP: Record<string, string> = {
+  bangalore: 'BLR-01',
+  mumbai: 'MUM-01',
+  chennai: 'CHE-01',
+  all: 'ALL',
+};
+
+async function downloadIntakePdf(
+  jobCardId: string,
+  jobNo: string,
+  viewer: { id: string; name: string; role: string; outlet: string } | null,
+  onError: (msg: string) => void,
+): Promise<void> {
+  if (!viewer) {
+    onError('Session not found — please reload and try again.');
+    return;
+  }
+  const sessionPayload = JSON.stringify({
+    id: viewer.id,
+    name: viewer.name,
+    role: viewer.role,
+    outletId: OUTLET_ID_MAP[viewer.outlet] ?? viewer.outlet,
+    employeeId: viewer.id, // v1: employeeId = staff profile id
+  });
+  try {
+    const res = await fetch(`/api/service/intake-inspection/${jobCardId}/pdf`, {
+      method: 'GET',
+      headers: { 'x-staff-session': sessionPayload },
+    });
+    if (!res.ok) {
+      const body = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+      // reason: type is unknown from JSON parse
+      onError((body as { error?: string }).error ?? `Download failed (${res.status})`);
+      return;
+    }
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `intake-${jobNo}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    console.error('[intake-pdf] download error:', err);
+    onError('Download failed — network error');
+  }
+}
 
 // ─── Messages ─────────────────────────────────────────────────────────────────
 
@@ -268,15 +325,22 @@ function IntakeTabContent({
   onSkipIntake,
 }: IntakeTabContentProps) {
   const { user } = useStaffAuth();
+  const { toast } = useToast();
+  const [skipDialogOpen, setSkipDialogOpen] = useState(false);
 
   // L9: warn banner only when JC is RECEIVED and no intake yet
   const showNoIntakeBanner = !intake && jobCard.status === 'RECEIVED';
-  // SC-8b: R19+ skip override
-  const canSkip = ['R03', 'R19', 'R24'].includes(user?.role ?? '');
+  // SC-8b / L9: R19+ ONLY can skip intake (R03 removed per spec L9 fix — W1.2)
+  const canSkip = user?.role === 'R19' || user?.role === 'R24';
 
-  function handleSkipClick() {
-    // v1 stub: reason is hardcoded for demo; real UI would prompt for reason
-    onSkipIntake('Overridden by manager — vehicle drop-off without SA present');
+  function handleDownloadPdf() {
+    // W1.1: use fetch + x-staff-session header so L12 RBAC fires for real user
+    const viewer = user
+      ? { id: user.id, name: user.name, role: user.role, outlet: user.outlet }
+      : null;
+    void downloadIntakePdf(jobCard.id, jobCard.jobNo, viewer, (err) => {
+      toast(err, 'error');
+    });
   }
 
   // ── No intake recorded yet ───────────────────────────────────────────────
@@ -318,15 +382,25 @@ function IntakeTabContent({
                 Start Intake Inspection
               </button>
             </Gate>
-            {/* SC-8b: R19+ skip override */}
+            {/* SC-8b: R19/R24 skip override — opens reason dialog (W1.2) */}
             {canSkip && (
-              <button
-                type="button"
-                onClick={handleSkipClick}
-                className="inline-flex items-center gap-1.5 h-9 px-3 rounded-md border border-line bg-bg-surface text-sm text-ink-secondary hover:text-ink-primary hover:border-ink-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-              >
-                Skip intake
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => setSkipDialogOpen(true)}
+                  className="inline-flex items-center gap-1.5 h-9 px-3 rounded-md border border-line bg-bg-surface text-sm text-ink-secondary hover:text-ink-primary hover:border-ink-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                >
+                  Skip intake
+                </button>
+                <SkipIntakeDialog
+                  open={skipDialogOpen}
+                  onClose={() => setSkipDialogOpen(false)}
+                  onConfirm={(reason) => {
+                    setSkipDialogOpen(false);
+                    onSkipIntake(reason);
+                  }}
+                />
+              </>
             )}
           </div>
         </div>
@@ -346,16 +420,16 @@ function IntakeTabContent({
             <p className="text-xs text-ink-muted mt-0.5">ID: {intake.id}</p>
           </div>
           <div className="flex items-center gap-2">
-            {/* Download sheet CTA — excludes R11 per L11 */}
+            {/* Download sheet CTA — excludes R11 per L11 / SC-6; uses fetch + header per W1.1 */}
             <Gate role={['R09', 'R03', 'R12', 'R13', 'R19', 'R22', 'R23', 'R24']} fallback="hide">
-              <a
-                href={`/api/service/intake-inspection/${jobCard.id}/pdf`}
-                download={`intake-${jobCard.jobNo}.pdf`}
+              <button
+                type="button"
+                onClick={handleDownloadPdf}
                 className="inline-flex items-center gap-1.5 h-9 px-3 rounded-md border border-line bg-bg-surface text-sm text-ink-secondary hover:text-ink-primary hover:border-ink-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
               >
                 <Download className="h-4 w-4" aria-hidden="true" />
                 Download Sheet
-              </a>
+              </button>
             </Gate>
             {/* Upload signed sheet — only valid from CUSTOMER_SIGNED */}
             {intake.state === 'CUSTOMER_SIGNED' && (
@@ -400,16 +474,16 @@ function IntakeTabContent({
           )}
         </div>
         <div className="flex items-center gap-2">
-          {/* Re-download PDF — excludes R11 */}
+          {/* Re-download PDF — excludes R11; uses fetch + header per W1.1 */}
           <Gate role={['R09', 'R03', 'R12', 'R13', 'R19', 'R22', 'R23', 'R24']} fallback="hide">
-            <a
-              href={`/api/service/intake-inspection/${jobCard.id}/pdf`}
-              download={`intake-${jobCard.jobNo}.pdf`}
+            <button
+              type="button"
+              onClick={handleDownloadPdf}
               className="inline-flex items-center gap-1.5 h-9 px-3 rounded-md border border-line bg-bg-surface text-sm text-ink-secondary hover:text-ink-primary hover:border-ink-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
             >
               <Download className="h-4 w-4" aria-hidden="true" />
               Re-download
-            </a>
+            </button>
           </Gate>
           {/* Amend — R03/R19/R24 only (L8) */}
           <Gate role={['R03', 'R19', 'R24']} fallback="hide">

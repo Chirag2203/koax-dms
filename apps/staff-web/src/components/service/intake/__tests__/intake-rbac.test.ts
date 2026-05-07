@@ -5,13 +5,18 @@
  * Covers:
  *   SC-6:  R11 cannot download PDF (route returns 403)
  *   SC-8a: soft-warn when JC=RECEIVED and no intake
- *   SC-8b: R19+ can skip intake; R09 cannot
+ *   SC-8b: R19/R24 can skip intake; R09, R11, R03 cannot (W1.2)
  *   SC-10: recordIntakeSkipped role enforcement (store-level)
  *   SC-12: R11 cannot capture customer signature
  *   SC-14: outletId mismatch → 403 for non-R19+ roles (route-level)
  *
  * Test placement: co-located with intake components (DoD §10.9 — RBAC unit tests
- *   that test store logic co-located under the relevant component directory)
+ *   that test store logic co-located under the relevant component directory).
+ *
+ * Route-level SC-6 / SC-14 tests (W1.1 header-based auth) are in
+ *   `src/tests/intake-inspection-flow.test.ts` where the route module mock
+ *   is already established (vitest cannot resolve [jobCardId] path brackets
+ *   via dynamic import; the flow test uses vi.mock hoisting which handles it).
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
@@ -90,9 +95,12 @@ describe('SPEC-SERVICE-INTAKE-001 — RBAC enforcement', () => {
       expect((result as { ok: false; error: string }).error).toBe('UNAUTHORIZED');
     });
 
-    it('R03 (Service Manager) CAN skip intake', () => {
+    it('R03 (Service Manager) CANNOT skip intake — W1.2 spec L9 fix: R19+ only', () => {
+      // L9 / SC-8b: spec states R19+ only. R03 was incorrectly included in prior
+      // implementation; store corrected in W1.2 hardening pass.
       const result = useServiceStore.getState().recordIntakeSkipped('jc-001', 'Manager override at drop-off site', ACTOR_SM);
-      expect(result.ok).toBe(true);
+      expect(result.ok).toBe(false);
+      expect((result as { ok: false; error: string }).error).toBe('UNAUTHORIZED');
     });
 
     it('R19 (GM) CAN skip intake', () => {
@@ -253,3 +261,4 @@ describe('SPEC-SERVICE-INTAKE-001 — RBAC enforcement', () => {
     });
   });
 });
+
