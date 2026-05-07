@@ -71,6 +71,7 @@ const DEAL_STAGE_LABEL: Record<DealStage, string> = {
   'delivered':  'Delivered',
   'lost':       'Lost',
   'on-hold':    'On Hold',
+  'refunded':   'Refunded',
 };
 
 const DEAL_STAGE_CHIP_CLASS: Record<DealStage, string> = {
@@ -82,6 +83,7 @@ const DEAL_STAGE_CHIP_CLASS: Record<DealStage, string> = {
   'delivered':   'bg-bg-subtle text-ink-muted border border-line',
   'lost':        'bg-state-danger/10 text-state-danger border border-state-danger/20',
   'on-hold':     'bg-bg-subtle text-ink-muted border border-line',
+  'refunded':    'bg-state-danger/10 text-state-danger border border-state-danger/20',
 };
 
 function DealStageChip({ stage }: { stage: DealStage }) {

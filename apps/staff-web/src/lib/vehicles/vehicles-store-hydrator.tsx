@@ -487,6 +487,7 @@ function buildDerivedSalesEvents(
     'sales-order': 4,
     delivered: 5,
     lost: 6,
+    refunded: 5,
   };
 
   const mostAdvancedPerVin = new Map<string, Deal>();

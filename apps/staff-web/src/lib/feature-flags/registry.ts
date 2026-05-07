@@ -192,6 +192,28 @@ export const FEATURE_FLAGS: FeatureFlagRegistryEntry[] = [
     owningSpec: 'SPEC-SETTINGS-001',
     scope: 'global',
   },
+  // W3 Sales correctness fixes (2026-05-07)
+  {
+    key: 'staff.sales.reservation-guard.v1',
+    defaultValue: true,
+    description: 'W3.1 — Concurrent reservation guard: blocks double-booking the same VIN; R19+ override path',
+    owningSpec: 'SPEC-SALES-001',
+    scope: 'global',
+  },
+  {
+    key: 'staff.sales.deal-lost-reason.v1',
+    defaultValue: true,
+    description: 'W3.2 — Deal Lost reason capture: MarkDealLostDialog intercepts drag-to-lost; structured reason stored + audit event',
+    owningSpec: 'SPEC-SALES-001',
+    scope: 'global',
+  },
+  {
+    key: 'staff.sales.refund.v1',
+    defaultValue: true,
+    description: 'W3.3 — Refund/cancellation flow: RefundDealDialog for R12+; sets stage=refunded; type-to-confirm REFUND',
+    owningSpec: 'SPEC-SALES-001',
+    scope: 'global',
+  },
 ];
 
 // ─── Runtime helper — Seam 20 ──────────────────────────────────────────────────

@@ -2,10 +2,11 @@
 spec_id: SPEC-SALES-001
 domain: sales
 title: Staff Sales Module (Kanban pipeline + lead capture + enquiry detail)
-status: draft
+status: in-build
+version: 0.4
 risk_level: medium
 pii_sensitivity: medium
-flags: [staff.sales.v1]
+flags: [staff.sales.v1, staff.sales.reservation-guard.v1, staff.sales.deal-lost-reason.v1, staff.sales.refund.v1]
 owners: [planner, ux-writer, qa-planner, integrator]
 depends_on:
   - SPEC-PLATFORM-001 (app shell + primitives + Dialog/AlertDialog/Toast)
@@ -358,6 +359,59 @@ GET /api/staff/sales/deals/:id/kyc
 - List view toggle preserves filters via URL searchParams
 - Drag uses `@dnd-kit/core` if complex drag needed; fall back to HTML5 drag if simpler
 
+## 12. Locked Decisions (W3 additions)
+
+| Tag | Title | Decision | Source |
+|-----|-------|----------|--------|
+| L_S-RES-1 | Concurrent reservation guard | `advanceStage(dealId, 'reserved')` throws `ReservationConflictError` if another deal holds an active (non-expired) reservation for the same VIN. The only bypass is `forceReserveOverride`, which requires R19+ and emits an audit event. R09 and below cannot override — they receive a toast directing them to contact GM. | AUDIT-SALES-2026-05-07 §4 gap #3 / W3.1 |
+| L_S-LOST-1 | Deal lost reason required | Every manual transition to `stage='lost'` MUST carry a structured `lostReason` (category + optional freeText). The `MarkDealLostDialog` intercepts drag-to-lost in the kanban and the "Mark Lost" CTA in enquiry detail. Auto-expiry transitions (EXPIRED via `markReservationExpired`) are exempt and use the existing `cancellationReason:'EXPIRED'` path. | AUDIT-SALES-2026-05-07 §4 gap #1 / W3.2 |
+| L_S-REFUND-1 | Refund R12+ only; type-to-confirm | `refundDeal` rejects actors below R12. The `RefundDealDialog` requires type-to-confirm "REFUND" before the Confirm button enables. The deal moves to `stage='refunded'` (distinct from `lost`). The refund block is stored on the deal with category, reason (≥30 chars), refundedAmount, and actor. TCS note displayed to inform SA of manual Form 26AS obligation. | AUDIT-SALES-2026-05-07 §4 gap #5 / CLAUDE.md §9 (TCS) / W3.3 |
+
+## 13. Reservation conflict + force-override (W3.1 / L_S-RES-1)
+
+Concurrent reservation on the same VIN is blocked at the store level.
+
+**Selector:** `hasActiveReservationForVin(vin, excludeDealId?)` — returns `true` if any deal has `stage='reserved'` AND (`reservationExpiresAt` is absent OR > now) AND `vehicleVin === vin` AND `id !== excludeDealId`.
+
+**Guard:** `advanceStage(dealId, 'reserved')` calls the selector. On conflict, throws `ReservationConflictError { ok: false, error: 'VIN_ALREADY_RESERVED', conflictingDealId, conflictingCustomerName }`.
+
+**UI handling in kanban:** `handleMoveDeal` catches `isReservationConflictError(err)` → reverts optimistic stage → shows toast (en-IN + hi-IN under `salesDeals.refund.reservationConflict.toastMessage`).
+
+**Force-override (R19+ only):** `forceReserveOverride(dealId, { reason, actor })` — releases conflicting reservation(s) (sets `stage='lost'`, `cancellationReason='MANUAL_CANCEL'`), advances the target deal to `reserved`, emits `RESERVATION_FORCE_OVERRIDE` audit event with `reason`, `releasedDealIds`, `actorRole`. R09 and below calling `forceReserveOverride` → throws `UNAUTHORIZED`.
+
+**Seam 47** registered in `cross-module-wiring.md`.
+
+## 14. Deal lost reason capture (W3.2 / L_S-LOST-1)
+
+**Type additions** (`packages/types/src/domain/sales.ts`):
+- `LostReasonCategoryEnum`: `PRICE_TOO_HIGH | CHOSE_COMPETITOR | FINANCING_FALLTHROUGH | CHANGED_MIND | VEHICLE_ISSUE | TIMING | OTHER`
+- `LostReasonSchema`: `{ category, freeText?, capturedAt, capturedByEmployeeId }`
+- `Deal.lostReason: LostReason` (optional; populated on manual lost transition)
+
+**Store action:** `markDealLost(dealId, lostReason, actor)` → validates category + `OTHER`-requires-freeText-≥10 → returns `MarkLostError` on failure → sets `stage='lost'` + `lostReason` → emits `deal_lost` audit event with `{ category, freeTextLength }` (NOT freeText body — privacy hygiene).
+
+**UI:** `MarkDealLostDialog` (mirrors `skip-intake-dialog.tsx` UX) — category select + conditional freeText textarea + Confirm disabled until valid. Kanban drag-to-lost opens the dialog; cancel reverts the optimistic stage move.
+
+**Deferred:** `DEF-SALES-LOST-1` — Loss Reasons analytics widget on the Reports dashboard (P3). Track count-by-category and trend over time for win-rate intelligence.
+
+| ID | Item | Priority | Notes |
+|----|------|----------|-------|
+| DEF-SALES-LOST-1 | Loss Reasons analytics widget on Reports dashboard | P3 | Reads `salesDeals[].lostReason.category` grouped by period + outlet. Add to SPEC-REPORTS-001 when scoped. |
+
+## 15. Refund / cancellation flow (W3.3 / L_S-REFUND-1)
+
+**Type additions** (`packages/types/src/domain/sales.ts`):
+- `DealStageEnum` gains `'refunded'`
+- `RefundCategoryEnum`: `DOA | FINANCE_REJECTED | CUSTOMER_REMORSE | VEHICLE_DEFECT | OTHER`
+- `RefundBlockSchema`: `{ category, reason (≥30 chars), refundedAmount, refundedAt, refundedByEmployeeId }`
+- `Deal.refund: RefundBlock` (optional; populated only on refund)
+
+**Store action:** `refundDeal(dealId, { category, reason, refundedAmount }, actor)` → validates R12+ → validates `stage ∈ {sales-order, delivered}` → validates `reason.length ≥ 30` → returns `RefundError` on failure → sets `stage='refunded'` + `refund` block → emits `deal_refunded` audit event with `{ category, refundedAmount, reasonLength, priorStage }` (NOT reason text — privacy).
+
+**UI:** `RefundDealDialog` — category select + reason textarea (≥30 chars) + amount input + TCS informational notice + type-to-confirm "REFUND" field. Gate: `<Gate role={['R12','R19','R22','R24']}>` wraps the CTA. R09 and below do not see the Refund button.
+
+**TCS note** (CLAUDE.md §9 / Doc 06): Dialog informs SA: "If TCS was collected on this sale, a separate Form 26AS adjustment is required in the next quarterly filing." No automatic TCS reversal — out of scope for P1.
+
 ## 12. Changelog
 
 | Date | Version | Author | Change |
@@ -365,3 +419,4 @@ GET /api/staff/sales/deals/:id/kyc
 | 2026-04-17 | 0.1 | Claude (integrator) | Initial spec for staff Sales Phase S3 |
 | 2026-04-17 | 0.2 | Claude (integrator) | Phase S3 shipped (Kanban + list + lead capture + enquiry detail + 2 modals). All consistency fixes applied (card patterns, tab patterns, design doc 04). Added Update Lead + Add Note modals to enquiry detail header. |
 | 2026-04-17 | 0.3 | Claude (integrator) | Added §6.0 Contact Details sidebar panel, §6.3 WhatsApp quick action with template picker, §6.4 AI Call dialog (3-stage: setup → calling → summary), §6.5 new interaction type `call-ai`. |
+| 2026-05-07 | 0.4 | Claude (implement — W3 audit fixes) | Added §12 Locked Decisions (L_S-RES-1, L_S-LOST-1, L_S-REFUND-1), §13 Reservation conflict + force-override (W3.1), §14 Deal lost reason capture (W3.2), §15 Refund/cancellation flow (W3.3). Status promoted to `in-build`. Flags updated. DEF-SALES-LOST-1 registered. |

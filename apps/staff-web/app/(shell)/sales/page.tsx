@@ -1,18 +1,32 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+/**
+ * Sales Pipeline page — Kanban + list view.
+ *
+ * W3.1: Drag to 'reserved' → reservation conflict guard + toast on conflict.
+ * W3.2: Drag to 'lost' → MarkDealLostDialog intercept; cancel = revert.
+ * staff.sales.reservation-guard.v1 / staff.sales.deal-lost-reason.v1
+ */
+
+import { useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Plus, LayoutGrid, List, TrendingDown } from 'lucide-react';
 import { cn } from '@dms/ui';
 import { deals as allDeals } from '@dms/mocks/fixtures';
-import type { Deal, DealStage } from '@dms/types';
+import type { Deal, DealStage, LostReasonCategory } from '@dms/types';
 import { KanbanColumn } from '@/src/components/sales/kanban-column';
 import { DealListView } from '@/src/components/sales/deal-list-view';
-import { useSalesDealsStore } from '@/src/lib/sales/sales-deals-store';
+import { MarkDealLostDialog } from '@/src/components/sales/mark-deal-lost-dialog';
+import {
+  useSalesDealsStore,
+  isReservationConflictError,
+} from '@/src/lib/sales/sales-deals-store';
 import { useVehiclesStore } from '@/src/lib/vehicles/vehicles-store';
 import { deriveSalesEvent } from '@/src/components/sales/derive-sales-event';
 import { useStaffAuth } from '@/src/providers/staff-auth-provider';
+import { useToast } from '@/src/hooks/use-toast';
+import { ToastContainer } from '@/src/components/primitives';
 
 // ─── Stage config ─────────────────────────────────────────────────────────────
 
@@ -41,6 +55,14 @@ function formatCrores(amount: number): string {
   return INR_FORMATTER.format(amount);
 }
 
+// ─── Pending lost state (intercept before committing stage change) ─────────
+
+interface PendingLost {
+  dealId: string;
+  customerName: string;
+  prevStage: DealStage;
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function SalesPage() {
@@ -48,6 +70,7 @@ export default function SalesPage() {
   const router = useRouter();
   const view = searchParams.get('view') ?? 'kanban';
   const { user } = useStaffAuth();
+  const { toast, toasts, dismiss } = useToast();
 
   // Local optimistic state for deal stages (drag & drop)
   const [dealStages, setDealStages] = useState<Record<string, DealStage>>(() => {
@@ -58,74 +81,180 @@ export default function SalesPage() {
     return map;
   });
 
+  // W3.2 — pending lost dialog state (intercept drag-to-lost)
+  const [pendingLost, setPendingLost] = useState<PendingLost | null>(null);
+
   // Filter state
   const [filterAssignedToMe, setFilterAssignedToMe] = useState(false);
   const [filterOutlet, setFilterOutlet] = useState('');
   const [filterSource, setFilterSource] = useState('');
 
   // Build filtered + stage-patched deals
-  const patchedDeals: Deal[] = allDeals.map((d) => ({
-    ...d,
-    stage: dealStages[d.id] ?? d.stage,
-  }));
+  // L_S-ZUSTAND-1: base ref returned from selector; computation in useMemo (no anti-pattern)
+  const storeDeals = useSalesDealsStore((s) => s.deals);
 
-  const filteredDeals = patchedDeals.filter((d) => {
-    if (filterAssignedToMe && d.assignedTo !== 'staff-005') return false;
-    if (filterOutlet && d.outlet !== filterOutlet) return false;
-    if (filterSource && d.source !== filterSource) return false;
-    return true;
-  });
+  const patchedDeals: Deal[] = useMemo(
+    () =>
+      allDeals.map((d) => ({
+        ...d,
+        stage: dealStages[d.id] ?? d.stage,
+      })),
+    [dealStages],
+  );
+
+  const filteredDeals = useMemo(
+    () =>
+      patchedDeals.filter((d) => {
+        if (filterAssignedToMe && d.assignedTo !== 'staff-005') return false;
+        if (filterOutlet && d.outlet !== filterOutlet) return false;
+        if (filterSource && d.source !== filterSource) return false;
+        return true;
+      }),
+    [patchedDeals, filterAssignedToMe, filterOutlet, filterSource],
+  );
 
   // Drag & drop handler
-  const handleMoveDeal = useCallback((dealId: string, toStage: DealStage) => {
-    // Capture prev stage before updating local optimistic state
-    const allCurrentDeals = useSalesDealsStore.getState().deals;
-    const deal = allCurrentDeals[dealId];
-    const prevStage = deal?.stage ?? dealStages[dealId];
+  const handleMoveDeal = useCallback(
+    (dealId: string, toStage: DealStage) => {
+      const allCurrentDeals = useSalesDealsStore.getState().deals;
+      const deal = allCurrentDeals[dealId] ?? allDeals.find((d) => d.id === dealId);
+      const prevStage: DealStage = deal?.stage ?? (dealStages[dealId] as DealStage) ?? 'new-lead';
 
-    setDealStages((prev) => ({ ...prev, [dealId]: toStage }));
+      // W3.2 — Intercept drag-to-lost: open dialog, do NOT commit yet
+      if (toStage === 'lost') {
+        // Optimistic UI move (visual feedback only)
+        setDealStages((prev) => ({ ...prev, [dealId]: 'lost' }));
+        setPendingLost({
+          dealId,
+          customerName: deal?.customerName ?? 'Customer',
+          prevStage,
+        });
+        return;
+      }
 
-    // Emit SalesEvent for VIN-linked deals (PLAN-VEHICLES-003 P2)
-    const vinForEvent = deal?.vehicleVin;
-    if (vinForEvent && prevStage !== undefined) {
-      const updated = useSalesDealsStore.getState().advanceStage(dealId, toStage);
-      const derived = deriveSalesEvent(prevStage, toStage, updated);
-      if (derived && user) {
+      // Optimistic UI update
+      setDealStages((prev) => ({ ...prev, [dealId]: toStage }));
+
+      // W3.1 — Reservation guard: try-catch for VIN_ALREADY_RESERVED
+      const vinForEvent = deal?.vehicleVin;
+      if (vinForEvent && prevStage !== undefined) {
+        let updated: Deal | null = null;
         try {
-          useVehiclesStore.getState().emitSalesEvent(
-            vinForEvent,
-            derived.kind,
-            derived.payload,
-            { id: user.id, name: user.name, role: user.role },
-          );
-        } catch {
-          // Swallow validation errors in drag & drop — store optimistic stage only
+          updated = useSalesDealsStore.getState().advanceStage(dealId, toStage);
+        } catch (err) {
+          if (isReservationConflictError(err)) {
+            // Revert optimistic move
+            setDealStages((prev) => ({ ...prev, [dealId]: prevStage }));
+            toast(
+              `Cannot reserve — ${vinForEvent} is already reserved by ${err.conflictingCustomerName} (Deal #${err.conflictingDealId.slice(-6)}). Resolve that deal first or pick a different vehicle.`,
+              'error',
+            );
+            return;
+          }
+          // Other errors — revert silently
+          setDealStages((prev) => ({ ...prev, [dealId]: prevStage }));
+          return;
+        }
+
+        if (updated) {
+          const derived = deriveSalesEvent(prevStage, toStage, updated);
+          if (derived && user) {
+            try {
+              useVehiclesStore.getState().emitSalesEvent(
+                vinForEvent,
+                derived.kind,
+                derived.payload,
+                { id: user.id, name: user.name, role: user.role },
+              );
+            } catch {
+              // Swallow validation errors in drag & drop
+            }
+          }
         }
       }
-    }
 
-    // Fire-and-forget the API call
-    fetch(`/api/staff/sales/deals/${dealId}/move`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ toStage }),
-    }).catch(() => {
-      // On failure, revert
-      setDealStages((prev) => {
-        const reverted = { ...prev };
-        const original = allDeals.find((d) => d.id === dealId);
-        if (original) reverted[dealId] = original.stage;
-        return reverted;
+      // Fire-and-forget the API call
+      fetch(`/api/staff/sales/deals/${dealId}/move`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ toStage }),
+      }).catch(() => {
+        setDealStages((prev) => {
+          const reverted = { ...prev };
+          const original = allDeals.find((d) => d.id === dealId);
+          if (original) reverted[dealId] = original.stage;
+          return reverted;
+        });
       });
-    });
-  }, [user, dealStages]);
+    },
+    [user, dealStages, toast],
+  );
+
+  // W3.2 — Confirm lost from dialog
+  const handleLostConfirm = useCallback(
+    (data: { category: LostReasonCategory; freeText?: string }) => {
+      if (!pendingLost || !user) return;
+      const { dealId, prevStage } = pendingLost;
+      setPendingLost(null);
+
+      const now = new Date().toISOString();
+      const result = useSalesDealsStore.getState().markDealLost(
+        dealId,
+        {
+          category: data.category,
+          freeText: data.freeText,
+          capturedAt: now,
+          capturedByEmployeeId: user.id,
+        },
+        { id: user.id, name: user.name, role: user.role },
+      );
+
+      if ('ok' in result) {
+        // Validation error — revert
+        setDealStages((prev) => ({ ...prev, [dealId]: prevStage }));
+        toast('Failed to mark deal lost — please try again.', 'error');
+        return;
+      }
+
+      // Commit stage in local state (already set optimistically)
+      setDealStages((prev) => ({ ...prev, [dealId]: 'lost' }));
+      toast('Deal marked as lost.', 'info');
+
+      fetch(`/api/staff/sales/deals/${dealId}/move`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ toStage: 'lost', lostReason: data }),
+      }).catch(() => {/* fire-and-forget */});
+    },
+    [pendingLost, user, toast],
+  );
+
+  // W3.2 — Cancel lost dialog → revert optimistic move
+  const handleLostCancel = useCallback(() => {
+    if (!pendingLost) return;
+    setDealStages((prev) => ({ ...prev, [pendingLost.dealId]: pendingLost.prevStage }));
+    setPendingLost(null);
+  }, [pendingLost]);
+
+  // Suppress unused warning: storeDeals is read to register Zustand subscription
+  void storeDeals;
 
   // Summary stats
-  const activeDeals = filteredDeals.filter((d) =>
-    ['new-lead', 'contacted', 'test-drive', 'reserved', 'sales-order'].includes(d.stage),
+  const activeDeals = useMemo(
+    () =>
+      filteredDeals.filter((d) =>
+        ['new-lead', 'contacted', 'test-drive', 'reserved', 'sales-order'].includes(d.stage),
+      ),
+    [filteredDeals],
   );
-  const pipelineTotal = activeDeals.reduce((acc, d) => acc + d.amount, 0);
-  const deliveredThisMonth = filteredDeals.filter((d) => d.stage === 'delivered').length;
+  const pipelineTotal = useMemo(
+    () => activeDeals.reduce((acc, d) => acc + d.amount, 0),
+    [activeDeals],
+  );
+  const deliveredThisMonth = useMemo(
+    () => filteredDeals.filter((d) => d.stage === 'delivered').length,
+    [filteredDeals],
+  );
 
   function setView(v: 'kanban' | 'list') {
     const params = new URLSearchParams(searchParams.toString());
@@ -139,9 +268,11 @@ export default function SalesPage() {
 
   return (
     <div className="flex flex-col h-full min-h-screen bg-bg-canvas">
+      <ToastContainer toasts={toasts} onDismiss={dismiss} />
+
       {/* ── Page header ─────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between px-6 pt-6 pb-4 shrink-0">
-        <h1 className="text-[28px] font-semibold leading-[1.25] text-ink-primary tracking-tight">
+        <h1 className="text-2xl font-semibold leading-tight text-ink-primary tracking-tight">
           Sales Pipeline
         </h1>
         <div className="flex items-center gap-2">
@@ -282,17 +413,33 @@ export default function SalesPage() {
       {/* ── Summary footer ───────────────────────────────────────────────────── */}
       <div className="shrink-0 border-t border-line bg-bg-canvas px-6 py-3 flex items-center gap-4">
         <span className="text-xs text-ink-muted">
-          <span className="font-mono font-semibold text-ink-primary">{activeDeals.length}</span> active deals
+          <span className="font-mono font-semibold text-ink-primary">{activeDeals.length}</span>{' '}
+          active deals
         </span>
         <span className="text-ink-muted text-xs">·</span>
         <span className="text-xs text-ink-muted">
-          <span className="font-mono font-semibold text-ink-primary">&#8377; {formatCrores(pipelineTotal)}</span> pipeline
+          <span className="font-mono font-semibold text-ink-primary">
+            &#8377; {formatCrores(pipelineTotal)}
+          </span>{' '}
+          pipeline
         </span>
         <span className="text-ink-muted text-xs">·</span>
         <span className="text-xs text-ink-muted">
-          <span className="font-mono font-semibold text-ink-primary">{deliveredThisMonth}</span> delivered this month
+          <span className="font-mono font-semibold text-ink-primary">{deliveredThisMonth}</span>{' '}
+          delivered this month
         </span>
       </div>
+
+      {/* W3.2 — Mark Deal Lost dialog (intercepts kanban drag) */}
+      {pendingLost && (
+        <MarkDealLostDialog
+          open={Boolean(pendingLost)}
+          dealId={pendingLost.dealId}
+          customerName={pendingLost.customerName}
+          onClose={handleLostCancel}
+          onConfirm={handleLostConfirm}
+        />
+      )}
     </div>
   );
 }

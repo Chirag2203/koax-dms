@@ -2257,5 +2257,54 @@
       "confirmButton": "Confirm Skip",
       "confirmButtonDisabledTitle": "Reason must be at least 20 characters"
     }
+  },
+  "salesDeals": {
+    "markLost": {
+      "dialogTitle": "Mark Deal Lost",
+      "warningBody": "Marking this deal as lost will move {name} out of the active pipeline. This action is logged and will contribute to win-rate analytics.",
+      "categoryLabel": "Reason for losing deal",
+      "categoryPlaceholder": "Select a reason",
+      "categoryPriceTooHigh": "Price Too High",
+      "categoryChoseCompetitor": "Chose Competitor",
+      "categoryFinancingFallthrough": "Financing Fell Through",
+      "categoryChangedMind": "Customer Changed Mind",
+      "categoryVehicleIssue": "Vehicle Issue",
+      "categoryTiming": "Timing — Not Ready Yet",
+      "categoryOther": "Other",
+      "freeTextLabelRequired": "Explain (required for 'Other')",
+      "freeTextLabelOptional": "Additional notes (optional)",
+      "freeTextPlaceholderRequired": "Please describe why this deal was lost (min 10 characters)...",
+      "freeTextPlaceholderOptional": "Any additional context helpful for analytics...",
+      "freeTextCharCount": "{count} / {min} characters minimum",
+      "cancelButton": "Cancel",
+      "confirmButton": "Mark as Lost",
+      "confirmButtonDisabledTitle": "Select a reason to continue"
+    },
+    "refund": {
+      "dialogTitle": "Refund Sale",
+      "warningTitle": "This will reverse the sale",
+      "warningBody": "Tally Prime journal entries will need manual reconciliation in v1.1. Ensure you have GM approval before proceeding.",
+      "dealSummaryLabel": "Deal being refunded",
+      "categoryLabel": "Refund reason",
+      "categoryPlaceholder": "Select refund category",
+      "categoryDoa": "Dead on Arrival (DOA)",
+      "categoryFinanceRejected": "Finance Application Rejected",
+      "categoryCustomerRemorse": "Customer Remorse Period",
+      "categoryVehicleDefect": "Vehicle Defect Found",
+      "categoryOther": "Other",
+      "reasonLabel": "Detailed reason",
+      "reasonPlaceholder": "Describe the full circumstances of this refund (min 30 characters)...",
+      "reasonCharCount": "{count} / {min} characters minimum",
+      "amountLabel": "Refund amount (₹)",
+      "tcsNotice": "If TCS was collected on this sale, a separate adjustment via Form 26AS is required in the next quarterly filing. Contact Finance before confirming.",
+      "typeConfirmLabel": "Type {word} to confirm",
+      "typeConfirmMismatch": "Type exactly {word} to enable the refund",
+      "cancelButton": "Cancel",
+      "confirmButton": "Confirm Refund",
+      "confirmButtonDisabledTitle": "Complete all fields and type REFUND to confirm",
+      "reservationConflict": {
+        "toastMessage": "Cannot reserve — {vin} is already reserved by {customerName} (Deal #{shortId}). Resolve that deal first or pick a different vehicle."
+      }
+    }
   }
 }

@@ -1156,5 +1156,54 @@
       "confirmButton": "Confirm Skip",
       "confirmButtonDisabledTitle": "Reason must be at least 20 characters"
     }
+  },
+  "salesDeals": {
+    "markLost": {
+      "dialogTitle": "डील लॉस्ट मार्क करें",
+      "warningBody": "इस डील को लॉस्ट मार्क करने से {name} एक्टिव पाइपलाइन से बाहर हो जाएंगे। यह action लॉग किया जाएगा।",
+      "categoryLabel": "डील खोने का कारण",
+      "categoryPlaceholder": "कारण चुनें",
+      "categoryPriceTooHigh": "कीमत बहुत अधिक",
+      "categoryChoseCompetitor": "प्रतिस्पर्धी को चुना",
+      "categoryFinancingFallthrough": "फाइनेंसिंग विफल",
+      "categoryChangedMind": "ग्राहक ने मन बदला",
+      "categoryVehicleIssue": "वाहन समस्या",
+      "categoryTiming": "समय उचित नहीं",
+      "categoryOther": "अन्य",
+      "freeTextLabelRequired": "विवरण दें ('अन्य' के लिए आवश्यक)",
+      "freeTextLabelOptional": "अतिरिक्त नोट्स (वैकल्पिक)",
+      "freeTextPlaceholderRequired": "कृपया बताएं कि डील क्यों खोई (न्यूनतम 10 अक्षर)...",
+      "freeTextPlaceholderOptional": "Analytics के लिए अतिरिक्त संदर्भ...",
+      "freeTextCharCount": "{count} / {min} अक्षर न्यूनतम",
+      "cancelButton": "रद्द करें",
+      "confirmButton": "लॉस्ट मार्क करें",
+      "confirmButtonDisabledTitle": "जारी रखने के लिए कारण चुनें"
+    },
+    "refund": {
+      "dialogTitle": "बिक्री रिफंड करें",
+      "warningTitle": "यह बिक्री को रद्द कर देगा",
+      "warningBody": "Tally Prime जर्नल एंट्री को v1.1 में मैन्युअल समाधान की आवश्यकता होगी।",
+      "dealSummaryLabel": "रिफंड की जाने वाली डील",
+      "categoryLabel": "रिफंड का कारण",
+      "categoryPlaceholder": "रिफंड श्रेणी चुनें",
+      "categoryDoa": "Dead on Arrival (DOA)",
+      "categoryFinanceRejected": "फाइनेंस आवेदन अस्वीकृत",
+      "categoryCustomerRemorse": "ग्राहक पश्चाताप अवधि",
+      "categoryVehicleDefect": "वाहन दोष",
+      "categoryOther": "अन्य",
+      "reasonLabel": "विस्तृत कारण",
+      "reasonPlaceholder": "रिफंड की पूरी परिस्थितियाँ बताएं (न्यूनतम 30 अक्षर)...",
+      "reasonCharCount": "{count} / {min} अक्षर न्यूनतम",
+      "amountLabel": "रिफंड राशि (₹)",
+      "tcsNotice": "यदि इस बिक्री पर TCS एकत्र किया गया था, तो अगली तिमाही फाइलिंग में Form 26AS के माध्यम से अलग समायोजन आवश्यक है।",
+      "typeConfirmLabel": "{word} टाइप करके पुष्टि करें",
+      "typeConfirmMismatch": "रिफंड सक्षम करने के लिए ठीक {word} टाइप करें",
+      "cancelButton": "रद्द करें",
+      "confirmButton": "रिफंड पुष्टि करें",
+      "confirmButtonDisabledTitle": "सभी फ़ील्ड भरें और REFUND टाइप करें",
+      "reservationConflict": {
+        "toastMessage": "रिजर्व नहीं किया जा सकता — {vin} पहले से {customerName} द्वारा रिजर्व है (डील #{shortId})।"
+      }
+    }
   }
 }

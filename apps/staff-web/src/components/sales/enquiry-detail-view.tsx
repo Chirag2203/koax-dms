@@ -86,6 +86,7 @@ const STAGE_LABEL: Record<DealStage, string> = {
   delivered: 'Delivered',
   lost: 'Lost',
   'on-hold': 'On Hold',
+  refunded: 'Refunded',
 };
 
 const STAGE_STATUS_MAP: Record<DealStage, StateChipStatus> = {
@@ -97,6 +98,7 @@ const STAGE_STATUS_MAP: Record<DealStage, StateChipStatus> = {
   delivered: 'sold',
   lost: 'stale',
   'on-hold': 'stale',
+  refunded: 'stale',
 };
 
 // ─── Interaction icon ─────────────────────────────────────────────────────────
