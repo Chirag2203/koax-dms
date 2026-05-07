@@ -4,6 +4,7 @@ import { Download, FileText } from 'lucide-react';
 import { Gate, ToastContainer } from '@/src/components/primitives';
 import { useToast } from '@/src/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { useCustomersStore } from '@/src/lib/customers/customers-store';
 import type { JobCard } from '@dms/types';
 
 // ─── Messages ─────────────────────────────────────────────────────────────────
@@ -42,18 +43,9 @@ const INR = new Intl.NumberFormat('en-IN', {
   maximumFractionDigits: 0,
 });
 
-const CUSTOMER_NAME_MAP: Record<string, string> = {
-  'customer-001': 'Rohit Malhotra',
-  'customer-002': 'Kavitha Nair',
-  'customer-003': 'Siddharth Joshi',
-  'customer-004': 'Divya Menon',
-  'customer-005': 'Arjun Kapoor',
-  'customer-006': 'Priya Pillai',
-  'customer-007': 'Vikram Bose',
-  'customer-008': 'Ananya Singh',
-  'customer-009': 'Rajesh Verma',
-  'customer-010': 'Meera Nambiar',
-};
+// W4-B.1: replaces hardcoded CUSTOMER_NAME_MAP per audit 2026-05-07.
+// Customer name is now resolved live from useCustomersStore so any customer
+// added after fixture seeding shows correctly on their invoice.
 
 const MASKED_PHONE = '+91 98765 ••••1';
 
@@ -71,6 +63,9 @@ export function JobCardInvoicePreviewTab({ jobCard }: JobCardInvoicePreviewTabPr
   const labourLines = jobCard.labourLines;
   const partsLines = jobCard.partsLines;
 
+  // W4-B.1: live store lookup — base-ref scalar, not a fresh object (Zustand selector rule).
+  const customerName = useCustomersStore((s) => s.customers[jobCard.customerId]?.name);
+
   const labourSubtotal = labourLines.reduce((sum, l) => sum + l.flatRateHours * l.rate, 0);
   const partsSubtotal = partsLines.reduce((sum, p) => sum + p.qty * p.unitPrice, 0);
   const subtotal = labourSubtotal + partsSubtotal;
@@ -80,7 +75,8 @@ export function JobCardInvoicePreviewTab({ jobCard }: JobCardInvoicePreviewTabPr
   const grandTotalRounded = Math.round(grandTotalRaw);
   const roundOff = grandTotalRounded - grandTotalRaw;
 
-  const customerName = CUSTOMER_NAME_MAP[jobCard.customerId] ?? jobCard.customerId;
+  // Resolved display name: store → orphan fallback (dev-mode caption shown below).
+  const resolvedCustomerName = customerName ?? undefined;
 
   let lineNo = 0;
 
@@ -117,8 +113,13 @@ export function JobCardInvoicePreviewTab({ jobCard }: JobCardInvoicePreviewTabPr
           <p className="text-[11px] font-mono uppercase tracking-widest text-ink-muted mb-2">
             {MESSAGES.billTo}
           </p>
-          <p className="text-[14px] font-semibold text-ink-primary">{customerName}</p>
-          <p className="font-mono text-[12px] text-ink-secondary mt-0.5">{MASKED_PHONE}</p>
+          <p className="text-sm font-semibold text-ink-primary">
+            {resolvedCustomerName ?? '—'}
+          </p>
+          {!resolvedCustomerName && process.env.NODE_ENV !== 'production' && (
+            <p className="text-xs text-ink-muted mt-0.5">(customer record missing)</p>
+          )}
+          <p className="font-mono text-xs text-ink-secondary mt-0.5">{MASKED_PHONE}</p>
         </div>
 
         {/* Vehicle */}

@@ -192,6 +192,15 @@ export const FEATURE_FLAGS: FeatureFlagRegistryEntry[] = [
     owningSpec: 'SPEC-SETTINGS-001',
     scope: 'global',
   },
+  // W4-B.3: Service intake flag — SPEC-SERVICE-INTAKE-001 frontmatter declares
+  // flags: [staff.service.intake.v1]. Added per audit 2026-05-07 (CLAUDE §6 parity).
+  {
+    key: 'staff.service.intake.v1',
+    defaultValue: true,
+    description: 'Service — Intake Inspection (v1): walk-around sheet, damage callouts, photo slots, PDF, 5yr retention (SPEC-SERVICE-INTAKE-001)',
+    owningSpec: 'SPEC-SERVICE-INTAKE-001',
+    scope: 'global',
+  },
   // W3 Sales correctness fixes (2026-05-07)
   {
     key: 'staff.sales.reservation-guard.v1',

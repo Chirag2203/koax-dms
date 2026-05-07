@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 import { useServiceStore } from '@/src/lib/service/service-store';
 import { useCustomersStore } from '@/src/lib/customers/customers-store';
 import { useVehiclesStore } from '@/src/lib/vehicles/vehicles-store';
@@ -547,6 +548,32 @@ export function JobCardDetailView({ jobCard: initialJobCard }: JobCardDetailView
 
   const { user } = useStaffAuth();
   const { toasts, toast, dismiss } = useToast();
+
+  // W4-B.2: auto-open intake panel after JC creation (spec §15 Q7 resolved YES).
+  // new-jobcard-form appends ?openIntake=1 on redirect; this effect fires once on
+  // mount, activates the intake tab and opens the form panel if the viewer has
+  // intake-write access and no intake record exists yet.  router.replace strips
+  // the param so a manual refresh does not re-trigger the panel.
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    if (searchParams.get('openIntake') !== '1') return;
+    // Strip query param first (refresh-resistant) — do before state changes.
+    router.replace(pathname);
+    // Eligible roles: R09 SA, R03 Outlet Mgr, R12 Finance, R19 GM, R24 CEO.
+    const intakeWriteRoles = ['R09', 'R03', 'R12', 'R19', 'R24'];
+    if (!user?.role || !intakeWriteRoles.includes(user.role)) return;
+    // Only auto-open when no intake record exists yet.
+    const existingIntake = useServiceStore
+      .getState()
+      .intakeInspections.find((i) => i.jobCardId === initialJobCard.id);
+    if (existingIntake) return;
+    setActiveTab('intake');
+    setIntakeFormOpen(true);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // intentionally run once on mount only
 
   // Read job card from store (falls back to initialJobCard for SSR)
   const storeJobCard = useServiceStore(

@@ -348,7 +348,8 @@ export function NewJobCardForm() {
     toast('Vehicle auto-registered · first BN touch recorded', 'success');
     setPendingJcData(null);
     setIntakeDialogVin(null);
-    router.push(`/service/jobcards/${jc.id}`);
+    // W4-B.2: ?openIntake=1 triggers intake panel auto-open on JC detail (spec §15 Q7).
+    router.push(`/service/jobcards/${jc.id}?openIntake=1`);
   }, [pendingJcData, actorId, actorName, createJobCard, assignBay, toast, router]);
 
   const onSubmit = handleSubmit(async (data) => {
@@ -429,7 +430,8 @@ export function NewJobCardForm() {
     const jc = createJobCard(jcPayload, actor);
     if (data.bayId) assignBay(data.bayId, jc.id, actor);
     toast(`Job card ${jc.jobNo} created`, 'success');
-    router.push(`/service/jobcards/${jc.id}`);
+    // W4-B.2: ?openIntake=1 triggers intake panel auto-open on JC detail (spec §15 Q7).
+    router.push(`/service/jobcards/${jc.id}?openIntake=1`);
   });
 
   const fromAppointment = !!linkedAppointment;

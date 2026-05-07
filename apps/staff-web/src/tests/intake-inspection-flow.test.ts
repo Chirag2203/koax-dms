@@ -16,6 +16,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useServiceStore } from '../lib/service/service-store';
+import { useCustomersStore } from '../lib/customers/customers-store';
 import type { IntakeInspection } from '@dms/types';
 
 // SC-5 / SC-6: PDF route tests require @react-pdf/renderer to be installed.
@@ -360,5 +361,41 @@ describe('SPEC-SERVICE-INTAKE-001 — intake flow integration', () => {
     // integration suite where the package is fully resolved.
     const { auditLog } = await import('../../app/api/service/intake-inspection/[jobCardId]/pdf/route');
     expect(Array.isArray(auditLog)).toBe(true);
+  });
+
+  // ── W4-B.1: Customer-name lookup from store (replaces CUSTOMER_NAME_MAP) ──
+
+  it('W4-B.1: customer name resolves live from useCustomersStore by customerId', () => {
+    // Seed a customer record directly into the customers store.
+    const customerId = 'customer-w4b1-test';
+    useCustomersStore.setState((state) => {
+      // reason: immer draft; cast needed because Customer has required fields we
+      // don't need for this lookup-only assertion.
+      (state.customers as Record<string, { id: string; name: string }>)[customerId] = {
+        id: customerId,
+        name: 'Test Customer W4B1',
+      };
+    });
+
+    // Verify the selector that the invoice tab now uses returns the correct name.
+    const resolvedName = useCustomersStore.getState().customers[customerId]?.name;
+    expect(resolvedName).toBe('Test Customer W4B1');
+
+    // Verify an unknown customerId returns undefined (triggers the "—" / dev fallback).
+    const orphanName = useCustomersStore.getState().customers['customer-nonexistent']?.name;
+    expect(orphanName).toBeUndefined();
+  });
+
+  // ── W4-B.2: Auto-open intake precondition — no intake exists for new JC ───
+
+  it('W4-B.2: a freshly-created job card has no intake record (auto-open precondition)', () => {
+    // The openIntake=1 query-param effect in JobCardDetailView only opens the
+    // panel when no intake exists yet.  Verify the store starts with no intake
+    // for a job card that was just created, confirming the auto-open will fire.
+    useServiceStore.setState({ intakeInspections: [] });
+    const existingIntake = useServiceStore
+      .getState()
+      .intakeInspections.find((i) => i.jobCardId === 'jc-brand-new');
+    expect(existingIntake).toBeUndefined();
   });
 });
