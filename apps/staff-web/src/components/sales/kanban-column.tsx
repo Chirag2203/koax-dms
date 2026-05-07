@@ -61,11 +61,11 @@ export function KanbanColumn({ stage, title, deals, onMoveDeal }: KanbanColumnPr
       <div className="flex items-center justify-between mb-3 pb-3 border-b border-line shrink-0">
         <div className="flex items-center gap-2">
           <h3 className="text-sm font-semibold text-ink-primary">{title}</h3>
-          <span className="bg-bg-hover rounded-full px-2 py-0.5 text-[11px] font-mono text-ink-muted">
+          <span className="bg-bg-hover rounded-full px-2 py-0.5 text-xs font-mono text-ink-muted">
             {deals.length}
           </span>
         </div>
-        <span className="font-mono text-[11px] text-ink-muted tabular-nums">
+        <span className="font-mono text-xs text-ink-muted tabular-nums">
           &#8377; {formatINR(sumAmount(deals))}
         </span>
       </div>

@@ -1204,6 +1204,54 @@
       "reservationConflict": {
         "toastMessage": "रिजर्व नहीं किया जा सकता — {vin} पहले से {customerName} द्वारा रिजर्व है (डील #{shortId})।"
       }
+    },
+    "pipeline": {
+      "pageTitle": "Sales Pipeline",
+      "newLead": "New Lead",
+      "agingReport": "Aging Report",
+      "viewKanban": "Kanban",
+      "viewList": "List",
+      "filterMyDealsOnly": "My deals only",
+      "filterAllOutlets": "All Outlets",
+      "filterOutletBLR": "Bangalore (BLR-01)",
+      "filterOutletMUM": "Mumbai (MUM-01)",
+      "filterOutletCHE": "Chennai (CHE-01)",
+      "filterAllSources": "All Sources",
+      "filterSourceWeb": "Web",
+      "filterSourceWalkIn": "Walk-in",
+      "filterSourceReferral": "Referral",
+      "filterSourceWhatsapp": "WhatsApp",
+      "filterSourcePhone": "Phone",
+      "summaryActiveDeals": "{count} active deals",
+      "summaryPipeline": "{value} pipeline",
+      "summaryDeliveredThisMonth": "{count} delivered this month",
+      "noDealsInStage": "No deals in this stage.",
+      "toastDealMarkedLost": "Deal marked as lost.",
+      "toastMarkLostFailed": "Failed to mark deal lost — please try again."
+    },
+    "enquiry": {
+      "breadcrumbBack": "Leads & Enquiries",
+      "interactionLedger": "Interaction Ledger",
+      "assignLead": "Assign Lead",
+      "assignLeadComingSoon": "Lead assignment coming in v1.1 — currently leads are auto-routed to the on-duty SA.",
+      "updateLead": "Update Lead",
+      "addNote": "Add Note",
+      "logCall": "Log Call",
+      "whatsapp": "WhatsApp",
+      "aiCall": "AI Call",
+      "bookTestDrive": "Book Test Drive",
+      "scheduleTestDrive": "Schedule Test Drive",
+      "filterAll": "All",
+      "filterMessages": "Messages",
+      "filterCalls": "Calls",
+      "filterNotes": "Notes",
+      "filterSystem": "System",
+      "noInteractions": "No interactions in this category.",
+      "complianceKyc": "Compliance & KYC",
+      "notesLabel": "Notes",
+      "noKycRecord": "No KYC record available.",
+      "inStock": "IN STOCK",
+      "assetIdentifier": "Asset Identifier"
     }
   }
 }

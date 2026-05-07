@@ -5,7 +5,7 @@ export default function EnquiryNotFound() {
     <div className="flex min-h-full items-center justify-center bg-bg-canvas px-6 py-24">
       <div className="text-center">
         <p className="font-mono text-xs uppercase tracking-widest text-ink-muted mb-3">404</p>
-        <h1 className="text-[28px] font-semibold leading-[1.25] text-ink-primary mb-2">
+        <h1 className="text-2xl font-semibold leading-[1.25] text-ink-primary mb-2">
           Enquiry not found
         </h1>
         <p className="text-sm text-ink-muted mb-6">

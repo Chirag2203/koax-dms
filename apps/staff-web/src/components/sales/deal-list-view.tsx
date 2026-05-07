@@ -65,7 +65,7 @@ const COLUMNS: ColumnDef<Deal>[] = [
         <p className="text-sm font-medium text-ink-primary truncate max-w-[180px]">
           {row.original.customerName}
         </p>
-        <p className="font-mono text-[11px] text-ink-muted mt-0.5">
+        <p className="font-mono text-xs text-ink-muted mt-0.5">
           {maskPhone(row.original.customerPhone)}
         </p>
       </div>
@@ -107,7 +107,7 @@ const COLUMNS: ColumnDef<Deal>[] = [
     id: 'source',
     header: 'Source',
     cell: ({ row }) => (
-      <span className="font-mono text-[10px] uppercase tracking-widest bg-bg-subtle text-ink-muted px-1.5 py-0.5 rounded">
+      <span className="font-mono text-xs uppercase tracking-widest bg-bg-subtle text-ink-muted px-1.5 py-0.5 rounded">
         {row.original.source === 'walk-in' ? 'WALK-IN' : row.original.source.toUpperCase()}
       </span>
     ),

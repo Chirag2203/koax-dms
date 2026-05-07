@@ -81,7 +81,7 @@ const inputCls = cn(
   'transition-colors',
 );
 
-const labelCls = 'block text-[10px] uppercase tracking-wide text-ink-muted mb-1.5 font-medium';
+const labelCls = 'block text-xs uppercase tracking-wide text-ink-muted mb-1.5 font-medium';
 const errorCls = 'text-xs text-state-danger mt-1';
 
 // ─── Vehicle autocomplete ──────────────────────────────────────────────────────
@@ -139,7 +139,7 @@ function VehicleCombobox({
             {selectedVehicle.year} {selectedVehicle.make} {selectedVehicle.model}
             {selectedVehicle.variant ? ` ${selectedVehicle.variant}` : ''}
           </span>
-          <span className="font-mono text-[10px] text-ink-muted bg-bg-canvas rounded px-1.5 py-0.5 shrink-0">
+          <span className="font-mono text-xs text-ink-muted bg-bg-canvas rounded px-1.5 py-0.5 shrink-0">
             {selectedVehicle.vin}
           </span>
           <button
@@ -201,7 +201,7 @@ function VehicleCombobox({
                   <span className="block text-sm text-ink-primary truncate">
                     {v.year} {v.make} {v.model} {v.variant ?? ''}
                   </span>
-                  <span className="font-mono text-[10px] text-ink-muted">{v.vin}</span>
+                  <span className="font-mono text-xs text-ink-muted">{v.vin}</span>
                 </span>
               </button>
             </li>
@@ -290,16 +290,16 @@ export default function NewLeadPage() {
     <>
       <div className="min-h-full bg-bg-canvas px-6 py-8">
         {/* ── Breadcrumb ── */}
-        <p className="font-mono text-[10px] uppercase tracking-widest text-ink-muted mb-4">
+        <p className="font-mono text-xs uppercase tracking-widest text-ink-muted mb-4">
           SALES / LEADS
         </p>
 
         {/* ── Header row ── */}
         <div className="flex items-start justify-between mb-8">
-          <h1 className="text-[28px] font-semibold leading-[1.2] text-ink-primary">
+          <h1 className="text-2xl font-semibold leading-[1.2] text-ink-primary">
             New Lead Registration
           </h1>
-          <span className="font-mono text-[11px] bg-bg-subtle rounded-md px-2 py-1 text-ink-muted border border-line shrink-0 mt-1.5">
+          <span className="font-mono text-xs bg-bg-subtle rounded-md px-2 py-1 text-ink-muted border border-line shrink-0 mt-1.5">
             ID: AUTO-GEN
           </span>
         </div>
@@ -431,7 +431,7 @@ export default function NewLeadPage() {
             <div className="mb-7">
               <div className="flex items-center justify-between mb-1.5">
                 <label className={cn(labelCls, 'mb-0')}>Target Vehicle Lookup</label>
-                <span className="font-mono text-[10px] text-ink-muted">
+                <span className="font-mono text-xs text-ink-muted">
                   Press ⌘K to search global
                 </span>
               </div>
@@ -536,7 +536,7 @@ export default function NewLeadPage() {
                 />
                 <p
                   id="notes-count"
-                  className="absolute bottom-2 right-3 font-mono text-[10px] text-ink-muted pointer-events-none"
+                  className="absolute bottom-2 right-3 font-mono text-xs text-ink-muted pointer-events-none"
                 >
                   {notesValue.length}/1000
                 </p>

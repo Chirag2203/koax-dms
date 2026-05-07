@@ -24,7 +24,7 @@ const inputCls = cn(
   'transition-colors',
 );
 
-const labelCls = 'block text-[10px] uppercase tracking-wide text-ink-muted mb-1.5 font-medium';
+const labelCls = 'block text-xs uppercase tracking-wide text-ink-muted mb-1.5 font-medium';
 const errorCls = 'text-xs text-state-danger mt-1';
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -146,7 +146,7 @@ export function AddNoteModal({ open, onClose, dealId, onSaved }: AddNoteModalPro
                   bodyError && 'border-state-danger',
                 )}
               />
-              <p className="absolute bottom-2 right-3 font-mono text-[10px] text-ink-muted pointer-events-none">
+              <p className="absolute bottom-2 right-3 font-mono text-xs text-ink-muted pointer-events-none">
                 {body.length}/1000
               </p>
             </div>

@@ -445,10 +445,10 @@ export function AiCallDialog({
               </div>
             </div>
 
-            <h3 className="text-[18px] font-semibold text-ink-primary mb-1">
+            <h3 className="text-lg font-semibold text-ink-primary mb-1">
               Calling {customerName.split(' ')[0]}...
             </h3>
-            <p className="font-mono text-[12px] text-ink-muted mb-6">
+            <p className="font-mono text-xs text-ink-muted mb-6">
               AI Agent: BN Sales Assistant
             </p>
 
@@ -481,7 +481,7 @@ export function AiCallDialog({
                 className="h-10 w-10 text-[rgb(var(--state-listed))] mb-3"
                 aria-hidden="true"
               />
-              <h3 className="text-[18px] font-semibold text-ink-primary">Call Completed</h3>
+              <h3 className="text-lg font-semibold text-ink-primary">Call Completed</h3>
             </div>
 
             {/* Stats grid */}
@@ -510,7 +510,7 @@ export function AiCallDialog({
             {/* Summary */}
             <div>
               <h4 className="text-sm font-semibold text-ink-primary mb-2">Summary</h4>
-              <div className="rounded-md border border-line bg-bg-subtle p-3 text-[13px] text-ink-secondary leading-relaxed">
+              <div className="rounded-md border border-line bg-bg-subtle p-3 text-sm text-ink-secondary leading-relaxed">
                 {summaryText}
               </div>
             </div>
@@ -528,7 +528,7 @@ export function AiCallDialog({
                         aria-label={item}
                         readOnly
                       />
-                      <span className="text-[13px] text-ink-secondary">{item}</span>
+                      <span className="text-sm text-ink-secondary">{item}</span>
                     </li>
                   ))}
                 </ul>

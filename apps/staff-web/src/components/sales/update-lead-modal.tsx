@@ -27,7 +27,7 @@ const inputCls = cn(
   'transition-colors',
 );
 
-const labelCls = 'block text-[10px] uppercase tracking-wide text-ink-muted mb-1.5 font-medium';
+const labelCls = 'block text-xs uppercase tracking-wide text-ink-muted mb-1.5 font-medium';
 const errorCls = 'text-xs text-state-danger mt-1';
 
 // ─── Vehicle combobox (inline) ────────────────────────────────────────────────
@@ -83,7 +83,7 @@ function VehicleCombobox({
             {selectedVehicle.year} {selectedVehicle.make} {selectedVehicle.model}
             {selectedVehicle.variant ? ` ${selectedVehicle.variant}` : ''}
           </span>
-          <span className="font-mono text-[10px] text-ink-muted bg-bg-canvas rounded px-1.5 py-0.5 shrink-0">
+          <span className="font-mono text-xs text-ink-muted bg-bg-canvas rounded px-1.5 py-0.5 shrink-0">
             {selectedVehicle.vin}
           </span>
           <button
@@ -139,7 +139,7 @@ function VehicleCombobox({
                   <span className="block text-sm text-ink-primary truncate">
                     {v.year} {v.make} {v.model} {v.variant ?? ''}
                   </span>
-                  <span className="font-mono text-[10px] text-ink-muted">{v.vin}</span>
+                  <span className="font-mono text-xs text-ink-muted">{v.vin}</span>
                 </span>
               </button>
             </li>
@@ -293,7 +293,7 @@ export function UpdateLeadModal({ open, onClose, deal, onSaved }: UpdateLeadModa
               className={cn(inputCls, 'opacity-60 cursor-not-allowed')}
               aria-describedby="ul-phone-hint"
             />
-            <p id="ul-phone-hint" className="text-[10px] text-ink-muted mt-1">
+            <p id="ul-phone-hint" className="text-xs text-ink-muted mt-1">
               Phone is used as identity and cannot be changed
             </p>
           </div>
@@ -402,7 +402,7 @@ export function UpdateLeadModal({ open, onClose, deal, onSaved }: UpdateLeadModa
                   'transition-colors',
                 )}
               />
-              <p className="absolute bottom-2 right-3 font-mono text-[10px] text-ink-muted pointer-events-none">
+              <p className="absolute bottom-2 right-3 font-mono text-xs text-ink-muted pointer-events-none">
                 {notes.length}/1000
               </p>
             </div>

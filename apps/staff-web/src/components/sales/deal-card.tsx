@@ -78,7 +78,7 @@ export function DealCard({ deal, onDragStart }: DealCardProps) {
         {/* Customer + source */}
         <div className="flex items-start justify-between mb-1 gap-2 pr-3">
           <h3 className="text-sm font-medium text-ink-primary truncate">{deal.customerName}</h3>
-          <span className="shrink-0 font-mono text-[10px] uppercase tracking-widest bg-bg-subtle text-ink-muted px-1.5 py-0.5 rounded">
+          <span className="shrink-0 font-mono text-xs uppercase tracking-widest bg-bg-subtle text-ink-muted px-1.5 py-0.5 rounded">
             {deal.source === 'walk-in' ? 'WALK-IN' : deal.source.toUpperCase()}
           </span>
         </div>
@@ -88,11 +88,11 @@ export function DealCard({ deal, onDragStart }: DealCardProps) {
 
         {/* Vehicle */}
         {deal.vehicleName && (
-          <p className="text-[13px] text-ink-secondary mb-2 line-clamp-1">{deal.vehicleName}</p>
+          <p className="text-sm text-ink-secondary mb-2 line-clamp-1">{deal.vehicleName}</p>
         )}
 
         {/* Amount */}
-        <p className="font-mono text-[15px] text-ink-primary mb-2 tabular-nums">
+        <p className="font-mono text-sm text-ink-primary mb-2 tabular-nums">
           {deal.amount > 0 ? (
             <>&#8377; {formatINR(deal.amount)}</>
           ) : (
@@ -101,13 +101,13 @@ export function DealCard({ deal, onDragStart }: DealCardProps) {
         </p>
 
         {/* Footer */}
-        <div className="flex items-center justify-between text-[11px]">
+        <div className="flex items-center justify-between text-xs">
           <span className="flex items-center gap-1 text-ink-muted">
             <Clock className="h-3 w-3" aria-hidden="true" />
             {timeAgo(deal.lastActivityAt)}
           </span>
           {deal.microStatus && (
-            <span className="bg-[rgb(var(--state-listed)/0.1)] text-[rgb(var(--state-listed))] px-1.5 py-0.5 rounded text-[10px] font-medium">
+            <span className="bg-[rgb(var(--state-listed)/0.1)] text-[rgb(var(--state-listed))] px-1.5 py-0.5 rounded text-xs font-medium">
               {deal.microStatus}
             </span>
           )}

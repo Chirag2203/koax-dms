@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   MessageSquare,
   Phone,
@@ -165,12 +166,12 @@ function KycBadge({ status }: { status: KycStatus }) {
 
 type InteractionFilter = 'all' | 'messages' | 'calls' | 'notes' | 'system';
 
-const FILTER_TABS: { key: InteractionFilter; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'messages', label: 'Messages' },
-  { key: 'calls', label: 'Calls' },
-  { key: 'notes', label: 'Notes' },
-  { key: 'system', label: 'System' },
+const FILTER_TABS: { key: InteractionFilter; tKey: string }[] = [
+  { key: 'all', tKey: 'filterAll' },
+  { key: 'messages', tKey: 'filterMessages' },
+  { key: 'calls', tKey: 'filterCalls' },
+  { key: 'notes', tKey: 'filterNotes' },
+  { key: 'system', tKey: 'filterSystem' },
 ];
 
 function filterInteractions(items: Interaction[], filter: InteractionFilter): Interaction[] {
@@ -206,6 +207,7 @@ export interface EnquiryDetailViewProps {
 
 export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailViewProps) {
   const router = useRouter();
+  const t = useTranslations('salesDeals.enquiry');
   const { toast, toasts, dismiss } = useToast();
   const [interactionFilter, setInteractionFilter] = useState<InteractionFilter>('all');
   const [showLogCall, setShowLogCall] = useState(false);
@@ -252,10 +254,10 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
               className="inline-flex items-center gap-1 text-xs text-ink-muted hover:text-ink-primary transition-colors"
             >
               <ChevronLeft className="h-3.5 w-3.5" />
-              Leads &amp; Enquiries
+              {t('breadcrumbBack')}
             </Link>
             <span className="text-ink-muted text-xs">/</span>
-            <span className="font-mono text-[11px] uppercase tracking-widest bg-bg-subtle text-ink-muted px-2 py-0.5 rounded">
+            <span className="font-mono text-xs uppercase tracking-widest bg-bg-subtle text-ink-muted px-2 py-0.5 rounded">
               ENQ-{dealData.id.replace('deal-', '').padStart(4, '0')}
             </span>
             <StateChip
@@ -267,7 +269,7 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
           {/* Customer name + actions */}
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h1 className="text-[32px] font-semibold leading-[1.2] text-ink-primary tracking-tight">
+              <h1 className="text-2xl font-semibold leading-[1.2] text-ink-primary tracking-tight">
                 {dealData.customerName}
               </h1>
               <p className="text-sm text-ink-muted mt-1">
@@ -286,34 +288,31 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
                     Per CLAUDE.md §10 DoD #15: explicit info toast, never silent. */}
               <button
                 type="button"
-                onClick={() => toast(
-                  'Lead assignment coming in v1.1 — currently leads are auto-routed to the on-duty SA.',
-                  'info',
-                )}
+                onClick={() => toast(t('assignLeadComingSoon'), 'info')}
                 className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-line bg-bg-surface text-sm font-medium text-ink-primary hover:bg-bg-subtle transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
               >
-                Assign Lead
+                {t('assignLead')}
               </button>
               <button
                 type="button"
                 onClick={() => setShowUpdateLead(true)}
                 className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-line bg-bg-surface text-sm font-medium text-ink-primary hover:bg-bg-subtle transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
               >
-                Update Lead
+                {t('updateLead')}
               </button>
               <button
                 type="button"
                 onClick={() => setShowAddNote(true)}
                 className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-line bg-bg-surface text-sm font-medium text-ink-primary hover:bg-bg-subtle transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
               >
-                Add Note
+                {t('addNote')}
               </button>
               <button
                 type="button"
                 onClick={() => setShowLogCall(true)}
                 className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-line bg-bg-surface text-sm font-medium text-ink-primary hover:bg-bg-subtle transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
               >
-                Log Call
+                {t('logCall')}
               </button>
               <button
                 type="button"
@@ -321,7 +320,7 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
                 className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-line bg-bg-surface text-sm font-medium text-[#25D366] hover:bg-bg-subtle transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
               >
                 <MessageCircle className="h-4 w-4" aria-hidden="true" />
-                WhatsApp
+                {t('whatsapp')}
               </button>
               <button
                 type="button"
@@ -329,7 +328,7 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
                 className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-line bg-bg-surface text-sm font-medium text-ink-primary hover:bg-bg-subtle transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
               >
                 <Sparkles className="h-4 w-4" aria-hidden="true" />
-                AI Call
+                {t('aiCall')}
               </button>
               <button
                 type="button"
@@ -341,14 +340,14 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
                 }}
                 className="inline-flex items-center gap-2 h-9 px-4 rounded-md border border-line bg-bg-surface text-sm font-medium text-ink-primary hover:bg-bg-subtle transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
               >
-                Book Test Drive
+                {t('bookTestDrive')}
               </button>
               <button
                 type="button"
                 onClick={() => setShowScheduleTD(true)}
                 className="inline-flex items-center gap-2 h-9 px-4 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
               >
-                Schedule Test Drive
+                {t('scheduleTestDrive')}
               </button>
             </div>
           </div>
@@ -360,7 +359,7 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
           <div className="w-[60%] flex flex-col border-r border-line overflow-hidden">
             {/* Section header + filter tabs */}
             <div className="shrink-0 px-6 pt-5 pb-0">
-              <h2 className="text-base font-semibold text-ink-primary mb-3">Interaction Ledger</h2>
+              <h2 className="text-base font-semibold text-ink-primary mb-3">{t('interactionLedger')}</h2>
               <div className="flex items-end gap-0 border-b border-line" role="tablist" aria-label="Interaction filter tabs">
                 {FILTER_TABS.map((tab) => (
                   <button
@@ -379,7 +378,7 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
                         : 'text-ink-muted hover:text-ink-secondary',
                     )}
                   >
-                    {tab.label}
+                    {t(tab.tKey)}
                     {interactionFilter === tab.key && (
                       <span
                         className="absolute bottom-0 left-0 right-0 h-[2px] rounded-t-sm bg-accent"
@@ -395,7 +394,7 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
             <div className="flex-1 overflow-y-auto px-6 py-5 space-y-3">
               {visibleInteractions.length === 0 ? (
                 <p className="text-sm text-ink-muted text-center py-12">
-                  No interactions in this category.
+                  {t('noInteractions')}
                 </p>
               ) : (
                 visibleInteractions.map((item) => (
@@ -411,39 +410,39 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
                           {item.title}
                         </span>
                       </div>
-                      <span className="font-mono text-[11px] text-ink-muted shrink-0 whitespace-nowrap">
+                      <span className="font-mono text-xs text-ink-muted shrink-0 whitespace-nowrap">
                         {formatTimestamp(item.createdAt)}
                       </span>
                     </div>
 
                     {/* Body */}
                     {item.body && (
-                      <p className="text-[13px] text-ink-secondary leading-relaxed mb-2">
+                      <p className="text-sm text-ink-secondary leading-relaxed mb-2">
                         {item.body}
                       </p>
                     )}
 
                     {/* Meta pills */}
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-mono text-[10px] text-ink-muted bg-bg-subtle px-1.5 py-0.5 rounded">
+                      <span className="font-mono text-xs text-ink-muted bg-bg-subtle px-1.5 py-0.5 rounded">
                         {item.addedByName}
                       </span>
                       {item.type === 'call-ai' && (
-                        <span className="font-mono text-[10px] text-accent bg-accent/10 px-1.5 py-0.5 rounded">
+                        <span className="font-mono text-xs text-accent bg-accent/10 px-1.5 py-0.5 rounded">
                           AI
                         </span>
                       )}
                       {item.templateId && (
-                        <span className="font-mono text-[10px] text-ink-muted bg-bg-subtle px-1.5 py-0.5 rounded">
+                        <span className="font-mono text-xs text-ink-muted bg-bg-subtle px-1.5 py-0.5 rounded">
                           {item.templateId}
                         </span>
                       )}
                       {item.durationSeconds && (
-                        <span className="font-mono text-[10px] text-ink-muted bg-bg-subtle px-1.5 py-0.5 rounded">
+                        <span className="font-mono text-xs text-ink-muted bg-bg-subtle px-1.5 py-0.5 rounded">
                           {durationLabel(item.durationSeconds)}
                         </span>
                       )}
-                      <span className="font-mono text-[10px] text-ink-muted ml-auto">
+                      <span className="font-mono text-xs text-ink-muted ml-auto">
                         {timeAgo(item.createdAt)}
                       </span>
                     </div>
@@ -478,13 +477,13 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
                       alt={dealData.vehicleName}
                       className="w-full h-full object-cover"
                     />
-                    <span className="absolute top-2 left-2 font-mono text-[10px] uppercase tracking-widest bg-[rgb(var(--state-listed)/0.9)] text-white px-2 py-0.5 rounded">
-                      IN STOCK
+                    <span className="absolute top-2 left-2 font-mono text-xs uppercase tracking-widest bg-[rgb(var(--state-listed)/0.9)] text-white px-2 py-0.5 rounded">
+                      {t('inStock')}
                     </span>
                   </div>
                 )}
 
-                <p className="font-mono text-[10px] uppercase tracking-widest text-ink-muted mb-1">
+                <p className="font-mono text-xs uppercase tracking-widest text-ink-muted mb-1">
                   Interest Category: SUV
                 </p>
                 <h3 className="text-base font-semibold text-ink-primary leading-snug mb-0.5">
@@ -496,7 +495,7 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
 
                 {dealData.vehicleVin && (
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-ink-muted">Asset Identifier</span>
+                    <span className="text-xs text-ink-muted">{t('assetIdentifier')}</span>
                     <span className="font-mono text-xs text-ink-primary bg-bg-subtle px-2 py-0.5 rounded select-all">
                       {dealData.vehicleVin}
                     </span>
@@ -504,7 +503,7 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
                 )}
 
                 {dealData.amount > 0 && (
-                  <p className="font-mono text-[28px] font-semibold text-ink-primary tabular-nums mt-3">
+                  <p className="font-mono text-2xl font-semibold text-ink-primary tabular-nums mt-3">
                     &#8377; {formatINR(dealData.amount)}
                   </p>
                 )}
@@ -513,7 +512,7 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
 
             {/* Compliance & KYC panel */}
             <div className="rounded-md border border-line bg-bg-surface p-4 m-4 mb-0">
-              <h3 className="text-sm font-semibold text-ink-primary mb-4">Compliance &amp; KYC</h3>
+              <h3 className="text-sm font-semibold text-ink-primary mb-4">{t('complianceKyc')}</h3>
 
               {kyc ? (
                 <div className="space-y-3">
@@ -531,7 +530,7 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
                   </div>
                 </div>
               ) : (
-                <p className="text-sm text-ink-muted">No KYC record available.</p>
+                <p className="text-sm text-ink-muted">{t('noKycRecord')}</p>
               )}
             </div>
 
@@ -539,7 +538,7 @@ export function EnquiryDetailView({ deal, interactions, kyc }: EnquiryDetailView
             {dealData.notes && (
               <div className="rounded-md border border-line bg-bg-surface p-4 m-4 mb-0">
                 <h3 className="text-xs font-semibold uppercase tracking-wider text-ink-muted mb-2">
-                  Notes
+                  {t('notesLabel')}
                 </h3>
                 <p className="text-sm text-ink-secondary leading-relaxed">
                   {dealData.notes}

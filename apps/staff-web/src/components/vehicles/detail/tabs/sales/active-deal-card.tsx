@@ -43,7 +43,7 @@ function StageChip({ stage }: { stage: string }) {
   const config = STAGE_CHIP[stage] ?? { label: stage, cls: 'bg-bg-subtle text-ink-muted border-line' };
   return (
     <span className={cn(
-      'inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium border',
+      'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border',
       config.cls,
     )}>
       {config.label}

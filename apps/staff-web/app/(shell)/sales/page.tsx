@@ -11,6 +11,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { Plus, LayoutGrid, List, TrendingDown } from 'lucide-react';
 import { cn } from '@dms/ui';
 import { deals as allDeals } from '@dms/mocks/fixtures';
@@ -68,6 +69,7 @@ interface PendingLost {
 export default function SalesPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const t = useTranslations('salesDeals.pipeline');
   const view = searchParams.get('view') ?? 'kanban';
   const { user } = useStaffAuth();
   const { toast, toasts, dismiss } = useToast();
@@ -212,13 +214,13 @@ export default function SalesPage() {
       if ('ok' in result) {
         // Validation error — revert
         setDealStages((prev) => ({ ...prev, [dealId]: prevStage }));
-        toast('Failed to mark deal lost — please try again.', 'error');
+        toast(t('toastMarkLostFailed'), 'error');
         return;
       }
 
       // Commit stage in local state (already set optimistically)
       setDealStages((prev) => ({ ...prev, [dealId]: 'lost' }));
-      toast('Deal marked as lost.', 'info');
+      toast(t('toastDealMarkedLost'), 'info');
 
       fetch(`/api/staff/sales/deals/${dealId}/move`, {
         method: 'POST',
@@ -273,7 +275,7 @@ export default function SalesPage() {
       {/* ── Page header ─────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between px-6 pt-6 pb-4 shrink-0">
         <h1 className="text-2xl font-semibold leading-tight text-ink-primary tracking-tight">
-          Sales Pipeline
+          {t('pageTitle')}
         </h1>
         <div className="flex items-center gap-2">
           <Link
@@ -286,7 +288,7 @@ export default function SalesPage() {
             title="Inventory aging report — listings sorted by days-on-market with price-drop suggestions"
           >
             <TrendingDown className="h-4 w-4" aria-hidden="true" />
-            Aging Report
+            {t('agingReport')}
           </Link>
           <Link
             href="/sales/leads/new"
@@ -297,7 +299,7 @@ export default function SalesPage() {
             )}
           >
             <Plus className="h-4 w-4" aria-hidden="true" />
-            New Lead
+            {t('newLead')}
           </Link>
         </div>
       </div>
@@ -319,7 +321,7 @@ export default function SalesPage() {
             )}
           >
             <LayoutGrid className="h-3.5 w-3.5" aria-hidden="true" />
-            Kanban
+            {t('viewKanban')}
           </button>
           <button
             type="button"
@@ -334,7 +336,7 @@ export default function SalesPage() {
             )}
           >
             <List className="h-3.5 w-3.5" aria-hidden="true" />
-            List
+            {t('viewList')}
           </button>
         </div>
 
@@ -346,7 +348,7 @@ export default function SalesPage() {
             onChange={(e) => setFilterAssignedToMe(e.target.checked)}
             className="h-3.5 w-3.5 rounded border-line text-accent focus:ring-accent"
           />
-          My deals only
+          {t('filterMyDealsOnly')}
         </label>
 
         {/* Filter: Outlet */}
@@ -359,10 +361,10 @@ export default function SalesPage() {
             'focus:outline-none focus:ring-2 focus:ring-accent/50',
           )}
         >
-          <option value="">All Outlets</option>
-          <option value="BLR-01">Bangalore (BLR-01)</option>
-          <option value="MUM-01">Mumbai (MUM-01)</option>
-          <option value="CHE-01">Chennai (CHE-01)</option>
+          <option value="">{t('filterAllOutlets')}</option>
+          <option value="BLR-01">{t('filterOutletBLR')}</option>
+          <option value="MUM-01">{t('filterOutletMUM')}</option>
+          <option value="CHE-01">{t('filterOutletCHE')}</option>
         </select>
 
         {/* Filter: Source */}
@@ -375,12 +377,12 @@ export default function SalesPage() {
             'focus:outline-none focus:ring-2 focus:ring-accent/50',
           )}
         >
-          <option value="">All Sources</option>
-          <option value="web">Web</option>
-          <option value="walk-in">Walk-in</option>
-          <option value="referral">Referral</option>
-          <option value="whatsapp">WhatsApp</option>
-          <option value="phone">Phone</option>
+          <option value="">{t('filterAllSources')}</option>
+          <option value="web">{t('filterSourceWeb')}</option>
+          <option value="walk-in">{t('filterSourceWalkIn')}</option>
+          <option value="referral">{t('filterSourceReferral')}</option>
+          <option value="whatsapp">{t('filterSourceWhatsapp')}</option>
+          <option value="phone">{t('filterSourcePhone')}</option>
         </select>
       </div>
 
@@ -413,20 +415,15 @@ export default function SalesPage() {
       {/* ── Summary footer ───────────────────────────────────────────────────── */}
       <div className="shrink-0 border-t border-line bg-bg-canvas px-6 py-3 flex items-center gap-4">
         <span className="text-xs text-ink-muted">
-          <span className="font-mono font-semibold text-ink-primary">{activeDeals.length}</span>{' '}
-          active deals
+          {t('summaryActiveDeals', { count: activeDeals.length })}
         </span>
         <span className="text-ink-muted text-xs">·</span>
         <span className="text-xs text-ink-muted">
-          <span className="font-mono font-semibold text-ink-primary">
-            &#8377; {formatCrores(pipelineTotal)}
-          </span>{' '}
-          pipeline
+          {t('summaryPipeline', { value: `₹ ${formatCrores(pipelineTotal)}` })}
         </span>
         <span className="text-ink-muted text-xs">·</span>
         <span className="text-xs text-ink-muted">
-          <span className="font-mono font-semibold text-ink-primary">{deliveredThisMonth}</span>{' '}
-          delivered this month
+          {t('summaryDeliveredThisMonth', { count: deliveredThisMonth })}
         </span>
       </div>
 
