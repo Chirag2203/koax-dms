@@ -1,25 +1,32 @@
 /**
- * AI Processing Route Handler — SPEC-SHOOTS-002 T08
+ * AI Processing Route Handler — SPEC-SHOOTS-002 L_AI-14, L_AI-15, L_AI-16
  *
  * POST /api/shoots/ai-process
+ *   Body: { shootId: string, assetIds: string[], aiVendor?: 'NONE'|'SPYNE_AI'|'CUSTOM',
+ *           failureRate?: number, failureSeed?: number }
+ *   Response: 202 { results: { assetId, vendorJobId }[] }
  *
- * P1 stub: returns { status: 'manual-only', message: 'AI processing — Coming in v2.1' }
- * Real Spyne.ai integration is DEF-AI-1 / P2.
+ * GET /api/shoots/ai-process?vendorJobId=<id>
+ *   Response: 200 { status: 'processing'|'succeeded'|'failed',
+ *                   processedDataUrl?, errorMessage? }
  *
- * Hardening contract (L_AI-14 — mirrors L12 from SPEC-SERVICE-INTAKE-001):
- *   (a) Auth/session check FIRST — 401 if missing/malformed
- *   (b) actor.rank ≥ R11 for requestAiProcess — 403 otherwise
- *   (c) Outlet RLS: actor.outletId === shoot.outletId for non-R19+ — 403 otherwise
- *   (d) Zod-validate request body — 422 on malformed
- *   (e) Per-IP rate limit: 30 req/min (in-memory Map; Redis in v1.5)
- *   (f) Origin allowlist: rejects non-staff-web origins
- *   (g) Audit log: writes ai_route_called event per request
+ * All 7 L_AI-14 hardening gates apply to both verbs:
+ *   (a) Auth/session check — 401 if absent/malformed
+ *   (b) actor.rank ≥ R11 — 403 otherwise
+ *   (c) Outlet RLS: actor.outletId === shoot.outletId for non-R19+ — 403
+ *   (d) Zod body validation — 422 on malformed
+ *   (e) Per-actor rate limit: 30/min (in-memory; Redis in v1.5)
+ *   (f) Origin allowlist — 403 on non-staff-web origins
+ *   (g) Audit log per request
  *
- * Spec reference: SPEC-SHOOTS-002 L_AI-14, T08
+ * Spec reference: SPEC-SHOOTS-002 L_AI-14, L_AI-15, L_AI-16
+ * Plan reference: PLAN-SHOOTS-AI-002 §1.1, §1.2
  */
 
 import { type NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { getAdapter } from '@/src/lib/shoots/ai-adapters';
+import { enqueueWithPolicy } from '@/src/lib/shoots/ai-adapters/mock-spyne-adapter';
 
 // ── Role rank helper ──────────────────────────────────────────────────────────
 
@@ -31,11 +38,11 @@ const ROLE_RANK: Record<string, number> = {
 };
 
 function isR11OrAbove(role: string): boolean {
-  return (ROLE_RANK[role] ?? 0) >= ROLE_RANK['R11']!;
+  return (ROLE_RANK[role] ?? 0) >= (ROLE_RANK['R11'] ?? 8);
 }
 
 function isGMOrAbove(role: string): boolean {
-  return (ROLE_RANK[role] ?? 0) >= ROLE_RANK['R19']!;
+  return (ROLE_RANK[role] ?? 0) >= (ROLE_RANK['R19'] ?? 16);
 }
 
 // ── Session stub (v1 mock; real session in v1.5) ──────────────────────────────
@@ -50,7 +57,6 @@ interface StaffSession {
 }
 
 function getStaffSession(req: NextRequest): StaffSession | null {
-  // v1 stub: read x-staff-session header (mock value set by MSW / test harness)
   const sessionHeader = req.headers.get('x-staff-session');
   if (!sessionHeader) return null;
   try {
@@ -66,16 +72,15 @@ const rateLimitMap = new Map<string, { count: number; windowStart: number }>();
 const RATE_LIMIT = 30;
 const WINDOW_MS = 60_000;
 
-function checkRateLimit(ip: string): boolean {
+function checkRateLimit(key: string): boolean {
   const now = Date.now();
-  const entry = rateLimitMap.get(ip);
+  const entry = rateLimitMap.get(key);
   if (!entry || now - entry.windowStart > WINDOW_MS) {
-    rateLimitMap.set(ip, { count: 1, windowStart: now });
-    return true; // allowed
+    rateLimitMap.set(key, { count: 1, windowStart: now });
+    return true;
   }
   entry.count += 1;
-  if (entry.count > RATE_LIMIT) return false; // blocked
-  return true;
+  return entry.count <= RATE_LIMIT;
 }
 
 // ── Origin allowlist ──────────────────────────────────────────────────────────
@@ -85,97 +90,188 @@ const ALLOWED_ORIGINS = new Set([
   'https://staff.bn-automobiles.example',
 ]);
 
-// ── Zod body schema ───────────────────────────────────────────────────────────
+function isAllowedOrigin(origin: string, referer: string): boolean {
+  if (!origin) return true; // same-origin server-side fetches omit Origin
+  if (ALLOWED_ORIGINS.has(origin)) return true;
+  if (referer.startsWith('http://localhost:3001')) return true;
+  if (referer.startsWith('https://staff.bn-automobiles.example')) return true;
+  return false;
+}
 
-const AiProcessBodySchema = z.object({
+// ── Zod schemas ───────────────────────────────────────────────────────────────
+
+const PostBodySchema = z.object({
   shootId: z.string().min(1, 'shootId is required'),
+  assetIds: z.array(z.string().min(1)).min(1, 'at least one assetId required'),
+  aiVendor: z.enum(['NONE', 'SPYNE_AI', 'CUSTOM']).optional().default('SPYNE_AI'),
+  /** Per-shoot failure rate 0–100. Default 10. L_AI-17. */
+  failureRate: z.number().min(0).max(100).optional().default(10),
+  /** Seed for deterministic failure injection. L_AI-17. */
+  failureSeed: z.number().optional().default(0),
+  /** Outlet for RLS check. */
+  outletId: z.string().optional(),
 });
 
-// ── Audit log (in-memory per L_AI-14; persisted via backend in v1.5) ─────────
+const GetQuerySchema = z.object({
+  vendorJobId: z.string().min(1, 'vendorJobId is required'),
+});
+
+// ── Audit log ─────────────────────────────────────────────────────────────────
+
+type AuditResult =
+  | 'enqueued'
+  | 'poll-ok'
+  | 'forbidden'
+  | 'rate-limited'
+  | 'invalid-body'
+  | 'unauthorized';
 
 interface AiRouteAuditEvent {
   eventKind: 'ai_route_called';
+  verb: 'POST' | 'GET';
   shootId: string;
+  assetId?: string;
+  vendorJobId?: string;
   actorId: string;
   actorRole: string;
   outletId: string;
+  aiVendor?: string;
   at: string;
-  result: 'stub-ok' | 'forbidden' | 'rate-limited' | 'invalid-body' | 'unauthorized';
+  result: AuditResult;
 }
 
-// In-memory ring buffer (server restart resets; production = database)
 const auditLog: AiRouteAuditEvent[] = [];
 
 function appendAudit(event: AiRouteAuditEvent): void {
   auditLog.push(event);
-  // Keep last 1000 in memory
   if (auditLog.length > 1000) auditLog.shift();
 }
 
-// ── P1 stub shoot outletId resolver ──────────────────────────────────────────
-// In production, this would query the database. In P1 mock, we use a fixed
-// outlet for any shootId that starts with a known prefix; otherwise 'BLR-01'.
+// ── Stub shoot outletId resolver ──────────────────────────────────────────────
+// P1: all shoots belong to BLR-01 for outlet RLS; real backend queries DB.
 
 function resolveShootOutletId(_shootId: string): string {
-  // P1 stub: all shoots belong to BLR-01 for outlet RLS check
   return 'BLR-01';
 }
 
-// ── Route Handler ─────────────────────────────────────────────────────────────
+// ── Shared gate pipeline ──────────────────────────────────────────────────────
 
-export async function POST(req: NextRequest): Promise<NextResponse> {
-  const now = new Date().toISOString();
+type GateResult =
+  | { ok: true; session: StaffSession }
+  | { ok: false; response: NextResponse };
 
-  // ── (f) Origin allowlist ─────────────────────────────────────────────────
+function runGates(
+  req: NextRequest,
+  now: string,
+  verb: 'POST' | 'GET',
+  shootId: string,
+): GateResult {
+  // (f) Origin allowlist
   const origin = req.headers.get('origin') ?? '';
   const referer = req.headers.get('referer') ?? '';
-  const isAllowedOrigin =
-    ALLOWED_ORIGINS.has(origin) ||
-    referer.startsWith('http://localhost:3001') ||
-    referer.startsWith('https://staff.bn-automobiles.example') ||
-    // Allow same-origin requests (origin header absent in server-side fetches)
-    origin === '';
-
-  if (!isAllowedOrigin) {
-    return NextResponse.json(
-      { error: 'Forbidden — origin not allowed' },
-      { status: 403 },
-    );
+  if (!isAllowedOrigin(origin, referer)) {
+    return {
+      ok: false,
+      response: NextResponse.json(
+        { error: 'Forbidden — origin not allowed' },
+        { status: 403 },
+      ),
+    };
   }
 
-  // ── (a) Auth/session check ───────────────────────────────────────────────
+  // (a) Auth/session
   const session = getStaffSession(req);
   if (!session) {
-    return NextResponse.json(
-      { error: 'Unauthorized — missing or malformed session' },
-      { status: 401 },
-    );
+    return {
+      ok: false,
+      response: NextResponse.json(
+        { error: 'Unauthorized — missing or malformed session' },
+        { status: 401 },
+      ),
+    };
   }
 
-  // ── (e) Per-IP rate limit ────────────────────────────────────────────────
+  // (e) Rate limit
   const ip = req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? 'unknown';
   const rateLimitKey = `${ip}:${session.user.id}`;
   if (!checkRateLimit(rateLimitKey)) {
     appendAudit({
       eventKind: 'ai_route_called',
-      shootId: 'unknown',
+      verb,
+      shootId,
       actorId: session.user.id,
       actorRole: session.user.role,
       outletId: session.user.outletId,
       at: now,
       result: 'rate-limited',
     });
-    return NextResponse.json(
-      { error: 'Too many requests — rate limit exceeded (30/min)' },
-      { status: 429 },
-    );
+    return {
+      ok: false,
+      response: NextResponse.json(
+        { error: 'Too many requests — rate limit exceeded (30/min)' },
+        { status: 429 },
+      ),
+    };
   }
 
-  // ── (d) Zod-validate request body ───────────────────────────────────────
-  let body: { shootId: string };
+  // (b) Role rank ≥ R11
+  if (!isR11OrAbove(session.user.role)) {
+    appendAudit({
+      eventKind: 'ai_route_called',
+      verb,
+      shootId,
+      actorId: session.user.id,
+      actorRole: session.user.role,
+      outletId: session.user.outletId,
+      at: now,
+      result: 'forbidden',
+    });
+    return {
+      ok: false,
+      response: NextResponse.json(
+        { error: 'Forbidden — requires R11+ role' },
+        { status: 403 },
+      ),
+    };
+  }
+
+  // (c) Outlet RLS
+  if (!isGMOrAbove(session.user.role)) {
+    const shootOutletId = resolveShootOutletId(shootId);
+    if (session.user.outletId !== shootOutletId) {
+      appendAudit({
+        eventKind: 'ai_route_called',
+        verb,
+        shootId,
+        actorId: session.user.id,
+        actorRole: session.user.role,
+        outletId: session.user.outletId,
+        at: now,
+        result: 'forbidden',
+      });
+      return {
+        ok: false,
+        response: NextResponse.json(
+          { error: 'Forbidden — outlet isolation violation' },
+          { status: 403 },
+        ),
+      };
+    }
+  }
+
+  return { ok: true, session };
+}
+
+// ── POST handler ──────────────────────────────────────────────────────────────
+
+export async function POST(req: NextRequest): Promise<NextResponse> {
+  const now = new Date().toISOString();
+
+  // (d) Zod body validation
+  let body: z.infer<typeof PostBodySchema>;
   try {
     const raw = await req.json() as unknown;
-    const parsed = AiProcessBodySchema.safeParse(raw);
+    const parsed = PostBodySchema.safeParse(raw);
     if (!parsed.success) {
       return NextResponse.json(
         { error: 'Unprocessable — invalid body', details: parsed.error.flatten() },
@@ -190,70 +286,124 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     );
   }
 
-  const { shootId } = body;
+  const { shootId, assetIds, aiVendor, failureRate, failureSeed } = body;
 
-  // ── (b) Role-rank ≥ R11 ──────────────────────────────────────────────────
-  if (!isR11OrAbove(session.user.role)) {
+  // Gates (a,e,b,c,f)
+  const gateResult = runGates(req, now, 'POST', shootId);
+  if (!gateResult.ok) return gateResult.response;
+  const { session } = gateResult;
+
+  // Enqueue each asset via the vendor adapter (L_AI-15, L_AI-16)
+  const adapter = getAdapter(aiVendor);
+  const results: { assetId: string; vendorJobId: string }[] = [];
+
+  for (const assetId of assetIds) {
+    let vendorJobId: string;
+
+    if (aiVendor === 'SPYNE_AI') {
+      // Use enqueueWithPolicy to thread failureRate + failureSeed into mock (L_AI-17)
+      const enqueueResult = await enqueueWithPolicy({
+        shootId,
+        assetId,
+        rawUrl: '', // server-side mock: rawUrl is resolved in store; route passes id only
+        kind: '',
+        outletId: session.user.outletId,
+        actorId: session.user.id,
+        actorRole: session.user.role,
+        failureRate,
+        failureSeed,
+      });
+      vendorJobId = enqueueResult.vendorJobId;
+    } else {
+      const enqueueResult = await adapter.enqueue({
+        shootId,
+        assetId,
+        rawUrl: '',
+        kind: '',
+        outletId: session.user.outletId,
+        actorId: session.user.id,
+        actorRole: session.user.role,
+      });
+      vendorJobId = enqueueResult.vendorJobId;
+    }
+
+    results.push({ assetId, vendorJobId });
+
+    // (g) Audit log per asset
     appendAudit({
       eventKind: 'ai_route_called',
+      verb: 'POST',
       shootId,
+      assetId,
+      vendorJobId,
       actorId: session.user.id,
       actorRole: session.user.role,
       outletId: session.user.outletId,
+      aiVendor,
       at: now,
-      result: 'forbidden',
+      result: 'enqueued',
     });
+  }
+
+  return NextResponse.json(
+    { results, shootId, aiVendor, at: now },
+    {
+      status: 202,
+      headers: { 'Cache-Control': 'private, no-store' },
+    },
+  );
+}
+
+// ── GET handler ───────────────────────────────────────────────────────────────
+
+export async function GET(req: NextRequest): Promise<NextResponse> {
+  const now = new Date().toISOString();
+
+  // (d) Query param validation
+  const searchParams = Object.fromEntries(req.nextUrl.searchParams.entries());
+  const parsed = GetQuerySchema.safeParse(searchParams);
+  if (!parsed.success) {
     return NextResponse.json(
-      { error: 'Forbidden — requires R11+ role' },
-      { status: 403 },
+      { error: 'Unprocessable — missing vendorJobId query param', details: parsed.error.flatten() },
+      { status: 422 },
     );
   }
+  const { vendorJobId } = parsed.data;
 
-  // ── (c) Outlet RLS ───────────────────────────────────────────────────────
-  if (!isGMOrAbove(session.user.role)) {
-    const shootOutletId = resolveShootOutletId(shootId);
-    if (session.user.outletId !== shootOutletId) {
-      appendAudit({
-        eventKind: 'ai_route_called',
-        shootId,
-        actorId: session.user.id,
-        actorRole: session.user.role,
-        outletId: session.user.outletId,
-        at: now,
-        result: 'forbidden',
-      });
-      return NextResponse.json(
-        { error: 'Forbidden — outlet isolation violation' },
-        { status: 403 },
-      );
-    }
-  }
+  // Derive shootId from vendorJobId prefix for gates
+  // Format: 'spyne-<hash>' or 'none-<assetId>-<ts>'
+  const shootId = 'poll-' + vendorJobId;
 
-  // ── (g) Audit log ────────────────────────────────────────────────────────
+  // Gates (a,e,b,c,f)
+  const gateResult = runGates(req, now, 'GET', shootId);
+  if (!gateResult.ok) return gateResult.response;
+  const { session } = gateResult;
+
+  // Determine vendor from jobId prefix
+  const aiVendor = vendorJobId.startsWith('spyne-') ? 'SPYNE_AI' : 'NONE';
+  const adapter = getAdapter(aiVendor as 'NONE' | 'SPYNE_AI' | 'CUSTOM');
+
+  const pollResult = await adapter.poll(vendorJobId);
+
+  // (g) Audit log
   appendAudit({
     eventKind: 'ai_route_called',
+    verb: 'GET',
     shootId,
+    vendorJobId,
     actorId: session.user.id,
     actorRole: session.user.role,
     outletId: session.user.outletId,
+    aiVendor,
     at: now,
-    result: 'stub-ok',
+    result: 'poll-ok',
   });
 
-  // ── P1 stub response (L_AI-4) ────────────────────────────────────────────
   return NextResponse.json(
-    {
-      status: 'manual-only',
-      message: 'AI processing — Coming in v2.1. Asset marked manual-only.',
-      shootId,
-      processedBy: 'STUB',
-      at: now,
-    },
+    { ...pollResult, at: now },
     {
       status: 200,
-      headers: {
-        'Cache-Control': 'private, no-store',
-      },
+      headers: { 'Cache-Control': 'private, no-store' },
     },
   );
 }

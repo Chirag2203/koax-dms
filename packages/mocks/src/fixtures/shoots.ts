@@ -8,7 +8,7 @@
  *   - 3 pending  (just acquired, no photographer yet)
  *   - 3 scheduled  (photographer assigned, date set)
  *   - 2 in-progress (shoot underway, partial assets)
- *   - 4 completed   (≥10 photos + ≥1 video, completedAt stamped)
+ *   - 4 completed   (completedAt stamped; v1 count-only guard removed in v2.1 — L_AI-20)
  *
  * V2 exemplar shoots:
  *   - shoot-v2-001: Porsche Taycan — all 11 required slots approved + exteriors redacted
@@ -22,17 +22,6 @@
  */
 
 import type { Shoot, ShootAsset } from '@dms/types';
-
-// ─── Mock S3 URL helpers ──────────────────────────────────────────────────────
-// L4 (SPEC-SHOOTS-001): all asset URLs are mocked CDN paths
-
-function photoUrls(vin: string, count: number): string[] {
-  return Array.from({ length: count }, (_, i) => `https://cdn.bn.example/shoots/${vin}/${i + 1}.jpg`);
-}
-
-function videoUrl(vin: string, n = 1): string {
-  return `https://cdn.bn.example/shoots/${vin}/video-${n}.mp4`;
-}
 
 // ─── 1×1 transparent PNG data URL ────────────────────────────────────────────
 // Used as placeholder rawUrl / processedUrl in v2 exemplar fixtures (L_AI-10)
@@ -65,6 +54,9 @@ function makeApprovedExteriorAsset(
     aiRequestedAt: '2026-04-15T09:00:00.000Z',
     aiCompletedAt: null,
     aiErrorMessage: null,
+    aiRetryCount: 0,
+    aiLastFailedAt: null,
+    vendorJobId: null,
     capturedAt: '2026-04-15T08:00:00.000Z',
     capturedBy: 'staff-r11-001',
     s3Key: null,
@@ -99,6 +91,9 @@ function makeApprovedInteriorAsset(
     aiRequestedAt: '2026-04-15T09:00:00.000Z',
     aiCompletedAt: null,
     aiErrorMessage: null,
+    aiRetryCount: 0,
+    aiLastFailedAt: null,
+    vendorJobId: null,
     capturedAt: '2026-04-15T08:00:00.000Z',
     capturedBy: 'staff-r11-001',
     s3Key: null,
@@ -132,6 +127,9 @@ function makeApprovedWalkaroundAsset(
     aiRequestedAt: '2026-04-15T09:00:00.000Z',
     aiCompletedAt: null,
     aiErrorMessage: null,
+    aiRetryCount: 0,
+    aiLastFailedAt: null,
+    vendorJobId: null,
     capturedAt: '2026-04-15T08:00:00.000Z',
     capturedBy: 'staff-r11-001',
     s3Key: null,
@@ -173,9 +171,6 @@ export const shoots: Shoot[] = [
     scheduledAt: null,
     completedAt: null,
     status: 'pending',
-    assetCount: 0,
-    videoCount: 0,
-    assetUrls: [],
     createdAt: '2026-03-01T10:00:00.000Z',
     createdBy: 'staff-r10-001',
     notes: '',
@@ -187,7 +182,7 @@ export const shoots: Shoot[] = [
     assets: [],
     coverAssetId: null,
     aiVendor: 'NONE',
-    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false },
+    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false, failureRate: 10, failureSeed: 0, maxRetries: 3 },
   },
 
   {
@@ -197,9 +192,6 @@ export const shoots: Shoot[] = [
     scheduledAt: null,
     completedAt: null,
     status: 'pending',
-    assetCount: 0,
-    videoCount: 0,
-    assetUrls: [],
     createdAt: '2026-03-05T11:30:00.000Z',
     createdBy: 'staff-r10-001',
     notes: 'Priority shoot — listed quickly',
@@ -210,7 +202,7 @@ export const shoots: Shoot[] = [
     assets: [],
     coverAssetId: null,
     aiVendor: 'NONE',
-    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false },
+    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false, failureRate: 10, failureSeed: 0, maxRetries: 3 },
   },
 
   {
@@ -220,9 +212,6 @@ export const shoots: Shoot[] = [
     scheduledAt: null,
     completedAt: null,
     status: 'pending',
-    assetCount: 0,
-    videoCount: 0,
-    assetUrls: [],
     createdAt: '2026-03-10T09:00:00.000Z',
     createdBy: 'staff-r10-001',
     notes: '',
@@ -233,7 +222,7 @@ export const shoots: Shoot[] = [
     assets: [],
     coverAssetId: null,
     aiVendor: 'NONE',
-    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false },
+    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false, failureRate: 10, failureSeed: 0, maxRetries: 3 },
   },
 
   // ── Scheduled (3) — v1 migrated ───────────────────────────────────────────
@@ -245,9 +234,6 @@ export const shoots: Shoot[] = [
     scheduledAt: '2026-04-20T09:00:00.000Z',
     completedAt: null,
     status: 'scheduled',
-    assetCount: 0,
-    videoCount: 0,
-    assetUrls: [],
     createdAt: '2026-03-15T12:00:00.000Z',
     createdBy: 'staff-r10-001',
     notes: 'Studio slot booked',
@@ -258,7 +244,7 @@ export const shoots: Shoot[] = [
     assets: [],
     coverAssetId: null,
     aiVendor: 'NONE',
-    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false },
+    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false, failureRate: 10, failureSeed: 0, maxRetries: 3 },
   },
 
   {
@@ -268,9 +254,6 @@ export const shoots: Shoot[] = [
     scheduledAt: '2026-04-22T10:00:00.000Z',
     completedAt: null,
     status: 'scheduled',
-    assetCount: 0,
-    videoCount: 0,
-    assetUrls: [],
     createdAt: '2026-03-18T14:00:00.000Z',
     createdBy: 'staff-r10-001',
     notes: '',
@@ -281,7 +264,7 @@ export const shoots: Shoot[] = [
     assets: [],
     coverAssetId: null,
     aiVendor: 'NONE',
-    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false },
+    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false, failureRate: 10, failureSeed: 0, maxRetries: 3 },
   },
 
   {
@@ -291,9 +274,6 @@ export const shoots: Shoot[] = [
     scheduledAt: '2026-04-25T08:30:00.000Z',
     completedAt: null,
     status: 'scheduled',
-    assetCount: 0,
-    videoCount: 0,
-    assetUrls: [],
     createdAt: '2026-03-20T10:00:00.000Z',
     createdBy: 'staff-r10-001',
     notes: 'Outdoor shoot requested',
@@ -304,7 +284,7 @@ export const shoots: Shoot[] = [
     assets: [],
     coverAssetId: null,
     aiVendor: 'NONE',
-    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false },
+    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false, failureRate: 10, failureSeed: 0, maxRetries: 3 },
   },
 
   // ── In-Progress (2) — v1 migrated ─────────────────────────────────────────
@@ -316,9 +296,6 @@ export const shoots: Shoot[] = [
     scheduledAt: '2026-04-10T09:00:00.000Z',
     completedAt: null,
     status: 'in-progress',
-    assetCount: 6,
-    videoCount: 0,
-    assetUrls: photoUrls('WDD1900761A789012', 6),
     createdAt: '2026-03-25T11:00:00.000Z',
     createdBy: 'staff-r10-001',
     notes: '4 more photos + 1 video remaining',
@@ -329,7 +306,7 @@ export const shoots: Shoot[] = [
     assets: [],
     coverAssetId: null,
     aiVendor: 'NONE',
-    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false },
+    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false, failureRate: 10, failureSeed: 0, maxRetries: 3 },
   },
 
   {
@@ -339,9 +316,6 @@ export const shoots: Shoot[] = [
     scheduledAt: '2026-04-12T10:00:00.000Z',
     completedAt: null,
     status: 'in-progress',
-    assetCount: 8,
-    videoCount: 0,
-    assetUrls: photoUrls('WDC2229601A234567', 8),
     createdAt: '2026-03-28T09:00:00.000Z',
     createdBy: 'staff-r10-001',
     notes: 'Almost done — need video',
@@ -352,7 +326,7 @@ export const shoots: Shoot[] = [
     assets: [],
     coverAssetId: null,
     aiVendor: 'NONE',
-    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false },
+    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false, failureRate: 10, failureSeed: 0, maxRetries: 3 },
   },
 
   // ── Completed (4) — v1 migrated ───────────────────────────────────────────
@@ -364,12 +338,6 @@ export const shoots: Shoot[] = [
     scheduledAt: '2026-02-10T09:00:00.000Z',
     completedAt: '2026-02-10T13:00:00.000Z',
     status: 'completed',
-    assetCount: 14,
-    videoCount: 1,
-    assetUrls: [
-      ...photoUrls('WP0ZZZ98ZMS561902', 14),
-      videoUrl('WP0ZZZ98ZMS561902'),
-    ],
     createdAt: '2026-01-28T10:00:00.000Z',
     createdBy: 'staff-r10-001',
     notes: 'Full studio session — editorial + walk-around video',
@@ -380,7 +348,7 @@ export const shoots: Shoot[] = [
     assets: [],
     coverAssetId: null,
     aiVendor: 'NONE',
-    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false },
+    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false, failureRate: 10, failureSeed: 0, maxRetries: 3 },
   },
 
   {
@@ -390,12 +358,6 @@ export const shoots: Shoot[] = [
     scheduledAt: '2026-02-15T10:00:00.000Z',
     completedAt: '2026-02-15T14:30:00.000Z',
     status: 'completed',
-    assetCount: 12,
-    videoCount: 1,
-    assetUrls: [
-      ...photoUrls('WBA5U5C08MCF12345', 12),
-      videoUrl('WBA5U5C08MCF12345'),
-    ],
     createdAt: '2026-02-01T09:00:00.000Z',
     createdBy: 'staff-r10-001',
     notes: '',
@@ -406,7 +368,7 @@ export const shoots: Shoot[] = [
     assets: [],
     coverAssetId: null,
     aiVendor: 'NONE',
-    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false },
+    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false, failureRate: 10, failureSeed: 0, maxRetries: 3 },
   },
 
   {
@@ -416,13 +378,6 @@ export const shoots: Shoot[] = [
     scheduledAt: '2026-02-20T09:00:00.000Z',
     completedAt: '2026-02-20T13:45:00.000Z',
     status: 'completed',
-    assetCount: 11,
-    videoCount: 2,
-    assetUrls: [
-      ...photoUrls('WBAJY0C03MCG78901', 11),
-      videoUrl('WBAJY0C03MCG78901', 1),
-      videoUrl('WBAJY0C03MCG78901', 2),
-    ],
     createdAt: '2026-02-05T11:00:00.000Z',
     createdBy: 'staff-r10-001',
     notes: '2 videos — walk-around + feature highlight',
@@ -433,7 +388,7 @@ export const shoots: Shoot[] = [
     assets: [],
     coverAssetId: null,
     aiVendor: 'NONE',
-    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false },
+    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false, failureRate: 10, failureSeed: 0, maxRetries: 3 },
   },
 
   {
@@ -443,12 +398,6 @@ export const shoots: Shoot[] = [
     scheduledAt: '2026-03-01T09:00:00.000Z',
     completedAt: '2026-03-01T15:00:00.000Z',
     status: 'completed',
-    assetCount: 20,
-    videoCount: 1,
-    assetUrls: [
-      ...photoUrls('WDD2050301R567890', 20),
-      videoUrl('WDD2050301R567890'),
-    ],
     createdAt: '2026-02-15T10:00:00.000Z',
     createdBy: 'staff-r10-001',
     notes: 'Full day shoot — luxury editorial package',
@@ -459,7 +408,7 @@ export const shoots: Shoot[] = [
     assets: [],
     coverAssetId: null,
     aiVendor: 'NONE',
-    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false },
+    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false, failureRate: 10, failureSeed: 0, maxRetries: 3 },
   },
 
   // ── V2 Exemplar shoots (full 11-slot approved coverage) ───────────────────
@@ -471,9 +420,6 @@ export const shoots: Shoot[] = [
     scheduledAt: '2026-05-01T09:00:00.000Z',
     completedAt: null,
     status: 'in-progress',
-    assetCount: 0,
-    videoCount: 0,
-    assetUrls: [],
     createdAt: '2026-04-28T10:00:00.000Z',
     createdBy: 'staff-r11-001',
     notes: 'V2 exemplar — all 11 slots fully approved and LP-redacted',
@@ -484,7 +430,7 @@ export const shoots: Shoot[] = [
     assets: buildFullApprovedAssets('shoot-v2-001', 'WP0ZZZ98ZMS561902'),
     coverAssetId: 'shoot-v2-001-asset-front_3q_driver',
     aiVendor: 'NONE',
-    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false },
+    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false, failureRate: 10, failureSeed: 0, maxRetries: 3 },
   },
 
   {
@@ -494,9 +440,6 @@ export const shoots: Shoot[] = [
     scheduledAt: '2026-05-03T09:00:00.000Z',
     completedAt: null,
     status: 'in-progress',
-    assetCount: 0,
-    videoCount: 0,
-    assetUrls: [],
     createdAt: '2026-04-29T11:00:00.000Z',
     createdBy: 'staff-r11-001',
     notes: 'V2 exemplar — 11 required + engine_bay + boot optional slots',
@@ -511,7 +454,7 @@ export const shoots: Shoot[] = [
     ],
     coverAssetId: 'shoot-v2-002-asset-front_3q_driver',
     aiVendor: 'NONE',
-    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false },
+    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false, failureRate: 10, failureSeed: 0, maxRetries: 3 },
   },
 
   {
@@ -521,9 +464,6 @@ export const shoots: Shoot[] = [
     scheduledAt: '2026-05-05T09:00:00.000Z',
     completedAt: null,
     status: 'in-progress',
-    assetCount: 0,
-    videoCount: 0,
-    assetUrls: [],
     createdAt: '2026-04-30T10:00:00.000Z',
     createdBy: 'staff-r11-001',
     notes: 'V2 exemplar — partial (missing odometer + rear_seats + video_walkaround)',
@@ -545,6 +485,6 @@ export const shoots: Shoot[] = [
     ],
     coverAssetId: 'shoot-v2-003-asset-front_3q_driver',
     aiVendor: 'NONE',
-    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false },
+    aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false, failureRate: 10, failureSeed: 0, maxRetries: 3 },
   },
 ];

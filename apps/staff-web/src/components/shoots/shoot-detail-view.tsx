@@ -57,8 +57,8 @@ import {
   AssetApprovalPreconditionError,
 } from '@dms/types';
 import type { ShootAsset } from '@dms/types';
-import { InsufficientRoleError, SHOOT_REQUIRED_PHOTOS, SHOOT_REQUIRED_VIDEOS } from '@/src/lib/shoots/shoots-store';
-import { ShootIncompleteError, ShootNotFoundError } from '@dms/types';
+import { InsufficientRoleError } from '@/src/lib/shoots/shoots-store';
+import { ShootSlotIncompleteError, ShootNotFoundError } from '@dms/types';
 
 // ─── Module-level EMPTY fallbacks (CLAUDE.md §17.1) ──────────────────────────
 
@@ -308,6 +308,22 @@ export function ShootDetailView({ shootId }: ShootDetailViewProps) {
     setRedactingAssetId(assetId);
   }
 
+  async function handleAutoRedact(assetId: string) {
+    // L_AI-18: auto-detect LP + rasterise + redact in one action
+    try {
+      await useShootsStore.getState().autoRedactAsset(assetId, actor);
+      // Check if the asset was actually redacted (boxes found)
+      const updated = useShootsStore.getState().selectAssetById(assetId);
+      if (updated?.lpRedacted) {
+        toast(t('toasts.autoRedacted'), 'success');
+      } else {
+        toast(t('toasts.autoRedactNoPlate'), 'info');
+      }
+    } catch (err) {
+      toast(err instanceof Error ? err.message : String(err), 'error');
+    }
+  }
+
   function handleRedactConfirm(assetId: string, redactedDataUrl: string) {
     try {
       useShootsStore.getState().redactLicensePlate(assetId, redactedDataUrl, actor);
@@ -433,9 +449,10 @@ export function ShootDetailView({ shootId }: ShootDetailViewProps) {
       useShootsStore.getState().completeShoot(shoot.id, actor);
       toast('Shoot completed', 'success');
     } catch (err) {
-      if (err instanceof ShootIncompleteError) {
+      if (err instanceof ShootSlotIncompleteError) {
         toast(
-          `Shoot incomplete — need ${Math.max(0, SHOOT_REQUIRED_PHOTOS - err.assetCount)} more photo(s) and ${Math.max(0, SHOOT_REQUIRED_VIDEOS - err.videoCount)} more video(s).`,
+          // L_AI-20: v2.1 — ShootSlotIncompleteError enumerates missing slot kinds
+          `Shoot incomplete — missing required slots: ${err.missingKinds.join(', ')}.`,
           'error',
         );
       } else {
@@ -688,6 +705,7 @@ export function ShootDetailView({ shootId }: ShootDetailViewProps) {
                         isCover={shoot.coverAssetId === asset?.id}
                         onUploadRaw={handleUploadRaw}
                         onRedact={handleRedact}
+                        onAutoRedact={handleAutoRedact}
                         onApprove={handleApprove}
                         onUnapprove={handleUnapprove}
                         onForceApprove={handleForceApprove}

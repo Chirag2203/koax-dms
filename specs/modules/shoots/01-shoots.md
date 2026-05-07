@@ -3,7 +3,7 @@ spec_id: SPEC-SHOOTS-001
 title: Photo/Video Shoot Scheduling
 domain: shoots
 status: approved
-version: 1.0
+version: 1.1
 risk_level: low
 pii_sensitivity: none
 flags: []
@@ -25,7 +25,7 @@ related_docs:
 | Tag | Title | Decision | Source |
 |---|---|---|---|
 | L1 | Auto-create on ACQUIRED | When a vehicle emits an `ACQUIRED` SalesEvent (in the vehicles-store hydrator Phase C or via live `emitSalesEvent`), a `Shoot` entity is auto-created with `status: 'pending'` and the VIN linked. Creation fires from the UI layer (Seam 39). | Doc 04 §marketing; cross-module rule per SPEC-ARCH-UI-001 |
-| L2 | LISTED guard: ≥10 photos + 1 video | A vehicle cannot transition to LISTED unless its linked Shoot has `assetCount >= 10` AND `videoCount >= 1`. Enforced by `ShootIncompleteError` thrown from `emitSalesEvent` in the sales-events-slice. Checked via `shoots-store.getShootByVin(vin)` at the LISTED call site (Seam 40). | Doc 04 §marketing; hardcoded for v1 — outlet-configurable in v1.5 (L_DEFER_1) |
+| L2 | **[SUPERSEDED by L_AI-6 — see SPEC-SHOOTS-002 §1.7 / §10]** LISTED guard: ≥10 photos + 1 video | *Original (v1.0):* A vehicle cannot transition to LISTED unless its linked Shoot has `assetCount >= 10` AND `videoCount >= 1`. Enforced by `ShootIncompleteError` thrown from `emitSalesEvent` in the sales-events-slice. Checked via `shoots-store.getShootByVin(vin)` at the LISTED call site (Seam 40). | Doc 04 §marketing; hardcoded for v1 — outlet-configurable in v1.5 (L_DEFER_1) |
 | L3 | Photographer role gate: R11 | Assigning a photographer to a shoot is gated behind role R11 (Marketing Manager per Doc 14). The `assignPhotographer` action rejects actors with rank < R11. | Doc 14 §R11 |
 | L4 | Asset URLs are mocked S3 paths | Asset URLs use the pattern `https://cdn.bn.example/shoots/{vin}/{n}.jpg` (photos) and `https://cdn.bn.example/shoots/{vin}/video-{n}.mp4` (video). No real S3 integration in v1. | No-dep constraint per build brief |
 | L5 | Status progression | Shoot status progresses: `pending → scheduled → in-progress → completed`. Transitions are one-directional. `completed` is terminal and required before LISTED is allowed. | Domain model §3 |
@@ -278,9 +278,25 @@ class InsufficientRoleError extends Error {
 
 ---
 
-## 10. Changelog
+## 10. L2 supersession by L_AI-6 (v2.1)
+
+### 10.1 Trigger
+
+SPEC-SHOOTS-002 v2.1 (L_AI-20) removes `Shoot.assetCount`, `Shoot.videoCount`, and `Shoot.assetUrls` from the schema. The count-only predicate enshrined in L2 becomes mechanically inexpressible. The 11-slot predicate (L_AI-6) takes over as the sole LISTED gate.
+
+### 10.2 Migration path
+
+Active LISTED transitions post-v2.1 deploy use `assertShootComplete(vin, currentlyListed)` exclusively against the v2 11-slot predicate. The grandfather rule (SC-20) keeps continuously-LISTED v1 vehicles in LISTED state without re-evaluation. UNLISTED→LISTED re-transitions trigger v2 (SC-26).
+
+### 10.3 Fallback handling
+
+No v1 fallback exists after v2.1. The v1 count-fallback block previously at `apps/staff-web/src/lib/shoots/shoots-listed-guard.ts:73-84` is deleted in T06. An unknown shoot still returns silently (L9 unchanged). `ShootIncompleteError` is retained as a `@deprecated` export for archeological clarity; no live throw site exists.
+
+---
+
+## 11. Changelog
 
 | Date | Version | Author | Change |
 |---|---|---|---|
 | 2026-04-30 | 1.0 | orchestrator | Initial approved spec |
-| 2026-05-08 | v1.0+ | Claude (orchestrator) | Sibling spec SPEC-SHOOTS-002 (AI-driven consistent imagery) drafted; §L2 marked [SUPERSEDED by L_AI-6 — see SPEC-SHOOTS-002 §1.7] in v2.1; v1 remains canonical for the count-only LISTED guard until v2.1. |
+| 2026-05-08 | 1.1 | orchestrator | §L2 superseded by SPEC-SHOOTS-002 §L_AI-6 (v2.1). v1 count-only LISTED predicate retired alongside the v2.1 schema cleanup (L_AI-20). Code comments referencing L2 stay valid; new code references L_AI-6. Per CLAUDE §14 supersession protocol. New §10 "L2 supersession by L_AI-6 (v2.1)" appended with Trigger / Migration path / Fallback handling subsections. Frontmatter version 1.0 → 1.1. |

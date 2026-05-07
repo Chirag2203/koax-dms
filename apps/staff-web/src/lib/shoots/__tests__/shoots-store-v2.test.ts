@@ -146,48 +146,38 @@ describe('SC-7: R09 cannot addRawAsset', () => {
   });
 });
 
-// ─── SC-2: requestAiProcess (P1 stub) sets manual-only ───────────────────────
+// ─── SC-2: requestAiProcess (v2.1 async) ─────────────────────────────────────
+// requestAiProcess is async (L_AI-16). In test env the fetch fails → manual-only fallback.
 
-describe('SC-2: requestAiProcess P1 stub', () => {
-  it('sets aiStatus=manual-only for all pending assets in the shoot', () => {
+describe('SC-2: requestAiProcess v2.1', () => {
+  it('sets aiStatus=manual-only for all pending assets when fetch fails (test env fallback)', async () => {
     const shoot = createTestShoot();
     useShootsStore.getState().addRawAsset(shoot.id, TINY_PNG, 'front_3q_driver', r11);
     useShootsStore.getState().addRawAsset(shoot.id, TINY_PNG, 'dashboard', r11);
 
-    useShootsStore.getState().requestAiProcess(shoot.id, r11);
+    // Fetch will fail in Vitest (no server) → fallback to manual-only
+    await useShootsStore.getState().requestAiProcess(shoot.id, r11);
 
     const updated = useShootsStore.getState().shoots[shoot.id]!;
     for (const asset of updated.assets) {
       expect(asset.aiStatus).toBe('manual-only');
-      expect(asset.processedUrl).toBe(TINY_PNG); // rawUrl copied to processedUrl
+      expect(asset.processedUrl).toBe(TINY_PNG); // rawUrl copied to processedUrl on fallback
     }
   });
 
-  it('emits shoot_asset_ai_requested audit event', () => {
+  it('rejects requestAiProcess for ranks below R11 (R09 SA)', async () => {
     const shoot = createTestShoot();
-    useShootsStore.getState().addRawAsset(shoot.id, TINY_PNG, 'dashboard', r11);
-    useShootsStore.getState().requestAiProcess(shoot.id, r11);
-
-    const events = useShootsStore.getState().auditEvents;
-    const aiEvent = events.find((e) => e.eventKind === 'shoot_asset_ai_requested');
-    expect(aiEvent).toBeDefined();
-    expect(aiEvent?.actorRole).toBe('R11');
-    expect(aiEvent?.extra?.stub).toBe(true);
-  });
-
-  it('rejects requestAiProcess for ranks below R11 (R09 SA)', () => {
-    const shoot = createTestShoot();
-    expect(() =>
+    await expect(
       useShootsStore.getState().requestAiProcess(shoot.id, r09),
-    ).toThrow(AssetApprovalPreconditionError);
+    ).rejects.toThrow(AssetApprovalPreconditionError);
   });
 
-  it('permits requestAiProcess for R24 (CEO, rank > R11) per user direction 2026-05-08', () => {
+  it('permits requestAiProcess for R24 (CEO, rank > R11) per user direction 2026-05-08', async () => {
     const shoot = createTestShoot();
     const r24: ShootActor = { id: 'user-r24', name: 'CEO', role: 'R24' };
-    expect(() =>
+    await expect(
       useShootsStore.getState().requestAiProcess(shoot.id, r24),
-    ).not.toThrow();
+    ).resolves.not.toThrow();
   });
 });
 
@@ -523,9 +513,11 @@ describe('SC-12: LISTED guard — missing required slots', () => {
 });
 
 // ─── SC-22: v1 fixture round-trips through schema ────────────────────────────
+// L_AI-20: _seed strips deprecated fields (assetCount, videoCount, assetUrls).
+// v1 fixtures are fully migrated to v2 shape — no back-compat retention.
 
 describe('SC-22: v1 → v2 schema migration', () => {
-  it('v1 fixture with assetUrls gets assets=[] after _seed', () => {
+  it('v1 fixture with assetUrls gets assets=[] after _seed and deprecated fields stripped', () => {
     const v1Shoot = {
       id: 'shoot-test-v1',
       vin: 'WBA5U5C08MCF12345',
@@ -543,7 +535,7 @@ describe('SC-22: v1 → v2 schema migration', () => {
       // No v2 fields — simulates v1 fixture
     };
 
-    // _seed normalizes v1 fixtures by adding v2 defaults
+    // _seed normalizes v1 fixtures by adding v2 defaults and stripping removed fields (L_AI-20)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     useShootsStore.getState()._seed([v1Shoot as any]);
 
@@ -552,11 +544,17 @@ describe('SC-22: v1 → v2 schema migration', () => {
     expect(seeded?.assets).toEqual([]);
     expect(seeded?.coverAssetId).toBeNull();
     expect(seeded?.aiVendor).toBe('NONE');
-    // v1 assetUrls are preserved for back-compat
-    expect(seeded?.assetUrls).toHaveLength(1);
+    // L_AI-20: deprecated fields stripped by _seed — must be undefined
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect((seeded as any)?.assetUrls).toBeUndefined();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect((seeded as any)?.assetCount).toBeUndefined();
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect((seeded as any)?.videoCount).toBeUndefined();
   });
 
-  it('deprecated assetUrls field is still readable on v1 migrated shoot', () => {
+  it('v1 fixture with multiple assetUrls has them stripped; assets remains empty', () => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     useShootsStore.getState()._seed([{
       id: 'shoot-test-v1b',
       vin: 'WBAJY0C03MCG78901',
@@ -575,7 +573,11 @@ describe('SC-22: v1 → v2 schema migration', () => {
     } as any]);
 
     const shoot = useShootsStore.getState().shoots['shoot-test-v1b'];
-    expect(shoot?.assetUrls).toHaveLength(4);
+    // L_AI-20: assetUrls is deleted by _seed
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    expect((shoot as any)?.assetUrls).toBeUndefined();
+    // v2 assets array is the authoritative source
+    expect(shoot?.assets).toEqual([]);
   });
 });
 
@@ -689,7 +691,10 @@ describe('selectStorefrontGalleryForVin', () => {
     expect(result.coverUrl).toBeNull();
   });
 
-  it('v1 shoot with legacy assetUrls still returns unavailable (assets[] is empty)', () => {
+  it('v1 shoot migrated via _seed still returns pending (assets[] is empty after migration)', () => {
+    // L_AI-20: _seed strips assetCount/videoCount/assetUrls; assets=[] is authoritative.
+    // A "completed" v1 shoot with assetUrls still gets assets=[], so gallery shows pending.
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     useShootsStore.getState()._seed([{
       id: 'shoot-v1-gallery-test',
       vin: 'WDD2050301R567890',
@@ -707,7 +712,7 @@ describe('selectStorefrontGalleryForVin', () => {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any]);
 
-    // v1 shoot has assets=[] so selectStorefrontGalleryForVin returns pending (shoot exists, no assets)
+    // v1 shoot has assets=[] after migration → gallery returns pending (shoot exists, no assets)
     const result = useShootsStore
       .getState()
       .selectStorefrontGalleryForVin('WDD2050301R567890');

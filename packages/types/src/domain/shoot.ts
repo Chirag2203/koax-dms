@@ -96,6 +96,12 @@ export const ShootAssetSchema = z.object({
   aiRequestedAt: z.string().nullable(),
   aiCompletedAt: z.string().nullable(),
   aiErrorMessage: z.string().nullable(),
+  /** L_AI-19: number of retry attempts made on this asset (incremented by retryAiProcess). */
+  aiRetryCount: z.number().int().min(0).default(0),
+  /** L_AI-19: ISO timestamp of the most recent AI failure on this asset. */
+  aiLastFailedAt: z.string().nullable().default(null),
+  /** L_AI-16: vendorJobId returned by the adapter enqueue call; null until queued. */
+  vendorJobId: z.string().nullable().default(null),
   capturedAt: z.string(),
   capturedBy: z.string(),
   /** L_AI-10: additive field for P2 S3 swap-in; null in mock phase */
@@ -131,22 +137,10 @@ export const ShootSchema = z.object({
   scheduledAt: z.string().datetime().nullable(),
   completedAt: z.string().datetime().nullable(),
   status: ShootStatusEnum,
-  /**
-   * @deprecated — use assets[] instead; will be removed in v2.1.
-   * Number of photo assets uploaded (mock) — LISTED guard requires ≥10 (L2)
-   */
-  assetCount: z.number().int().nonnegative(),
-  /**
-   * @deprecated — use assets[] instead; will be removed in v2.1.
-   * Number of video assets uploaded (mock) — LISTED guard requires ≥1 (L2)
-   */
-  videoCount: z.number().int().nonnegative(),
-  /**
-   * @deprecated — use assets[] instead; will be removed in v2.1.
-   * L4: Mocked S3 asset URLs.
-   * Pattern: https://cdn.bn.example/shoots/{vin}/{n}.jpg or /video-{n}.mp4
-   */
-  assetUrls: z.array(z.string()).default([]),
+  // assetCount, videoCount, assetUrls REMOVED in v2.1 (L_AI-20).
+  // Use shoot.assets.length, shoot.assets.filter(a => a.kind === 'video_walkaround').length,
+  // and shoot.assets.map(a => a.processedUrl ?? a.rawUrl) respectively.
+  // ShootIncompleteError is retained as @deprecated export for archeological clarity.
   createdAt: z.string().datetime(),
   createdBy: z.string().min(1),
   notes: z.string(),
@@ -160,13 +154,31 @@ export const ShootSchema = z.object({
   assets: z.array(ShootAssetSchema).default([]),
   /** v2: ID of the designated cover asset (defaults to front_3q_driver). */
   coverAssetId: z.string().nullable().default(null),
-  /** v2: AI vendor in use. NONE in P1 stub (L_AI-4). */
-  aiVendor: z.enum(['NONE', 'SPYNE_AI', 'CUSTOM']).default('NONE'),
-  /** v2: Per-shoot AI processing policy. Both false in P1 (L_AI-4). */
+  /**
+   * v2: AI vendor in use.
+   * NONE in P1 stub; SPYNE_AI default for new shoots post-v2.1 (L_AI-4, L_AI-15).
+   */
+  aiVendor: z.enum(['NONE', 'SPYNE_AI', 'CUSTOM']).default('SPYNE_AI'),
+  /**
+   * v2: Per-shoot AI processing policy.
+   * Extended in v2.1 with failureRate/failureSeed/maxRetries (L_AI-17, L_AI-19).
+   */
   aiPolicy: z.object({
     autoQueueOnUpload: z.boolean(),
     autoApproveProcessed: z.boolean(),
-  }).default({ autoQueueOnUpload: false, autoApproveProcessed: false }),
+    /** L_AI-17: deterministic failure rate 0–100 (default 10 = 10%). */
+    failureRate: z.number().min(0).max(100).default(10),
+    /** L_AI-17: seed for reproducible failure injection in tests. */
+    failureSeed: z.number().default(0),
+    /** L_AI-19: max retries before permanent manual-only (default 3). */
+    maxRetries: z.number().int().min(0).default(3),
+  }).default({
+    autoQueueOnUpload: false,
+    autoApproveProcessed: false,
+    failureRate: 10,
+    failureSeed: 0,
+    maxRetries: 3,
+  }),
 });
 
 export type Shoot = z.infer<typeof ShootSchema>;
@@ -178,19 +190,25 @@ export type Shoot = z.infer<typeof ShootSchema>;
  * does not meet the ≥10 photos + ≥1 video threshold.
  *
  * Spec reference: SPEC-SHOOTS-001 L2
- * @deprecated — superseded by ShootSlotIncompleteError in v2 flag-gated transitions
+ *
+ * @deprecated — superseded by ShootSlotIncompleteError (v2 flag-gated LISTED transitions).
+ * The v1 count-only LISTED guard is removed in v2.1 (L_AI-20). No live throw site exists
+ * after v2.1; retained as an export for archeological clarity and v1 test back-compat.
+ * See SPEC-SHOOTS-001 §10 (L2 supersession by L_AI-6).
  */
 export class ShootIncompleteError extends Error {
   readonly vin: string;
+  /** @deprecated v1 field — use shoot.assets.length instead */
   readonly assetCount: number;
+  /** @deprecated v1 field — use shoot.assets.filter(a => a.kind === 'video_walkaround').length */
   readonly videoCount: number;
   readonly requiredPhotos: number;
   readonly requiredVideos: number;
 
   constructor(
     vin: string,
-    assetCount: number,
-    videoCount: number,
+    assetCount = 0,
+    videoCount = 0,
     requiredPhotos = 10,
     requiredVideos = 1,
   ) {

@@ -76,7 +76,7 @@ function ShootRow({ shoot }: { shoot: Shoot }) {
       {/* Photo count */}
       <div className="hidden md:flex items-center gap-1 text-xs text-ink-secondary w-24">
         <Camera size={13} aria-hidden="true" />
-        <span className="tabular-nums">{shoot.assetCount}</span>
+        <span className="tabular-nums">{shoot.assets.length}</span>
         <span className="text-ink-muted">/10 photos</span>
       </div>
 

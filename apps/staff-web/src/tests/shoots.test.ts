@@ -1,30 +1,38 @@
 /**
  * Shoots module tests — SPEC-SHOOTS-001 §7 (Scenarios)
  *
+ * Migrated to v2.1: assetCount/videoCount/assetUrls removed (L_AI-20).
+ * Tests now use assets[] for coverage checks (v2 11-slot guard).
+ *
  * Covers:
  *   - SC-01: Auto-create shoot on ACQUIRED (Seam 39)
- *   - SC-02: LISTED guard blocked when shoot incomplete (Seam 40)
- *   - SC-03: LISTED guard passes when shoot complete
+ *   - SC-02: LISTED guard blocked when shoot incomplete (v2 slot guard)
+ *   - SC-03: LISTED guard passes when shoot has all required approved slots
  *   - SC-04: Photographer assignment gated to R11+
  *   - SC-05: Photographer assignment succeeds for R11
- *   - SC-06: Shoot completion blocked with insufficient assets
- *   - SC-07: Shoot completion succeeds with ≥10 photos + ≥1 video
+ *   - SC-06: Shoot completion blocked with insufficient approved slots
+ *   - SC-07: Shoot completion succeeds with all required approved slots
  *   - SC-08: Idempotent auto-create — second createShoot skips
- *   - SC-09: Mock asset add increments counters and appends URL
+ *   - SC-09: addMockAsset (deprecated v1 API) still advances status to in-progress
  *   - SC-10: No shoot for VIN — LISTED guard is skipped
  *   - SC-11: selectByStatus filters correctly
  *   - SC-12: getShootByVin returns correct shoot
  *   - SC-13: scheduleShoot advances status to scheduled
  *   - SC-14: startShoot advances status to in-progress
  *
- * Spec reference: SPEC-SHOOTS-001 §7 (Scenarios)
+ * Spec reference: SPEC-SHOOTS-001 §7 + SPEC-SHOOTS-002 L_AI-20
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useShootsStore, SHOOT_REQUIRED_PHOTOS, SHOOT_REQUIRED_VIDEOS, InsufficientRoleError } from '@/src/lib/shoots/shoots-store';
+import { useShootsStore, InsufficientRoleError } from '@/src/lib/shoots/shoots-store';
 import { assertShootComplete } from '@/src/lib/shoots/shoots-listed-guard';
-import { ShootIncompleteError, ShootNotFoundError } from '@dms/types';
-import type { Shoot } from '@dms/types';
+import {
+  ShootIncompleteError,
+  ShootNotFoundError,
+  ShootSlotIncompleteError,
+} from '@dms/types';
+import type { Shoot, ShootAsset } from '@dms/types';
+import { getRequiredSlots } from '@/src/lib/shoots/asset-slot-definitions';
 
 // ─── Test actor helpers ───────────────────────────────────────────────────────
 
@@ -40,12 +48,67 @@ function resetStore() {
     shoots: {},
     shootIdByVin: {},
     hydrated: false,
+    auditEvents: [],
   });
+}
+
+// ─── Minimal approved asset factory ──────────────────────────────────────────
+
+const TINY_PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+
+function makeApprovedAsset(
+  shootId: string,
+  vin: string,
+  kind: ShootAsset['kind'],
+  idx: number,
+  lpRedacted = false,
+): ShootAsset {
+  return {
+    id: `${shootId}-asset-${kind}`,
+    shootId,
+    vin,
+    kind,
+    sortOrder: idx,
+    rawUrl: TINY_PNG,
+    processedUrl: TINY_PNG,
+    approved: true,
+    approvedAt: '2026-04-15T10:00:00.000Z',
+    approvedBy: 'staff-r11-001',
+    lpRedacted,
+    redactedAt: lpRedacted ? '2026-04-15T09:30:00.000Z' : null,
+    redactedBy: lpRedacted ? 'staff-r11-001' : null,
+    aiStatus: 'manual-only',
+    aiRequestedAt: null,
+    aiCompletedAt: null,
+    aiErrorMessage: null,
+    aiRetryCount: 0,
+    aiLastFailedAt: null,
+    vendorJobId: null,
+    capturedAt: '2026-04-15T08:00:00.000Z',
+    capturedBy: 'staff-r11-001',
+    s3Key: null,
+    forceApprovedWithoutRedaction: false,
+    forceApprovedReason: null,
+    forceApprovedBy: null,
+    forceApprovedAt: null,
+  };
+}
+
+/** Build all 11 required approved assets for a shoot. */
+function buildAllRequiredApprovedAssets(shootId: string, vin: string): ShootAsset[] {
+  const required = getRequiredSlots().map((s) => s.kind);
+  const exteriorKinds = new Set([
+    'front_3q_driver', 'front_3q_passenger', 'rear_3q_driver', 'rear_3q_passenger',
+    'driver_profile', 'passenger_profile', 'front_straight', 'rear_straight', 'video_walkaround',
+  ]);
+  return required.map((kind, idx) =>
+    makeApprovedAsset(shootId, vin, kind, idx, exteriorKinds.has(kind)),
+  );
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
 
-describe('Shoots store — SPEC-SHOOTS-001', () => {
+describe('Shoots store — SPEC-SHOOTS-001 + L_AI-20 migration', () => {
   beforeEach(() => {
     resetStore();
   });
@@ -62,9 +125,11 @@ describe('Shoots store — SPEC-SHOOTS-001', () => {
 
     expect(shoot.vin).toBe('VIN1234567890ABCDE');
     expect(shoot.status).toBe('pending');
-    expect(shoot.assetCount).toBe(0);
-    expect(shoot.videoCount).toBe(0);
-    expect(shoot.assetUrls).toHaveLength(0);
+    // L_AI-20: deprecated fields are no longer present
+    expect((shoot as unknown as Record<string, unknown>).assetCount).toBeUndefined();
+    expect((shoot as unknown as Record<string, unknown>).videoCount).toBeUndefined();
+    expect((shoot as unknown as Record<string, unknown>).assetUrls).toBeUndefined();
+    expect(shoot.assets).toHaveLength(0);
     expect(shoot.photographerId).toBeNull();
     expect(shoot.vehicleMake).toBe('BMW');
     expect(shoot.vehicleModel).toBe('M3');
@@ -72,36 +137,46 @@ describe('Shoots store — SPEC-SHOOTS-001', () => {
     expect(shoot.createdBy).toBe(actorR10.id);
   });
 
-  // SC-02: LISTED guard blocked when shoot incomplete (Seam 40)
-  it('SC-02: assertShootComplete throws ShootIncompleteError when assets insufficient', () => {
+  // SC-02: LISTED guard blocked when shoot incomplete (v2 11-slot guard)
+  it('SC-02: assertShootComplete throws ShootSlotIncompleteError when slots missing', () => {
     const store = useShootsStore.getState();
 
-    // Create shoot with 5 photos and 0 videos
+    // Create shoot — no approved assets yet
     const shoot = store.createShoot('WBA1234567890DEFG', 'BLR-01', actorR10);
-    // Seed 5 photos manually
+
+    // Seed partial approved assets (missing many required kinds)
     useShootsStore.setState((state) => {
       const s = state.shoots[shoot.id];
       if (s) {
-        s.assetCount = 5;
-        s.assetUrls = Array.from({ length: 5 }, (_, i) => `https://cdn.bn.example/shoots/WBA1234567890DEFG/${i + 1}.jpg`);
+        s.assets = [
+          makeApprovedAsset(shoot.id, 'WBA1234567890DEFG', 'front_3q_driver', 0, true),
+          makeApprovedAsset(shoot.id, 'WBA1234567890DEFG', 'front_3q_passenger', 1, true),
+        ];
       }
     });
 
-    expect(() => assertShootComplete('WBA1234567890DEFG')).toThrow(ShootIncompleteError);
+    // Guard throws ShootSlotIncompleteError (v2.1 — not ShootIncompleteError)
+    expect(() => assertShootComplete('WBA1234567890DEFG')).toThrow(ShootSlotIncompleteError);
   });
 
-  // SC-03: LISTED guard passes when shoot complete
-  it('SC-03: assertShootComplete does NOT throw when shoot has ≥10 photos + ≥1 video', () => {
+  // SC-02 (v1 back-compat): ShootIncompleteError still instantiable as @deprecated
+  it('SC-02b: ShootIncompleteError is still instantiable (deprecated back-compat)', () => {
+    const err = new ShootIncompleteError('TESTVIN000000001A', 5, 0);
+    expect(err.vin).toBe('TESTVIN000000001A');
+    expect(err.assetCount).toBe(5);
+    expect(err.videoCount).toBe(0);
+    expect(err.message).toContain('TESTVIN000000001A');
+  });
+
+  // SC-03: LISTED guard passes when all required approved slots present
+  it('SC-03: assertShootComplete does NOT throw when all required slots have approved assets', () => {
     const store = useShootsStore.getState();
 
     const shoot = store.createShoot('WP01234567890ABCD', 'MUM-01', actorR10);
     useShootsStore.setState((state) => {
       const s = state.shoots[shoot.id];
       if (s) {
-        s.assetCount = 12;
-        s.videoCount = 1;
-        s.assetUrls = Array.from({ length: 12 }, (_, i) => `https://cdn.bn.example/shoots/WP01234567890ABCD/${i + 1}.jpg`);
-        s.assetUrls.push('https://cdn.bn.example/shoots/WP01234567890ABCD/video-1.mp4');
+        s.assets = buildAllRequiredApprovedAssets(shoot.id, 'WP01234567890ABCD');
         s.status = 'completed';
         s.completedAt = new Date().toISOString();
       }
@@ -143,33 +218,32 @@ describe('Shoots store — SPEC-SHOOTS-001', () => {
     expect(updated?.photographerId).toBe('staff-r11-001');
   });
 
-  // SC-06: Shoot completion blocked with insufficient assets
-  it('SC-06: completeShoot throws ShootIncompleteError when assetCount < 10 or videoCount < 1', () => {
+  // SC-06: Shoot completion blocked with insufficient approved slots
+  it('SC-06: completeShoot throws ShootSlotIncompleteError when required kinds missing', () => {
     const store = useShootsStore.getState();
     const shoot = store.createShoot('WP0ABCDEF12345678', 'BLR-01', actorR10);
 
-    // 8 photos, 0 videos
+    // Set status to in-progress but no approved assets
     useShootsStore.setState((state) => {
       const s = state.shoots[shoot.id];
       if (s) {
-        s.assetCount = 8;
         s.status = 'in-progress';
       }
     });
 
-    expect(() => store.completeShoot(shoot.id, actorR11)).toThrow(ShootIncompleteError);
+    // completeShoot now uses assertShootComplete v2 — throws ShootSlotIncompleteError
+    expect(() => store.completeShoot(shoot.id, actorR11)).toThrow(ShootSlotIncompleteError);
   });
 
-  // SC-07: Shoot completion succeeds with ≥10 photos + ≥1 video
-  it('SC-07: completeShoot succeeds with ≥10 photos and ≥1 video', () => {
+  // SC-07: Shoot completion succeeds with all required approved slots
+  it('SC-07: completeShoot succeeds when all required slots have approved assets', () => {
     const store = useShootsStore.getState();
     const shoot = store.createShoot('WBSABCDEF12345678', 'MUM-01', actorR10);
 
     useShootsStore.setState((state) => {
       const s = state.shoots[shoot.id];
       if (s) {
-        s.assetCount = SHOOT_REQUIRED_PHOTOS;
-        s.videoCount = SHOOT_REQUIRED_VIDEOS;
+        s.assets = buildAllRequiredApprovedAssets(shoot.id, 'WBSABCDEF12345678');
         s.status = 'in-progress';
       }
     });
@@ -196,30 +270,30 @@ describe('Shoots store — SPEC-SHOOTS-001', () => {
     ).toBe(1);
   });
 
-  // SC-09: Mock asset add increments counters and appends URL
-  it('SC-09: addMockAsset increments assetCount and appends L4 CDN URL', () => {
+  // SC-09: addMockAsset (deprecated v1 API) — advances status but no longer updates removed fields
+  it('SC-09: addMockAsset (deprecated) advances status to in-progress', () => {
     const store = useShootsStore.getState();
     const shoot = store.createShoot('WBA0000000000ABCD', 'BLR-01', actorR10);
 
     store.addMockAsset(shoot.id, 'photo', actorR11);
 
     const updated = useShootsStore.getState().shoots[shoot.id];
-    expect(updated?.assetCount).toBe(1);
-    expect(updated?.assetUrls).toHaveLength(1);
-    expect(updated?.assetUrls[0]).toMatch(/^https:\/\/cdn\.bn\.example\/shoots\/WBA0000000000ABCD\/\d+\.jpg$/);
-    expect(updated?.status).toBe('in-progress'); // auto-advance
+    expect(updated?.status).toBe('in-progress'); // still advances status
+    // L_AI-20: deprecated fields no longer exist in the schema
+    expect((updated as unknown as Record<string, unknown>).assetCount).toBeUndefined();
+    expect((updated as unknown as Record<string, unknown>).assetUrls).toBeUndefined();
   });
 
-  // SC-09b: Video asset
-  it('SC-09b: addMockAsset for video increments videoCount and appends video URL', () => {
+  // SC-09b: Video asset variant
+  it('SC-09b: addMockAsset for video (deprecated) advances status to in-progress', () => {
     const store = useShootsStore.getState();
     const shoot = store.createShoot('WDC0000000000ABCD', 'MUM-01', actorR10);
 
     store.addMockAsset(shoot.id, 'video', actorR11);
 
     const updated = useShootsStore.getState().shoots[shoot.id];
-    expect(updated?.videoCount).toBe(1);
-    expect(updated?.assetUrls[0]).toContain('video-');
+    expect(updated?.status).toBe('in-progress');
+    expect((updated as unknown as Record<string, unknown>).videoCount).toBeUndefined();
   });
 
   // SC-10: No shoot for VIN — LISTED guard skipped
@@ -240,8 +314,6 @@ describe('Shoots store — SPEC-SHOOTS-001', () => {
       const s = state.shoots[completedShoot.id];
       if (s) {
         s.status = 'completed';
-        s.assetCount = 10;
-        s.videoCount = 1;
         s.completedAt = new Date().toISOString();
       }
     });
@@ -292,17 +364,6 @@ describe('Shoots store — SPEC-SHOOTS-001', () => {
     expect(updated?.status).toBe('in-progress');
   });
 
-  // Additional: ShootIncompleteError has correct fields
-  it('ShootIncompleteError exposes vin/assetCount/videoCount', () => {
-    const err = new ShootIncompleteError('TESTVIN000000001A', 5, 0);
-    expect(err.vin).toBe('TESTVIN000000001A');
-    expect(err.assetCount).toBe(5);
-    expect(err.videoCount).toBe(0);
-    expect(err.requiredPhotos).toBe(SHOOT_REQUIRED_PHOTOS);
-    expect(err.requiredVideos).toBe(SHOOT_REQUIRED_VIDEOS);
-    expect(err.message).toContain('TESTVIN000000001A');
-  });
-
   // Additional: ShootNotFoundError
   it('ShootNotFoundError is thrown for unknown shoot ID', () => {
     const store = useShootsStore.getState();
@@ -312,35 +373,42 @@ describe('Shoots store — SPEC-SHOOTS-001', () => {
     );
   });
 
-  // Additional: _seed hydrates shoots
-  it('_seed hydrates shoots and marks store as hydrated', () => {
+  // Additional: _seed hydrates shoots and strips deprecated fields
+  it('_seed hydrates shoots and strips deprecated fields (L_AI-20)', () => {
     const store = useShootsStore.getState();
 
-    const fixtureShoot: Shoot = {
+    // Simulate a v1 fixture that still has deprecated keys
+    const v1Fixture = {
       id: 'shoot-fixture-001',
       vin: 'WBAFIXTURE0000001',
       photographerId: null,
       scheduledAt: null,
       completedAt: null,
-      status: 'pending',
-      assetCount: 0,
+      status: 'pending' as const,
+      // Deprecated v1 fields — _seed should strip these
+      assetCount: 5,
       videoCount: 0,
-      assetUrls: [],
+      assetUrls: ['https://cdn.bn.example/shoots/VIN/1.jpg'],
       createdAt: '2026-01-01T00:00:00.000Z',
       createdBy: 'staff-r10-001',
       notes: '',
-      outletId: 'BLR-01',
-      // v2 migration fields (L_AI-1 — SPEC-SHOOTS-002)
+      outletId: 'BLR-01' as const,
       assets: [],
       coverAssetId: null,
-      aiVendor: 'NONE',
-      aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false },
+      aiVendor: 'NONE' as const,
+      aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false, failureRate: 10, failureSeed: 0, maxRetries: 3 },
     };
 
-    store._seed([fixtureShoot]);
+    store._seed([v1Fixture as unknown as Shoot]);
 
     expect(useShootsStore.getState().hydrated).toBe(true);
-    expect(useShootsStore.getState().shoots['shoot-fixture-001']).toBeDefined();
+    const seeded = useShootsStore.getState().shoots['shoot-fixture-001'];
+    expect(seeded).toBeDefined();
     expect(useShootsStore.getState().shootIdByVin['WBAFIXTURE0000001']).toBe('shoot-fixture-001');
+    // Deprecated fields should be stripped
+    const serialized = JSON.stringify(seeded);
+    expect(serialized).not.toContain('assetCount');
+    expect(serialized).not.toContain('videoCount');
+    expect(serialized).not.toContain('assetUrls');
   });
 });

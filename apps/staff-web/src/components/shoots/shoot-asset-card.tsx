@@ -28,6 +28,7 @@ import {
   XCircle,
   AlertTriangle,
   Scissors,
+  Wand2,
 } from 'lucide-react';
 import Image from 'next/image';
 import { cn } from '@dms/ui';
@@ -57,6 +58,8 @@ export interface ShootAssetCardProps {
   isCover: boolean;
   onUploadRaw: (kind: string, dataUrl: string) => void;
   onRedact: (assetId: string) => void;
+  /** Auto-detect LP and apply redaction in one click (L_AI-18). */
+  onAutoRedact: (assetId: string) => void;
   onApprove: (assetId: string) => void;
   onUnapprove: (assetId: string) => void;
   onForceApprove: (assetId: string) => void;
@@ -99,6 +102,7 @@ export function ShootAssetCard({
   isCover,
   onUploadRaw,
   onRedact,
+  onAutoRedact,
   onApprove,
   onUnapprove,
   onForceApprove,
@@ -271,21 +275,36 @@ export function ShootAssetCard({
       {/* ── Per-state CTAs ──────────────────────────────────────────────── */}
       {asset && (
         <div className="px-2 pb-2 space-y-1">
-          {/* Raw + processed (not approved): Redact, Request AI, Approve */}
+          {/* Raw + processed (not approved): Auto-redact, Redact, Request AI, Approve */}
           {(state === 'raw' || state === 'processed') && (
             <>
               {slot.lpRedactionRequired && !asset.lpRedacted && (
-                <Gate role={['R11']} fallback="hide">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    fullWidth
-                    onClick={() => onRedact(asset.id)}
-                    leadingIcon={<Scissors size={12} aria-hidden="true" />}
-                  >
-                    {t('actions.redactLicensePlate')}
-                  </Button>
-                </Gate>
+                <>
+                  {/* Auto-redact (L_AI-18): detect + rasterise in one click */}
+                  <Gate role={['R11']} fallback="hide">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      fullWidth
+                      onClick={() => onAutoRedact(asset.id)}
+                      leadingIcon={<Wand2 size={12} aria-hidden="true" />}
+                    >
+                      {t('actions.autoRedact')}
+                    </Button>
+                  </Gate>
+                  {/* Manual redact (draw rectangle) */}
+                  <Gate role={['R11']} fallback="hide">
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      fullWidth
+                      onClick={() => onRedact(asset.id)}
+                      leadingIcon={<Scissors size={12} aria-hidden="true" />}
+                    >
+                      {t('actions.redactLicensePlate')}
+                    </Button>
+                  </Gate>
+                </>
               )}
 
               {/* Request AI — P1 stub (L_AI-4) */}

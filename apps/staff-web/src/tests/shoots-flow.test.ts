@@ -45,7 +45,7 @@ beforeEach(() => {
 
 describe('SPEC-SHOOTS-002 full-flow: upload → redact → AI → approve → cover → storefront', () => {
 
-  it('SC-FLOW-1: complete happy path creates ready storefront gallery', () => {
+  it('SC-FLOW-1: complete happy path creates ready storefront gallery', async () => {
     const store = useShootsStore.getState();
     const VIN = 'WP0AB2A91MS247831';
 
@@ -71,20 +71,16 @@ describe('SPEC-SHOOTS-002 full-flow: upload → redact → AI → approve → co
       assetIds.push(asset.id);
     }
 
-    // Step 3: Request AI (P1 stub — sets manual-only, L_AI-4)
-    store.requestAiProcess(shoot.id, r11);
+    // Step 3: Request AI (v2.1 async — fetch fails in test env → manual-only fallback, L_AI-4)
+    await store.requestAiProcess(shoot.id, r11);
     const afterAi = useShootsStore.getState().shoots[shoot.id];
     for (const asset of afterAi!.assets) {
       expect(asset.aiStatus).toBe('manual-only');
-      expect(asset.processedUrl).toBeTruthy(); // defaults to rawUrl
+      expect(asset.processedUrl).toBeTruthy(); // defaults to rawUrl on fallback
     }
 
-    // Verify audit event emitted
-    const aiEvent = useShootsStore.getState().auditEvents.find(
-      (e) => e.eventKind === 'shoot_asset_ai_requested',
-    );
-    expect(aiEvent).toBeDefined();
-    expect(aiEvent?.extra?.stub).toBe(true);
+    // Note: audit event 'shoot_asset_ai_requested' is only emitted on successful 202 response.
+    // In test env (no server), fetch throws → fallback → no audit event for this step.
 
     // Step 4: Redact license plate on exterior assets (L_AI-5)
     for (const assetId of assetIds) {

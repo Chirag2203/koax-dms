@@ -3,7 +3,7 @@ spec_id: SPEC-SHOOTS-002
 domain: shoots
 title: AI-Driven Consistent Showroom Imagery (Photo Shoot v2)
 status: in-review
-version: 0.2.1
+version: 0.3.0
 risk_level: medium
 pii_sensitivity: medium
 flags: [staff.shoots.ai.v1]
@@ -49,6 +49,13 @@ This spec defines **v2 of the Photo Shoot capability** for BN Automobiles' staff
 | L_AI-12 | Redaction non-destructiveness contract — single flattened raster | The LP-redaction operation MUST produce a single flattened raster (`image/jpeg` or `image/png` without preserved layers/alpha for the redacted region) where pixels under the redaction rectangle are unrecoverable. Implementation: `canvas.getContext('2d').drawImage(rawImage)` → `ctx.fillRect(redactionBox)` → `canvas.toDataURL('image/jpeg', 0.92)` flattens the layer; the source `rawUrl` is NOT exposed via any selector that reaches customer-web. The customer-web `selectStorefrontGalleryForVin` selector (L_AI-9) reads `processedUrl` ONLY — never falls back to `rawUrl` — and excludes assets where `forceApprovedWithoutRedaction === true`. A unit test asserts the rasterised output for an exterior asset has no recoverable plate pixels (compare-region pixel-hash against the original). | security review #1 (P0); DPDP Act 2023 §6, §11 |
 | L_AI-13 | Spyne.ai DPA precondition for P2 | DEF-AI-1 (Spyne.ai REST integration) MUST NOT enter `in-build` until a signed Data Processing Agreement (per DPDP Act 2023 §8(5)) with the AI vendor is on file. The DPA must cover: purpose limitation, data retention (ideally zero-retention vendor-side), sub-processor disclosure, breach notification, and India data-residency (or §17 carve-out justification). The signed DPA URL/document-id MUST be referenced from this L-tag before P2 begins. Tracked as a hard prerequisite on DEF-AI-1. | security review #6 (P1); DPDP Act 2023 §8(5) |
 | L_AI-14 | `/api/shoots/ai-process` route hardening contract | The Route Handler MUST: (a) require an authenticated session (401 if absent); (b) verify actor.rank ≥ R11 for `requestAiProcess` (403 otherwise); (c) enforce outlet RLS — actor.outletId must equal shoot.outletId for non-R19+ actors (403 otherwise); (d) zod-validate the request body and reject malformed input with 422; (e) rate-limit per-actor (token bucket, default 30/min); (f) emit one audit-log entry per request including `actorId, actorRole, outletId, shootId, assetId, vendor`. Mirrors L12 from SPEC-SERVICE-INTAKE-001. The P1 stub still applies these gates even though it returns the manual-only stub response. | security review #8 (P1); SPEC-SERVICE-INTAKE-001 §L12 |
+| L_AI-15 | Vendor adapter interface (`AiVendorAdapter`) | All AI vendor interactions are mediated through a typed `AiVendorAdapter` interface with three concrete implementations: `noneAdapter` (pass-through, sets manual-only), `mockSpyneAdapter` (deterministic seeded RNG, shape-realistic mock), and a future `customAdapter` slot. Vendor selection is driven by `Shoot.aiVendor` enum value. Production swap = drop in real Spyne adapter; route handler and store action signatures are unchanged. Zero vendor lock-in at the call-site level. | PLAN-SHOOTS-AI-002 §1.1 |
+| L_AI-16 | Async pipeline shape (POST→202→poll→terminal) | The client-side AI flow mirrors Spyne.ai REST: (1) client `POST /api/shoots/ai-process { shootId, assetIds[] }` → server returns `202 { vendorJobId }` per asset; (2) client polls `GET /api/shoots/ai-process?vendorJobId=` every 1.5 s up to 8 attempts; (3) terminal status (`succeeded` or `failed`) writes via `_applyAiResult(assetId, result, actor)` store action. No `setTimeout` in store — the route handler and client polling hook (`use-ai-polling.ts`) own the async lifecycle. Mock latency ≈ 3–4.5 s (first 2 polls return `processing`, 3rd is terminal). Tests use `vi.useFakeTimers()`. | PLAN-SHOOTS-AI-002 §1.2 |
+| L_AI-17 | Mock failure injection (10% seeded) | Per-shoot deterministic failure rate: `seed = hashCode(\`${shootId}:${assetId}:${aiPolicy.failureSeed ?? 0}\`)`, `fails = (seed % 100) < (aiPolicy.failureRate ?? 10)`. Default `failureRate = 10` (10%); tests drive `failureRate = 0` (always succeed) or `failureRate = 100` (always fail). Retry increments `aiRetryCount`, feeding a fresh seed roll (no replay of prior failure). `failureSeed: number` (default 0) is per-shoot for test reproducibility. | PLAN-SHOOTS-AI-002 §1.3 |
+| L_AI-18 | LP auto-detect contract (coords-returning; separate from mutation) | `detectLicensePlate(rawUrl, kind): Promise<LpDetectionResult>` returns `{ boxes: { x, y, w, h, confidence }[] }`. Mock is kind-aware: 3/4 shots → bottom-center 30%×8%; profiles → lower rear third 25%×7%; straight rear/front → bottom-center 35%×10%; interior kinds (dashboard, rear_seats, odometer, engine_bay, boot) → `{ boxes: [] }` (not subject); `video_walkaround` → not auto-detectable (manual review per L_AI-5). New store action `autoRedactAsset(assetId, actor)` calls detector, rasterises via L_AI-12 canvas pipeline, dispatches `redactLicensePlate` to preserve audit trail. | PLAN-SHOOTS-AI-002 §1.4 |
+| L_AI-19 | AI retry policy (max 3 per asset; permanent manual-only on exhaustion) | `ShootAsset.aiRetryCount: int (default 0)` tracks per-asset retries. Action `retryAiProcess(assetId, actor)`: (a) R11+ gate; (b) if `aiRetryCount >= aiPolicy.maxRetries` (default 3) → permanent `aiStatus='manual-only'`, toast "AI retries exhausted; manual approval available"; (c) else: `aiRetryCount += 1`, `aiStatus='queued'`, fresh enqueue→poll cycle, event `shoot_asset_ai_retry_requested`. Retry counter does NOT increment on every poll failure — only on explicit `retryAiProcess` call. `forceApproveOverride` (R12+) remains a bypass for any state including permanent manual-only. | PLAN-SHOOTS-AI-002 §1.5 |
+| L_AI-20 | Deprecated schema fields removed (closes L_AI-1 deprecation debt) | v2.1 removes `Shoot.assetUrls`, `Shoot.assetCount`, `Shoot.videoCount` from `ShootSchema` in `packages/types/src/domain/shoot.ts`. `ShootIncompleteError` is retained as a `@deprecated` export for archeological clarity; no live throw site exists post-v2.1. The v1 count-fallback block at `shoots-listed-guard.ts:73-84` is deleted; the v2 11-slot guard (L_AI-6) becomes the only LISTED path. All 15 identified call sites are migrated (typecheck is the gate). Closes the deprecation opened in L_AI-1. | PLAN-SHOOTS-AI-002 §1.6 |
+| L_AI-21 | SPEC-SHOOTS-001 §L2 supersession completion (per CLAUDE §14) | SPEC-SHOOTS-001 §L2 ("LISTED guard: ≥10 photos + 1 video") is marked `[SUPERSEDED by L_AI-6]` in place; original decision text is wrapped as `Original (v1.0):`; a new §10 "L2 supersession by L_AI-6 (v2.1)" is appended with Trigger / Migration path / Fallback handling subsections (exact text per PLAN §8). SPEC-SHOOTS-001 frontmatter bumps `1.0 → 1.1`. The [SUPERSEDED] marker is the permanent audit trail — the L2 row is NOT deleted. Code comments referencing L2 remain valid for history; new code references L_AI-6. | PLAN-SHOOTS-AI-002 §1.7; CLAUDE.md §14 |
 
 ---
 
@@ -366,7 +373,135 @@ i18n keys land under top-level `shootsAi.*` in `messages/en-IN.json` AND `messag
 
 ---
 
-## 11. Acceptance criteria
+## 11. Vendor adapter (L_AI-15)
+
+The AI vendor integration is mediated through a typed `AiVendorAdapter` interface living at `apps/staff-web/src/lib/shoots/ai-adapters/`.
+
+```ts
+// apps/staff-web/src/lib/shoots/ai-adapters/types.ts
+
+export interface AiEnqueueRequest {
+  shootId: string;
+  assetId: string;
+  rawUrl: string;
+  kind: string;
+  outletId: string;
+  actorId: string;
+  actorRole: string;
+}
+
+export interface AiPollResult {
+  vendorJobId: string;
+  status: 'processing' | 'succeeded' | 'failed';
+  processedDataUrl?: string;
+  errorMessage?: string;
+}
+
+export interface AiVendorAdapter {
+  readonly vendorId: 'NONE' | 'SPYNE_AI' | 'CUSTOM';
+  enqueue(req: AiEnqueueRequest): Promise<{ vendorJobId: string; status: 'accepted' }>;
+  poll(vendorJobId: string): Promise<AiPollResult>;
+}
+```
+
+Registry: `getAdapter(vendorId: Shoot['aiVendor']): AiVendorAdapter` in `index.ts`.
+
+Three implementations ship in v2.1:
+- **`noneAdapter`** — pass-through; `enqueue` returns a stub `vendorJobId`; `poll` immediately returns `succeeded` with `processedDataUrl = rawUrl` (maps to `manual-only` semantics in store).
+- **`mockSpyneAdapter`** — deterministic seeded RNG as per L_AI-17; first 2 polls return `processing`; 3rd is terminal (success or failure per seed). TODO comment guards real network call behind L_AI-13 DPA.
+- **`customAdapter`** — placeholder slot; throws `Error('CUSTOM adapter not implemented')`.
+
+---
+
+## 12. LP auto-detect (L_AI-18)
+
+`detectLicensePlate(rawUrl: string, kind: ShootAssetKind): Promise<LpDetectionResult>` in `apps/staff-web/src/lib/shoots/lp-detection-mock.ts`.
+
+```ts
+interface LpDetectionResult {
+  boxes: { x: number; y: number; w: number; h: number; confidence: number }[];
+}
+```
+
+Kind-aware coordinate table (all as fractions of image dimensions):
+
+| Kind group | x | y | w | h | confidence |
+|---|---|---|---|---|---|
+| front_3q_driver, rear_3q_driver | 0.35 | 0.78 | 0.30 | 0.08 | 0.87 |
+| front_3q_passenger, rear_3q_passenger | 0.35 | 0.78 | 0.30 | 0.08 | 0.87 |
+| driver_profile, passenger_profile | 0.55 | 0.72 | 0.25 | 0.07 | 0.82 |
+| front_straight, rear_straight | 0.325 | 0.80 | 0.35 | 0.10 | 0.91 |
+| dashboard, rear_seats, odometer, engine_bay, boot | — | — | — | — | interior not subject → `{ boxes: [] }` |
+| video_walkaround | — | — | — | — | not auto-detectable → `{ boxes: [] }` (manual-review only per L_AI-5) |
+
+The `autoRedactAsset(assetId, actor)` store action:
+1. R11+ gate.
+2. Read asset; if kind is interior or walkaround → throw `kindNotEligible`.
+3. Call `detectLicensePlate(asset.rawUrl, asset.kind)`.
+4. If `boxes.length === 0` → throw `autoDetectNoPlate`.
+5. Rasterise via L_AI-12 canvas pipeline (drawImage → fillRect each box → toDataURL).
+6. Dispatch `redactLicensePlate(assetId, rasterisedDataUrl, actor)` to honor audit trail.
+
+---
+
+## 13. Retry policy (L_AI-19)
+
+```
+retryAiProcess(assetId, actor):
+  1. R11+ gate → InsufficientRoleError if below
+  2. Locate asset across shoots
+  3. Read shoot.aiPolicy.maxRetries (default 3)
+  4. If asset.aiRetryCount >= maxRetries:
+       set aiStatus = 'manual-only' (permanent)
+       emit toast shoot_asset_ai_permanent_failure
+       return early
+  5. Else:
+       asset.aiRetryCount += 1
+       asset.aiStatus = 'queued'
+       asset.aiLastFailedAt = (kept from prior fail — not cleared)
+       emit shoot_asset_ai_retry_requested
+       fresh enqueue cycle (same POST→poll flow as requestAiProcess)
+```
+
+Permanent `manual-only` from retry exhaustion is indistinguishable from P1-stub `manual-only` to the approval flow — both allow `approveAsset` to succeed. The UI distinguishes them via `aiRetryCount >= aiPolicy.maxRetries` to show the "Retries exhausted" badge vs normal "Manual only" badge.
+
+---
+
+## 14. Schema additions (v2.1 delta)
+
+### 14.1 ShootAsset additions
+
+| Field | Zod schema | Default | L-tag |
+|---|---|---|---|
+| `aiRetryCount` | `z.number().int().min(0).default(0)` | `0` | L_AI-19 |
+| `aiLastFailedAt` | `z.string().nullable().default(null)` | `null` | L_AI-19 |
+| `vendorJobId` | `z.string().nullable().default(null)` | `null` | L_AI-16 |
+
+### 14.2 Shoot.aiPolicy additions
+
+| Field | Zod schema | Default | L-tag |
+|---|---|---|---|
+| `failureRate` | `z.number().min(0).max(100).default(10)` | `10` | L_AI-17 |
+| `failureSeed` | `z.number().default(0)` | `0` | L_AI-17 |
+| `maxRetries` | `z.number().int().min(0).default(3)` | `3` | L_AI-19 |
+
+`aiVendor` default flips `'NONE' → 'SPYNE_AI'` for new shoots created post-v2.1; existing v1 fixtures retain `'NONE'`.
+
+### 14.3 Schema cleanup (v2.1 breaking — L_AI-20)
+
+The following fields are **removed** from `ShootSchema`:
+
+| Field | Replacement | Migration |
+|---|---|---|
+| `assetCount: z.number().int().nonneg()` | `shoot.assets.length` | All call sites migrated; `completeShoot` switches to `assertShootComplete` v2-only |
+| `videoCount: z.number().int().nonneg()` | `shoot.assets.filter(a => a.kind === 'video_walkaround').length` | Migrated away from all readers |
+| `assetUrls: z.array(z.string())` | `shoot.assets.map(a => a.processedUrl ?? a.rawUrl)` | No live reader post-migration |
+
+`ShootIncompleteError` is **retained** as a `@deprecated` export; its constructor parameters (`assetCount`, `videoCount`) remain valid for any existing callers in test suites. No new throws of `ShootIncompleteError` are introduced in v2.1 code.
+
+---
+
+## 15. Acceptance criteria
 
 - [ ] AC-1 `packages/types/src/domain/shoot.ts` exports `ShootAssetSchema`, `ShootAssetKindEnum`, `AiStatusEnum`, `ShootSchemaV2`, `LpRedactionRequiredError`, `AssetApprovalPreconditionError`, `ShootSlotIncompleteError` (SC-1, SC-22).
 - [ ] AC-2 `useShootsStore` exposes actions: `addRawAsset`, `setCoverAsset`, `reorderGallery`, `redactLicensePlate`, `requestAiProcess`, `approveAsset`, `unapproveAsset`, `forceApproveOverride`, `requestReshoot` (SC-1, SC-3, SC-4, SC-8, SC-9, SC-19).
@@ -403,7 +538,7 @@ i18n keys land under top-level `shootsAi.*` in `messages/en-IN.json` AND `messag
 
 ---
 
-## 12. RBAC
+## 16. RBAC
 
 | Action | R03 Outlet Mgr | R09 SA | R11 Mktg Mgr | R12+ (SM/Mgr+) | R19 GM | R23 DPO | R24 CEO |
 |---|---|---|---|---|---|---|---|
@@ -448,7 +583,7 @@ UI gating via `<Gate>` everywhere; inline `hasRank` in JSX is banned (CLAUDE.md 
 
 ---
 
-## 13. DPDP / compliance
+## 17. DPDP / compliance
 
 - **Registration plate is PII.** A vehicle reg plate identifies the registered owner (often a prior consignor). Publishing without consent violates DPDP Act 2023 §6 (purpose limitation) and §11 (data principal rights). L_AI-5 is the enforcement mechanism.
 - **Approval gate (HARD).** `approveAsset` rejects exterior assets without `lpRedacted=true`. R12+ override is logged via `audit:force_approved_lp_unredacted`.
@@ -459,7 +594,7 @@ UI gating via `<Gate>` everywhere; inline `hasRank` in JSX is banned (CLAUDE.md 
 
 ---
 
-## 14. Telemetry / events emitted
+## 18. Telemetry / events emitted
 
 All payloads use ids + counts only; no PII text. All events go through the existing event bus; consumers are not part of this spec.
 
@@ -484,7 +619,7 @@ Audit-namespace overlay: `audit:force_approved_lp_unredacted` carries the same p
 
 ---
 
-## 15. Open questions
+## 19. Open questions
 
 (From PLAN §6 — the integrator's recommended resolutions are noted but remain open until signoff.)
 
@@ -498,7 +633,7 @@ Audit-namespace overlay: `audit:force_approved_lp_unredacted` carries the same p
 
 ---
 
-## 16. Deferred items
+## 20. Deferred items
 
 | ID | Item | Priority | Notes |
 |---|---|---|---|
@@ -513,7 +648,7 @@ Audit-namespace overlay: `audit:force_approved_lp_unredacted` carries the same p
 
 ---
 
-## 17. Out of scope
+## 21. Out of scope
 
 - This spec **does not replace** SPEC-SHOOTS-001. v1 remains the canonical Shoot lifecycle spec. v2 is a **sibling** that layers asset-level capabilities on top.
 - This spec **does not introduce real AI calls**. The P1 build ships only a stub Route Handler. Real Spyne.ai integration is DEF-AI-1 (P2).
@@ -525,7 +660,7 @@ Audit-namespace overlay: `audit:force_approved_lp_unredacted` carries the same p
 
 ---
 
-## 18. Migration / rollout
+## 22. Migration / rollout
 
 - **Feature flag.** `staff.shoots.ai.v1` gates the v2 surface. When OFF, `/shoots/[id]` renders the v1 surface; when ON, the v2 14-slot grid + AI/redaction CTAs render. Customer-web VDP wiring (Seam 51) is independently flagged on the same key.
 - **Backfill.** Existing v1 shoot fixtures are migrated via the hydrator: `assets: []`, `coverAssetId: null`, `aiVendor: 'NONE'`, `aiPolicy: defaults`. New uploads use the v2 path.
@@ -536,7 +671,7 @@ Audit-namespace overlay: `audit:force_approved_lp_unredacted` carries the same p
 
 ---
 
-## 19. Test plan
+## 23. Test plan
 
 Per PLAN §3 tasks T11 + T12. Test placement per CLAUDE.md §10 #9.
 
@@ -566,7 +701,7 @@ The following gates MUST pass before this spec can transition to `in-build → s
 
 ---
 
-## 20. Spec traceability matrix
+## 24. Spec traceability matrix
 
 | Scenario | Acceptance criteria | Test file |
 |---|---|---|
@@ -601,18 +736,18 @@ Cross-cutting ACs: AC-16 (verified in `cross-module-wiring.md` review), AC-17 (l
 
 ---
 
-## 21. Changelog
+## 25. Changelog
 
 | Date | Version | Author | Change |
 |---|---|---|---|
 | 2026-05-08 | 2.0 | orchestrator | Initial draft. Sibling to SPEC-SHOOTS-001 v1.0. Mints L_AI-1 through L_AI-11. 22 scenarios, 22 ACs. §8 cross-aggregate consistency contract per USER mandate; mirrors SPEC-SERVICE-INTAKE-001 §8. |
 | 2026-05-08 | 0.2 | Claude (integrator) | Wave-2 reviews integrated: security (with-concerns, 4 blockers), qa (no, 2 blockers). Minted L_AI-12 (redaction non-destructiveness; sec #1), L_AI-13 (Spyne DPA precondition; sec #6), L_AI-14 (AI route hardening; sec #8). Added persistent `forceApprovedWithoutRedaction` + 3 metadata fields to ShootAssetSchema (B3, sec #3). Tightened `selectStorefrontGalleryForVin` to read `processedUrl` only and exclude force-approved-unredacted assets (B2, sec #2; updates L_AI-9). Added R03 Outlet Manager column to §12 RBAC matrix (sec #4). Added 4 scenarios SC-23..SC-26 (qa #1, #2, #3, #10). Added `actorRole` to all event payloads in §14 + new `shoot_asset_ai_response` / `shoot_asset_ai_failed` / `audit:walkaround_lp_confirmed` events (qa #11, sec #7). Added customer-web `apps/customer-web/src/tests/shoots-gallery.test.ts` for SC-13/14/15/AC-10 (B5, qa #6). Specified T11 cross-aggregate test mechanism (B6, qa #4). Added DSAR 30-day SLA to §13 (sec #11). Walkaround video LP-approval escalated to R12+ with typed reason ≥10 chars (sec #12; folded into L_AI-5 + §6.3). Added cover-photo validity precondition (sec #5). Added `error-boundaries` to §19.1 quality gates (qa #7). Added §23 Storybook section (qa #9). Added mock-phase parity caveat to §18 (sec #10). Production write-conflict strategy noted as DEF-AI-7 in §15 (sec #9). Status flipped `draft → in-review`. ACs expanded 22 → 32. Reviewers must re-sign post-implementation. |
 | 2026-05-08 | 0.2.1 | orchestrator | L_AI-8 RBAC clarification per user direction: R11-tier writes (`addRawAsset`, `setAssetKind`, `redactLicensePlate`, `requestAiProcess`, `approveAsset`, `unapproveAsset`) use `hasMinRank(role, 'R11')` not exact-match `role === 'R11'`. R24 CEO can now drive AI enhancement directly (the headline ask); R12+ / R19 / R23 also permitted via the same rank ladder. R09 still excluded by rank. §12 RBAC table updated; tests `shoots-rbac.test.ts` RBAC-2 + new RBAC-3b assert R23/R24 paths; `shoots-store-v2.test.ts` adds an explicit R24 `requestAiProcess` happy-path test. |
-| TBD | 2.1 | (placeholder) | Remove deprecated `Shoot.assetUrls` getter; finalise supersession of SPEC-SHOOTS-001 §L2 by L_AI-6; graduate `requestAiProcess` from P1 stub to Spyne.ai (DEF-AI-1); wire automatic LP detection (DEF-AI-2). |
+| 2026-05-08 | 0.3.0 | orchestrator | Minted L_AI-15 (vendor adapter), L_AI-16 (async pipeline shape), L_AI-17 (mock failure injection), L_AI-18 (LP auto-detect contract), L_AI-19 (retry policy), L_AI-20 (deprecated schema removed — closes L_AI-1), L_AI-21 (SPEC-SHOOTS-001 §L2 supersession completion). Added §11 Vendor adapter, §12 LP auto-detect, §13 Retry policy, §14 Schema additions (ShootAsset: aiRetryCount/aiLastFailedAt/vendorJobId; aiPolicy: failureRate/failureSeed/maxRetries; removed assetUrls/assetCount/videoCount). Numbered existing §12–§23 to §16–§27. Replaces TBD placeholder row. |
 
 ---
 
-## 22. Cross-process / mock-phase caveats
+## 26. Cross-process / mock-phase caveats
 
 (See §18 mock-phase parity caveat — extracted here for visibility.)
 
@@ -622,7 +757,7 @@ Production satisfies same-tick cross-app sync because both apps hit the same bac
 
 ---
 
-## 23. Storybook
+## 27. Storybook
 
 Per QA review #9 + CLAUDE.md §10 #8, every component listed in §9 ships with Storybook stories. Required stories:
 

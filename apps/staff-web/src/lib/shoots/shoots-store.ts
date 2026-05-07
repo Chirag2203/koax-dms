@@ -40,6 +40,7 @@ import {
   EXTERIOR_LP_REQUIRED_KINDS,
 } from '@dms/types';
 import { getRequiredKindSet, requiresLpRedaction } from './asset-slot-definitions';
+import { assertShootCompleteForShoot } from './shoots-listed-guard';
 
 // ─── LISTED threshold constants (L2: hardcoded for v1, outlet-configurable in v1.5) ────
 
@@ -308,14 +309,63 @@ export interface ShootsActions {
   redactLicensePlate(assetId: string, redactedDataUrl: string, actor: ShootActor): void;
 
   /**
-   * P1 stub: request AI processing for all assets in a shoot.
-   * Sets aiStatus='manual-only' for all assets (L_AI-4 P1 scaffold).
-   * Emits shoot_ai_requested with stub note.
-   * UI should surface "AI processing — Coming in v2.1" toast (DoD §10 #15).
+   * v2.1: Request AI processing for all pending assets in a shoot.
+   * Dispatches to vendor adapter via route handler; sets aiStatus='queued'
+   * + vendorJobId per asset. Poll loop runs in use-ai-polling.ts hook.
    *
-   * Spec reference: SPEC-SHOOTS-002 SC-2, AC-3, L_AI-4
+   * Gate: R11+ (L_AI-8). Emits shoot_asset_ai_requested per asset.
+   *
+   * Spec reference: SPEC-SHOOTS-002 L_AI-16, SC-2
    */
-  requestAiProcess(shootId: string, actor: ShootActor): void;
+  requestAiProcess(shootId: string, actor: ShootActor): Promise<void>;
+
+  /**
+   * Apply an AI result from the poll loop.
+   * Internal action — called by use-ai-polling.ts hook on terminal poll.
+   *
+   * On succeed: sets aiStatus='succeeded', processedUrl, aiCompletedAt.
+   *   Emits shoot_asset_ai_response.
+   * On fail: sets aiStatus='failed', aiErrorMessage, aiLastFailedAt.
+   *   Emits shoot_asset_ai_failed.
+   *
+   * Spec reference: SPEC-SHOOTS-002 L_AI-16, L_AI-19
+   */
+  _applyAiResult(
+    assetId: string,
+    result: { status: 'succeeded' | 'failed'; processedDataUrl?: string; errorMessage?: string },
+    actor: ShootActor,
+  ): void;
+
+  /**
+   * Retry AI processing for a single failed asset (L_AI-19).
+   *
+   * Gate: R11+.
+   * If aiRetryCount >= aiPolicy.maxRetries: permanent manual-only.
+   * Else: increment counter, reset queued, fresh enqueue.
+   * Emits shoot_asset_ai_retry_requested (or nothing on permanent-fail path).
+   *
+   * Spec reference: SPEC-SHOOTS-002 §13, L_AI-19
+   */
+  retryAiProcess(assetId: string, actor: ShootActor): Promise<void>;
+
+  /**
+   * Auto-detect LP coordinates and apply redaction for a single asset (L_AI-18).
+   *
+   * Flow:
+   *   1. Gate: R11+ (same as redactLicensePlate)
+   *   2. Kind must be in EXTERIOR_LP_REQUIRED_KINDS; interior/video → no-op with toast
+   *   3. Calls detectLicensePlate(rawUrl, kind) → LpDetectionResult
+   *   4. If boxes.length === 0 → toast "No plate detected; use manual redaction" (no-op)
+   *   5. Calls rasteriseRedaction(rawUrl, boxes[0]) → redactedDataUrl
+   *   6. Dispatches redactLicensePlate(assetId, redactedDataUrl, actor) to preserve audit trail
+   *   7. Emits shoot_asset_lp_auto_redacted (extra: { boxCount: boxes.length })
+   *
+   * Error propagation: any canvas/image error is surfaced as AssetApprovalPreconditionError
+   * so UI can show a meaningful toast.
+   *
+   * Spec reference: SPEC-SHOOTS-002 L_AI-18, §12
+   */
+  autoRedactAsset(assetId: string, actor: ShootActor): Promise<void>;
 
   /**
    * Force-approve an asset without LP redaction.
@@ -455,9 +505,7 @@ export const useShootsStore = create<ShootsStore>()(
         scheduledAt: null,
         completedAt: null,
         status: 'pending',
-        assetCount: 0,
-        videoCount: 0,
-        assetUrls: [],
+        // L_AI-20: assetCount/videoCount/assetUrls removed in v2.1
         createdAt: nowIso(),
         createdBy: actor.id,
         notes: '',
@@ -468,8 +516,14 @@ export const useShootsStore = create<ShootsStore>()(
         // v2 defaults
         assets: [],
         coverAssetId: null,
-        aiVendor: 'NONE',
-        aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false },
+        aiVendor: 'SPYNE_AI', // L_AI-15: new shoots default to SPYNE_AI
+        aiPolicy: {
+          autoQueueOnUpload: false,
+          autoApproveProcessed: false,
+          failureRate: 10,
+          failureSeed: 0,
+          maxRetries: 3,
+        },
       };
 
       set((state) => {
@@ -528,7 +582,12 @@ export const useShootsStore = create<ShootsStore>()(
       });
     },
 
-    addMockAsset(shootId, type, actor) {
+    /**
+     * @deprecated v1 mock-asset API. Use addRawAsset (v2) instead.
+     * Retained for v1 test back-compat. Does NOT update removed fields
+     * (assetCount/videoCount/assetUrls — L_AI-20).
+     */
+    addMockAsset(shootId, _type, actor) {
       if (!canOperateShoot(actor.role)) {
         throw new InsufficientRoleError('R11', actor.role);
       }
@@ -537,16 +596,7 @@ export const useShootsStore = create<ShootsStore>()(
         const shoot = state.shoots[shootId];
         if (!shoot) throw new ShootNotFoundError(shootId);
 
-        if (type === 'photo') {
-          const idx = shoot.assetCount + 1;
-          shoot.assetUrls.push(makePhotoUrl(shoot.vin, idx));
-          shoot.assetCount += 1;
-        } else {
-          const idx = shoot.videoCount + 1;
-          shoot.assetUrls.push(makeVideoUrl(shoot.vin, idx));
-          shoot.videoCount += 1;
-        }
-
+        // L_AI-20: assetCount/videoCount/assetUrls removed; noop for v1 back-compat
         if (shoot.status === 'pending' || shoot.status === 'scheduled') {
           shoot.status = 'in-progress';
         }
@@ -561,19 +611,10 @@ export const useShootsStore = create<ShootsStore>()(
       const shoot = get().shoots[shootId];
       if (!shoot) throw new ShootNotFoundError(shootId);
 
-      // L11: v1 threshold guard
-      if (
-        shoot.assetCount < SHOOT_REQUIRED_PHOTOS ||
-        shoot.videoCount < SHOOT_REQUIRED_VIDEOS
-      ) {
-        throw new ShootIncompleteError(
-          shoot.vin,
-          shoot.assetCount,
-          shoot.videoCount,
-          SHOOT_REQUIRED_PHOTOS,
-          SHOOT_REQUIRED_VIDEOS,
-        );
-      }
+      // L_AI-20: v2.1 — v1 count-only guard removed; v2 11-slot predicate is sole gate.
+      // assertShootCompleteForShoot: pure function (no circular dep) — takes shoot directly.
+      // currentlyListed=false because we're completing, not re-listing (SC-26).
+      assertShootCompleteForShoot(shoot, false);
 
       set((state) => {
         const s = state.shoots[shootId];
@@ -586,16 +627,42 @@ export const useShootsStore = create<ShootsStore>()(
     _seed(shootsList) {
       set((state) => {
         for (const shoot of shootsList) {
-          // Ensure v2 fields have defaults on v1 fixtures (L_AI-1 migration)
-          const cloned = structuredClone(shoot);
+          // Ensure v2 fields have defaults on v1 fixtures (L_AI-1, L_AI-20 migration).
+          // v1 fixtures may carry assetCount/videoCount/assetUrls — strip them out
+          // by destructuring and omitting, then add v2 defaults.
+          const cloned = structuredClone(shoot) as Shoot & {
+            assetCount?: unknown;
+            videoCount?: unknown;
+            assetUrls?: unknown;
+          };
+          // L_AI-20: strip removed fields if present from v1 fixtures
+          delete cloned.assetCount;
+          delete cloned.videoCount;
+          delete cloned.assetUrls;
+
           const normalized: Shoot = {
             ...cloned,
-            // v2 defaults — only apply if not already present (migration path)
+            // v2 defaults — only apply if not already present
             assets: cloned.assets ?? [],
             coverAssetId: cloned.coverAssetId ?? null,
             aiVendor: cloned.aiVendor ?? 'NONE',
-            aiPolicy: cloned.aiPolicy ?? { autoQueueOnUpload: false, autoApproveProcessed: false },
+            aiPolicy: cloned.aiPolicy ?? {
+              autoQueueOnUpload: false,
+              autoApproveProcessed: false,
+              failureRate: 10,
+              failureSeed: 0,
+              maxRetries: 3,
+            },
           };
+          // Ensure aiPolicy has all v2.1 fields (in case fixture only has v2.0 shape)
+          normalized.aiPolicy = {
+            autoQueueOnUpload: normalized.aiPolicy.autoQueueOnUpload,
+            autoApproveProcessed: normalized.aiPolicy.autoApproveProcessed,
+            failureRate: normalized.aiPolicy.failureRate ?? 10,
+            failureSeed: normalized.aiPolicy.failureSeed ?? 0,
+            maxRetries: normalized.aiPolicy.maxRetries ?? 3,
+          };
+
           state.shoots[normalized.id] = normalized;
           // L6: track latest shoot per VIN
           const existing = state.shootIdByVin[normalized.vin];
@@ -672,6 +739,11 @@ export const useShootsStore = create<ShootsStore>()(
         aiRequestedAt: null,
         aiCompletedAt: null,
         aiErrorMessage: null,
+        // L_AI-19: retry fields
+        aiRetryCount: 0,
+        aiLastFailedAt: null,
+        // L_AI-16: vendorJobId populated by requestAiProcess
+        vendorJobId: null,
         capturedAt: now,
         capturedBy: actor.id,
         s3Key: null,
@@ -959,9 +1031,10 @@ export const useShootsStore = create<ShootsStore>()(
       });
     },
 
-    requestAiProcess(shootId, actor) {
+    async requestAiProcess(shootId, actor) {
       // L_AI-8: requestAiProcess available to R11 (Marketing primary) and
       // R12+ (GM / CFO / CEO) — see canAddRawAsset for the rationale.
+      // v2.1: requestAiProcess — enqueue pending assets via vendor adapter (L_AI-16)
       if (!canAddRawAsset(actor.role)) {
         const vin = get().shoots[shootId]?.vin ?? 'unknown';
         throw new AssetApprovalPreconditionError(
@@ -974,17 +1047,82 @@ export const useShootsStore = create<ShootsStore>()(
       const shoot = get().shoots[shootId];
       if (!shoot) throw new ShootNotFoundError(shootId);
 
+      // Collect pending assets (only queue assets that haven't been processed yet)
+      const pendingAssets = shoot.assets.filter((a) => a.aiStatus === 'pending');
+      if (pendingAssets.length === 0) return;
+
       const now = nowIso();
+      const aiVendor = shoot.aiVendor;
+
+      // Set all pending assets to 'queued' and request via route handler
+      // POST /api/shoots/ai-process — rate-limited + gated server-side (L_AI-14)
+      const assetIds = pendingAssets.map((a) => a.id);
+
+      // Dispatch to route handler (client-side fetch with session header)
+      // The route handler enqueues via the adapter and returns vendorJobId per asset.
+      let routeResults: { assetId: string; vendorJobId: string }[] = [];
+      try {
+        const response = await fetch('/api/shoots/ai-process', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            // Session header — mock value; real session in v1.5
+            'x-staff-session': JSON.stringify({ user: { id: actor.id, name: actor.name, role: actor.role, outletId: shoot.outletId } }),
+          },
+          body: JSON.stringify({
+            shootId,
+            assetIds,
+            aiVendor,
+            failureRate: shoot.aiPolicy.failureRate,
+            failureSeed: shoot.aiPolicy.failureSeed,
+            outletId: shoot.outletId,
+          }),
+        });
+
+        if (response.status === 202) {
+          const data = await response.json() as { results: { assetId: string; vendorJobId: string }[] };
+          routeResults = data.results;
+        } else {
+          // Route returned non-202 — fall back to manual-only (L_AI-4 stub semantics)
+          set((state) => {
+            const s = state.shoots[shootId]!;
+            for (const asset of s.assets) {
+              if (asset.aiStatus === 'pending') {
+                asset.aiStatus = 'manual-only';
+                asset.processedUrl = asset.processedUrl ?? asset.rawUrl;
+                asset.aiRequestedAt = now;
+              }
+            }
+          });
+          return;
+        }
+      } catch {
+        // Network or parse error — fall back to manual-only
+        set((state) => {
+          const s = state.shoots[shootId]!;
+          for (const asset of s.assets) {
+            if (asset.aiStatus === 'pending') {
+              asset.aiStatus = 'manual-only';
+              asset.processedUrl = asset.processedUrl ?? asset.rawUrl;
+              asset.aiRequestedAt = now;
+            }
+          }
+        });
+        return;
+      }
+
+      // Update store: set queued + vendorJobId per asset
       set((state) => {
         const s = state.shoots[shootId]!;
-        // P1 stub (L_AI-4): set all assets to manual-only + processedUrl=rawUrl
-        for (const asset of s.assets) {
-          if (asset.aiStatus === 'pending') {
-            asset.aiStatus = 'manual-only';
-            asset.processedUrl = asset.processedUrl ?? asset.rawUrl;
+        for (const result of routeResults) {
+          const asset = s.assets.find((a) => a.id === result.assetId);
+          if (asset) {
+            asset.aiStatus = 'queued';
+            asset.vendorJobId = result.vendorJobId;
             asset.aiRequestedAt = now;
           }
         }
+        // Audit event per shoot (summary)
         state.auditEvents.push({
           eventKind: 'shoot_asset_ai_requested',
           shootId,
@@ -993,10 +1131,224 @@ export const useShootsStore = create<ShootsStore>()(
           actorRole: actor.role,
           at: now,
           extra: {
-            aiVendor: 'NONE',
-            stub: true,
-            note: 'AI processing arrives in v2.1 — set manual-only',
+            aiVendor,
+            assetCount: routeResults.length,
           },
+        });
+      });
+    },
+
+    _applyAiResult(assetId, result, actor) {
+      const found = findAssetAcrossShoots(get().shoots, assetId);
+      if (!found) return; // asset removed mid-flight — ignore silently
+
+      const { shoot, asset } = found;
+      const now = nowIso();
+
+      set((state) => {
+        const s = state.shoots[asset.shootId]!;
+        const a = s.assets.find((x) => x.id === assetId)!;
+
+        if (result.status === 'succeeded') {
+          a.aiStatus = 'succeeded';
+          a.processedUrl = result.processedDataUrl ?? a.rawUrl;
+          a.aiCompletedAt = now;
+          a.aiErrorMessage = null;
+
+          state.auditEvents.push({
+            eventKind: 'shoot_asset_ai_response',
+            shootId: asset.shootId,
+            assetId,
+            vin: shoot.vin,
+            actorId: actor.id,
+            actorRole: actor.role,
+            at: now,
+            extra: {
+              aiVendor: shoot.aiVendor,
+              vendorJobId: a.vendorJobId ?? '',
+              vendorStatusCode: 'succeeded',
+            },
+          });
+        } else {
+          // Failed
+          a.aiStatus = 'failed';
+          a.aiErrorMessage = result.errorMessage ?? 'AI processing failed';
+          a.aiLastFailedAt = now;
+          // NOTE: aiRetryCount is NOT incremented here — only on explicit retryAiProcess call (L_AI-19)
+
+          state.auditEvents.push({
+            eventKind: 'shoot_asset_ai_failed',
+            shootId: asset.shootId,
+            assetId,
+            vin: shoot.vin,
+            actorId: actor.id,
+            actorRole: actor.role,
+            at: now,
+            extra: {
+              aiVendor: shoot.aiVendor,
+              vendorJobId: a.vendorJobId ?? '',
+              vendorStatusCode: 'failed',
+              errorMessage: result.errorMessage ?? 'unknown',
+            },
+          });
+        }
+      });
+    },
+
+    async retryAiProcess(assetId, actor) {
+      // R11+ gate (L_AI-19)
+      if (!canAddRawAsset(actor.role)) {
+        throw new AssetApprovalPreconditionError(
+          'unknown',
+          assetId,
+          `forbidden: ${actor.role} cannot retryAiProcess — requires R11+`,
+        );
+      }
+
+      const found = findAssetAcrossShoots(get().shoots, assetId);
+      if (!found) throw new AssetApprovalPreconditionError('unknown', assetId, 'asset not found');
+
+      const { shoot, asset } = found;
+      const maxRetries = shoot.aiPolicy.maxRetries ?? 3;
+
+      // Permanent manual-only if retries exhausted (L_AI-19)
+      if (asset.aiRetryCount >= maxRetries) {
+        set((state) => {
+          const s = state.shoots[asset.shootId]!;
+          const a = s.assets.find((x) => x.id === assetId)!;
+          a.aiStatus = 'manual-only';
+          a.processedUrl = a.processedUrl ?? a.rawUrl;
+        });
+        // Caller (UI) surfaces "AI retries exhausted; manual approval available" toast
+        // via the shoot_asset_ai_permanent_failure event or by checking the returned state.
+        return;
+      }
+
+      const now = nowIso();
+      const aiVendor = shoot.aiVendor;
+
+      // Fresh enqueue via route handler
+      let vendorJobId: string | null = null;
+      try {
+        const response = await fetch('/api/shoots/ai-process', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-staff-session': JSON.stringify({ user: { id: actor.id, name: actor.name, role: actor.role, outletId: shoot.outletId } }),
+          },
+          body: JSON.stringify({
+            shootId: shoot.id,
+            assetIds: [assetId],
+            aiVendor,
+            failureRate: shoot.aiPolicy.failureRate,
+            failureSeed: shoot.aiPolicy.failureSeed,
+            outletId: shoot.outletId,
+          }),
+        });
+
+        if (response.status === 202) {
+          const data = await response.json() as { results: { assetId: string; vendorJobId: string }[] };
+          vendorJobId = data.results[0]?.vendorJobId ?? null;
+        }
+      } catch {
+        // Network error — set manual-only rather than leaving in failed state
+        set((state) => {
+          const s = state.shoots[asset.shootId]!;
+          const a = s.assets.find((x) => x.id === assetId)!;
+          a.aiRetryCount += 1;
+          a.aiStatus = 'manual-only';
+          a.processedUrl = a.processedUrl ?? a.rawUrl;
+        });
+        return;
+      }
+
+      // Update store: increment counter, set queued, new vendorJobId
+      set((state) => {
+        const s = state.shoots[asset.shootId]!;
+        const a = s.assets.find((x) => x.id === assetId)!;
+        a.aiRetryCount += 1;
+        a.aiStatus = 'queued';
+        a.vendorJobId = vendorJobId;
+        a.aiRequestedAt = now;
+
+        state.auditEvents.push({
+          eventKind: 'shoot_asset_ai_retry_requested',
+          shootId: shoot.id,
+          assetId,
+          vin: shoot.vin,
+          actorId: actor.id,
+          actorRole: actor.role,
+          at: now,
+          extra: {
+            aiVendor,
+            retryCount: a.aiRetryCount,
+            vendorJobId: vendorJobId ?? '',
+          },
+        });
+      });
+    },
+
+    async autoRedactAsset(assetId, actor) {
+      // R11+ gate (L_AI-18 — same as redactLicensePlate)
+      if (!canAddRawAsset(actor.role)) {
+        throw new AssetApprovalPreconditionError(
+          'unknown',
+          assetId,
+          `forbidden: ${actor.role} cannot autoRedactAsset — requires R11+`,
+        );
+      }
+
+      const found = findAssetAcrossShoots(get().shoots, assetId);
+      if (!found) throw new AssetApprovalPreconditionError('unknown', assetId, 'asset not found');
+
+      const { shoot, asset } = found;
+
+      // Lazy-import to avoid adding the canvas/browser APIs to server-side code paths
+      const { detectLicensePlate, rasteriseRedaction } = await import('./lp-detection-mock');
+
+      // L_AI-18: detect LP — kind-aware
+      const detection = await detectLicensePlate(asset.rawUrl, asset.kind);
+
+      if (detection.boxes.length === 0) {
+        // No plate detected (interior kind, video, or genuine no-detect) — caller shows toast
+        // We do NOT throw here; it's a non-error result. Return silently.
+        // UI surfaces "No plate detected; use manual redaction" toast.
+        return;
+      }
+
+      // Take the highest-confidence box (first in the mock; production may return multiple)
+      const box = detection.boxes.reduce(
+        (best, b) => (b.confidence > best.confidence ? b : best),
+        detection.boxes[0]!,
+      );
+
+      // L_AI-12: rasterise via canvas pipeline (produces JPEG, no recoverable layers)
+      let redactedDataUrl: string;
+      try {
+        redactedDataUrl = await rasteriseRedaction(asset.rawUrl, box);
+      } catch (e) {
+        throw new AssetApprovalPreconditionError(
+          shoot.vin,
+          assetId,
+          `autoRedact rasterisation failed: ${e instanceof Error ? e.message : String(e)}`,
+        );
+      }
+
+      // Dispatch redactLicensePlate to preserve audit trail (L_AI-12)
+      get().redactLicensePlate(assetId, redactedDataUrl, actor);
+
+      // Emit auto-redact audit event (additive to the redacted event above)
+      const now = nowIso();
+      set((state) => {
+        state.auditEvents.push({
+          eventKind: 'shoot_asset_lp_auto_redacted',
+          shootId: shoot.id,
+          assetId,
+          vin: shoot.vin,
+          actorId: actor.id,
+          actorRole: actor.role,
+          at: now,
+          extra: { boxCount: detection.boxes.length },
         });
       });
     },

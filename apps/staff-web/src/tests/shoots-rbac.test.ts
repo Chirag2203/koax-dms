@@ -19,6 +19,7 @@ import {
   AssetApprovalPreconditionError,
 } from '@dms/types';
 import type { ShootActor } from '@/src/lib/shoots/shoots-store';
+import { getRequiredSlots } from '@/src/lib/shoots/asset-slot-definitions';
 
 // ─── Actors ───────────────────────────────────────────────────────────────────
 
@@ -139,7 +140,7 @@ describe('L_AI-8 RBAC matrix — addRawAsset (R11+)', () => {
     expect(asset.approved).toBe(false);
   });
 
-  it('RBAC-3b: R24 (CEO) CAN upload + request AI enhancement', () => {
+  it('RBAC-3b: R24 (CEO) CAN upload + request AI enhancement', async () => {
     // Per user direction 2026-05-08: R24 must be able to request AI
     // enhancement on shoots. R24 has rank 21 (highest); the rank-based
     // gate naturally permits this without an explicit allowlist.
@@ -151,12 +152,13 @@ describe('L_AI-8 RBAC matrix — addRawAsset (R11+)', () => {
     const asset = store.addRawAsset(shoot.id, TINY_PNG, 'front_3q_driver', r24);
     expect(asset.rawUrl).toBe(TINY_PNG);
 
-    // R24 also drives AI enhancement (the headline ask)
-    expect(() => store.requestAiProcess(shoot.id, r24)).not.toThrow();
+    // R24 also drives AI enhancement — requestAiProcess is async (L_AI-16)
+    // Fetch fails in test env → fallback to manual-only (correct behavior)
+    await expect(store.requestAiProcess(shoot.id, r24)).resolves.not.toThrow();
     const updated = useShootsStore
       .getState()
       .shoots[shoot.id]?.assets.find((a) => a.id === asset.id);
-    expect(updated?.aiStatus).toBe('manual-only'); // P1 stub per L_AI-4
+    expect(updated?.aiStatus).toBe('manual-only'); // fallback per test-env fetch failure
   });
 });
 
@@ -428,14 +430,38 @@ describe('L_AI-8 RBAC matrix — requestReshoot (canOperateShoot required)', () 
    */
 
   /**
-   * Helper: pad a shoot to ≥10 photos + ≥1 video so completeShoot passes.
+   * Helper: add + approve all MISSING required slots so completeShoot passes (v2.1 guard).
+   * Skips kinds already present in the shoot (setupReadyShoot may have added some).
+   * L_AI-20: v1 addMockAsset no longer satisfies the slot guard.
    */
   function padAndCompleteShoot(shootId: string): void {
     const store = useShootsStore.getState();
-    for (let i = 0; i < 10; i++) {
-      store.addMockAsset(shootId, 'photo', r11);
+    const r12Actor: ShootActor = { id: 'user-r12', name: 'Sales Manager', role: 'R12' };
+    const requiredSlots = getRequiredSlots();
+
+    for (const slot of requiredSlots) {
+      // Skip if this kind already has an asset in the shoot
+      const existingShoot = useShootsStore.getState().shoots[shootId]!;
+      const alreadyHasKind = existingShoot.assets.some((a) => a.kind === slot.kind);
+      if (alreadyHasKind) continue;
+
+      const asset = store.addRawAsset(shootId, TINY_PNG, slot.kind, r11);
+      // Set manual-only + processedUrl so approval precondition passes
+      useShootsStore.setState((state) => {
+        const s = state.shoots[shootId]!;
+        const a = s.assets.find((x) => x.id === asset.id)!;
+        a.aiStatus = 'manual-only';
+        a.processedUrl = TINY_PNG;
+        if (slot.lpRedactionRequired) {
+          a.lpRedacted = true;
+        }
+      });
+      if (slot.kind === 'video_walkaround') {
+        store.approveAsset(asset.id, r12Actor, 'Walkaround reviewed by Sales Manager');
+      } else {
+        store.approveAsset(asset.id, r11);
+      }
     }
-    store.addMockAsset(shootId, 'video', r11);
     store.completeShoot(shootId, r11);
   }
 
