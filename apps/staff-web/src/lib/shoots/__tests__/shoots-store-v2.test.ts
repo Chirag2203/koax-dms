@@ -175,11 +175,19 @@ describe('SC-2: requestAiProcess P1 stub', () => {
     expect(aiEvent?.extra?.stub).toBe(true);
   });
 
-  it('rejects requestAiProcess if role is not R11', () => {
+  it('rejects requestAiProcess for ranks below R11 (R09 SA)', () => {
     const shoot = createTestShoot();
     expect(() =>
       useShootsStore.getState().requestAiProcess(shoot.id, r09),
     ).toThrow(AssetApprovalPreconditionError);
+  });
+
+  it('permits requestAiProcess for R24 (CEO, rank > R11) per user direction 2026-05-08', () => {
+    const shoot = createTestShoot();
+    const r24: ShootActor = { id: 'user-r24', name: 'CEO', role: 'R24' };
+    expect(() =>
+      useShootsStore.getState().requestAiProcess(shoot.id, r24),
+    ).not.toThrow();
   });
 });
 

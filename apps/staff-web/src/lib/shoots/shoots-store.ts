@@ -80,13 +80,22 @@ function canForceOverride(role: string): boolean {
   return ALLOWED_FORCE_OVERRIDE_ROLES.has(role);
 }
 
-/** Roles permitted to perform R11-only writes (addRawAsset, redact, approve). L_AI-8. */
+/**
+ * Roles permitted to perform Marketing-Manager-tier writes — addRawAsset,
+ * redactLicensePlate, requestAiProcess. L_AI-8.
+ *
+ * R11 (Marketing Manager) is the primary surface; R12+ (GM tier including
+ * R19 GM, R22 CFO, R24 CEO) outrank Marketing and can also drive these
+ * actions — e.g. a CEO requesting AI enhancement on inventory shoots, or a
+ * GM uploading a re-shoot when Marketing is unavailable. Aligns with the
+ * existing `canApproveAsset` (R11+) gate; R09 SA stays excluded.
+ */
 function canAddRawAsset(role: string): boolean {
-  return role === 'R11';
+  return hasMinRank(role, 'R11');
 }
 
 function canRedactLicensePlate(role: string): boolean {
-  return role === 'R11';
+  return hasMinRank(role, 'R11');
 }
 
 /** R11+ required for photographer assignment */
@@ -616,7 +625,7 @@ export const useShootsStore = create<ShootsStore>()(
         throw new AssetApprovalPreconditionError(
           vin,
           'new',
-          `forbidden: ${actor.role} cannot addRawAsset — requires R11`,
+          `forbidden: ${actor.role} cannot addRawAsset — requires R11+`,
         );
       }
 
@@ -924,7 +933,7 @@ export const useShootsStore = create<ShootsStore>()(
         throw new AssetApprovalPreconditionError(
           shoot.vin,
           assetId,
-          `forbidden: ${actor.role} cannot redactLicensePlate — requires R11`,
+          `forbidden: ${actor.role} cannot redactLicensePlate — requires R11+`,
         );
       }
 
@@ -951,13 +960,14 @@ export const useShootsStore = create<ShootsStore>()(
     },
 
     requestAiProcess(shootId, actor) {
-      // L_AI-8: requestAiProcess is R11 only
+      // L_AI-8: requestAiProcess available to R11 (Marketing primary) and
+      // R12+ (GM / CFO / CEO) — see canAddRawAsset for the rationale.
       if (!canAddRawAsset(actor.role)) {
         const vin = get().shoots[shootId]?.vin ?? 'unknown';
         throw new AssetApprovalPreconditionError(
           vin,
           'shoot',
-          `forbidden: ${actor.role} cannot requestAiProcess — requires R11`,
+          `forbidden: ${actor.role} cannot requestAiProcess — requires R11+`,
         );
       }
 

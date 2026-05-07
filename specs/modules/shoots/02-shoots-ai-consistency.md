@@ -3,7 +3,7 @@ spec_id: SPEC-SHOOTS-002
 domain: shoots
 title: AI-Driven Consistent Showroom Imagery (Photo Shoot v2)
 status: in-review
-version: 0.2
+version: 0.2.1
 risk_level: medium
 pii_sensitivity: medium
 flags: [staff.shoots.ai.v1]
@@ -42,7 +42,7 @@ This spec defines **v2 of the Photo Shoot capability** for BN Automobiles' staff
 | L_AI-5 | LP redaction mandatory for exterior kinds before approval | A vehicle registration plate is prior-owner PII per DPDP Act 2023 §6, §11. `approveAsset` rejects with `LpRedactionRequiredError` if `lpRedacted === false` AND `kind ∈ EXTERIOR_LP_REQUIRED_KINDS = ['front_3q_driver','front_3q_passenger','rear_3q_driver','rear_3q_passenger','driver_profile','passenger_profile','front_straight','rear_straight','video_walkaround']`. Interior kinds (dashboard, rear_seats, odometer, engine_bay, boot) are not subject. R12+ may invoke `forceApproveOverride(reason)` which emits an audit event `audit:force_approved_lp_unredacted`. | PLAN §1.6; RESEARCH §10 |
 | L_AI-6 | 11-angle slot enum + LISTED guard upgrade (supersedes L2 of v1) | `ShootAssetKindEnum` defines 14 kinds; 11 of them are REQUIRED (8 exterior + 3 interior + 1 walkaround video) for storefront listing. The new LISTED predicate: every REQUIRED kind has at least one `approved` asset. Cover defaults to `front_3q_driver`; override allowed (must be an exterior kind). Existing LISTED vehicles are **grandfathered**: the new guard applies only to LISTED transitions emitted **after** v2 ships. Supersedes SPEC-SHOOTS-001 §L2 (count-only guard); v1 L2 remains canonical until v2.1 finalises the supersession (see v1 changelog row dated 2026-05-08). | PLAN §1.7; RESEARCH §3.1, §11 |
 | L_AI-7 | 4-state approval workflow; R11+ gate; R12+ force-override | Per-asset state derived from `(rawUrl, processedUrl, aiStatus, approved)`: **raw** (`aiStatus=='pending' && !approved`), **processing** (`aiStatus ∈ {queued, processing}`), **processed** (`aiStatus ∈ {succeeded, manual-only} && !approved`), **approved** (`approved === true`). `approveAsset(assetId, actor)` preconditions: actor.rank ≥ R11; aiStatus !== 'failed'; `lpRedacted === true` if kind ∈ EXTERIOR_LP_REQUIRED_KINDS; processedUrl (or rawUrl when manual-only) non-empty. `unapproveAsset(assetId, reason, actor)` requires R11+ and reason ≥5 chars. `forceApproveOverride(assetId, reason, actor)` requires R12+ and emits an audit event. | PLAN §1.8 |
-| L_AI-8 | RBAC matrix | R11 Marketing Manager: full (upload raw, AI processing, redact, approve/unapprove, set cover, reorder). R09 SA: read on `/shoots/[id]`; on `/inventory/[vin]`: reorder + cover + requestReshoot only. R03/R12+/R19/R24: full read; force-override available for R12+. R23 DPO: DSAR access; can request asset deletion (DEF-AI-6). All gating via `<Gate>` primitive (SPEC-ARCH-UI-001 §11). Inline `hasRank` in JSX is banned. | PLAN §1.9; CLAUDE.md §10 |
+| L_AI-8 | RBAC matrix | R11 Marketing Manager is the primary surface, but the R11-tier writes (`addRawAsset`, `setAssetKind`, `redactLicensePlate`, `requestAiProcess`, `approveAsset`, `unapproveAsset`) use a **rank-based gate** `hasMinRank(role, 'R11')` — so R12+ (GM/CFO/CEO) and R23 DPO are also permitted (consistent with `canApproveAsset`). This explicitly enables R24 to drive AI enhancement (user direction 2026-05-08) and R19 GM to upload re-shoots when Marketing is unavailable, without carving an allowlist per action. R09 SA stays excluded by rank (6 < 8); on `/inventory/[vin]` photos tab R09 has Seam 50 limited writes (reorder + cover + requestReshoot). R03 Outlet Mgr is below R11 in the ladder so cannot upload/redact/request AI; can approve standard assets (outlet-scoped). Force-override (`forceApproveOverride`) remains R12+ exclusive (matches W3 refund-tier precedent). R23 DPO additionally owns the DSAR surface (DEF-AI-6). All UI gating via `<Gate>` primitive (SPEC-ARCH-UI-001 §11). Inline `hasRank` in JSX is banned. | PLAN §1.9; CLAUDE.md §10; user direction 2026-05-08 (R24 AI enhancement) |
 | L_AI-9 | Storefront VDP gallery selector contract; per-process mock + production parity | Customer-web VDP reads `selectStorefrontGalleryForVin(vin) → { coverUrl, gallery: { url, sortOrder, kind, alt }[], status: 'ready' \| 'pending' \| 'unavailable' }`. `ready` requires ≥ cover + 4 approved exterior kinds. `pending` shows a "Gallery being prepared" placeholder card. `unavailable` hides the gallery entirely. **Selector tightening (B2 — security #2):** the selector ALWAYS reads `processedUrl` (NEVER falls back to `rawUrl ?? processedUrl`); for kinds in `EXTERIOR_LP_REQUIRED_KINDS` if `processedUrl` is null the asset is excluded from `gallery[]` regardless of `approved` status. The selector additionally EXCLUDES every asset where `forceApprovedWithoutRedaction === true` (force-approval grants internal listing-eligibility but NEVER bypasses DPDP for public exposure). `Vehicle.images` becomes a deprecated phantom (JSDoc `@deprecated`); the selector is the only contract. Mock-phase: per-process `customer-shoots-store` hydrated from a shared MSW handler (precedent: `portal-consent-bridge` commit `c22fbd0`). Production: backend serves the identical contract. Closes DEF-SHOOTS-3. | PLAN §1.10; RESEARCH §6; security review #2 |
 | L_AI-10 | Storage shape — dataUrl + additive `s3Key`; 2 MB cap | Mock-phase stores raw and processed images as `dataUrl` strings on `ShootAsset`. Schema additionally carries an optional `s3Key?: string` field (additive, P2 swap-in). Per-asset cap is 2 MB (storefront-quality; double the 1 MB intake cap). On exceed: soft-fail with toast; asset is not added to the shoot. Assets are kept in-memory only (NOT persisted to localStorage) — hydrator seeds tiny exemplar fixtures. Production = S3 (DEF-AI-5). | PLAN §1.11 |
 | L_AI-11 | Seams 50 + 51 — read-mostly; only Seam 50 limited WRITE; never mutates Vehicle | Two new cross-module seams registered in `specs/architecture/cross-module-wiring.md`: **Seam 50** (Inventory Photos Tab → Shoots-store, READ + limited WRITE) and **Seam 51** (Customer-web VDP → Shoots gallery selector, READ-only). Neither seam ever mutates the Vehicle aggregate. Seam 50 limited WRITE allows: setCoverAsset, reorderGallery, requestReshoot. Forbidden: addRawAsset, approveAsset, redactLicensePlate. | PLAN §1.12, §5 |
@@ -407,20 +407,42 @@ i18n keys land under top-level `shootsAi.*` in `messages/en-IN.json` AND `messag
 
 | Action | R03 Outlet Mgr | R09 SA | R11 Mktg Mgr | R12+ (SM/Mgr+) | R19 GM | R23 DPO | R24 CEO |
 |---|---|---|---|---|---|---|---|
-| addRawAsset | ✗ | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ |
-| setAssetKind | ✗ | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ |
-| redactLicensePlate | ✗ | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ |
-| requestAiProcess | ✗ | ✗ | ✓ | ✗ | ✗ | ✗ | ✗ |
-| approveAsset | ✓ (own outlet) | ✗ | ✓ | ✓ | ✓ | ✗ | ✓ |
-| unapproveAsset | ✓ (own outlet) | ✗ | ✓ | ✓ | ✓ | ✗ | ✓ |
-| forceApproveOverride | ✗ | ✗ | ✗ | ✓ | ✓ | ✗ | ✓ |
+| addRawAsset | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| setAssetKind | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| redactLicensePlate | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| requestAiProcess | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| approveAsset | ✓ (own outlet) | ✗ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| unapproveAsset | ✓ (own outlet) | ✗ | ✓ | ✓ | ✓ | ✓ | ✓ |
+| forceApproveOverride | ✗ | ✗ | ✗ | ✓ | ✓ | ✓ | ✓ |
 | setCoverAsset | ✓ | ✓ (inventory tab) | ✓ | ✓ | ✓ | ✗ | ✓ |
 | reorderGallery | ✓ | ✓ (inventory tab) | ✓ | ✓ | ✓ | ✗ | ✓ |
 | requestReshoot | ✓ | ✓ | ✓ | ✓ | ✓ | ✗ | ✓ |
 | read all | ✓ (own outlet) | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
 | DSAR retrieve / delete | ✗ | ✗ | ✗ | ✗ | ✗ | ✓ | ✗ |
 
-R03 (Outlet Manager) has full read scoped to own outlet; can approve standard assets but NOT force-override (matches W3 refund-tier precedent). Force-override remains R12+ exclusive.
+The R11-tier writes (`addRawAsset`, `setAssetKind`, `redactLicensePlate`,
+`requestAiProcess`, `approveAsset`, `unapproveAsset`) use a **rank-based
+gate** — `hasMinRank(role, 'R11')` — so R11 (Marketing primary) plus all
+ranks above it (R12+, R19, R22, R23, R24) are permitted. This:
+
+- Lets a CEO (R24) drive AI enhancement on inventory shoots (per user
+  direction 2026-05-08) without an explicit allowlist.
+- Lets a GM upload a re-shoot when Marketing is unavailable.
+- Stays consistent with the existing `canApproveAsset` (R11+) gate.
+- Keeps R09 SA excluded (rank 6 < R11 rank 8) — SA still operates only
+  the limited inventory-tab writes (Seam 50).
+
+R03 (Outlet Manager, rank 3) sits BELOW R11 in the rank ladder; its row
+shows ✓ on `approveAsset`/`unapproveAsset`/`setCoverAsset`/`reorderGallery`
+because those flows have outlet-scoped overrides for managers in the W3
+refund-tier precedent — but R03 cannot upload, redact, or request AI
+(which require R11+). Force-override remains R12+ exclusive.
+
+R23 (DPO, rank 20) outranks R11 by the rank ladder, so it appears as ✓
+for all R11+ writes. In practice DPO almost never uploads or redacts —
+their DSAR surface is the canonical workflow — but the rank-based gate
+is intentionally permissive rather than carving DPO out, matching the
+existing `canApproveAsset` semantics.
 
 UI gating via `<Gate>` everywhere; inline `hasRank` in JSX is banned (CLAUDE.md §17.1 rule 4).
 
@@ -585,6 +607,7 @@ Cross-cutting ACs: AC-16 (verified in `cross-module-wiring.md` review), AC-17 (l
 |---|---|---|---|
 | 2026-05-08 | 2.0 | orchestrator | Initial draft. Sibling to SPEC-SHOOTS-001 v1.0. Mints L_AI-1 through L_AI-11. 22 scenarios, 22 ACs. §8 cross-aggregate consistency contract per USER mandate; mirrors SPEC-SERVICE-INTAKE-001 §8. |
 | 2026-05-08 | 0.2 | Claude (integrator) | Wave-2 reviews integrated: security (with-concerns, 4 blockers), qa (no, 2 blockers). Minted L_AI-12 (redaction non-destructiveness; sec #1), L_AI-13 (Spyne DPA precondition; sec #6), L_AI-14 (AI route hardening; sec #8). Added persistent `forceApprovedWithoutRedaction` + 3 metadata fields to ShootAssetSchema (B3, sec #3). Tightened `selectStorefrontGalleryForVin` to read `processedUrl` only and exclude force-approved-unredacted assets (B2, sec #2; updates L_AI-9). Added R03 Outlet Manager column to §12 RBAC matrix (sec #4). Added 4 scenarios SC-23..SC-26 (qa #1, #2, #3, #10). Added `actorRole` to all event payloads in §14 + new `shoot_asset_ai_response` / `shoot_asset_ai_failed` / `audit:walkaround_lp_confirmed` events (qa #11, sec #7). Added customer-web `apps/customer-web/src/tests/shoots-gallery.test.ts` for SC-13/14/15/AC-10 (B5, qa #6). Specified T11 cross-aggregate test mechanism (B6, qa #4). Added DSAR 30-day SLA to §13 (sec #11). Walkaround video LP-approval escalated to R12+ with typed reason ≥10 chars (sec #12; folded into L_AI-5 + §6.3). Added cover-photo validity precondition (sec #5). Added `error-boundaries` to §19.1 quality gates (qa #7). Added §23 Storybook section (qa #9). Added mock-phase parity caveat to §18 (sec #10). Production write-conflict strategy noted as DEF-AI-7 in §15 (sec #9). Status flipped `draft → in-review`. ACs expanded 22 → 32. Reviewers must re-sign post-implementation. |
+| 2026-05-08 | 0.2.1 | orchestrator | L_AI-8 RBAC clarification per user direction: R11-tier writes (`addRawAsset`, `setAssetKind`, `redactLicensePlate`, `requestAiProcess`, `approveAsset`, `unapproveAsset`) use `hasMinRank(role, 'R11')` not exact-match `role === 'R11'`. R24 CEO can now drive AI enhancement directly (the headline ask); R12+ / R19 / R23 also permitted via the same rank ladder. R09 still excluded by rank. §12 RBAC table updated; tests `shoots-rbac.test.ts` RBAC-2 + new RBAC-3b assert R23/R24 paths; `shoots-store-v2.test.ts` adds an explicit R24 `requestAiProcess` happy-path test. |
 | TBD | 2.1 | (placeholder) | Remove deprecated `Shoot.assetUrls` getter; finalise supersession of SPEC-SHOOTS-001 §L2 by L_AI-6; graduate `requestAiProcess` from P1 stub to Spyne.ai (DEF-AI-1); wire automatic LP detection (DEF-AI-2). |
 
 ---

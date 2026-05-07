@@ -100,9 +100,14 @@ function setupReadyShoot(vin: string): string {
   return shoot.id;
 }
 
-// ─── RBAC-1: R09 cannot addRawAsset ───────────────────────────────────────────
+// ─── RBAC-1..3b: addRawAsset gate is R11+ ─────────────────────────────────────
+//
+// R11 (Marketing Manager) is the primary surface; R12+ (GM tier including
+// R19 GM, R22 CFO, R24 CEO) outrank Marketing and may also upload — e.g.
+// CEO requesting AI enhancement on inventory shoots, or GM uploading a
+// re-shoot when Marketing is unavailable. R09 SA stays excluded.
 
-describe('L_AI-8 RBAC matrix — addRawAsset (R11-exclusive)', () => {
+describe('L_AI-8 RBAC matrix — addRawAsset (R11+)', () => {
   it('RBAC-1: R09 cannot upload a raw asset — throws AssetApprovalPreconditionError', () => {
     const store = useShootsStore.getState();
     const vin = 'RBAC1VIN0000000001';
@@ -113,14 +118,15 @@ describe('L_AI-8 RBAC matrix — addRawAsset (R11-exclusive)', () => {
     ).toThrow(AssetApprovalPreconditionError);
   });
 
-  it('RBAC-2: R23 (DPO) cannot upload a raw asset — throws AssetApprovalPreconditionError', () => {
+  it('RBAC-2: R23 (DPO, rank > R11) CAN upload a raw asset — rank-based gate', () => {
+    // R23 has rank 20 in ROLE_RANK; canAddRawAsset checks hasMinRank(role, 'R11').
+    // R23 ≥ R11 → upload permitted (consistent with canApproveAsset).
     const store = useShootsStore.getState();
     const vin = 'RBAC2VIN0000000002';
     const shoot = store.createShoot(vin, 'BLR-01', r11);
 
-    expect(() =>
-      store.addRawAsset(shoot.id, TINY_PNG, 'front_3q_driver', r23),
-    ).toThrow(AssetApprovalPreconditionError);
+    const asset = store.addRawAsset(shoot.id, TINY_PNG, 'front_3q_driver', r23);
+    expect(asset.rawUrl).toBe(TINY_PNG);
   });
 
   it('RBAC-3: R11 CAN upload a raw asset', () => {
@@ -131,6 +137,26 @@ describe('L_AI-8 RBAC matrix — addRawAsset (R11-exclusive)', () => {
     const asset = store.addRawAsset(shoot.id, TINY_PNG, 'front_3q_driver', r11);
     expect(asset.rawUrl).toBe(TINY_PNG);
     expect(asset.approved).toBe(false);
+  });
+
+  it('RBAC-3b: R24 (CEO) CAN upload + request AI enhancement', () => {
+    // Per user direction 2026-05-08: R24 must be able to request AI
+    // enhancement on shoots. R24 has rank 21 (highest); the rank-based
+    // gate naturally permits this without an explicit allowlist.
+    const store = useShootsStore.getState();
+    const r24: ShootActor = { id: 'user-r24', name: 'CEO', role: 'R24' };
+    const vin = 'RBAC3BVIN000000003B';
+    const shoot = store.createShoot(vin, 'BLR-01', r11);
+
+    const asset = store.addRawAsset(shoot.id, TINY_PNG, 'front_3q_driver', r24);
+    expect(asset.rawUrl).toBe(TINY_PNG);
+
+    // R24 also drives AI enhancement (the headline ask)
+    expect(() => store.requestAiProcess(shoot.id, r24)).not.toThrow();
+    const updated = useShootsStore
+      .getState()
+      .shoots[shoot.id]?.assets.find((a) => a.id === asset.id);
+    expect(updated?.aiStatus).toBe('manual-only'); // P1 stub per L_AI-4
   });
 });
 
