@@ -12,11 +12,17 @@
  * SPEC-ARCH-UI-001 §3.10: Gate for RBAC.
  */
 
+import { useMemo } from 'react';
 import { useTranslations } from 'next-intl';
 import { Lock, CheckCircle2, AlertTriangle } from 'lucide-react';
 import { Card, Field } from '@/src/components/custom-builds/shared/detail-card';
 import { Gate } from '@/src/components/primitives/gate';
 import { useServiceStore } from '@/src/lib/service/service-store';
+import type { IntakeDamageCallout, IntakeInspectionPhoto } from '@dms/types';
+
+// Stable empty-array refs — see CLAUDE.md §17 #14.
+const EMPTY_CALLOUTS: IntakeDamageCallout[] = [];
+const EMPTY_PHOTOS: IntakeInspectionPhoto[] = [];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -66,8 +72,18 @@ export function IntakeSummaryCard({ intakeId, redacted = false }: Props) {
   const t = useTranslations('serviceIntake');
 
   const intake = useServiceStore((s) => s.intakeInspections.find((i) => i.id === intakeId));
-  const callouts = useServiceStore((s) => s.selectDamageCalloutsForIntake(intakeId));
-  const photos = useServiceStore((s) => s.selectIntakePhotosForIntake(intakeId));
+  // Read base array refs and filter via useMemo — `.filter()` inside a
+  // Zustand selector returns a fresh array each render → infinite loop.
+  const allCallouts = useServiceStore((s) => s.intakeDamageCallouts);
+  const allPhotos = useServiceStore((s) => s.intakeInspectionPhotos);
+  const callouts = useMemo(
+    () => allCallouts.filter((c) => c.intakeInspectionId === intakeId) || EMPTY_CALLOUTS,
+    [allCallouts, intakeId],
+  );
+  const photos = useMemo(
+    () => allPhotos.filter((p) => p.intakeInspectionId === intakeId) || EMPTY_PHOTOS,
+    [allPhotos, intakeId],
+  );
   const jobCard = useServiceStore((s) => s.jobCards.find((jc) => jc.id === intake?.jobCardId));
 
   if (!intake) {

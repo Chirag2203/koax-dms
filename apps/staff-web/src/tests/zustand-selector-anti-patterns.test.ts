@@ -89,11 +89,30 @@ const SELECTOR_NULLISH_ARRAY_RE =
 const SELECTOR_NULLISH_OBJECT_RE =
   /use[A-Z]\w*Store\s*\(\s*\(\s*\w+\s*\)\s*=>\s*[^)]*\?\?\s*\{\s*\}\s*\)/g;
 
+// Catches selectors that call array methods returning a NEW array
+// reference on every invocation:
+//   useStore((s) => s.foo.filter(...))   — fresh array
+//   useStore((s) => s.foo.map(...))      — fresh array
+//   useStore((s) => s.foo.sort(...))     — fresh array
+//   useStore((s) => s.selectXxx(...))     — when the store-side selector
+//                                            does the filter/map for you,
+//                                            same problem (caught only if
+//                                            the call is on `s.selectXxx`)
+//
+// The fix is the same in every case: pull the BASE ref via the selector
+// (`useStore((s) => s.foo)`) and compute the derived value in a `useMemo`.
+const SELECTOR_FRESH_METHOD_RE =
+  /use[A-Z]\w*Store\s*\(\s*\(\s*\w+\s*\)\s*=>\s*\w+\.[\w.]*\.(?:filter|map|sort|slice|reverse|concat|flatMap|flat|reduce)\s*\(/g;
+// Skip *ById single-row lookups (canonical Record<id, T> pattern returns
+// stable refs). The infinite-loop risk is in PLURAL selectors that filter.
+const SELECTOR_STORE_METHOD_RE =
+  /use[A-Z]\w*Store\s*\(\s*\(\s*\w+\s*\)\s*=>\s*\w+\.select(?!\w*ById\b)[A-Z]\w*\s*\(/g;
+
 interface Violation {
   file: string;
   line: number;
   match: string;
-  pattern: 'nullish-array' | 'nullish-object';
+  pattern: 'nullish-array' | 'nullish-object' | 'fresh-method' | 'store-selector-fn';
 }
 
 function scanFile(abs: string): Violation[] {
@@ -104,6 +123,8 @@ function scanFile(abs: string): Violation[] {
   for (const re of [
     { re: SELECTOR_NULLISH_ARRAY_RE, kind: 'nullish-array' as const },
     { re: SELECTOR_NULLISH_OBJECT_RE, kind: 'nullish-object' as const },
+    { re: SELECTOR_FRESH_METHOD_RE, kind: 'fresh-method' as const },
+    { re: SELECTOR_STORE_METHOD_RE, kind: 'store-selector-fn' as const },
   ]) {
     re.re.lastIndex = 0;
     let m: RegExpExecArray | null;
@@ -159,6 +180,48 @@ describe('Zustand selector anti-patterns — guardrail (CLAUDE.md §17 #14)', ()
         `Found ${violations.length} Zustand selector(s) returning a fresh \`{}\` literal — ` +
           `same root cause as the array case. Fix: module-level \`const EMPTY: T = {} as T\` ` +
           `and use \`?? EMPTY\`.\n\n${summary}`,
+      );
+    }
+    expect(violations.length).toBe(0);
+  });
+
+  it('no `.filter()`/`.map()`/`.sort()`/etc. inside `useXxxStore((s) => …)` (fresh array each render)', () => {
+    const files = [...walk(APP_ROOT), ...walk(SRC_ROOT)];
+    const violations: Violation[] = [];
+    for (const f of files) {
+      violations.push(...scanFile(f).filter((v) => v.pattern === 'fresh-method'));
+    }
+
+    if (violations.length > 0) {
+      const summary = violations
+        .map((v) => `  ${v.file}:${v.line}\n    ${v.match}`)
+        .join('\n');
+      throw new Error(
+        `Found ${violations.length} Zustand selector(s) calling \`.filter\`/\`.map\`/\`.sort\`/\`.slice\`/\`.reverse\`/\`.concat\`/\`.flatMap\`/\`.flat\`/\`.reduce\` ` +
+          `inside the selector body. These return a NEW array every render → infinite re-render ` +
+          `("Maximum update depth exceeded"). Fix: pull the BASE array ref via the selector and ` +
+          `compute the derived value in a \`useMemo\` outside.\n\n${summary}`,
+      );
+    }
+    expect(violations.length).toBe(0);
+  });
+
+  it('no store-side `selectXxx()` function calls inside `useXxxStore((s) => …)` (typically returns fresh array)', () => {
+    const files = [...walk(APP_ROOT), ...walk(SRC_ROOT)];
+    const violations: Violation[] = [];
+    for (const f of files) {
+      violations.push(...scanFile(f).filter((v) => v.pattern === 'store-selector-fn'));
+    }
+
+    if (violations.length > 0) {
+      const summary = violations
+        .map((v) => `  ${v.file}:${v.line}\n    ${v.match}`)
+        .join('\n');
+      throw new Error(
+        `Found ${violations.length} Zustand selector(s) calling a store-side \`s.selectXxx(...)\` ` +
+          `function. These commonly use \`.filter()\` internally and return a fresh array per call ` +
+          `→ infinite re-render. Fix: pull the BASE collection (\`useStore((s) => s.<arr>)\`) and ` +
+          `replicate the filter logic in a \`useMemo\` in the component.\n\n${summary}`,
       );
     }
     expect(violations.length).toBe(0);

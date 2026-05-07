@@ -15,7 +15,7 @@
  *   - No text-[NNpx], no large radii (rounded-md only)
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslations } from 'next-intl';
@@ -38,7 +38,17 @@ import { IntakePhotosGrid } from './intake-photos-grid';
 import { SignaturePad } from './signature-pad';
 import type { IntakeFormValues } from '@/src/lib/service/intake/field-definitions';
 import type { DamageCalloutDraft } from '@/src/components/service/intake/damage-callouts-editor';
-import type { IntakePhotoSlot } from '@dms/types';
+import type {
+  IntakePhotoSlot,
+  IntakeDamageCallout,
+  IntakeInspectionPhoto,
+} from '@dms/types';
+
+// Stable empty arrays for derived selectors below — fresh `[]` literals
+// returned from a Zustand selector trigger infinite re-renders
+// (CLAUDE.md §17 #14, enforced by zustand-selector-anti-patterns.test.ts).
+const EMPTY_CALLOUTS: IntakeDamageCallout[] = [];
+const EMPTY_PHOTOS: IntakeInspectionPhoto[] = [];
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -101,11 +111,24 @@ export function IntakeInspectionForm({
   const existingIntake = useServiceStore((s) =>
     existingIntakeId ? s.intakeInspections.find((i) => i.id === existingIntakeId) : undefined,
   );
-  const intakeCallouts = useServiceStore((s) =>
-    existingIntakeId ? s.selectDamageCalloutsForIntake(existingIntakeId) : [],
+  // Read base array refs from the store — DO NOT call `.filter()`-based
+  // selector functions inside useStore, since they return a fresh array
+  // each render → infinite re-render. Filter in useMemo below instead.
+  const allCallouts = useServiceStore((s) => s.intakeDamageCallouts);
+  const allPhotos   = useServiceStore((s) => s.intakeInspectionPhotos);
+  const intakeCallouts = useMemo(
+    () =>
+      existingIntakeId
+        ? allCallouts.filter((c) => c.intakeInspectionId === existingIntakeId)
+        : EMPTY_CALLOUTS,
+    [allCallouts, existingIntakeId],
   );
-  const intakePhotos = useServiceStore((s) =>
-    existingIntakeId ? s.selectIntakePhotosForIntake(existingIntakeId) : [],
+  const intakePhotos = useMemo(
+    () =>
+      existingIntakeId
+        ? allPhotos.filter((p) => p.intakeInspectionId === existingIntakeId)
+        : EMPTY_PHOTOS,
+    [allPhotos, existingIntakeId],
   );
 
   // Seam 46 — Service Intake → Vehicles (READ, L10). NEVER stored.
