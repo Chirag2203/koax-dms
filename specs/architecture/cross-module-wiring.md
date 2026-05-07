@@ -89,6 +89,8 @@ Last verified against commit `f75e4c7`.
 | 48 | Service JC creation → Customers (READ) | `NewJobCardForm` reads `useCustomersStore(s => s.customers)` to populate the existing-customer dropdown (replaces the v1 hardcoded 4-name list). Each option shows `{name} · {phone}`. **Never mutates.** | SPEC-SERVICE-001 §6.3 / L_S5 |
 | 49 | Service JC creation → Vehicles ownership (READ) | `NewJobCardForm` reads `useVehiclesStore(s => s.ownerships)` + `s.ownershipIdByCustomer` + `s.vehicles` to render a vehicle dropdown filtered to the selected customer's ACTIVE ownerships. On selection, auto-fills year/make/model. **Never mutates.** Walk-in mode and existing-customer-with-no-vehicles fall back to free-text VIN input. | SPEC-SERVICE-001 §6.3 / L_S6 |
 | 47 | Sales reservation conflict guard (READ) | `handleMoveDeal` in `sales/page.tsx` calls `useSalesDealsStore.getState().hasActiveReservationForVin(vin, excludeDealId)` before committing `advanceStage('reserved')`. Conflict details (`conflictingCustomerName`, `conflictingDealId`) come from the store's own deal records — no cross-store hop. | SPEC-SALES-001 §12 / L_S-RES-1 / W3.1 |
+| 50 | Inventory Photos Tab → Shoots-store (READ + limited WRITE) | `vehicle-detail-view.tsx` photos tab reads `useShootsStore` for gallery; allowed writes (via `<Gate role={['R09','R12','R19','R24']}>`): `setCoverAsset`, `reorderGallery`, `requestReshoot`. Forbidden writes (store rejects + UI hides): `addRawAsset`, `approveAsset`, `redactLicensePlate`. Never mutates vehicles-store. | SPEC-SHOOTS-002 L_AI-3, L_AI-11 |
+| 51 | Customer-web VDP → Shoots gallery selector (READ) | `vehicle-hero-gallery.tsx` → `selectStorefrontGalleryForVin(vin)` from per-process customer-shoots-store (mock; mirrors c22fbd0). Returns `{ coverUrl, gallery[], status }`. Selector reads `processedUrl` only (never rawUrl fallback); excludes force-approved-unredacted assets (B2). Production swap: backend serves identical contract. | SPEC-SHOOTS-002 L_AI-9, L_AI-11 |
 
 ## Detailed seams
 
@@ -923,6 +925,74 @@ is a data integrity violation (tested in SC-11).
 
 ---
 
+---
+
+### 50. Inventory Photos Tab → Shoots-store (READ + limited WRITE)
+
+**Spec:** `SPEC-SHOOTS-002 L_AI-3, L_AI-11`
+
+**File (to be modified):** `apps/staff-web/src/components/inventory/vehicle-detail-view.tsx` (Photos tab)
+
+**Contract:**
+```tsx
+// READ — Seam 50: base ref only; filter/sort in useMemo (CLAUDE.md §17.1)
+const shoot = useShootsStore(s => s.getShootByVin(vin));
+const assets = useShootsStore(s => s.selectAssetsForShoot(shoot?.id ?? ''));
+
+// LIMITED WRITE — allowed via Gate (R09/R12+)
+// Allowed:
+useShootsStore.getState().setCoverAsset(shootId, assetId, actor);
+useShootsStore.getState().reorderGallery(shootId, orderedIds, actor);
+useShootsStore.getState().requestReshoot(vin, reason, actor);
+
+// FORBIDDEN (store rejects + UI hides via Gate):
+// addRawAsset, approveAsset, redactLicensePlate
+```
+
+**RBAC gates:** `<Gate role={['R09','R11','R12','R13','R19','R22','R24']}>` wraps write CTAs.
+R09 is the minimum role for inventory-tab writes (reorder + cover + reshoot).
+addRawAsset / approveAsset / redactLicensePlate CTAs are only rendered on `/shoots/[id]`.
+
+**Never mutates:** `vehicles-store`. Photos tab is read-mostly — the shoot is the SoT for gallery state (L_AI-2).
+
+**Failure handling:** If shoot is null (no shoot for VIN), photos tab renders an empty state with a "Request shoot" CTA.
+
+---
+
+### 51. Customer-web VDP → Shoots gallery selector (READ)
+
+**Spec:** `SPEC-SHOOTS-002 L_AI-9, L_AI-11`
+
+**File (to be modified):** `apps/customer-web/src/components/vdp/vehicle-hero-gallery.tsx`
+
+**Contract:**
+```tsx
+// Seam 51 — READ-ONLY: selectStorefrontGalleryForVin
+// Mock-phase: per-process customer-shoots-store hydrated from shared MSW handler
+// Production: backend serves identical contract (DEF-AI-7)
+
+const gallery = selectStorefrontGalleryForVin(vin);
+// Returns: { coverUrl: string|null, gallery: GalleryItem[], status: 'ready'|'pending'|'unavailable' }
+
+// status === 'ready': ≥ cover + 4 approved exterior kinds → render hero gallery
+// status === 'pending': shoot exists, threshold not met → "Gallery being prepared" placeholder
+// status === 'unavailable': no shoot for VIN → hide gallery section entirely
+```
+
+**Security tightening (B2 — security review #2):**
+- Selector reads `processedUrl` ONLY (never falls back to rawUrl)
+- Excludes assets where `forceApprovedWithoutRedaction === true`
+- Excludes `video_walkaround` from `gallery[]` (cover-eligible but not gallery-listed)
+
+**Mock-phase cross-process caveat (§18 of SPEC-SHOOTS-002):**
+staff-web (port 3001) and customer-web (port 3000) are separate Zustand stores.
+Cross-app state sync requires a manual customer-web reload in dev/demo.
+Production satisfies same-tick sync via shared backend (DEF-AI-7).
+
+**Never mutates:** `useShootsStore`. Customer-web has read-only access via selector.
+
+---
+
 ## Changelog
 
 | Date | Change |
@@ -939,3 +1009,4 @@ is a data integrity violation (tested in SC-11).
 | 2026-05-05 | Added seams 45–46: Service Intake (SPEC-SERVICE-INTAKE-001 Phase 2) — `IntakeInspectionForm` reads customers-store (seam 45, READ-ONLY) and vehicles-store (seam 46, READ-ONLY) to resolve cross-aggregate display fields (customer name, VIN make/model/year/colour) at render time per §8.4. Both seams are read-only and fail gracefully. Enforced by L10. Also added test-drive seam 44 (above). |
 | 2026-04-30 | Added seam 44: Test Drive → Sales Deals (WRITE, Seam 44). `useTestDriveStore.createBooking` calls `useSalesDealsStore.getState().upsertDealFromTestDrive(...)` after booking is added to state. Best-effort (try/catch); booking creation succeeds even if deal sync fails. Back-reference `booking.linkedDealId` set on deal creation/resolution. |
 | 2026-05-07 | Added seam 47: Sales reservation conflict → Sales Deals (READ-ONLY). W3.1 reservation guard: `handleMoveDeal` in `app/(shell)/sales/page.tsx` reads `useSalesDealsStore.getState().hasActiveReservationForVin(vin, excludeDealId)` before committing `advanceStage(dealId, 'reserved')`. On conflict: toast shows `conflictingCustomerName` resolved from the conflicting deal record (already in sales-deals-store — no cross-store hop needed). L_S-RES-1 / SPEC-SALES-001 §12. |
+| 2026-05-05 | Added seams 50–51: Shoots v2 (SPEC-SHOOTS-002 Phase 1). Seam 50: Inventory Photos Tab → Shoots-store (READ + limited WRITE); allowed writes: setCoverAsset, reorderGallery, requestReshoot; forbidden: addRawAsset, approveAsset, redactLicensePlate; never mutates vehicles-store; L_AI-3, L_AI-11. Seam 51: Customer-web VDP → Shoots gallery selector (READ-ONLY); `selectStorefrontGalleryForVin(vin)` returns `{ coverUrl, gallery[], status }`; reads processedUrl only; excludes force-approved-unredacted assets (B2, L_AI-9, L_AI-11). |

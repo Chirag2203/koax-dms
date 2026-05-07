@@ -1253,5 +1253,84 @@
       "inStock": "IN STOCK",
       "assetIdentifier": "Asset Identifier"
     }
+  },
+  "shootsAi": {
+    "slot": {
+      "front_3q_driver": "Front 3/4 — Driver Side",
+      "front_3q_passenger": "Front 3/4 — Passenger Side",
+      "rear_3q_driver": "Rear 3/4 — Driver Side",
+      "rear_3q_passenger": "Rear 3/4 — Passenger Side",
+      "driver_profile": "Driver Side Profile",
+      "passenger_profile": "Passenger Side Profile",
+      "front_straight": "Front Straight",
+      "rear_straight": "Rear Straight",
+      "dashboard": "Dashboard",
+      "rear_seats": "Rear Seats",
+      "odometer": "Odometer",
+      "engine_bay": "Engine Bay",
+      "boot": "Boot / Trunk",
+      "video_walkaround": "Video Walkaround"
+    },
+    "category": {
+      "exterior": "Exterior",
+      "interior": "Interior",
+      "mechanical": "Mechanical",
+      "video": "Video"
+    },
+    "aiStatus": {
+      "pending": "Pending",
+      "queued": "AI Queued",
+      "processing": "AI Processing",
+      "succeeded": "AI Complete",
+      "failed": "AI Failed",
+      "manual-only": "Manual Only"
+    },
+    "approvalState": {
+      "raw": "Raw",
+      "processing": "Processing",
+      "processed": "Awaiting Approval",
+      "approved": "Approved"
+    },
+    "actions": {
+      "uploadRaw": "Upload Photo",
+      "redactLicensePlate": "Redact License Plate",
+      "requestAi": "Request AI Processing",
+      "approve": "Approve",
+      "unapprove": "Unapprove",
+      "setCover": "Set as Cover",
+      "forceApprove": "Force Approve",
+      "requestReshoot": "Request Re-Shoot"
+    },
+    "errors": {
+      "lpRedactionRequired": "License plate must be redacted before approval",
+      "aiFailed": "AI processing failed — cannot approve",
+      "fileTooLarge": "Asset exceeds 2 MB limit",
+      "slotAlreadyFilled": "This slot already has an asset",
+      "approvalPreconditionFailed": "{reason}",
+      "forceOverrideRoleRequired": "Force-approve requires R12+ role",
+      "reshootAlreadyOpen": "An open shoot already exists for this VIN",
+      "coverPreconditionFailed": "Cover photo must be an approved exterior asset (not video, not force-approved)"
+    },
+    "toasts": {
+      "uploaded": "Photo uploaded",
+      "redacted": "License plate redacted",
+      "aiComingInV21": "AI processing — Coming in v2.1. Asset marked manual-only.",
+      "approved": "Asset approved",
+      "unapproved": "Asset unapproved",
+      "forceApproved": "Force-approved without redaction (audit logged)",
+      "coverSet": "Cover photo updated",
+      "galleryReordered": "Gallery order saved",
+      "reshootRequested": "Re-shoot requested"
+    },
+    "badges": {
+      "forceApprovedWithoutRedaction": "Force-approved · plate not redacted",
+      "aiManualOnly": "Manual only",
+      "comingInV21": "AI — Coming in v2.1"
+    },
+    "labels": {
+      "requiredSlot": "Required",
+      "optionalSlot": "Optional",
+      "recommendedCover": "Recommended cover"
+    }
   }
 }

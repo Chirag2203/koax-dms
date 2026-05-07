@@ -330,6 +330,11 @@ describe('Shoots store — SPEC-SHOOTS-001', () => {
       createdBy: 'staff-r10-001',
       notes: '',
       outletId: 'BLR-01',
+      // v2 migration fields (L_AI-1 — SPEC-SHOOTS-002)
+      assets: [],
+      coverAssetId: null,
+      aiVendor: 'NONE',
+      aiPolicy: { autoQueueOnUpload: false, autoApproveProcessed: false },
     };
 
     store._seed([fixtureShoot]);
