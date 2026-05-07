@@ -284,6 +284,21 @@ export function ShootDetailView({ shootId }: ShootDetailViewProps) {
     [assets],
   );
 
+  // ── Approved exterior assets eligible for cover (Rules of Hooks: must
+  //    sit BEFORE the early `if (!shoot) return …` below — moving it
+  //    after caused "Maximum update depth" / hook-count mismatch in dev).
+  const coverCandidates = useMemo(
+    () =>
+      assets.filter(
+        (a) =>
+          a.approved &&
+          !a.forceApprovedWithoutRedaction &&
+          a.kind !== 'video_walkaround' &&
+          SHOOT_ASSET_SLOTS.find((s) => s.kind === a.kind)?.category === 'exterior',
+      ),
+    [assets],
+  );
+
   // ── Slot map for quick lookups ─────────────────────────────────────────────
   const assetByKind = useMemo(() => {
     const map = new Map<string, ShootAsset>();
@@ -479,18 +494,6 @@ export function ShootDetailView({ shootId }: ShootDetailViewProps) {
   const vehicle = [shoot.vehicleYear, shoot.vehicleMake, shoot.vehicleModel]
     .filter(Boolean)
     .join(' ') || 'Vehicle';
-
-  // Approved exterior assets eligible for cover
-  const coverCandidates = useMemo(
-    () => assets.filter(
-      (a) =>
-        a.approved &&
-        !a.forceApprovedWithoutRedaction &&
-        a.kind !== 'video_walkaround' &&
-        SHOOT_ASSET_SLOTS.find((s) => s.kind === a.kind)?.category === 'exterior',
-    ),
-    [assets],
-  );
 
   return (
     <div className="px-6 py-8 space-y-6 max-w-6xl">
