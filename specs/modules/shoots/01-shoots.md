@@ -283,3 +283,4 @@ class InsufficientRoleError extends Error {
 | Date | Version | Author | Change |
 |---|---|---|---|
 | 2026-04-30 | 1.0 | orchestrator | Initial approved spec |
+| 2026-05-08 | v1.0+ | Claude (orchestrator) | Sibling spec SPEC-SHOOTS-002 (AI-driven consistent imagery) drafted; §L2 marked [SUPERSEDED by L_AI-6 — see SPEC-SHOOTS-002 §1.7] in v2.1; v1 remains canonical for the count-only LISTED guard until v2.1. |
