@@ -21,7 +21,14 @@ import {
   Wrench,
   Truck,
   HardHat,
+  RefreshCw,
+  AlertTriangle,
+  Star,
 } from 'lucide-react';
+import { useShootsStore } from '@/src/lib/shoots/shoots-store';
+import { useStaffAuth } from '@/src/providers/staff-auth-provider';
+import type { ShootAsset } from '@dms/types';
+import { AssetApprovalPreconditionError } from '@dms/types';
 import { cn } from '@dms/ui';
 import type { Vehicle } from '@dms/types';
 import type {
@@ -455,71 +462,204 @@ const IMAGE_KIND_LABELS = [
   'ENGINE_BAY',
 ];
 
+/**
+ * PhotosTab — SPEC-SHOOTS-002 T09 (Seam 50 wiring)
+ *
+ * v2: reads from useShootsStore instead of vehicle.images.
+ * Allowed writes: setCoverAsset, reorderGallery, requestReshoot.
+ * Forbidden: addRawAsset, approveAsset, redactLicensePlate (L_AI-3, L_AI-11).
+ * "Upload more photos" CTA REMOVED — replaced with link to /shoots/{shootId}.
+ *
+ * Spec reference: SPEC-SHOOTS-002 T09, L_AI-3, L_AI-11, Seam 50
+ */
+// Module-level EMPTY fallback (CLAUDE.md §17.1 zustand rule)
+const EMPTY_ASSETS_PHOTOS: ShootAsset[] = [];
+
 function PhotosTab({
   vehicle,
-  onUpload,
 }: {
   vehicle: Vehicle;
-  onUpload: () => void;
+  onUpload: () => void; // kept for interface compat but no longer used
 }) {
+  const { user } = useStaffAuth();
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const images = vehicle.images;
-  const currentImage = lightboxIndex !== null ? images[lightboxIndex] : null;
+  const [reshootReason, setReshootReason] = useState('');
+  const [reshootDialogOpen, setReshootDialogOpen] = useState(false);
+  const { toast } = useToast();
+
+  const actor = useMemo(
+    () => ({
+      id: user?.id ?? 'anonymous',
+      name: user?.name ?? 'Unknown',
+      role: user?.role ?? 'R01',
+    }),
+    [user],
+  );
+
+  // Seam 50: read shoot + assets from shoots-store (L_AI-11)
+  const shoot = useShootsStore((s) => {
+    const id = s.shootIdByVin[vehicle.vin];
+    return id ? s.shoots[id] : undefined;
+  });
+
+  const rawAssets = useShootsStore(
+    (s) => s.shoots[s.shootIdByVin[vehicle.vin] ?? '']?.assets ?? EMPTY_ASSETS_PHOTOS,
+  );
+
+  // Sort assets by sortOrder in useMemo (CLAUDE.md §17.1)
+  const assets = useMemo(
+    () => [...rawAssets]
+      .filter((a) => a.approved && a.forceApprovedWithoutRedaction === false && a.processedUrl !== null)
+      .sort((a, b) => a.sortOrder - b.sortOrder),
+    [rawAssets],
+  );
+
+  // Check for any non-approved exterior assets (B2 note)
+  const hasPendingRedaction = useMemo(
+    () => rawAssets.some((a) => !a.approved && a.kind !== 'dashboard' && a.kind !== 'rear_seats' && a.kind !== 'odometer' && a.kind !== 'engine_bay' && a.kind !== 'boot'),
+    [rawAssets],
+  );
+
+  const currentAsset = lightboxIndex !== null ? assets[lightboxIndex] : null;
+
+  function handleSetCover(assetId: string) {
+    if (!shoot) return;
+    try {
+      useShootsStore.getState().setCoverAsset(shoot.id, assetId, actor);
+      toast('Cover photo updated', 'success');
+    } catch (err) {
+      toast(err instanceof Error ? err.message : String(err), 'error');
+    }
+  }
+
+  function handleRequestReshoot() {
+    if (reshootReason.trim().length < 5) {
+      toast('Please provide a reason (min 5 characters)', 'error');
+      return;
+    }
+    try {
+      useShootsStore.getState().requestReshoot(vehicle.vin, reshootReason.trim(), actor);
+      toast('Re-shoot requested', 'success');
+      setReshootDialogOpen(false);
+      setReshootReason('');
+    } catch (err) {
+      if (err instanceof AssetApprovalPreconditionError) {
+        toast('An open shoot already exists — resolve it before requesting a new one', 'error');
+      } else {
+        toast(err instanceof Error ? err.message : String(err), 'error');
+      }
+    }
+  }
 
   return (
     <div>
-      {/* Actions */}
-      <div className="mb-4 flex items-center justify-between">
-        <p className="text-[13px] text-ink-muted">
-          {images.length} photo{images.length !== 1 ? 's' : ''} attached
-        </p>
-        <Gate role={['R05', 'R10', 'R19', 'R22', 'R24']} fallback="hide">
-          <button
-            type="button"
-            onClick={onUpload}
-            className="inline-flex items-center gap-1.5 rounded-md border border-line bg-bg-surface px-3 py-1.5 text-sm font-medium text-ink-primary transition-colors hover:bg-bg-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
-          >
-            <Upload className="h-3.5 w-3.5" aria-hidden="true" />
-            Upload
-          </button>
-        </Gate>
+      {/* Header row */}
+      <div className="mb-4 flex items-center justify-between gap-2 flex-wrap">
+        <div className="flex items-center gap-3">
+          <p className="text-sm text-ink-muted">
+            {assets.length} approved photo{assets.length !== 1 ? 's' : ''} in gallery
+          </p>
+          {hasPendingRedaction && (
+            <span className="inline-flex items-center gap-1 text-xs text-amber-600">
+              <AlertTriangle size={12} aria-hidden="true" />
+              Some assets pending redaction
+            </span>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {/* Manage in Shoots link (R11+ visible, L_AI-3) */}
+          {shoot && (
+            <Gate role={['R11', 'R12', 'R13', 'R14', 'R15', 'R16', 'R17', 'R18', 'R19', 'R20', 'R21', 'R22', 'R23', 'R24']} fallback="hide">
+              <Link
+                href={`/shoots/${shoot.id}`}
+                className="inline-flex items-center gap-1.5 rounded-md border border-line bg-bg-surface px-3 py-1.5 text-sm font-medium text-ink-primary transition-colors hover:bg-bg-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+              >
+                Manage assets in Shoots →
+              </Link>
+            </Gate>
+          )}
+          {/* Request Re-shoot (R09+, Seam 50) */}
+          <Gate role={['R09', 'R11', 'R12', 'R13', 'R14', 'R15', 'R16', 'R17', 'R18', 'R19', 'R20', 'R21', 'R22', 'R23', 'R24']} fallback="hide">
+            <button
+              type="button"
+              onClick={() => setReshootDialogOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-md border border-line bg-bg-surface px-3 py-1.5 text-sm font-medium text-ink-primary transition-colors hover:bg-bg-subtle focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+            >
+              <RefreshCw className="h-3.5 w-3.5" aria-hidden="true" />
+              Request Re-Shoot
+            </button>
+          </Gate>
+        </div>
       </div>
 
-      {/* Grid */}
-      {images.length === 0 ? (
+      {/* No shoot state */}
+      {!shoot && (
         <div className="flex h-40 items-center justify-center rounded-md border border-dashed border-line text-sm text-ink-muted">
-          No photos uploaded yet.
+          No shoot exists for this VIN yet.
         </div>
-      ) : (
+      )}
+
+      {/* Gallery grid */}
+      {shoot && assets.length === 0 && (
+        <div className="flex h-40 items-center justify-center rounded-md border border-dashed border-line text-sm text-ink-muted">
+          No approved photos yet.{' '}
+          <Link href={`/shoots/${shoot.id}`} className="ml-1 text-accent hover:underline">
+            Upload in Shoots →
+          </Link>
+        </div>
+      )}
+
+      {assets.length > 0 && (
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-5 xl:grid-cols-6">
-          {images.map((img, i) => (
-            <button
-              key={img.url}
-              type="button"
-              onClick={() => setLightboxIndex(i)}
-              className="group relative overflow-hidden rounded-md border border-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
-              aria-label={`View photo ${i + 1}: ${img.alt}`}
-            >
-              <div className="aspect-[4/3]">
-                <Image
-                  src={img.url}
-                  alt={img.alt}
-                  fill
-                  className="object-cover transition-transform group-hover:scale-105"
-                  unoptimized
-                />
-              </div>
-              {/* Kind label overlay */}
-              <span className="absolute bottom-0 left-0 right-0 bg-black/60 px-1.5 py-0.5 font-mono text-[10px] uppercase tracking-wider text-white">
-                {IMAGE_KIND_LABELS[i] ?? `IMG_${String(i + 1).padStart(3, '0')}`}
-              </span>
-            </button>
+          {assets.map((asset, i) => (
+            <div key={asset.id} className="relative group">
+              <button
+                type="button"
+                onClick={() => setLightboxIndex(i)}
+                className="w-full overflow-hidden rounded-md border border-line focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1"
+                aria-label={`View photo ${i + 1}: ${asset.kind}`}
+              >
+                <div className="aspect-[4/3] relative">
+                  <Image
+                    src={asset.processedUrl!}
+                    alt={asset.kind.replace(/_/g, ' ')}
+                    fill
+                    className="object-cover transition-transform group-hover:scale-105"
+                    unoptimized
+                  />
+                </div>
+                {/* Kind label */}
+                <span className="absolute bottom-0 left-0 right-0 bg-black/60 px-1.5 py-0.5 font-mono text-xs uppercase tracking-wider text-white">
+                  {asset.kind.replace(/_/g, ' ')}
+                </span>
+                {/* Cover indicator */}
+                {shoot?.coverAssetId === asset.id && (
+                  <span className="absolute top-1 left-1 bg-amber-500/90 text-white rounded-md p-0.5">
+                    <Star size={10} aria-label="Cover" />
+                  </span>
+                )}
+              </button>
+
+              {/* Set cover CTA (R09+, Seam 50 allowed write) */}
+              {shoot?.coverAssetId !== asset.id && asset.kind !== 'video_walkaround' && (
+                <Gate role={['R09', 'R11', 'R12', 'R13', 'R14', 'R15', 'R16', 'R17', 'R18', 'R19', 'R20', 'R21', 'R22', 'R23', 'R24']} fallback="hide">
+                  <button
+                    type="button"
+                    onClick={() => handleSetCover(asset.id)}
+                    className="absolute top-1 right-1 hidden group-hover:flex items-center gap-1 bg-black/70 text-white px-1.5 py-0.5 rounded-md text-xs hover:bg-black/90 transition-colors"
+                  >
+                    <Star size={10} aria-hidden="true" />
+                    Cover
+                  </button>
+                </Gate>
+              )}
+            </div>
           ))}
         </div>
       )}
 
-      {/* Lightbox (simple overlay) */}
-      {currentImage && lightboxIndex !== null && (
+      {/* Lightbox */}
+      {currentAsset && lightboxIndex !== null && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/90"
           role="dialog"
@@ -535,46 +675,85 @@ function PhotosTab({
           >
             ✕
           </button>
-
           <div
             className="relative max-h-[85vh] max-w-[85vw]"
             onClick={(e) => e.stopPropagation()}
           >
             <Image
-              src={currentImage.url}
-              alt={currentImage.alt}
+              src={currentAsset.processedUrl!}
+              alt={currentAsset.kind.replace(/_/g, ' ')}
               width={1920}
               height={1080}
               className="max-h-[85vh] max-w-[85vw] rounded-md object-contain"
               unoptimized
             />
-            <p className="mt-2 text-center font-mono text-[11px] uppercase tracking-wider text-white/60">
-              {IMAGE_KIND_LABELS[lightboxIndex] ?? `IMG_${String(lightboxIndex + 1).padStart(3, '0')}`}
-              &nbsp;· {lightboxIndex + 1} / {images.length}
+            <p className="mt-2 text-center font-mono text-xs uppercase tracking-wider text-white/60">
+              {currentAsset.kind.replace(/_/g, ' ')}&nbsp;· {lightboxIndex + 1} / {assets.length}
             </p>
           </div>
-
-          {/* Prev / next */}
           {lightboxIndex > 0 && (
             <button
               type="button"
               className="absolute left-4 top-1/2 -translate-y-1/2 rounded p-2 text-white/70 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
               aria-label="Previous photo"
               onClick={(e) => { e.stopPropagation(); setLightboxIndex(lightboxIndex - 1); }}
-            >
-              &#8592;
-            </button>
+            >&#8592;</button>
           )}
-          {lightboxIndex < images.length - 1 && (
+          {lightboxIndex < assets.length - 1 && (
             <button
               type="button"
               className="absolute right-4 top-1/2 -translate-y-1/2 rounded p-2 text-white/70 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
               aria-label="Next photo"
               onClick={(e) => { e.stopPropagation(); setLightboxIndex(lightboxIndex + 1); }}
-            >
-              &#8594;
-            </button>
+            >&#8594;</button>
           )}
+        </div>
+      )}
+
+      {/* Re-shoot dialog */}
+      {reshootDialogOpen && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="reshoot-dialog-title"
+        >
+          <div className="bg-bg-surface border border-line rounded-md w-full max-w-[480px] shadow-xl">
+            <div className="px-6 pt-6 pb-4">
+              <h2 id="reshoot-dialog-title" className="text-base font-semibold text-ink-primary">
+                Request Re-Shoot
+              </h2>
+              <p className="mt-1 text-sm text-ink-secondary">
+                This will create a new shoot for VIN {vehicle.vin}. Provide a reason.
+              </p>
+            </div>
+            <div className="px-6 pb-4">
+              <textarea
+                value={reshootReason}
+                onChange={(e) => setReshootReason(e.target.value)}
+                rows={3}
+                placeholder="Reason for re-shoot (min 5 characters)..."
+                className="w-full rounded-md border border-line bg-bg-subtle px-3 py-2 text-sm text-ink-primary focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30 resize-none"
+              />
+            </div>
+            <div className="px-6 py-4 border-t border-line flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => { setReshootDialogOpen(false); setReshootReason(''); }}
+                className="h-9 px-4 rounded-md text-sm font-medium border border-line bg-bg-canvas text-ink-secondary hover:text-ink-primary hover:border-ink-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleRequestReshoot}
+                disabled={reshootReason.trim().length < 5}
+                className="h-9 px-4 rounded-md text-sm font-semibold text-white bg-accent hover:bg-accent/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-accent disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Request Re-Shoot
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

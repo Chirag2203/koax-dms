@@ -196,7 +196,13 @@
     },
     "gallery": {
       "viewPhoto": "View photo {index} of {total}",
-      "openGallery": "Open full gallery"
+      "openGallery": "Open full gallery",
+      "statusReady": "Gallery Ready",
+      "statusPending": "Gallery being prepared",
+      "statusUnavailable": "Gallery unavailable",
+      "preparingMessage": "Our team is preparing the gallery for this vehicle. Check back shortly.",
+      "coverAlt": "{vehicleName} — cover photo",
+      "photoAlt": "{vehicleName} — {kind} view"
     },
     "price": {
       "gstCaption": "inclusive of GST margin · TCS applicable",

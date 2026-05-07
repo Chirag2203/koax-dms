@@ -2393,6 +2393,7 @@
       "approved": "Approved"
     },
     "actions": {
+      "cancel": "Cancel",
       "uploadRaw": "Upload Photo",
       "redactLicensePlate": "Redact License Plate",
       "requestAi": "Request AI Processing",
@@ -2432,6 +2433,49 @@
       "requiredSlot": "Required",
       "optionalSlot": "Optional",
       "recommendedCover": "Recommended cover"
+    },
+    "detail": {
+      "title": "Shoot Details",
+      "breadcrumb": "Shoots",
+      "coverPhoto": "Cover Photo",
+      "requestAi": "Request AI Process",
+      "currentCover": "Current cover",
+      "noCoverCandidates": "No approved exterior assets available for cover yet.",
+      "requestReshoot": "Request Re-Shoot"
+    },
+    "assetCard": {
+      "uploadCta": "Upload photo",
+      "empty": "No asset",
+      "unapproveTitle": "Unapprove asset",
+      "unapproveDescription": "Enter a reason to unapprove this asset (min 5 characters).",
+      "forceApproveTitle": "Force-approve without redaction",
+      "forceApproveWarning": "This will approve the asset without license-plate redaction. The action is permanently logged. Required for DPDP compliance audit.",
+      "forceApproveReasonLabel": "Reason for override (min 10 characters)",
+      "forceApproveReasonPlaceholder": "Provide detailed justification for bypassing LP redaction...",
+      "charsMin": "characters min"
+    },
+    "lpRedaction": {
+      "title": "Redact License Plate",
+      "instructions": "Drag a rectangle over the license plate area to redact it.",
+      "confirm": "Apply Redaction",
+      "spynePromise": "Phase 2 will auto-detect license plates via Spyne.ai (DEF-AI-2). Manual rectangle redaction is the v1 method.",
+      "canvasLabel": "Image canvas for license plate redaction",
+      "readyToConfirm": "Redaction rectangle drawn. Click 'Apply Redaction' to confirm.",
+      "dragHint": "Click and drag on the image to draw a rectangle over the license plate."
+    },
+    "galleryStatus": {
+      "ready": "Gallery Ready",
+      "pending": "Gallery Pending",
+      "unavailable": "No Gallery",
+      "preparingMessage": "Gallery is being prepared for this vehicle."
+    },
+    "banner": {
+      "forceApprovedCount": "{count} asset(s) force-approved without redaction. Audit trail logged."
+    },
+    "inventoryTab": {
+      "manageAssetsLink": "Manage assets in Shoots",
+      "manageInInventory": "View in Inventory",
+      "requestReshoot": "Request Re-Shoot"
     }
   }
 }

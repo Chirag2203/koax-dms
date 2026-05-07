@@ -537,5 +537,20 @@
     "compareAddVehicle": "वाहन जोड़ें",
     "viewVDP": "विवरण देखें",
     "backToInventory": "इन्वेंटरी पर वापस जाएं"
+  },
+  "vdp": {
+    "breadcrumb": {
+      "collection": "The Collection"
+    },
+    "gallery": {
+      "viewPhoto": "Photo {index} of {total}",
+      "openGallery": "Open full gallery",
+      "statusReady": "Gallery Ready",
+      "statusPending": "Gallery being prepared",
+      "statusUnavailable": "Gallery unavailable",
+      "preparingMessage": "Our team is preparing the gallery for this vehicle. Check back shortly.",
+      "coverAlt": "{vehicleName} — cover photo",
+      "photoAlt": "{vehicleName} — {kind} view"
+    }
   }
 }

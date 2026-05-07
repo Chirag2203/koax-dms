@@ -1,10 +1,26 @@
 'use client';
 
+/**
+ * VehicleHeroGallery — SPEC-SHOOTS-002 T10 (Seam 51 wiring)
+ *
+ * v2: reads from useCustomerShootsStore (selectStorefrontGalleryForVin)
+ * instead of vehicle.images (deprecated per L_AI-9).
+ *
+ * Cross-process limitation: the customer-shoots-store is a per-process Zustand
+ * instance. A staff-side cover change is NOT visible here until page reload.
+ * Production swap: backend API serves the identical contract.
+ *
+ * Spec reference: SPEC-SHOOTS-002 T10, L_AI-9, L_AI-11, Seam 51
+ */
+
 import * as React from 'react';
+import { useMemo } from 'react';
 import Image from 'next/image';
 import { cn } from '@dms/ui';
 import type { Vehicle, VehicleImage } from '@dms/types/domain';
 import { VehicleLightbox } from './vehicle-lightbox';
+import { useCustomerShootsStore } from '@/src/lib/shoots/customer-shoots-store';
+import type { CustomerStorefrontGalleryItem } from '@/src/lib/shoots/customer-shoots-store';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -100,12 +116,66 @@ export function VehicleHeroGallery({ vehicle, className }: VehicleHeroGalleryPro
   const [lightboxOpen, setLightboxOpen] = React.useState(false);
   const [lightboxIndex, setLightboxIndex] = React.useState(0);
 
-  const images: VehicleImage[] = vehicle.images;
   const vehicleName = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
+
+  // Seam 51: read from customer-shoots-store (L_AI-9, L_AI-11)
+  // Note: useCustomerShootsStore returns base refs; compute in useMemo (CLAUDE.md §17.1)
+  const gallery = useCustomerShootsStore((s) => s.selectStorefrontGalleryForVin(vehicle.vin));
+  const { status, coverUrl, gallery: galleryItems } = gallery;
+
+  // Convert shoots gallery to VehicleImage shape for compatibility with VehicleLightbox
+  // width/height are nominal (1600×900 aspect 16:9) — Next.js Image uses fill layout
+  const images: VehicleImage[] = useMemo(() => {
+    if (status !== 'ready' || !coverUrl) return [];
+    const coverItem: VehicleImage = {
+      url: coverUrl,
+      alt: `${vehicleName} — cover photo`,
+      width: 1600,
+      height: 900,
+    };
+    const rest = galleryItems
+      .filter((g) => g.url !== coverUrl)
+      .map((g: CustomerStorefrontGalleryItem): VehicleImage => ({
+        url: g.url,
+        alt: `${vehicleName} — ${g.kind.replace(/_/g, ' ')}`,
+        width: 1600,
+        height: 900,
+      }));
+    return [coverItem, ...rest];
+  }, [status, coverUrl, galleryItems, vehicleName]);
 
   function openLightbox(index: number) {
     setLightboxIndex(index);
     setLightboxOpen(true);
+  }
+
+  // Gallery being prepared (pending) — render placeholder
+  if (status === 'pending') {
+    return (
+      <section
+        className={cn('bg-[#0c0c0d] px-0 lg:px-8 py-8', className)}
+        aria-label={`Photo gallery — ${vehicleName}`}
+        role="region"
+      >
+        <div className="max-w-[1440px] mx-auto">
+          <div className="aspect-[16/9] lg:aspect-[21/9] flex items-center justify-center bg-[#1a1a1b] rounded-sm">
+            <div className="text-center space-y-2">
+              <div className="mx-auto h-12 w-12 rounded-full bg-white/5 flex items-center justify-center">
+                <svg className="h-6 w-6 text-white/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <p className="font-mono text-sm text-white/40 uppercase tracking-widest">Gallery being prepared</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Unavailable — hide gallery entirely (L_AI-9)
+  if (status === 'unavailable' || images.length === 0) {
+    return null;
   }
 
   // Split images into grid positions
