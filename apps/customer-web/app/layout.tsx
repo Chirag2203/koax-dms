@@ -15,10 +15,14 @@ const playfairDisplay = Playfair_Display({
   style: ['normal', 'italic'],
 });
 
+// Pin to the four weights used by Tailwind utilities (400=normal, 500=medium,
+// 600=semibold, 700=bold). Omitting `weight` downloads the entire variable-font
+// family (~1.5 MB). This reduces font payload to 4 subsetted WOFF2 files.
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
+  weight: ['400', '500', '600', '700'],
 });
 
 const ibmPlexMono = IBM_Plex_Mono({

@@ -16,7 +16,12 @@ const nextConfig = {
   },
 
   experimental: {
-    optimizePackageImports: ['lucide-react'],
+    // lucide-react: tree-shakes icon imports (Next.js default behaviour for
+    // packages without proper package.json exports).
+    // @dms/ui: monorepo package — optimizePackageImports ensures only used
+    // exports are included in each route's chunk rather than pulling the full
+    // package barrel on every page.
+    optimizePackageImports: ['lucide-react', '@dms/ui'],
   },
 };
 

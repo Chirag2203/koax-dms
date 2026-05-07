@@ -19,7 +19,15 @@ import { useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Upload, AlertCircle, CheckCircle2, FileText, X, Download } from 'lucide-react';
 import { z } from 'zod';
-import * as XLSX from 'xlsx';
+// SheetJS (~900 KB) is only needed when the user uploads or downloads an XLSX
+// file. Dynamic import here removes it from the initial page bundle entirely.
+type XLSXModule = typeof import('xlsx');
+let _xlsx: XLSXModule | null = null;
+async function getXLSX(): Promise<XLSXModule> {
+  if (_xlsx) return _xlsx;
+  _xlsx = await import('xlsx');
+  return _xlsx;
+}
 import { cn } from '@dms/ui';
 import { useInsuranceStore } from '@/src/lib/insurance/insurance-store';
 import { Gate } from '@/src/components/primitives/gate';
@@ -75,10 +83,11 @@ function parseCSV(text: string): ImportRow[] {
   return rows;
 }
 
-// ─── XLSX parser ──────────────────────────────────────────────────────────────
+// ─── XLSX parser (async — loads SheetJS on demand) ────────────────────────────
 
-function parseXLSX(buffer: ArrayBuffer): ImportRow[] {
-  let workbook: XLSX.WorkBook;
+async function parseXLSX(buffer: ArrayBuffer): Promise<ImportRow[]> {
+  const XLSX = await getXLSX();
+  let workbook: import('xlsx').WorkBook;
   try {
     workbook = XLSX.read(buffer, { type: 'array' });
   } catch {
@@ -115,9 +124,10 @@ function parseXLSX(buffer: ArrayBuffer): ImportRow[] {
   });
 }
 
-// ─── XLSX template generator ──────────────────────────────────────────────────
+// ─── XLSX template generator (async — loads SheetJS on demand) ───────────────
 
-function downloadXLSXTemplate() {
+async function downloadXLSXTemplate() {
+  const XLSX = await getXLSX();
   const wb = XLSX.utils.book_new();
   const headerRow = [...CSV_COLUMNS];
   const sampleRow = ['WP0AB2A91MS247831', 'customer-001', 'bangalore', '45000', '35', 'Bangalore', '1234', '2'];
@@ -171,16 +181,17 @@ export function LeadBulkImportView() {
       const reader = new FileReader();
       reader.onload = (e) => {
         const buffer = e.target?.result as ArrayBuffer;
-        try {
-          const parsed = parseXLSX(buffer);
-          if (parsed.length === 0) {
-            setParseError('No data rows found in the XLSX file. Check that the first sheet has data and the correct column headers.');
-            return;
-          }
-          setRows(parsed);
-        } catch {
-          setParseError('Failed to parse XLSX file. The file may be corrupted or in an unsupported format.');
-        }
+        void parseXLSX(buffer)
+          .then((parsed) => {
+            if (parsed.length === 0) {
+              setParseError('No data rows found in the XLSX file. Check that the first sheet has data and the correct column headers.');
+              return;
+            }
+            setRows(parsed);
+          })
+          .catch(() => {
+            setParseError('Failed to parse XLSX file. The file may be corrupted or in an unsupported format.');
+          });
       };
       reader.onerror = () => setParseError('Failed to read XLSX file.');
       reader.readAsArrayBuffer(file);
@@ -264,7 +275,7 @@ export function LeadBulkImportView() {
               </a>
               <button
                 type="button"
-                onClick={downloadXLSXTemplate}
+                onClick={() => { void downloadXLSXTemplate(); }}
                 className="inline-flex items-center gap-1.5 h-9 px-3 rounded border border-line bg-bg-surface text-[13px] text-ink-primary hover:bg-bg-hover transition-colors"
               >
                 <Download size={14} aria-hidden="true" />

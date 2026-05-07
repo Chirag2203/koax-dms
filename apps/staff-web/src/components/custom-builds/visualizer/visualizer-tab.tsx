@@ -17,7 +17,7 @@
 
 'use client';
 
-import { useState, useCallback, useRef, useEffect } from 'react';
+import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Sparkles, Box } from 'lucide-react';
@@ -529,7 +529,8 @@ export function VisualizerTab({ job }: VisualizerTabProps) {
   );
 
   // ── Live cost total (parts + paint) ───────────────────────────────────────
-  const allOverlayMap = buildOverlayPriceMap();
+  // Memoised: getAllOverlays() is a stable catalogue constant — no deps needed.
+  const allOverlayMap = useMemo(() => buildOverlayPriceMap(), []);
   const paintCost = activePaintKey
     ? (PAINT_BY_KEY[activePaintKey]?.listPrice ?? 0)
     : 0;
