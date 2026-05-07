@@ -77,7 +77,6 @@ const TEXT_PX_BASELINE = new Set<string>([
   'src/components/custom-builds/visualizer/wheel-customizer.tsx',
   'src/components/custom-builds/visualizer/wing-customizer.tsx',
   'src/components/customers/customer-360-header.tsx',
-  'src/components/customers/customers-index-view.tsx',
   'src/components/customers/customers-table.tsx',
   'src/components/customers/tabs/customer-consents-tab.tsx',
   'src/components/customers/tabs/customer-profile-tab.tsx',

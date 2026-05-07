@@ -64,10 +64,10 @@ export function CustomersIndexView() {
       {/* Header */}
       <div className="flex items-start justify-between px-6 py-5 border-b border-line shrink-0">
         <div>
-          <h1 className="text-[28px] font-semibold leading-[1.25] text-ink-primary">
+          <h1 className="text-2xl font-semibold leading-tight text-ink-primary">
             Customers
           </h1>
-          <p className="mt-0.5 text-[13px] text-ink-muted leading-[1.5]">
+          <p className="mt-0.5 text-xs text-ink-muted leading-relaxed">
             360° profiles, vehicles, interactions, and consents
           </p>
         </div>

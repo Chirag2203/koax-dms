@@ -9,6 +9,10 @@ export const ConsentPurposeEnum = z.enum([
   'SERVICE_REMINDER',
   'DATA_PROCESSING',
   'INSURANCE_MARKETING',
+  /** DPDP-C2: communication channel consents added 2026-04-30 */
+  'SMS_MARKETING',
+  'CALL_MARKETING',
+  'GENERAL_MARKETING',
 ]);
 export type ConsentPurpose = z.infer<typeof ConsentPurposeEnum>;
 
@@ -94,5 +98,26 @@ export const CustomerSchema = z.object({
    * Not stored for channel strings.
    */
   referredByName: z.string().optional(),
+  /**
+   * Communication channel preferences — DPDP-C2 (2026-04-30).
+   * Each toggle corresponds to a ConsentPurpose. Staff create/edit flows write
+   * ConsentEntry rows via staff-consent-bridge when these change.
+   * Purpose map: whatsappUpdates → WHATSAPP_MARKETING, smsAlerts → SMS_MARKETING,
+   *   emailNewsletter → EMAIL_MARKETING, callConsent → CALL_MARKETING,
+   *   marketingConsent → GENERAL_MARKETING.
+   */
+  communicationPreferences: z
+    .object({
+      whatsappUpdates: z.boolean(),
+      smsAlerts: z.boolean(),
+      emailNewsletter: z.boolean(),
+      callConsent: z.boolean(),
+    })
+    .optional(),
+  /**
+   * General marketing consent — DPDP-C2 (2026-04-30).
+   * Corresponds to GENERAL_MARKETING ConsentPurpose.
+   */
+  marketingConsent: z.boolean().optional(),
 });
 export type Customer = z.infer<typeof CustomerSchema>;

@@ -49,9 +49,6 @@ const HI_MESSAGES = JSON.parse(readFileSync(join(MSG_ROOT, 'hi-IN.json'), 'utf8'
 // added to hi-IN.json at the same time as en-IN.json.
 
 const HI_IN_MISSING_BASELINE = new Set<string>([
-  'reports.kpi.npsAverage',
-  'reports.kpi.npsAverageUnit',
-  'staff.nav.signOut',
   'staff.settings.audit.columns.actor',
   'staff.settings.audit.columns.kind',
   'staff.settings.audit.columns.subject',
@@ -68,10 +65,6 @@ const HI_IN_MISSING_BASELINE = new Set<string>([
   'staff.settings.audit.retentionNotice',
   'staff.settings.audit.subtitle',
   'staff.settings.audit.title',
-  'staff.settings.common.cancel',
-  'staff.settings.common.edit',
-  'staff.settings.common.save',
-  'staff.settings.common.saving',
   'staff.settings.featureFlags.inMemoryBanner',
   'staff.settings.featureFlags.nonBoolean',
   'staff.settings.featureFlags.nonBooleanToggle',
@@ -178,14 +171,6 @@ const HI_IN_MISSING_BASELINE = new Set<string>([
   'staff.settings.rbac.searchPlaceholder',
   'staff.settings.rbac.subtitle',
   'staff.settings.rbac.title',
-  'staff.staffModule.directory.empty.clearFilters',
-  'staff.staffModule.directory.empty.title',
-  'staff.staffModule.directory.filters.clearFilters',
-  'staff.staffModule.directory.onboard',
-  'staff.staffModule.directory.search',
-  'staff.staffModule.directory.title',
-  'staff.staffModule.directory.viewToggle.card',
-  'staff.staffModule.directory.viewToggle.table',
 ]);
 
 // ─── Hi-IN allowlist ─────────────────────────────────────────────────────────

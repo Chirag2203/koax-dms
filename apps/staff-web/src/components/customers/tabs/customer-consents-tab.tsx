@@ -32,6 +32,10 @@ const PURPOSE_LABELS: Record<ConsentPurpose, string> = {
   SERVICE_REMINDER: 'Service Reminder',
   DATA_PROCESSING: 'Data Processing (DPDP)',
   INSURANCE_MARKETING: 'Insurance Marketing',
+  // DPDP-C2: additional channel purposes added 2026-04-30
+  SMS_MARKETING: 'SMS Marketing',
+  CALL_MARKETING: 'Call Marketing',
+  GENERAL_MARKETING: 'General Marketing',
 };
 
 const SOURCE_LABELS: Record<string, string> = {

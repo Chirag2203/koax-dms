@@ -7,9 +7,12 @@
  * On submit:
  *  1. Creates customer via createCustomer (idempotency check on phone+email).
  *  2. Captures DATA_PROCESSING consent via captureConsent.
- *  3. Toast success → navigate to /customers/{id}.
+ *  3. Emits one ConsentEntry per enabled communication-pref toggle
+ *     via recordCreateConsentEntries (DPDP-C2 / staff-consent-bridge).
+ *  4. Toast success → navigate to /customers/{id}.
  *
  * Spec: SPEC-CUSTOMERS-001 §2 + scenario S-C-13
+ * DPDP: DPDP Act 2023 §6 (consent), §11 (right to withdraw)
  */
 
 import { useState, useCallback } from 'react';
@@ -18,6 +21,7 @@ import { cn } from '@dms/ui';
 import { Dialog } from '@/src/components/primitives';
 import { useCustomersStore } from '@/src/lib/customers/customers-store';
 import { useStaffAuth } from '@/src/providers/staff-auth-provider';
+import { recordCreateConsentEntries } from '@/src/lib/customers/staff-consent-bridge';
 import type { Customer } from '@dms/types';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -40,6 +44,14 @@ interface FormState {
   email: string;
   preferredCity: '' | Customer['preferredCity'];
   dpdpConsent: boolean;
+  /** DPDP-C2: communication channel preferences — each maps to a ConsentPurpose */
+  commPrefs: {
+    whatsappUpdates: boolean;
+    smsAlerts: boolean;
+    emailNewsletter: boolean;
+    callConsent: boolean;
+    marketingConsent: boolean;
+  };
 }
 
 interface FormErrors {
@@ -48,6 +60,51 @@ interface FormErrors {
   email?: string;
   dpdpConsent?: string;
 }
+
+// ─── DPDP purpose text (DPDP Act 2023 §6 — purpose-text requirement) ─────────
+
+/**
+ * Purpose descriptions shown next to each consent toggle.
+ * DPDP Act 2023 §6: consent must be accompanied by a notice that specifies
+ * the purpose for which personal data is being processed.
+ * Keys under staff.customers.consent.<purpose> in en-IN.json / hi-IN.json.
+ */
+const CONSENT_TOGGLE_CONFIG: Array<{
+  key: keyof FormState['commPrefs'];
+  label: string;
+  purposeText: string;
+}> = [
+  {
+    key: 'whatsappUpdates',
+    label: 'WhatsApp Updates',
+    purposeText:
+      'By enabling WhatsApp updates, you consent to receive marketing messages about new arrivals, offers, and service reminders. You may withdraw consent at any time via your customer portal.',
+  },
+  {
+    key: 'smsAlerts',
+    label: 'SMS Alerts',
+    purposeText:
+      'By enabling SMS alerts, you consent to receive transactional and marketing SMS messages including service booking confirmations and promotional offers.',
+  },
+  {
+    key: 'emailNewsletter',
+    label: 'Email Newsletter',
+    purposeText:
+      'By enabling the email newsletter, you consent to receive email communications including new vehicle arrivals, special offers, and BN Automobiles news.',
+  },
+  {
+    key: 'callConsent',
+    label: 'Call Consent',
+    purposeText:
+      'By enabling call consent, you agree to receive outbound calls from BN Automobiles sales and service team for follow-ups and offers.',
+  },
+  {
+    key: 'marketingConsent',
+    label: 'General Marketing Consent',
+    purposeText:
+      'By enabling general marketing consent, you agree to receive marketing communications across all channels as permitted under the DPDP Act 2023.',
+  },
+];
 
 function validate(form: FormState): FormErrors {
   const errors: FormErrors = {};
@@ -70,12 +127,21 @@ function validate(form: FormState): FormErrors {
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
+const INITIAL_COMM_PREFS: FormState['commPrefs'] = {
+  whatsappUpdates: false,
+  smsAlerts: false,
+  emailNewsletter: false,
+  callConsent: false,
+  marketingConsent: false,
+};
+
 const INITIAL_FORM: FormState = {
   name: '',
   phone: '+91',
   email: '',
   preferredCity: '',
   dpdpConsent: true,
+  commPrefs: INITIAL_COMM_PREFS,
 };
 
 export function NewCustomerDialog({ open, onClose, onSuccess }: NewCustomerDialogProps) {
@@ -128,11 +194,12 @@ export function NewCustomerDialog({ open, onClose, onSuccess }: NewCustomerDialo
             email: form.email.trim(),
             preferredCity: form.preferredCity || 'bangalore',
             dpdpConsentGivenAt: now,
+            communicationPreferences: form.commPrefs,
           },
           actor,
         );
 
-        // Capture DATA_PROCESSING consent simultaneously
+        // Capture DATA_PROCESSING consent (base DPDP acknowledgement)
         captureConsent(
           {
             customerId: customer.id,
@@ -145,6 +212,17 @@ export function NewCustomerDialog({ open, onClose, onSuccess }: NewCustomerDialo
           actor,
         );
 
+        // DPDP-C2: emit one ConsentEntry per enabled communication-pref toggle.
+        // FALSE toggles → no row (never-granted prefs need no revocation record).
+        // Captured by = user.id so DSR can answer WHO captured each consent.
+        recordCreateConsentEntries(
+          customer.id,
+          customer.name,
+          { ...form.commPrefs },
+          user.id,
+          user.name,
+        );
+
         onSuccess?.(customer);
         handleClose();
         router.push(`/customers/${customer.id}`);
@@ -152,13 +230,26 @@ export function NewCustomerDialog({ open, onClose, onSuccess }: NewCustomerDialo
         setSubmitting(false);
       }
     },
-    [form, user, createCustomer, captureConsent, onSuccess, handleClose, router],
+    [form, user, createCustomer, captureConsent, onSuccess, handleClose, router], // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
+  const handleCommPrefChange = useCallback(
+    (key: keyof FormState['commPrefs'], checked: boolean) => {
+      setForm((prev) => ({
+        ...prev,
+        commPrefs: { ...prev.commPrefs, [key]: checked },
+      }));
+    },
+    [],
   );
 
   const isDirty =
     form.name !== INITIAL_FORM.name ||
     form.phone !== INITIAL_FORM.phone ||
-    form.email !== INITIAL_FORM.email;
+    form.email !== INITIAL_FORM.email ||
+    Object.keys(form.commPrefs).some(
+      (k) => form.commPrefs[k as keyof FormState['commPrefs']] !== INITIAL_COMM_PREFS[k as keyof FormState['commPrefs']],
+    );
 
   return (
     <Dialog
@@ -307,6 +398,43 @@ export function NewCustomerDialog({ open, onClose, onSuccess }: NewCustomerDialo
             <option value="chennai">Chennai</option>
           </select>
         </div>
+
+        {/* DPDP-C2: Communication channel preferences (DPDP Act 2023 §6) */}
+        <fieldset className="rounded-md border border-line bg-bg-subtle p-4">
+          <legend className="text-xs text-ink-muted uppercase tracking-wider px-1">
+            Communication Preferences
+          </legend>
+          <p className="text-xs text-ink-muted mt-1 mb-3">
+            Select which channels the customer consents to. Each toggle creates a separate DPDP
+            consent record linked to your staff ID.
+          </p>
+          <div className="flex flex-col gap-3">
+            {CONSENT_TOGGLE_CONFIG.map(({ key, label, purposeText }) => (
+              <div key={key} className="rounded-md border border-line bg-bg-canvas p-3">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    id={`nc-pref-${key}`}
+                    checked={form.commPrefs[key]}
+                    onChange={(e) => handleCommPrefChange(key, e.target.checked)}
+                    aria-describedby={`nc-pref-${key}-purpose`}
+                    className="mt-0.5 h-4 w-4 rounded border-line text-accent focus:ring-accent shrink-0"
+                  />
+                  <div className="min-w-0">
+                    <span className="text-sm font-medium text-ink-primary">{label}</span>
+                    {/* DPDP §6 purpose text — rendered next to each toggle per CLAUDE.md §9 */}
+                    <p
+                      id={`nc-pref-${key}-purpose`}
+                      className="text-xs text-ink-muted mt-0.5 leading-relaxed"
+                    >
+                      {purposeText}
+                    </p>
+                  </div>
+                </label>
+              </div>
+            ))}
+          </div>
+        </fieldset>
 
         {/* DPDP Consent acknowledgement */}
         <div className={cn(

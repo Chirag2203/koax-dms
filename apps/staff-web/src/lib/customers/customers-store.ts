@@ -63,6 +63,14 @@ export interface CreateCustomerInput {
   contactConfidential?: boolean;
   /** ISO timestamp of DPDP consent capture — required when wizard collects inline. L65 */
   dpdpConsentGivenAt?: string;
+  /**
+   * DPDP-C2: communication channel preferences captured at create time.
+   * Staff-consent-bridge emits ConsentEntry rows for each enabled toggle.
+   * Stored on the Customer record for quick-read; the audit trail is in the consent ledger.
+   */
+  communicationPreferences?: Customer['communicationPreferences'];
+  /** DPDP-C2: general marketing consent flag */
+  marketingConsent?: boolean;
 }
 
 export interface CustomersActions {
@@ -107,6 +115,19 @@ export interface CustomersActions {
    * Emits CONSENT_CAPTURED audit event.
    */
   captureConsent(entry: Omit<ConsentEntry, 'id'>, actor: Actor): ConsentEntry;
+
+  /**
+   * Update communication preferences on an existing customer — DPDP-C2.
+   * Updates the Customer record's communicationPreferences and marketingConsent fields.
+   * The caller (staff-consent-bridge) is responsible for emitting ConsentEntry rows.
+   * Emits a PROFILE_UPDATE audit event.
+   */
+  updateCommunicationPreferences(
+    id: string,
+    prefs: NonNullable<Customer['communicationPreferences']>,
+    marketingConsent: boolean,
+    actor: Actor,
+  ): void;
 }
 
 export type CustomersStore = CustomersState & CustomersActions;
@@ -185,6 +206,9 @@ export const useCustomersStore = create<CustomersStore>()(
         memberSince: new Date().toISOString().split('T')[0]!,
         contactConfidential: input.contactConfidential ?? false,
         dpdpConsentGivenAt: input.dpdpConsentGivenAt,
+        // DPDP-C2: store communication preferences for quick-read on profile tab
+        communicationPreferences: input.communicationPreferences,
+        marketingConsent: input.marketingConsent,
       };
 
       set((state) => {
@@ -305,6 +329,23 @@ export const useCustomersStore = create<CustomersStore>()(
         });
       });
       return newEntry;
+    },
+
+    updateCommunicationPreferences(id, prefs, marketingConsent, actor) {
+      set((state) => {
+        const customer = state.customers[id];
+        if (!customer) return;
+        customer.communicationPreferences = prefs;
+        customer.marketingConsent = marketingConsent;
+        state.auditEvents.push({
+          id: nextEventId(),
+          customerId: id,
+          kind: 'PROFILE_UPDATE',
+          at: new Date().toISOString(),
+          actorId: actor.id,
+          target: 'communicationPreferences',
+        });
+      });
     },
   })),
 );

@@ -1,7 +1,34 @@
 {
   "staff": {
     "nav": {
-      "testDrives": "Test Drives"
+      "testDrives": "Test Drives",
+      "signOut": "Sign Out"
+    },
+    "settings": {
+      "common": {
+        "cancel": "Cancel",
+        "edit": "Edit",
+        "save": "Save",
+        "saving": "Saving…"
+      }
+    },
+    "staffModule": {
+      "directory": {
+        "title": "Staff",
+        "search": "Search by name, email, or role...",
+        "onboard": "Onboard Staff",
+        "filters": {
+          "clearFilters": "Clear filters"
+        },
+        "empty": {
+          "title": "No staff match your filters.",
+          "clearFilters": "Clear filters"
+        },
+        "viewToggle": {
+          "card": "Card view",
+          "table": "Table view"
+        }
+      }
     },
     "enquiryDetail": {
       "testDrivesCard": {
@@ -14,6 +41,30 @@
         "slotLabel": "Slot",
         "advisorLabel": "Advisor",
         "statusLabel": "Status"
+      }
+    },
+    "customers": {
+      "consent": {
+        "whatsappUpdates": {
+          "label": "WhatsApp Updates",
+          "purposeText": "By enabling WhatsApp updates, you consent to receive marketing messages about new arrivals, offers, and service reminders. You may withdraw consent at any time via your customer portal."
+        },
+        "smsAlerts": {
+          "label": "SMS Alerts",
+          "purposeText": "By enabling SMS alerts, you consent to receive transactional and marketing SMS messages including service booking confirmations and promotional offers."
+        },
+        "emailNewsletter": {
+          "label": "Email Newsletter",
+          "purposeText": "By enabling the email newsletter, you consent to receive email communications including new vehicle arrivals, special offers, and BN Automobiles news."
+        },
+        "callConsent": {
+          "label": "Call Consent",
+          "purposeText": "By enabling call consent, you agree to receive outbound calls from BN Automobiles sales and service team for follow-ups and offers."
+        },
+        "marketingConsent": {
+          "label": "General Marketing Consent",
+          "purposeText": "By enabling general marketing consent, you agree to receive marketing communications across all channels as permitted under the DPDP Act 2023."
+        }
       }
     }
   },
@@ -482,7 +533,9 @@
       "staffUtilTech": "Technicians",
       "staffUtilSa": "Sales Advisors",
       "serviceToSaleConversion": "Service-to-Sale Conversion",
-      "serviceToSaleConversionUnit": "upgrade leads closed-won / eligible JCs"
+      "serviceToSaleConversionUnit": "upgrade leads closed-won / eligible JCs",
+      "npsAverage": "Avg NPS Score",
+      "npsAverageUnit": "/ 10"
     },
     "noDataForPeriod": "No data for this period",
     "partsMarginDeferredNotice": "Parts cost data coming in a future release",
