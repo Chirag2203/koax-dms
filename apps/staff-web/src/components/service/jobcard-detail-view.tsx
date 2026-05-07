@@ -35,7 +35,7 @@ import {
 import type { StateChipStatus, OutletCode } from '@/src/components/primitives';
 import { useToast } from '@/src/hooks/use-toast';
 import { useStaffAuth } from '@/src/providers/staff-auth-provider';
-import type { JobCard, JobCardStatus, JobCardPriority } from '@dms/types';
+import type { JobCard, JobCardStatus, JobCardPriority, IntakeInspection } from '@dms/types';
 import { JobCardOverviewTab } from './tabs/jobcard-overview-tab';
 import { JobCardLabourTab } from './tabs/jobcard-labour-tab';
 import { JobCardPartsTab } from './tabs/jobcard-parts-tab';
@@ -50,6 +50,11 @@ import { NotesPanel } from './side-panels/notes-panel';
 import { PhotosPanel } from './side-panels/photos-panel';
 import { AttachmentsPanel } from './side-panels/attachments-panel';
 import { CommunicationsPanel } from './side-panels/communications-panel';
+import { IntakeInspectionForm } from './intake/intake-inspection-form';
+import { IntakeSummaryCard } from './intake/intake-summary-card';
+import { UploadSignedSheetDialog } from './intake/upload-signed-sheet-dialog';
+import { SlideInPanel } from '@/src/components/primitives/slide-in-panel';
+import { ClipboardList, Download, Upload as UploadIcon } from 'lucide-react';
 
 // ─── Messages ─────────────────────────────────────────────────────────────────
 
@@ -123,13 +128,14 @@ const MESSAGES = {
 
 // ─── Tab config ───────────────────────────────────────────────────────────────
 
-type DetailTab = 'overview' | 'labour' | 'parts' | 'inspection' | 'timeline' | 'invoice-preview';
+type DetailTab = 'overview' | 'labour' | 'parts' | 'inspection' | 'intake' | 'timeline' | 'invoice-preview';
 
 const TABS: { id: DetailTab; label: string }[] = [
   { id: 'overview', label: 'Overview' },
   { id: 'labour', label: 'Labour' },
   { id: 'parts', label: 'Parts' },
   { id: 'inspection', label: 'Inspection' },
+  { id: 'intake', label: 'Intake Sheet' },
   { id: 'timeline', label: 'Timeline' },
   { id: 'invoice-preview', label: 'Invoice Preview' },
 ];
@@ -241,6 +247,187 @@ export interface JobCardDetailViewProps {
   jobCard: JobCard;
 }
 
+// ─── IntakeTabContent ─────────────────────────────────────────────────────────
+// T09: Renders the "Intake Sheet" tab panel content based on intake state.
+// L9 / SC-8a: Soft-warn banner when JC status=RECEIVED and no intake recorded.
+// SC-8b: R19+ override CTA to recordIntakeSkipped.
+
+interface IntakeTabContentProps {
+  jobCard: JobCard;
+  intake: IntakeInspection | undefined;
+  onStartIntake: () => void;
+  onUploadSheet: () => void;
+  onSkipIntake: (reason: string) => void;
+}
+
+function IntakeTabContent({
+  jobCard,
+  intake,
+  onStartIntake,
+  onUploadSheet,
+  onSkipIntake,
+}: IntakeTabContentProps) {
+  const { user } = useStaffAuth();
+
+  // L9: warn banner only when JC is RECEIVED and no intake yet
+  const showNoIntakeBanner = !intake && jobCard.status === 'RECEIVED';
+  // SC-8b: R19+ skip override
+  const canSkip = ['R03', 'R19', 'R24'].includes(user?.role ?? '');
+
+  function handleSkipClick() {
+    // v1 stub: reason is hardcoded for demo; real UI would prompt for reason
+    onSkipIntake('Overridden by manager — vehicle drop-off without SA present');
+  }
+
+  // ── No intake recorded yet ───────────────────────────────────────────────
+  if (!intake) {
+    return (
+      <div className="space-y-4">
+        {/* L9 / SC-8a: Soft-warn banner */}
+        {showNoIntakeBanner && (
+          <div
+            className="flex items-start gap-3 p-4 rounded-md bg-[rgb(var(--state-warning)/0.08)] border border-[rgb(var(--state-warning)/0.3)]"
+            role="alert"
+          >
+            <AlertTriangle size={18} className="text-[rgb(var(--state-warning))] flex-shrink-0 mt-0.5" aria-hidden="true" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-ink-primary">Intake inspection not recorded</p>
+              <p className="text-xs text-ink-secondary mt-0.5">
+                Vehicle is in RECEIVED state. Record the intake inspection before proceeding to diagnosis.
+              </p>
+            </div>
+          </div>
+        )}
+
+        <div className="flex flex-col items-center justify-center py-16 text-center gap-4 rounded-md border border-dashed border-line bg-bg-subtle">
+          <ClipboardList className="h-10 w-10 text-ink-muted" aria-hidden="true" />
+          <div>
+            <p className="text-sm font-medium text-ink-primary">No intake inspection recorded</p>
+            <p className="text-xs text-ink-secondary mt-1">
+              Start the intake inspection to document vehicle condition, damage callouts, and customer acknowledgement.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <Gate role={['R09', 'R03', 'R19', 'R24']} fallback="disable">
+              <button
+                type="button"
+                onClick={onStartIntake}
+                className="inline-flex items-center gap-2 h-9 px-4 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+              >
+                <ClipboardList className="h-4 w-4" aria-hidden="true" />
+                Start Intake Inspection
+              </button>
+            </Gate>
+            {/* SC-8b: R19+ skip override */}
+            {canSkip && (
+              <button
+                type="button"
+                onClick={handleSkipClick}
+                className="inline-flex items-center gap-1.5 h-9 px-3 rounded-md border border-line bg-bg-surface text-sm text-ink-secondary hover:text-ink-primary hover:border-ink-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                Skip intake
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Intake in DRAFT or CUSTOMER_SIGNED — show form CTA + download ────────
+  if (intake.state === 'DRAFT' || intake.state === 'CUSTOMER_SIGNED') {
+    return (
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-sm font-medium text-ink-primary">
+              Intake inspection — <span className="text-ink-secondary">{intake.state.replace('_', ' ')}</span>
+            </p>
+            <p className="text-xs text-ink-muted mt-0.5">ID: {intake.id}</p>
+          </div>
+          <div className="flex items-center gap-2">
+            {/* Download sheet CTA — excludes R11 per L11 */}
+            <Gate role={['R09', 'R03', 'R12', 'R13', 'R19', 'R22', 'R23', 'R24']} fallback="hide">
+              <a
+                href={`/api/service/intake-inspection/${jobCard.id}/pdf`}
+                download={`intake-${jobCard.jobNo}.pdf`}
+                className="inline-flex items-center gap-1.5 h-9 px-3 rounded-md border border-line bg-bg-surface text-sm text-ink-secondary hover:text-ink-primary hover:border-ink-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                <Download className="h-4 w-4" aria-hidden="true" />
+                Download Sheet
+              </a>
+            </Gate>
+            {/* Upload signed sheet — only valid from CUSTOMER_SIGNED */}
+            {intake.state === 'CUSTOMER_SIGNED' && (
+              <Gate role={['R09', 'R03', 'R19', 'R24']} fallback="hide">
+                <button
+                  type="button"
+                  onClick={onUploadSheet}
+                  className="inline-flex items-center gap-1.5 h-9 px-3 rounded-md border border-line bg-bg-surface text-sm text-ink-secondary hover:text-ink-primary hover:border-ink-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+                >
+                  <UploadIcon className="h-4 w-4" aria-hidden="true" />
+                  Upload Signed
+                </button>
+              </Gate>
+            )}
+            <Gate role={['R09', 'R03', 'R19', 'R24']} fallback="disable">
+              <button
+                type="button"
+                onClick={onStartIntake}
+                className="inline-flex items-center gap-2 h-9 px-4 rounded-md bg-accent text-white text-sm font-medium hover:bg-accent/90 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2"
+              >
+                Continue Inspection
+              </button>
+            </Gate>
+          </div>
+        </div>
+        {/* Read-only summary for in-progress intake */}
+        <IntakeSummaryCard intakeId={intake.id} redacted={user?.role === 'R11'} />
+      </div>
+    );
+  }
+
+  // ── Intake COMPLETED (or AMENDED / SKIPPED) — full summary + re-download + amend ──
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-ink-primary">
+            Intake inspection — <span className="text-ink-secondary">{intake.state}</span>
+          </p>
+          {intake.version > 1 && (
+            <p className="text-xs text-ink-muted mt-0.5">Version {intake.version} (amended)</p>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          {/* Re-download PDF — excludes R11 */}
+          <Gate role={['R09', 'R03', 'R12', 'R13', 'R19', 'R22', 'R23', 'R24']} fallback="hide">
+            <a
+              href={`/api/service/intake-inspection/${jobCard.id}/pdf`}
+              download={`intake-${jobCard.jobNo}.pdf`}
+              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-md border border-line bg-bg-surface text-sm text-ink-secondary hover:text-ink-primary hover:border-ink-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              <Download className="h-4 w-4" aria-hidden="true" />
+              Re-download
+            </a>
+          </Gate>
+          {/* Amend — R03/R19/R24 only (L8) */}
+          <Gate role={['R03', 'R19', 'R24']} fallback="hide">
+            <button
+              type="button"
+              onClick={onStartIntake}
+              className="inline-flex items-center gap-2 h-9 px-3 rounded-md border border-line bg-bg-surface text-sm font-medium text-ink-secondary hover:text-ink-primary hover:border-ink-secondary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            >
+              Amend
+            </button>
+          </Gate>
+        </div>
+      </div>
+      <IntakeSummaryCard intakeId={intake.id} redacted={user?.role === 'R11'} />
+    </div>
+  );
+}
+
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 
 function SidebarCard({
@@ -280,6 +467,9 @@ export function JobCardDetailView({ jobCard: initialJobCard }: JobCardDetailView
   const [photosPanelOpen, setPhotosPanelOpen] = useState(false);
   const [attachmentsPanelOpen, setAttachmentsPanelOpen] = useState(false);
   const [commsPanelOpen, setCommsPanelOpen] = useState(false);
+  // T09: Intake sheet state
+  const [intakeFormOpen, setIntakeFormOpen] = useState(false);
+  const [uploadSheetOpen, setUploadSheetOpen] = useState(false);
 
   const { user } = useStaffAuth();
   const { toasts, toast, dismiss } = useToast();
@@ -296,6 +486,9 @@ export function JobCardDetailView({ jobCard: initialJobCard }: JobCardDetailView
   const allCommunications = useServiceStore((s) => s.communications);
   const setJobCardStatus = useServiceStore((s) => s.setJobCardStatus);
   const logCommunication = useServiceStore((s) => s.logCommunication);
+  // T09 / Seam 45+46: Intake slice selectors (L2 — read only, never mutate)
+  const intake = useServiceStore((s) => s.intakeInspections.find((i) => i.jobCardId === jobCard.id));
+  const recordIntakeSkipped = useServiceStore((s) => s.recordIntakeSkipped);
 
   // Look up the real customer from the store for contact masking (PLAN-VEHICLES-002 §E)
   const storeCustomer = useCustomersStore((s) => s.customers[jobCard.customerId]);
@@ -768,6 +961,31 @@ export function JobCardDetailView({ jobCard: initialJobCard }: JobCardDetailView
               )}
             </div>
 
+            {/* ── Intake Sheet tab ─────────────────────────────────────────── */}
+            <div
+              role="tabpanel"
+              id="panel-intake"
+              aria-labelledby="tab-intake"
+              hidden={activeTab !== 'intake'}
+            >
+              {activeTab === 'intake' && (
+                <IntakeTabContent
+                  jobCard={jobCard}
+                  intake={intake}
+                  onStartIntake={() => setIntakeFormOpen(true)}
+                  onUploadSheet={() => setUploadSheetOpen(true)}
+                  onSkipIntake={(reason) => {
+                    recordIntakeSkipped(jobCard.id, reason, {
+                      id: actor.id,
+                      name: actor.name,
+                      role: user?.role ?? 'R19',
+                    });
+                    toast('Intake marked as skipped', 'success');
+                  }}
+                />
+              )}
+            </div>
+
             <div
               role="tabpanel"
               id="panel-timeline"
@@ -1034,6 +1252,34 @@ export function JobCardDetailView({ jobCard: initialJobCard }: JobCardDetailView
         jobCardId={jobCard.id}
         jobNo={jobCard.jobNo}
       />
+
+      {/* T09: Intake form slide-in panel */}
+      <SlideInPanel
+        open={intakeFormOpen}
+        onClose={() => setIntakeFormOpen(false)}
+        width="60%"
+        title="Intake Inspection"
+      >
+        <IntakeInspectionForm
+          jobCardId={jobCard.id}
+          existingIntakeId={intake?.id}
+          onComplete={(_intakeId) => {
+            setIntakeFormOpen(false);
+            toast('Intake inspection saved', 'success');
+          }}
+          onCancel={() => setIntakeFormOpen(false)}
+        />
+      </SlideInPanel>
+
+      {/* T09: Upload signed sheet dialog */}
+      {intake && (
+        <UploadSignedSheetDialog
+          open={uploadSheetOpen}
+          onClose={() => setUploadSheetOpen(false)}
+          intakeId={intake.id}
+          jobNo={jobCard.jobNo}
+        />
+      )}
 
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
     </div>

@@ -17,6 +17,7 @@
     "@dms/ui": "workspace:*",
     "@dms/vehicles-core": "workspace:*",
     "@hookform/resolvers": "^3.4.0",
+    "@react-pdf/renderer": "^3.4.4",
     "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.18.0",
     "@tanstack/react-query": "^5.40.0",

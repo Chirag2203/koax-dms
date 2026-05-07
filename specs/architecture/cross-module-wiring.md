@@ -84,6 +84,8 @@ Last verified against commit `f75e4c7`.
 | 42 | Leads UI → Vehicles store (READ) | `lead-detail-page.tsx` + `new-lead-page.tsx` + `lead-card.tsx` → `useVehiclesStore(s => s.vehicles[lead.vehicleInterestVin])` (read-only); resolves make/model/year for display in VIN picker and detail view; no mutation of vehicles-store | SPEC-LEADS-001 §13 Seam 40 (renumbered 42) |
 | 43 | Service → Leads store (WRITE, P1 stub) | `JobCardDetailView` "Create sales lead" CTA → `useLeadsStore.getState().createLead({ source: 'service-upgrade', customerId, vehicleInterestVin: vin, outletId }, actor)` (P1: fires toast stub; P2: live call when B1 is shipped); fallback toast shown if `LeadsStoreHydrator` not mounted | SPEC-LEADS-001 §13 Seam 41 (renumbered 43), L16 |
 | 44 | Test Drive createBooking → Sales Deals upsert | `useTestDriveStore.createBooking` action → `useSalesDealsStore.getState().upsertDealFromTestDrive(...)` (best-effort try/catch; booking succeeds even if deal upsert fails); back-ref `booking.linkedDealId` set on success | SPEC-TEST-DRIVE-001 cross-module integration |
+| 45 | Service Intake → Customers (READ) | `IntakeInspectionForm` reads `useCustomersStore(s => s.customers[jobCard.customerId])` to display customer name as a read-only Field. **Never mutates.** Resolver fails gracefully (empty name) if customer not in store. | SPEC-SERVICE-INTAKE-001 L10 / Seam 45 |
+| 46 | Service Intake → Vehicles (READ) | `IntakeInspectionForm` reads `useVehiclesStore(s => s.vehicles[jobCard.vin])` to display VIN, make/model/year/colour as read-only Fields (§8.4 — derived at render time, not stored on IntakeInspection). **Never mutates.** Resolver fails gracefully if vehicle not in store. | SPEC-SERVICE-INTAKE-001 L10 / Seam 46 |
 
 ## Detailed seams
 
@@ -849,6 +851,75 @@ export const RBAC_MATRIX: RbacMatrixRow[] = [
 
 ---
 
+---
+
+### 45. Service Intake → Customers (READ)
+
+**File:** `apps/staff-web/src/components/service/intake/intake-inspection-form.tsx`
+
+**Flow:**
+```ts
+// Seam 45 — L10: READ-ONLY, never mutates customers-store
+const storeCustomer = useCustomersStore((s) => s.customers[jobCard.customerId]);
+const customerName = storeCustomer?.name ?? '—';
+```
+
+**Purpose:** Display customer name as a read-only `Field` in the intake form
+header (§8.4 — cross-aggregate field resolution at render time; not stored on
+`IntakeInspection`).
+
+**Contract:**
+- READ-ONLY. This seam never writes to `customers-store`.
+- Fails gracefully: if `customers[customerId]` is undefined, the Field shows `—`.
+- No selector computation in the store call — base ref only; any derived
+  values (e.g. masked phone) use `useMemo` in the component.
+
+**Gotcha:** The customer's name on the IntakeInspection record is NOT persisted
+in the intake entity. The form reads it live from the store. This means if a
+customer record is deleted, the name disappears from new forms (existing
+completed intakes are unaffected since they encode the name at PDF render time
+via the Route Handler).
+
+**Per SPEC-SERVICE-INTAKE-001 L10.**
+
+---
+
+### 46. Service Intake → Vehicles (READ)
+
+**File:** `apps/staff-web/src/components/service/intake/intake-inspection-form.tsx`
+
+**Flow:**
+```ts
+// Seam 46 — L10: READ-ONLY, never mutates vehicles-store
+const vehicleMaster = useVehiclesStore((s) => s.vehicles[jobCard.vin] ?? null);
+const make  = vehicleMaster?.make  ?? '—';
+const model = vehicleMaster?.model ?? '—';
+const year  = vehicleMaster?.year  ?? '—';
+const colour = vehicleMaster?.exteriorColor ?? '—';
+```
+
+**Purpose:** Display VIN, make/model/year/exteriorColor as read-only `Field`
+components in the intake form. Per §8.4 of SPEC-SERVICE-INTAKE-001: these
+cross-aggregate values are resolved at render time and are never stored on the
+`IntakeInspection` entity.
+
+**Contract:**
+- READ-ONLY. This seam never writes to `vehicles-store`.
+- Fails gracefully: if `vehicles[vin]` is undefined, all Fields show `—`.
+- The Route Handler at `app/api/service/intake-inspection/[jobCardId]/pdf/route.ts`
+  independently resolves the same fields from its fixture stub (v1) / DB query (v1.5)
+  for the PDF generation — the form and the PDF are independent resolvers.
+
+**Gotcha:** The VIN is also stored directly on the `IntakeInspection` entity
+(it's not a cross-aggregate join there — it's the entity's own field). The
+cross-aggregate part is make/model/year/colour. The VIN stored on the entity
+is the primary consistency assertion: if `intake.vin !== jobCard.vin`, there
+is a data integrity violation (tested in SC-11).
+
+**Per SPEC-SERVICE-INTAKE-001 L10 / SC-11.**
+
+---
+
 ## Changelog
 
 | Date | Change |
@@ -862,4 +933,5 @@ export const RBAC_MATRIX: RbacMatrixRow[] = [
 | 2026-04-29 | Added seams 30–33: Settings module — outlet manager reference (→ staff-store), outlet deactivation guard (→ service/sales/custom-builds), feature flags registry (→ all flag-gated features), RBAC matrix constant (→ Doc 14 action registry). Per SPEC-SETTINGS-001 L3, L9, L12, L17. |
 | 2026-04-29 | Added seams 34–38: Finance module (SPEC-FINANCE-001) — GST reconciliation reads sales-events + cost-ledger; TCS register reads sales-events grouped by PAN (with `tcsWaived` from PLAN-VEHICLES-003 L18); Customer ledger composes vehicles + service + custom-builds + payments; Journal preview composes all monetary modules + asserts double-entry balance per L28 + idempotent byte-identical CSV per L30. All seams are READ-ONLY — Finance never mutates upstream stores per SPEC-FINANCE-001 L14. |
 | 2026-04-30 | Added seams 41–43: Leads module (SPEC-LEADS-001) — Leads UI reads customers-store for customer name/phone display (READ-ONLY, seam 41); Leads UI reads vehicles-store for VIN/make/model display and picker (READ-ONLY, seam 42); Service module "Create sales lead" CTA writes into leads-store `createLead` (WRITE, P1 stub — toast only; P2 wires live call when B1 ships, seam 43). Seam 43 corresponds to the P1 stub referenced in SPEC-LEADS-001 §13 L16. |
+| 2026-05-05 | Added seams 45–46: Service Intake (SPEC-SERVICE-INTAKE-001 Phase 2) — `IntakeInspectionForm` reads customers-store (seam 45, READ-ONLY) and vehicles-store (seam 46, READ-ONLY) to resolve cross-aggregate display fields (customer name, VIN make/model/year/colour) at render time per §8.4. Both seams are read-only and fail gracefully. Enforced by L10. Also added test-drive seam 44 (above). |
 | 2026-04-30 | Added seam 44: Test Drive → Sales Deals (WRITE, Seam 44). `useTestDriveStore.createBooking` calls `useSalesDealsStore.getState().upsertDealFromTestDrive(...)` after booking is added to state. Best-effort (try/catch); booking creation succeeds even if deal sync fails. Back-reference `booking.linkedDealId` set on deal creation/resolution. |
