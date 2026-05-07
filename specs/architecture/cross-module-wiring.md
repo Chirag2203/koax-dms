@@ -86,6 +86,8 @@ Last verified against commit `f75e4c7`.
 | 44 | Test Drive createBooking → Sales Deals upsert | `useTestDriveStore.createBooking` action → `useSalesDealsStore.getState().upsertDealFromTestDrive(...)` (best-effort try/catch; booking succeeds even if deal upsert fails); back-ref `booking.linkedDealId` set on success | SPEC-TEST-DRIVE-001 cross-module integration |
 | 45 | Service Intake → Customers (READ) | `IntakeInspectionForm` reads `useCustomersStore(s => s.customers[jobCard.customerId])` to display customer name as a read-only Field. **Never mutates.** Resolver fails gracefully (empty name) if customer not in store. | SPEC-SERVICE-INTAKE-001 L10 / Seam 45 |
 | 46 | Service Intake → Vehicles (READ) | `IntakeInspectionForm` reads `useVehiclesStore(s => s.vehicles[jobCard.vin])` to display VIN, make/model/year/colour as read-only Fields (§8.4 — derived at render time, not stored on IntakeInspection). **Never mutates.** Resolver fails gracefully if vehicle not in store. | SPEC-SERVICE-INTAKE-001 L10 / Seam 46 |
+| 48 | Service JC creation → Customers (READ) | `NewJobCardForm` reads `useCustomersStore(s => s.customers)` to populate the existing-customer dropdown (replaces the v1 hardcoded 4-name list). Each option shows `{name} · {phone}`. **Never mutates.** | SPEC-SERVICE-001 §6.3 / L_S5 |
+| 49 | Service JC creation → Vehicles ownership (READ) | `NewJobCardForm` reads `useVehiclesStore(s => s.ownerships)` + `s.ownershipIdByCustomer` + `s.vehicles` to render a vehicle dropdown filtered to the selected customer's ACTIVE ownerships. On selection, auto-fills year/make/model. **Never mutates.** Walk-in mode and existing-customer-with-no-vehicles fall back to free-text VIN input. | SPEC-SERVICE-001 §6.3 / L_S6 |
 
 ## Detailed seams
 

@@ -282,6 +282,44 @@ On submit, the store's `checkInAppointment(appointmentId, opts, actor)` action:
 - POST `/api/staff/service/appointments` → creates appointment + placeholder job card in RECEIVED state
 - Redirects to `/service/jobcards/[id]`
 
+### 6.3 New job-card flow (`/service/jobcards/new`) — direct creation
+
+The advisor can create a JC without an appointment (e.g. a walk-in, a
+late-night drop-off, or a courtesy appointment that wasn't booked
+ahead). This route is the canonical surface for that path.
+
+**Customer section (Walk-in vs Existing).**
+
+| Mode | Fields | Notes |
+|------|--------|-------|
+| **Walk-in** | Name (req, ≥2), Phone (req, /^\d{10}$/), Email (optional, valid) | New customer captured in-line; downstream `openOwnership({source:'SERVICE_ONLY_WALKIN'})` runs after intake. |
+| **Existing** | Customer dropdown — alphabetised list pulled from `useCustomersStore` (NOT a hardcoded fixture list). Each option shows `{name} · {phone}`. | Replaces the v1 hardcoded 4-name dropdown. **L_S5: customer dropdown is data-driven from customers-store.** |
+
+**Vehicle section (data-driven for existing customers).**
+
+When `customerType === 'existing'` AND `customerId` is set AND that customer has at least one ACTIVE ownership row in the vehicles-store, the **VIN field is rendered as a `<select>` dropdown listing only that customer's vehicles** (resolved via `ownershipIdByCustomer[customerId] → ownerships → vehicles` join, ACTIVE-state only). Picking a vehicle auto-fills year/make/model — the advisor doesn't re-type data already on file.
+
+For walk-in mode (or for an existing customer with no vehicles on file yet), the VIN field is the standard free-text `<input>` with VIN validation (`@dms/vehicles-core normalizeVin`). Helper text under the field clarifies the active mode ("Pick a car already on file…" vs "No vehicles on file for this customer — enter VIN manually below.").
+
+**L_S6: data-driven existing-customer vehicle dropdown.** The VIN selector for existing customers is sourced from the live ownership index. No silent free-text fallback when ownerships exist; the advisor MUST pick from the dropdown to avoid VIN-typo regressions.
+
+**Service-Type section.**
+
+Chip-style multi-select rendered from `serviceTypes` fixture. The catalogue is:
+
+1. Annual Service · 2. Master Inspection · 3. Aesthetic Detailing · 4. Mechanical Repair · 5. Pre-Purchase Inspection · 6. Accessory Installation · **7. Other** *(catch-all, P-S6.3 addition)*.
+
+When the advisor selects **Other**, a required free-text *"Describe the issue"* textarea (≥10 chars) surfaces immediately below the chip group. On submit, the description is composed into the JC's `diagnosticNotes` field with the prefix `Other — customer concern:` so the workshop sees the original wording.
+
+**L_S7: "Other" service type with mandatory free-text description.** The description is folded into `diagnosticNotes` audit-trail. UI never silently drops the input — if the advisor toggles "Other" off, the textarea hides but the text is preserved in form state until submit (so accidental toggle doesn't lose typing).
+
+**Cross-store wiring (read-only seams).**
+
+- **Seam 48 — Service JC creation → Customers (READ).** Customer dropdown.
+- **Seam 49 — Service JC creation → Vehicles ownership (READ).** Vehicle dropdown for existing customers; auto-fill year/make/model on selection.
+
+Both seams are read-only; this surface never mutates customers-store or the vehicles ownership graph (open-ownership for walk-ins is the existing path through `vehiclesStore.openOwnership(...)` after intake-dialog confirm — that's not new wiring).
+
 ## 7. Warranty claim flow (`/service/warranty/new`)
 
 Reference: Stitch `service_warranty_claim`
@@ -526,4 +564,5 @@ All components strictly follow `D:/dms/dms/design/04_staff_component_patterns.md
 | Date | Version | Author | Change |
 |------|---------|--------|--------|
 | 2026-04-17 | 0.1 | Claude (integrator) | Initial spec for Phase S4 Service — 4 routes + 6 tabs + 2 standalone flows |
-| 2026-05-07 | v1.x — added child spec SPEC-SERVICE-INTAKE-001 (intake inspection sheet — sibling under specs/modules/service/03-intake-inspection.md) |
+| 2026-05-07 | 0.2 | Claude (integrator) | Added child spec SPEC-SERVICE-INTAKE-001 (intake inspection sheet — sibling under `specs/modules/service/03-intake-inspection.md`). |
+| 2026-05-07 | 0.3 | Claude (orchestrator) | §6.3 new — JC creation flow data-driven from customers-store + vehicles ownership index. L_S5 customer dropdown sourced from store; L_S6 existing-customer VIN dropdown filtered to that customer's ACTIVE ownerships with auto-fill of year/make/model; L_S7 "Other" service type with mandatory ≥10-char description folded into `diagnosticNotes`. Seams 48 (customers READ) + 49 (vehicles ownership READ) registered. Replaces v1 hardcoded 4-name customer fixture list and free-text-only VIN input. |

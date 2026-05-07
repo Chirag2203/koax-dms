@@ -10,6 +10,7 @@ import { ChevronRight } from 'lucide-react';
 import { cn } from '@dms/ui';
 import { useServiceStore } from '@/src/lib/service/service-store';
 import { useVehiclesStore } from '@/src/lib/vehicles/vehicles-store';
+import { useCustomersStore } from '@/src/lib/customers/customers-store';
 import { useStaffAuth } from '@/src/providers/staff-auth-provider';
 import { useToast } from '@/src/hooks/use-toast';
 import { ToastContainer } from '@/src/components/primitives';
@@ -38,6 +39,11 @@ const OUTLET_OPTIONS = [
   { id: 'CHE-01', name: 'Chennai' },
 ];
 
+// Stable empty-array references for store selectors below. Returning a
+// fresh `[]` literal from a Zustand selector triggers infinite re-renders
+// (CLAUDE.md §17 #14, enforced by zustand-selector-anti-patterns.test.ts).
+const EMPTY_OWNERSHIP_IDS: readonly string[] = [];
+
 // ─── Schema ───────────────────────────────────────────────────────────────────
 
 const schema = z.object({
@@ -58,6 +64,12 @@ const schema = z.object({
   customerComplaint: z.string().min(10, 'Minimum 10 characters'),
   priority: z.enum(['LOW', 'NORMAL', 'HIGH', 'VIP']),
   serviceTypeIds: z.array(z.string()).min(1, 'Select at least one service type'),
+  /**
+   * Free-text "Describe the issue" — required only when the catch-all
+   * "Other" service type is selected (per SPEC-SERVICE-001 §6.3 / L_S6).
+   * Validated via superRefine below.
+   */
+  otherDescription: z.string().optional(),
   initialNotes: z.string().optional(),
   // Bay & advisor
   bayId:     z.string().optional(),
@@ -76,6 +88,17 @@ const schema = z.object({
   }
   if (data.customerType === 'existing' && !data.customerId) {
     ctx.addIssue({ code: 'custom', path: ['customerId'], message: 'Select a customer' });
+  }
+  // "Other" service type requires a description (per SPEC-SERVICE-001 §6.3)
+  if (
+    data.serviceTypeIds.includes('other') &&
+    (!data.otherDescription || data.otherDescription.trim().length < 10)
+  ) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['otherDescription'],
+      message: 'Describe the issue (at least 10 characters)',
+    });
   }
   // promisedAt >= today
   if (data.promisedDate) {
@@ -107,11 +130,13 @@ function Field({
   label,
   error,
   required,
+  helperText,
   children,
 }: {
   label: string;
   error?: string;
   required?: boolean;
+  helperText?: string;
   children: React.ReactNode;
 }) {
   return (
@@ -121,6 +146,7 @@ function Field({
       </label>
       {children}
       {error && <p className="text-xs text-state-danger">{error}</p>}
+      {!error && helperText && <p className="text-xs text-ink-muted">{helperText}</p>}
     </div>
   );
 }
@@ -148,6 +174,14 @@ export function NewJobCardForm() {
   const appointments = useServiceStore((s) => s.appointments);
   const createJobCard = useServiceStore((s) => s.createJobCard);
   const assignBay     = useServiceStore((s) => s.assignBay);
+
+  // ── Cross-store reads (Seam 48 — Service JC creation → Customers READ;
+  //    Seam 49 — Service JC creation → Vehicles ownership READ).
+  //    Read-only — never mutated from this surface. Per SPEC-SERVICE-001 §6.3.
+  const customersById        = useCustomersStore((s) => s.customers);
+  const ownerships           = useVehiclesStore((s) => s.ownerships);
+  const ownershipIdByCustomer = useVehiclesStore((s) => s.ownershipIdByCustomer);
+  const vehiclesByVin        = useVehiclesStore((s) => s.vehicles);
 
   // ── Vehicle intake dialog state (1A cross-store wiring) ───────────────────
   const [intakeDialogVin, setIntakeDialogVin] = useState<string | null>(null);
@@ -215,7 +249,70 @@ export function NewJobCardForm() {
   }, [linkedAppointment, setValue]);
 
   const customerType     = watch('customerType');
+  const selectedCustomerId = watch('customerId') ?? '';
   const selectedTypeIds  = watch('serviceTypeIds');
+
+  /** Existing customers, alphabetised. Sourced from customers-store via Seam 48. */
+  const customerOptions = useMemo(() => {
+    return Object.values(customersById)
+      .map((c) => ({ id: c.id, name: c.name, phone: c.phone }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [customersById]);
+
+  /**
+   * Vehicles owned by the selected existing customer (ACTIVE ownerships only).
+   * Resolved through the `ownershipIdByCustomer` index → `ownerships` →
+   * `vehicles` join (Seam 49). Empty array when walk-in or no customer
+   * selected.
+   */
+  const customerVehicles = useMemo(() => {
+    if (customerType !== 'existing' || !selectedCustomerId) return [];
+    const ownershipIds = ownershipIdByCustomer[selectedCustomerId] ?? EMPTY_OWNERSHIP_IDS;
+    return ownershipIds
+      .map((oid) => ownerships[oid])
+      .filter((o) => o && o.state === 'ACTIVE')
+      .map((o) => {
+        const v = vehiclesByVin[o!.vin];
+        return {
+          vin: o!.vin,
+          year: v?.year,
+          make: v?.make,
+          model: v?.model,
+          variant: v?.variant,
+          // Display label for the dropdown — informative without overflow
+          label: v
+            ? `${v.year ?? '—'} ${v.make ?? ''} ${v.model ?? ''}${v.variant ? ` ${v.variant}` : ''} · ${o!.vin}`
+            : o!.vin,
+        };
+      });
+  }, [customerType, selectedCustomerId, ownershipIdByCustomer, ownerships, vehiclesByVin]);
+
+  /**
+   * When the existing-customer VIN dropdown selection changes, auto-fill
+   * year/make/model from the vehicles-store record so the SA doesn't
+   * re-type known data. Per SPEC-SERVICE-001 §6.3 / Seam 49.
+   */
+  const handleExistingVinSelect = useCallback((vin: string) => {
+    setValue('vin', vin, { shouldValidate: true });
+    if (!vin) return;
+    const match = customerVehicles.find((v) => v.vin === vin);
+    if (!match) return;
+    if (match.year != null) setValue('year', String(match.year));
+    if (match.make) setValue('make', match.make);
+    if (match.model) setValue('model', match.model);
+  }, [customerVehicles, setValue]);
+
+  /** Clear VIN auto-fills when the selected customer changes. */
+  useEffect(() => {
+    if (customerType === 'existing' && !linkedAppointment) {
+      setValue('vin', '');
+      setValue('year', '');
+      setValue('make', '');
+      setValue('model', '');
+    }
+    // intentional dep on selectedCustomerId only — clears on each switch
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCustomerId, customerType]);
 
   const estimatedHours = useMemo(() => {
     return selectedTypeIds.reduce((sum, id) => {
@@ -275,6 +372,20 @@ export function NewJobCardForm() {
     const vehiclesStore = useVehiclesStore.getState();
     const vehicleExists = Boolean(vehiclesStore.vehicles[normalizedVin]);
 
+    // Fold the "Other" description into diagnosticNotes so the workshop sees
+    // the customer's stated concern alongside any additional internal notes.
+    // Per SPEC-SERVICE-001 §6.3 (L_S6).
+    const composedNotes = (() => {
+      const parts: string[] = [];
+      if (data.serviceTypeIds.includes('other') && data.otherDescription?.trim()) {
+        parts.push(`Other — customer concern:\n${data.otherDescription.trim()}`);
+      }
+      if (data.initialNotes?.trim()) {
+        parts.push(data.initialNotes.trim());
+      }
+      return parts.length > 0 ? parts.join('\n\n') : undefined;
+    })();
+
     const jcPayload = {
       vin: normalizedVin,
       customerId: effectiveCustomerId,
@@ -285,7 +396,7 @@ export function NewJobCardForm() {
       priority: data.priority,
       promisedAt,
       customerComplaint: data.customerComplaint,
-      diagnosticNotes: data.initialNotes || undefined,
+      diagnosticNotes: composedNotes,
       odometerIn: data.odometerIn,
       estimatedTotal: 0,
       attachments: [] as string[],
@@ -423,10 +534,11 @@ export function NewJobCardForm() {
                       className={cn(SELECT_CLASS, errors.customerId && 'border-state-danger')}
                     >
                       <option value="">Select customer…</option>
-                      <option value="cust-001">Arvind Mehta</option>
-                      <option value="cust-002">Priya Nair</option>
-                      <option value="cust-003">Rajesh Gupta</option>
-                      <option value="cust-004">Sunita Reddy</option>
+                      {customerOptions.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.name}{c.phone ? ` · ${c.phone}` : ''}
+                        </option>
+                      ))}
                     </select>
                   </Field>
                 </div>
@@ -437,13 +549,47 @@ export function NewJobCardForm() {
                   label="VIN"
                   required
                   error={errors.vin?.message}
+                  helperText={
+                    customerType === 'existing' && selectedCustomerId
+                      ? customerVehicles.length === 0
+                        ? 'No vehicles on file for this customer — enter VIN manually below.'
+                        : 'Pick a car already on file for this customer.'
+                      : undefined
+                  }
                 >
-                  <input
-                    {...register('vin')}
-                    placeholder="e.g. WP0AB2A91MS247831"
-                    disabled={fromAppointment}
-                    className={cn(INPUT_CLASS, 'font-mono', errors.vin && 'border-state-danger', fromAppointment && 'opacity-60 cursor-not-allowed')}
-                  />
+                  {customerType === 'existing' &&
+                  selectedCustomerId &&
+                  customerVehicles.length > 0 &&
+                  !fromAppointment ? (
+                    <select
+                      value={watch('vin') ?? ''}
+                      onChange={(e) => handleExistingVinSelect(e.target.value)}
+                      className={cn(
+                        SELECT_CLASS,
+                        'font-mono',
+                        errors.vin && 'border-state-danger',
+                      )}
+                    >
+                      <option value="">Select a car…</option>
+                      {customerVehicles.map((v) => (
+                        <option key={v.vin} value={v.vin}>
+                          {v.label}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      {...register('vin')}
+                      placeholder="e.g. WP0AB2A91MS247831"
+                      disabled={fromAppointment}
+                      className={cn(
+                        INPUT_CLASS,
+                        'font-mono',
+                        errors.vin && 'border-state-danger',
+                        fromAppointment && 'opacity-60 cursor-not-allowed',
+                      )}
+                    />
+                  )}
                 </Field>
                 <Field label="Odometer at Arrival (km)" required error={errors.odometerIn?.message}>
                   <input
@@ -560,6 +706,32 @@ export function NewJobCardForm() {
                     />
                   </div>
                 </Field>
+
+                {/*
+                  L_S6 (SPEC-SERVICE-001 §6.3): when "Other" service type is
+                  selected, advisor MUST describe the issue (≥10 chars). The
+                  text becomes part of the JC's initial-notes audit trail so
+                  technicians have context for diagnosis + quoting.
+                */}
+                {selectedTypeIds.includes('other') && (
+                  <Field
+                    label="Describe the Issue"
+                    required
+                    error={errors.otherDescription?.message}
+                    helperText='Used when "Other" is chosen — captures the customer concern in their words for the workshop.'
+                  >
+                    <textarea
+                      {...register('otherDescription')}
+                      rows={3}
+                      placeholder="e.g. Engine makes a knocking sound when idling cold; started after the long highway run last weekend…"
+                      className={cn(
+                        'w-full bg-bg-subtle border border-line rounded-md px-3 py-2.5 text-sm text-ink-primary resize-none',
+                        'focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent/30',
+                        errors.otherDescription && 'border-state-danger',
+                      )}
+                    />
+                  </Field>
+                )}
 
                 <Field label="Initial Notes (optional)">
                   <textarea

@@ -73,4 +73,20 @@ export const serviceTypes: ServiceType[] = [
     durationHours: 1,
     icon: 'plus-circle',
   },
+  {
+    // Catch-all per SPEC-SERVICE-001 §6.3 — surfaces a "Describe the issue"
+    // textarea on the JC form; the SA's free-text becomes part of the JC's
+    // initialNotes so technicians and the customer record have context.
+    id: 'other',
+    name: 'Other',
+    description:
+      'For service requests that do not fit the standard catalogue. Advisor must describe the customer concern in detail; the workshop diagnoses and quotes case by case.',
+    priceRange: {
+      min: 0,
+      max: 0,
+    },
+    durationHours: 1,
+    icon: 'help-circle',
+    requiresDescription: true,
+  },
 ];
