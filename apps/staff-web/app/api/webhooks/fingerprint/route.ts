@@ -20,8 +20,12 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createHmac, timingSafeEqual } from 'crypto';
 import type { AttendancePunch } from '@dms/types';
+// HMAC + dedup helpers live in a sibling `_helpers.ts` module — Next.js App
+// Router forbids arbitrary exports from `route.ts` files (only `GET`/`POST`/
+// etc. and a fixed set of config keys are allowed). The leading-underscore
+// filename excludes the helper module from Next.js routing.
+import { verifyHmac, dedupKey, dedupSet } from './_helpers';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -31,43 +35,6 @@ interface FingerprintWebhookPayload {
   eventType: 'punch-in' | 'punch-out';
   /** ISO 8601 datetime — must be within ±5 min of server time */
   timestamp: string;
-}
-
-// ─── HMAC validation ──────────────────────────────────────────────────────────
-
-/**
- * Compute HMAC-SHA256 over body bytes using the given secret.
- * Returns hex-encoded signature without a prefix.
- */
-function computeHmac(body: string, secret: string): string {
-  return createHmac('sha256', secret).update(body, 'utf8').digest('hex');
-}
-
-/**
- * Constant-time comparison of two HMAC signatures.
- * Returns true if equal.
- */
-function verifyHmac(body: string, signatureHeader: string, secret: string): boolean {
-  const expected = computeHmac(body, secret);
-  const provided = signatureHeader.replace(/^sha256=/, '');
-  try {
-    return timingSafeEqual(Buffer.from(expected, 'hex'), Buffer.from(provided, 'hex'));
-  } catch {
-    return false;
-  }
-}
-
-// ─── In-memory dedup set (per-process; adequate for mock phase) ───────────────
-// Key: `${staffId}|${eventType}|${Math.round(ts/60000)}` — 60s bucket (L17 dedup window)
-
-const dedupSet = new Set<string>();
-
-function dedupKey(staffId: string, eventType: string, timestamp: string): string {
-  const ts = new Date(timestamp).getTime();
-  // Use Math.floor so timestamps 0–59s into a minute share the same bucket.
-  // Math.round would cause the second at :30+ to land in the next bucket (off-by-one at midpoint).
-  const bucket = Math.floor(ts / 60000);  // 60s buckets (floor, not round)
-  return `${staffId}|${eventType}|${bucket}`;
 }
 
 // ─── Device secrets (demo — in production: secrets manager) ──────────────────
@@ -174,6 +141,5 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   );
 }
 
-// ─── Expose the helper for testing ───────────────────────────────────────────
-
-export { computeHmac, verifyHmac, dedupKey };
+// Helpers (computeHmac, verifyHmac, dedupKey, dedupSet) live in `./_helpers`.
+// Tests import them from there, not from this route file.

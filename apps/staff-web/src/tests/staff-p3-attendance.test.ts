@@ -24,7 +24,7 @@ import {
   classifyDay,
   computeMonthlySummary,
 } from '../lib/staff/attendance-math';
-import { computeHmac, verifyHmac, dedupKey } from '../../app/api/webhooks/fingerprint/route';
+import { computeHmac, verifyHmac, dedupKey } from '../../app/api/webhooks/fingerprint/_helpers';
 import { useStaffStore } from '../lib/staff/staff-store';
 import { MOCK_STAFF_PROFILES } from '@dms/mocks/fixtures';
 import type { AttendancePunch } from '@dms/types';
