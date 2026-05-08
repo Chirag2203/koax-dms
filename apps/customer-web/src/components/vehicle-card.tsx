@@ -51,9 +51,11 @@ function FeaturedCard({ vehicle }: { vehicle: Vehicle }) {
             fill
             sizes="(max-width: 768px) 100vw, 33vw"
             className={cn(
-              'object-cover grayscale opacity-80',
-              'motion-safe:transition-all motion-safe:duration-700',
-              'group-hover:scale-105 group-hover:opacity-100 group-hover:grayscale-0',
+              // Full-fidelity image (was: `grayscale opacity-80` which crushed
+              // image legibility on the dark surface — user feedback 2026-05-08).
+              'object-cover',
+              'motion-safe:transition-transform motion-safe:duration-700',
+              'group-hover:scale-105',
             )}
           />
         ) : (
@@ -111,7 +113,10 @@ function CollectionCard({ vehicle }: { vehicle: Vehicle }) {
             fill
             sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
             className={cn(
-              'object-cover mix-blend-multiply opacity-90',
+              // Full-fidelity image (was: `mix-blend-multiply opacity-90`
+              // which multiplied against the dark card surface and turned
+              // every photo nearly black — user feedback 2026-05-08).
+              'object-cover',
               'motion-safe:transition-transform motion-safe:duration-700',
               'group-hover:scale-[1.02]',
             )}

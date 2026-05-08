@@ -339,9 +339,15 @@ export function StorefrontHeader() {
     label: t(link.key),
   }));
 
-  // Detect scroll — switch to solid at 80vh
+  // Detect scroll — switch to solid as soon as the user scrolls past the
+  // very top. Previously this used `0.8 * window.innerHeight` which only
+  // tripped on the home page's tall hero. On routes WITHOUT a hero (e.g.
+  // /the-collection), the user could scroll for ages and the navbar stayed
+  // transparent — content underneath bled through and made the bar
+  // illegible. User feedback 2026-05-08: navbar must be solid on scroll.
+  // 8px gives an instant flip without flicker on minor wheel events.
   React.useEffect(() => {
-    const threshold = typeof window !== 'undefined' ? window.innerHeight * 0.8 : 600;
+    const threshold = 8;
 
     function handleScroll() {
       setScrolled(window.scrollY > threshold);
@@ -366,7 +372,10 @@ export function StorefrontHeader() {
           'motion-safe:transition-all motion-safe:duration-300',
           isTransparent
             ? 'bg-transparent text-white'
-            : 'bg-bg-paper/80 backdrop-blur-md text-ink-primary border-b border-line',
+            // Fully opaque on scroll (was: `bg-bg-paper/80 backdrop-blur-md`
+            // — frosted glass let underlying content read through, which the
+            // user flagged as not "solid" enough on 2026-05-08).
+            : 'bg-bg-paper text-ink-primary border-b border-line shadow-sm',
         )}
       >
         {/* Left: Wordmark */}
