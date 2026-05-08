@@ -117,37 +117,16 @@ function getStaffSession(req: NextRequest): StaffSession | null {
   }
 }
 
-// ── Stub audit log (v1 mock — real audit store in v1.5) ───────────────────────
-
-type AuditEntry = {
-  type: 'intake_pdf_downloaded';
-  timestamp: string;
-  actorEmployeeId: string;
-  actorRole: string;
-  jobCardId: string;
-  intakeInspectionId: string;
-  ip: string;
-  userAgent: string;
-};
-
-// In-memory audit log for mock phase (never persisted; real store in v1.5)
-const auditLog: AuditEntry[] = [];
-
-function logPdfDownload(entry: Omit<AuditEntry, 'type' | 'timestamp'>): void {
-  // SC-15: emit intake_pdf_downloaded audit event
-  // L12-d: chain-of-custody record (subject to consumer-court subpoena in prod)
-  const record: AuditEntry = {
-    type: 'intake_pdf_downloaded',
-    timestamp: new Date().toISOString(),
-    ...entry,
-  };
-  auditLog.push(record);
-  // v1: console-only (telemetry stub per SPEC-ARCH-UI-001 §17 / Doc 12 §observability)
-  console.info('[intake-pdf] download audit:', record);
-}
-
-// Export for test assertions (SC-15)
-export { auditLog };
+// ── Stub audit log ────────────────────────────────────────────────────────────
+// Lives in `./_audit-log.ts` (leading-underscore filename excludes it from
+// Next.js routing). Route handlers can ONLY export the HTTP method handlers
+// and a fixed set of config keys — arbitrary exports like `auditLog` here
+// would fail the production build. Tests import the audit log directly from
+// `_audit-log.ts`, not from this route file.
+//
+// v1 mock-phase only; real audit store lands in v1.5
+// (per SPEC-SERVICE-INTAKE-001 L12-d / SC-15).
+import { logPdfDownload } from './_audit-log';
 
 // ── Stub fixture reader ───────────────────────────────────────────────────────
 // v1 mock-phase: fixture data read server-side.

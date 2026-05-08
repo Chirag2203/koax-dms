@@ -23,8 +23,14 @@ import type { IntakeInspection } from '@dms/types';
 // In v1 mock phase the package is declared in package.json but not yet built
 // into the Vite test bundle. The route module is therefore mocked here.
 // Real HTTP tests (SC-5 / SC-6 / SC-14) run in the Next.js integration suite.
-vi.mock('../../app/api/service/intake-inspection/[jobCardId]/pdf/route', () => ({
+//
+// The `auditLog` export was moved out of the route file to `_audit-log.ts`
+// because Next.js App Router does not allow arbitrary exports from
+// `route.ts` files (only `GET`/`POST`/etc. and a fixed set of config keys).
+// Tests now import the audit log directly from the sibling module.
+vi.mock('../../app/api/service/intake-inspection/[jobCardId]/pdf/_audit-log', () => ({
   auditLog: [] as unknown[],
+  logPdfDownload: vi.fn(),
 }));
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -359,7 +365,7 @@ describe('SPEC-SERVICE-INTAKE-001 — intake flow integration', () => {
     // In the unit test environment @react-pdf/renderer is mocked; the export
     // structure is verified here. HTTP-level assertions run in the Next.js
     // integration suite where the package is fully resolved.
-    const { auditLog } = await import('../../app/api/service/intake-inspection/[jobCardId]/pdf/route');
+    const { auditLog } = await import('../../app/api/service/intake-inspection/[jobCardId]/pdf/_audit-log');
     expect(Array.isArray(auditLog)).toBe(true);
   });
 
