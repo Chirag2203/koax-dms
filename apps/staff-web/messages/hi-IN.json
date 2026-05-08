@@ -1382,5 +1382,16 @@
       "manageInInventory": "View in Inventory",
       "requestReshoot": "Request Re-Shoot"
     }
+  },
+  "mobileBlocker": {
+    "title": "Switch to a laptop",
+    "body": "BN Automobiles DMS is a desktop-first tool. The screens below are dense, keyboard-driven, and built for a pointer device — they don't translate well to phones.",
+    "whyLabel": "Why?",
+    "reasons": {
+      "dense": "Multi-column layouts (kanban boards, data tables, side-by-side detail views) need horizontal space.",
+      "keyboard": "Keyboard shortcuts (⌘K command palette, /-navigation, hotkeys per module) are core to the workflow.",
+      "multitask": "Most tasks involve two or three panels open at once — appraisal, vehicle detail, customer record."
+    },
+    "hint": "Open this on a laptop or desktop with a screen at least 1024px wide."
   }
 }
