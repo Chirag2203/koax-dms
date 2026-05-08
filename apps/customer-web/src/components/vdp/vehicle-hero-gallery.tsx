@@ -119,8 +119,26 @@ export function VehicleHeroGallery({ vehicle, className }: VehicleHeroGalleryPro
   const vehicleName = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
 
   // Seam 51: read from customer-shoots-store (L_AI-9, L_AI-11)
-  // Note: useCustomerShootsStore returns base refs; compute in useMemo (CLAUDE.md §17.1)
-  const gallery = useCustomerShootsStore((s) => s.selectStorefrontGalleryForVin(vehicle.vin));
+  //
+  // BUG (fixed 2026-05-08): the previous shape called
+  //   useCustomerShootsStore((s) => s.selectStorefrontGalleryForVin(vin))
+  // The selector internally `.filter()`s + `.map()`s + returns a fresh object
+  // literal `{ coverUrl, gallery, status }`. Every render therefore handed
+  // Zustand a NEW reference, which triggers React error #185 ("Maximum update
+  // depth exceeded") on any subsequent state change. Same anti-pattern as
+  // staff-web fixes 6dd2c63 + a0e0c5f.
+  //
+  // Fix: read the base refs (shoots + shootIdByVin) via stable selectors,
+  // then derive the gallery in a `useMemo` outside the store call. The
+  // `selectStorefrontGalleryForVin` function still exists for tests + the
+  // production-API contract; just not safe inside `useStore(...)`.
+  const shoots = useCustomerShootsStore((s) => s.shoots);
+  const shootIdByVin = useCustomerShootsStore((s) => s.shootIdByVin);
+  const gallery = useMemo(() => {
+    // Resolve via getState() to reuse the same logic without subscribing.
+    return useCustomerShootsStore.getState().selectStorefrontGalleryForVin(vehicle.vin);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vehicle.vin, shoots, shootIdByVin]);
   const { status, coverUrl, gallery: galleryItems } = gallery;
 
   // Convert shoots gallery to VehicleImage shape for compatibility with VehicleLightbox
