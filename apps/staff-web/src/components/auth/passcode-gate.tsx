@@ -97,7 +97,7 @@ export function PasscodeGate({ nextUrl, configError = false }: PasscodeGateProps
             </div>
             <div className="flex flex-col">
               <span className="text-xs font-mono uppercase tracking-widest text-ink-muted">
-                BN Automobiles
+                koax
               </span>
               <span className="text-sm text-ink-secondary">
                 Dealer Management System
